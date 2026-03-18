@@ -95,9 +95,9 @@ for (let i = 0; i < 10; i++) {
 // Register shortcut keys Red, Green, Blue
 ['red', 'green', 'blue'].forEach(color => {
     let def = 'none';
-    if (color === 'red') def = 'oled_toggle';
+    if (color === 'red') def = 'seek_15_back';
     if (color === 'green') def = 'config_menu';
-    if (color === 'blue') def = 'sb_manual_skip';
+    if (color === 'blue') def = 'seek_15_fwd';
     configOptions.set(`shortcut_key_${color}`, { default: def, desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action` });
 });
 
