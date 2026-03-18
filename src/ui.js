@@ -19,6 +19,7 @@ let lastShortcutKey = -1;
 let shortcutDebounceTime = 100;
 
 // Seek Burst Variables
+let seekCount = 0;
 let seekAccumulator = 0;
 let pendingSeekOffset = 0;
 let seekResetTimer = null;
@@ -709,12 +710,18 @@ function performBurstSeek(seconds, video) {
 	
     // Reset accumulators if direction changes (e.g. going from +15 to -15)
 	  if ((seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0)) {
+        seekCount = 0;
         seekAccumulator = 0;
         pendingSeekOffset = 0; // Reset pending seek to prevent jitter
     }
 
-    seekAccumulator += seconds;
-    pendingSeekOffset += seconds; // Add to the queue, don't apply to video yet
+    if (++seekCount < 3) {
+        seekAccumulator += seconds;
+        pendingSeekOffset += seconds; // Add to the queue, don't apply to video yet
+    } else {
+        seekAccumulator *= 2;
+        pendingSeekOffset *= 2; // Double the currently pending offset
+    }
 
     // Reset the "UI Fade Out" timer
     if (seekResetTimer) clearTimeout(seekResetTimer);
@@ -741,6 +748,7 @@ function performBurstSeek(seconds, video) {
     }, 200); // 200ms buffer allows rapid key presses without freezing the UI
 
     seekResetTimer = setTimeout(() => {
+        seekCount = 0;
         seekAccumulator = 0;
         pendingSeekOffset = 0;
         activeSeekNotification = null;
@@ -1075,10 +1083,10 @@ function handleShortcutAction(action) {
         skipChapter('prev');
         break;
     case 'seek_15_fwd':
-        performBurstSeek(5, video);
+        performBurstSeek(7.5, video);
         break;
     case 'seek_15_back':
-        performBurstSeek(-5, video);
+        performBurstSeek(-7.5, video);
         break;
     case 'play_pause':
         playPauseLogic(video);
