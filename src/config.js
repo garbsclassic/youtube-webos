@@ -94,11 +94,11 @@ for (let i = 0; i < 10; i++) {
 
 // Register shortcut keys Red, Green, Blue
 ['red', 'green', 'blue'].forEach(color => {
-    let def = 'none';
-    if (color === 'red') def = 'seek_15_back';
-    if (color === 'green') def = 'config_menu';
-    if (color === 'blue') def = 'seek_15_fwd';
-    configOptions.set(`shortcut_key_${color}`, { default: def, desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action` });
+  let def = 'none';
+  if (color === 'red') def = 'seek_15_back';
+  if (color === 'green') def = 'config_menu';
+  if (color === 'blue') def = 'seek_15_fwd';
+  configOptions.set(`shortcut_key_${color}`, { default: def, desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action` });
 });
 
 for (const [key, value] of Object.entries(segmentTypes)) {
@@ -106,19 +106,27 @@ for (const [key, value] of Object.entries(segmentTypes)) {
 }
 
 const defaultConfig = {};
-for (const [k, v] of configOptions) { defaultConfig[k] = v.default; }
+for (const [k, v] of configOptions) {
+  defaultConfig[k] = v.default;
+}
 
 const changeListeners = new Map();
 
 function loadStoredConfig() {
   const storage = window.localStorage.getItem(CONFIG_KEY);
   if (storage === null) return null;
-  try { return JSON.parse(storage); } catch (err) { return null; }
+  try {
+    return JSON.parse(storage);
+  } catch (err) {
+    return null;
+  }
 }
 
 let localConfig = Object.assign({}, defaultConfig, loadStoredConfig() || {});
 
-function configExists(key) { return configOptions.has(key); }
+function configExists(key) {
+  return configOptions.has(key);
+}
 
 export function configGetDesc(key) {
   if (!configExists(key)) throw new Error('tried to get desc for unknown config key: ' + key);
@@ -133,7 +141,7 @@ export function configRead(key) {
 export function configWrite(key, value) {
   if (!configExists(key)) throw new Error('tried to write unknown config key: ' + key);
   const oldValue = localConfig[key];
-  if (oldValue === value) return; 
+  if (oldValue === value) return;
 
   console.info('Changing key', key, 'from', oldValue, 'to', value);
   localConfig[key] = value;
@@ -142,7 +150,9 @@ export function configWrite(key, value) {
   const listeners = changeListeners.get(key);
   if (listeners) {
     const syntheticEvent = { detail: { key, newValue: value, oldValue } };
-    for (const callback of listeners) { callback(syntheticEvent); }
+    for (const callback of listeners) {
+      callback(syntheticEvent);
+    }
   }
 }
 

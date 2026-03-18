@@ -38,7 +38,7 @@ function detectWebP() {
       webpSupported = supported;
       img.onload = null;
       img.onerror = null;
-      img = null; 
+      img = null;
       resolve();
     };
     img.onload = () => done(img.width > 0 && img.height > 0);
@@ -81,7 +81,7 @@ function getThumbnailUrl(originalUrl, targetQuality) {
 
 function parseCSSUrl(value) {
   if (!value) return undefined;
-  
+
   if (value.indexOf('&amp;') !== -1) {
     value = value.replace(/&amp;/g, '&');
   }
@@ -94,11 +94,11 @@ function parseCSSUrl(value) {
     const match = value.match(/url\(['"]?([^'"]+?)['"]?\)/);
     if (match && match[1]) {
       const url = new URL(match[1]);
-      
+
       if (urlCache.size >= CACHE_SIZE_LIMIT) {
         urlCache.delete(urlCache.keys().next().value);
       }
-      
+
       urlCache.set(value, url);
       return url;
     }
@@ -125,7 +125,7 @@ async function probeImage(url) {
 
     xhr.onload = () => {
       clearTimeout(timeoutId);
-      
+
       if (xhr.status >= 200 && xhr.status < 300) {
         // Filter out YouTube's 120x90 fallback placeholders via file size
         const contentLength = xhr.getResponseHeader('Content-Length');
@@ -136,7 +136,7 @@ async function probeImage(url) {
         }
       } else {
         // Handle 404s or other server errors
-        resolve(null); 
+        resolve(null);
       }
     };
 
@@ -180,7 +180,7 @@ async function processUpgrade(element, generationId) {
 
   const oldBackgroundStyle = element.style.backgroundImage;
   const currentUrl = parseCSSUrl(oldBackgroundStyle);
-  
+
   if (!currentUrl) return;
 
   const videoIdMatch = currentUrl.pathname.match(/\/vi(?:_webp)?\/([^/]+)\//);
@@ -196,13 +196,13 @@ async function processUpgrade(element, generationId) {
   }
 
   await ensureWebpDetection();
-  
+
   // Helper to safely write to the DOM without layout thrashing
   const applyUpgrade = (targetUrl, quality) => {
     requestAnimationFrame(() => {
       const freshState = elementState.get(element);
       if (
-        document.contains(element) && 
+        document.contains(element) &&
         freshState && freshState.generationId === generationId &&
         element.style.backgroundImage === oldBackgroundStyle
       ) {
@@ -240,10 +240,10 @@ async function processUpgrade(element, generationId) {
       if (qualityCache.size >= CACHE_SIZE_LIMIT) qualityCache.delete(qualityCache.keys().next().value);
       qualityCache.set(videoId, quality);
       applyUpgrade(targetUrl, quality);
-      return; 
+      return;
     }
   }
-  
+
   if (qualityCache.size >= CACHE_SIZE_LIMIT) qualityCache.clear();
   qualityCache.set(videoId, null);
 }
@@ -256,13 +256,13 @@ const styleObserver = new MutationObserver(mutations => {
     if (mut.type === 'attributes') {
       const node = mut.target;
       const currentBg = node.style.backgroundImage;
-      
+
       if (!currentBg) continue;
 
       // Extract the core URL to do a fast string inclusion check against the oldValue
       // This eliminates the need to use a dummy element and the CSS parser
       const urlMatch = currentBg.match(/url\(['"]?([^'"]+?)['"]?\)/);
-      
+
       if (urlMatch) {
         const urlStr = urlMatch[1];
         // If the old inline style string doesn't contain the new URL, it's a genuine change
@@ -270,7 +270,7 @@ const styleObserver = new MutationObserver(mutations => {
           const s = elementState.get(node);
           const currentGen = s ? s.generationId : 0;
           elementState.set(node, { generationId: currentGen + 1 });
-          
+
           const job = () => processUpgrade(node, currentGen + 1);
           requestQueue.add(job);
           processRequestQueue();
@@ -286,13 +286,13 @@ const domObserver = new MutationObserver(mutations => {
     if (mut.type === 'childList') {
       for (const node of mut.addedNodes) {
         if (node.nodeType === Node.ELEMENT_NODE) {
-          
+
           const matchesFn = node.matches || node.webkitMatchesSelector || node.mozMatchesSelector || node.msMatchesSelector;
-          
+
           if (matchesFn && matchesFn.call(node, YT_THUMBNAIL_ELEMENT_TAG)) {
             elementState.set(node, { generationId: 1 });
             styleObserver.observe(node, { attributes: true, attributeFilter: ['style'], attributeOldValue: true });
-            
+
             if (node.style.backgroundImage !== '') {
               const job = () => processUpgrade(node, 1);
               requestQueue.add(job);
@@ -301,19 +301,19 @@ const domObserver = new MutationObserver(mutations => {
           } else if (node.firstElementChild) {
             // Use getElementsByTagName instead of querySelectorAll for massive performance gains on live subtrees
             const nested = node.getElementsByTagName(YT_THUMBNAIL_ELEMENT_TAG);
-            for(let i=0; i<nested.length; i++) {
-               const targetNode = nested[i];
-               // Prevent observing the same node multiple times if it moves
-               if (elementState.has(targetNode)) continue;
+            for (let i = 0; i < nested.length; i++) {
+              const targetNode = nested[i];
+              // Prevent observing the same node multiple times if it moves
+              if (elementState.has(targetNode)) continue;
 
-               elementState.set(targetNode, { generationId: 1 });
-               styleObserver.observe(targetNode, { attributes: true, attributeFilter: ['style'], attributeOldValue: true });
-               
-               if (targetNode.style.backgroundImage !== '') {
-                 const job = () => processUpgrade(targetNode, 1);
-                 requestQueue.add(job);
-                 processRequestQueue();
-               }
+              elementState.set(targetNode, { generationId: 1 });
+              styleObserver.observe(targetNode, { attributes: true, attributeFilter: ['style'], attributeOldValue: true });
+
+              if (targetNode.style.backgroundImage !== '') {
+                const job = () => processUpgrade(targetNode, 1);
+                requestQueue.add(job);
+                processRequestQueue();
+              }
             }
           }
         }
@@ -376,7 +376,7 @@ export function cleanup() {
   styleObserver.disconnect();
   window.removeEventListener('ytaf-page-update', handlePageUpdate);
   document.removeEventListener('visibilitychange', handleVisibilityChange);
-  
+
   isObserving = false;
   activeRequests = 0; // Prevent queue stalling on restart
   requestQueue.clear();

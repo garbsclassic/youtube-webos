@@ -2,25 +2,25 @@
  * Optimized for webOS 22-25 & modern environments.
  * Hyper-Optimized for maximum throughput, zero layout thrashing, and minimal GC.
  */
-(function () {
+(function() {
   if ('navigate' in window) return;
 
   const ARROW_KEY_CODE = { 37: 'left', 38: 'up', 39: 'right', 40: 'down' };
   const TAB_KEY_CODE = 9;
   const SPINNABLE_INPUT_TYPES = new Set(['email', 'date', 'month', 'number', 'time', 'week']);
   const TEXT_INPUT_TYPES = new Set(['password', 'text', 'search', 'tel', 'url', null]);
-  
+
   // TICK CACHES: Map is faster than WeakMap for ephemeral, single-tick lifetimes.
   let mapOfBoundRect = null;
   let mapOfComputedStyle = null;
-  
+
   let startingPoint = null;
   let savedSearchOrigin = { element: null, rect: null };
   let searchOriginRect = null;
-  
+
   let viewportWidth = window.innerWidth;
   let viewportHeight = window.innerHeight;
-  
+
   window.addEventListener('resize', () => {
     viewportWidth = window.innerWidth;
     viewportHeight = window.innerHeight;
@@ -38,7 +38,12 @@
         CSS.registerProperty({ name: '--spatial-navigation-contain', syntax: 'auto | contain', inherits: false, initialValue: 'auto' });
       }
       if (!computedRoot.getPropertyValue('--spatial-navigation-action')) {
-        CSS.registerProperty({ name: '--spatial-navigation-action', syntax: 'auto | focus | scroll', inherits: false, initialValue: 'auto' });
+        CSS.registerProperty({
+          name: '--spatial-navigation-action',
+          syntax: 'auto | focus | scroll',
+          inherits: false,
+          initialValue: 'auto'
+        });
       }
       if (!computedRoot.getPropertyValue('--spatial-navigation-function')) {
         CSS.registerProperty({ name: '--spatial-navigation-function', syntax: 'normal | grid', inherits: false, initialValue: 'normal' });
@@ -54,9 +59,9 @@
 
       if (e.keyCode === TAB_KEY_CODE) startingPoint = null;
 
-      if (!currentKeyMode || currentKeyMode === 'NONE' || 
-         (currentKeyMode === 'SHIFTARROW' && !e.shiftKey) || 
-         (currentKeyMode === 'ARROW' && e.shiftKey)) return;
+      if (!currentKeyMode || currentKeyMode === 'NONE' ||
+        (currentKeyMode === 'SHIFTARROW' && !e.shiftKey) ||
+        (currentKeyMode === 'ARROW' && e.shiftKey)) return;
 
       if (!e.defaultPrevented) {
         let focusNavigableArrowKey = { left: true, up: true, right: true, down: true };
@@ -67,23 +72,23 @@
 
         if (focusNavigableArrowKey[dir]) {
           e.preventDefault();
-          
+
           // Use standard Map for fastest possible single-frame read/write speeds
           mapOfBoundRect = new Map();
-          mapOfComputedStyle = new Map(); 
-          
+          mapOfComputedStyle = new Map();
+
           navigate(dir);
-          
+
           // Free memory instantly
           mapOfBoundRect = null;
-          mapOfComputedStyle = null; 
+          mapOfComputedStyle = null;
           startingPoint = null;
         }
       }
     });
 
     document.addEventListener('mouseup', (e) => {
-    startingPoint = { x: e.clientX, y: e.clientY };
+      startingPoint = { x: e.clientX, y: e.clientY };
     }, { passive: true });
 
     window.addEventListener('focusin', (e) => {
@@ -93,7 +98,7 @@
       }
     });
   }
-  
+
   function getCachedComputedStyle(element) {
     if (!mapOfComputedStyle) return window.getComputedStyle(element);
     let style = mapOfComputedStyle.get(element);
@@ -132,7 +137,10 @@
         const action = getCSSSpatNavAction(eventTarget);
         if (action === 'scroll' && scrollingController(eventTarget, dir)) return;
         else if (action === 'focus') {
-          bestInsideCandidate = eventTarget.spatialNavigationSearch(dir, { container: eventTarget, candidates: getSpatialNavigationCandidates(eventTarget, { mode: 'all' }) });
+          bestInsideCandidate = eventTarget.spatialNavigationSearch(dir, {
+            container: eventTarget,
+            candidates: getSpatialNavigationCandidates(eventTarget, { mode: 'all' })
+          });
           if (focusingController(bestInsideCandidate, dir)) return;
         } else if (action === 'auto') {
           bestInsideCandidate = eventTarget.spatialNavigationSearch(dir, { container: eventTarget });
@@ -181,14 +189,22 @@
 
   function moveScroll(element, dir, offset = 0) {
     if (!element) return;
-    
+
     const scrollStep = 40 + offset;
 
     switch (dir) {
-      case 'left': element.scrollBy({ left: -scrollStep }); break;
-      case 'right': element.scrollBy({ left: scrollStep }); break;
-      case 'up': element.scrollBy({ top: -scrollStep }); break;
-      case 'down': element.scrollBy({ top: scrollStep }); break;
+      case 'left':
+        element.scrollBy({ left: -scrollStep });
+        break;
+      case 'right':
+        element.scrollBy({ left: scrollStep });
+        break;
+      case 'up':
+        element.scrollBy({ top: -scrollStep });
+        break;
+      case 'down':
+        element.scrollBy({ top: scrollStep });
+        break;
     }
   }
 
@@ -197,7 +213,7 @@
     if (container.childElementCount > 0) {
       if (!container.parentElement) container = container.querySelector('body') ?? document.body;
       const children = container.children;
-      
+
       for (let i = 0; i < children.length; i++) {
         const elem = children[i];
         if (isDelegableContainer(elem)) {
@@ -210,7 +226,7 @@
         }
       }
     }
-    
+
     if (!acc._isFiltered && option.mode !== 'all') {
       const filtered = [];
       for (let i = 0; i < acc.length; i++) {
@@ -232,28 +248,28 @@
     const targetElement = this;
     const defaultContainer = targetElement.getSpatialNavigationContainer();
     const container = args.container || defaultContainer;
-    
+
     let defaultCandidates = getSpatialNavigationCandidates(defaultContainer);
     if (args.container && defaultContainer.contains(args.container)) {
       const additional = getSpatialNavigationCandidates(container);
       for (let i = 0; i < additional.length; i++) defaultCandidates.push(additional[i]);
     }
-    
+
     const rawCandidates = args.candidates?.length ? args.candidates : defaultCandidates;
     const candidates = [];
-    
-    const isDefault = rawCandidates === defaultCandidates; 
-    
+
+    const isDefault = rawCandidates === defaultCandidates;
+
     for (let i = 0; i < rawCandidates.length; i++) {
-        const c = rawCandidates[i];
-        if (container.contains(c) && (!isDefault || container !== c)) candidates.push(c);
+      const c = rawCandidates[i];
+      if (container.contains(c) && (!isDefault || container !== c)) candidates.push(c);
     }
 
     if (!candidates.length) return null;
 
     let internalCandidates = [];
     let externalCandidates = [];
-    
+
     for (let i = 0; i < candidates.length; i++) {
       const c = candidates[i];
       if (c !== targetElement) {
@@ -263,26 +279,26 @@
 
     const internalSet = new Set(internalCandidates);
     let insideOverlappedCandidates = getOverlappedCandidates(targetElement);
-    
+
     for (let i = 0; i < insideOverlappedCandidates.length; i++) {
-        const c = insideOverlappedCandidates[i];
-        if (!internalSet.has(c) && container.contains(c)) internalCandidates.push(c);
+      const c = insideOverlappedCandidates[i];
+      if (!internalSet.has(c) && container.contains(c)) internalCandidates.push(c);
     }
 
     for (let i = 0; i < candidates.length; i++) {
-        const c = candidates[i];
-        if (isContainer(c) && isEntirelyVisible(targetElement, c)) {
-            const areas = c.focusableAreas();
-            for (let j = 0; j < areas.length; j++) {
-                if (areas[j] !== targetElement && container.contains(areas[j])) externalCandidates.push(areas[j]);
-            }
+      const c = candidates[i];
+      if (isContainer(c) && isEntirelyVisible(targetElement, c)) {
+        const areas = c.focusableAreas();
+        for (let j = 0; j < areas.length; j++) {
+          if (areas[j] !== targetElement && container.contains(areas[j])) externalCandidates.push(areas[j]);
         }
+      }
     }
 
     if (externalCandidates.length) {
       externalCandidates = getFilteredSpatialNavigationCandidates(targetElement, dir, externalCandidates, container);
     }
-    
+
     let bestTarget;
     if (searchOriginRect) {
       bestTarget = selectBestCandidate(targetElement, getFilteredSpatialNavigationCandidates(targetElement, dir, internalCandidates, container), dir);
@@ -296,7 +312,10 @@
 
     if (bestTarget && isDelegableContainer(bestTarget)) {
       const innerTarget = getSpatialNavigationCandidates(bestTarget, { mode: 'all' });
-      const descendantsBest = innerTarget.length ? targetElement.spatialNavigationSearch(dir, { candidates: innerTarget, container: bestTarget }) : null;
+      const descendantsBest = innerTarget.length ? targetElement.spatialNavigationSearch(dir, {
+        candidates: innerTarget,
+        container: bestTarget
+      }) : null;
       if (descendantsBest) bestTarget = descendantsBest;
       else if (!isFocusable(bestTarget)) {
         candidates.splice(candidates.indexOf(bestTarget), 1);
@@ -309,27 +328,27 @@
   function filteredCandidates(currentElm, candidates, dir, container) {
     if (!dir) return candidates;
     const originalContainer = currentElm.getSpatialNavigationContainer();
-    const eventTargetRect = (originalContainer.parentElement && container !== originalContainer && !isVisible(currentElm)) ? 
+    const eventTargetRect = (originalContainer.parentElement && container !== originalContainer && !isVisible(currentElm)) ?
       getBoundingClientRect(originalContainer) : (searchOriginRect || getBoundingClientRect(currentElm));
 
     const isCurrentContainer = (isContainer(currentElm) || currentElm.nodeName === 'BODY') && currentElm.nodeName !== 'INPUT';
     const result = [];
-    
+
     for (let i = 0; i < candidates.length; i++) {
-        const candidate = candidates[i];
-        if (!container.contains(candidate) || candidate === currentElm) continue;
-        
-        const candidateRect = getBoundingClientRect(candidate);
-        if (isCurrentContainer) {
-            if ((currentElm.contains(candidate) && isInside(eventTargetRect, candidateRect)) || isOutside(candidateRect, eventTargetRect, dir)) {
-                result.push(candidate);
-            }
-        } else {
-            const candidateBody = candidate.nodeName === 'IFRAME' ? candidate.contentDocument.body : null;
-            if (candidateBody !== currentElm && isOutside(candidateRect, eventTargetRect, dir) && !isInside(eventTargetRect, candidateRect)) {
-                result.push(candidate);
-            }
+      const candidate = candidates[i];
+      if (!container.contains(candidate) || candidate === currentElm) continue;
+
+      const candidateRect = getBoundingClientRect(candidate);
+      if (isCurrentContainer) {
+        if ((currentElm.contains(candidate) && isInside(eventTargetRect, candidateRect)) || isOutside(candidateRect, eventTargetRect, dir)) {
+          result.push(candidate);
         }
+      } else {
+        const candidateBody = candidate.nodeName === 'IFRAME' ? candidate.contentDocument.body : null;
+        if (candidateBody !== currentElm && isOutside(candidateRect, eventTargetRect, dir) && !isInside(eventTargetRect, candidateRect)) {
+          result.push(candidate);
+        }
+      }
     }
     return result;
   }
@@ -342,11 +361,11 @@
     if (isGrid) {
       const aligned = [];
       for (let i = 0; i < candidates.length; i++) {
-          if (isAligned(currentTargetRect, getBoundingClientRect(candidates[i]), dir)) aligned.push(candidates[i]);
+        if (isAligned(currentTargetRect, getBoundingClientRect(candidates[i]), dir)) aligned.push(candidates[i]);
       }
       if (aligned.length) candidates = aligned;
     }
-    
+
     return getClosestElement(currentElm, candidates, dir, isGrid ? getAbsoluteDistance : getDistance);
   }
 
@@ -368,19 +387,19 @@
     let minDistanceElements = [];
 
     if (candidates) {
-        for (let i = 0; i < candidates.length; i++) {
-            const distance = distanceFunction(eventTargetRect, getBoundingClientRect(candidates[i]), dir);
-            if (distance < minDistance) {
-                minDistance = distance;
-                minDistanceElements = [candidates[i]];
-            } else if (distance === minDistance) {
-                minDistanceElements.push(candidates[i]);
-            }
+      for (let i = 0; i < candidates.length; i++) {
+        const distance = distanceFunction(eventTargetRect, getBoundingClientRect(candidates[i]), dir);
+        if (distance < minDistance) {
+          minDistance = distance;
+          minDistanceElements = [candidates[i]];
+        } else if (distance === minDistance) {
+          minDistanceElements.push(candidates[i]);
         }
+      }
     }
 
     if (!minDistanceElements.length) return null;
-    return (minDistanceElements.length > 1 && distanceFunction === getAbsoluteDistance) ? 
+    return (minDistanceElements.length > 1 && distanceFunction === getAbsoluteDistance) ?
       getClosestElement(currentElm, minDistanceElements, dir, getEuclideanDistance) : minDistanceElements[0];
   }
 
@@ -414,10 +433,10 @@
     const container = this.parentElement ? this : document.body;
     const elements = container.getElementsByTagName('*');
     const result = [];
-    
+
     for (let i = 0; i < elements.length; i++) {
-        const el = elements[i];
-        if (isFocusable(el) && (option.mode === 'all' || isVisible(el))) result.push(el);
+      const el = elements[i];
+      if (isFocusable(el) && (option.mode === 'all' || isVisible(el))) result.push(el);
     }
     return result;
   }
@@ -448,18 +467,18 @@
     while (parentContainer) {
       if (focusingController(eventTarget.spatialNavigationSearch(dir, currentOption), dir)) return;
       if (option === 'visible' && scrollingController(container, dir)) return;
-      
+
       if (!createSpatNavEvents('notarget', container, eventTarget, dir)) return;
 
       if (container === document || container === document.documentElement) {
         if (window.location !== window.parent.location) {
           eventTarget = window.frameElement;
-          container = eventTarget.ownerDocument.documentElement;              
+          container = eventTarget.ownerDocument.documentElement;
         }
       } else {
         container = parentContainer;
       }
-      
+
       currentOption = { candidates: getSpatialNavigationCandidates(container, { mode: option }), container };
       let nextContainer = container.getSpatialNavigationContainer();
       parentContainer = nextContainer !== container ? nextContainer : null;
@@ -480,12 +499,12 @@
       }
       searchOrigin = document.documentElement;
     }
-    
+
     if (savedSearchOrigin.element) {
       const rect = getBoundingClientRect(savedSearchOrigin.element);
       if (rect.height === 0 || rect.width === 0) searchOriginRect = savedSearchOrigin.rect;
     }
-    
+
     if (!isVisibleInScroller(searchOrigin)) {
       const scroller = getScrollContainer(searchOrigin);
       if (scroller && (scroller === window || getCSSSpatNavAction(scroller) === 'auto')) return scroller;
@@ -504,7 +523,7 @@
   function isScrollContainer(element) {
     const style = getCachedComputedStyle(element);
     return (style.overflowX !== 'visible' && style.overflowX !== 'clip' && isOverflow(element, 'left')) ||
-           (style.overflowY !== 'visible' && style.overflowY !== 'clip' && isOverflow(element, 'down'));
+      (style.overflowY !== 'visible' && style.overflowY !== 'clip' && isOverflow(element, 'down'));
   }
 
   function isScrollable(element, dir) {
@@ -530,11 +549,15 @@
   }
 
   function isHTMLScrollBoundary(element, dir) {
-  switch (dir) {
-      case 'left': return element.scrollLeft <= 1;
-      case 'right': return Math.abs(element.scrollWidth - element.scrollLeft - element.clientWidth) <= 1;
-      case 'up': return element.scrollTop <= 1;
-      case 'down': return Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) <= 1;
+    switch (dir) {
+      case 'left':
+        return element.scrollLeft <= 1;
+      case 'right':
+        return Math.abs(element.scrollWidth - element.scrollLeft - element.clientWidth) <= 1;
+      case 'up':
+        return element.scrollTop <= 1;
+      case 'down':
+        return Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) <= 1;
     }
     return false;
   }
@@ -542,10 +565,14 @@
   function isScrollBoundary(element, dir) {
     if (!isScrollable(element, dir)) return false;
     switch (dir) {
-      case 'left': return element.scrollLeft === 0;
-      case 'right': return Math.abs(element.scrollLeft - (element.scrollWidth - element.clientWidth)) <= 1;
-      case 'up': return element.scrollTop === 0;
-      case 'down': return Math.abs(element.scrollTop - (element.scrollHeight - element.clientHeight)) <= 1;
+      case 'left':
+        return element.scrollLeft === 0;
+      case 'right':
+        return Math.abs(element.scrollLeft - (element.scrollWidth - element.clientWidth)) <= 1;
+      case 'up':
+        return element.scrollTop === 0;
+      case 'down':
+        return Math.abs(element.scrollTop - (element.scrollHeight - element.clientHeight)) <= 1;
     }
     return false;
   }
@@ -553,7 +580,12 @@
   function isVisibleInScroller(element) {
     const elementRect = getBoundingClientRect(element);
     const scroller = getScrollContainer(element);
-    const scrollerRect = scroller !== window ? getBoundingClientRect(scroller) : { left: 0, right: viewportWidth, top: 0, bottom: viewportHeight };
+    const scrollerRect = scroller !== window ? getBoundingClientRect(scroller) : {
+      left: 0,
+      right: viewportWidth,
+      top: 0,
+      bottom: viewportHeight
+    };
     return isInside(scrollerRect, elementRect, 'left') && isInside(scrollerRect, elementRect, 'down');
   }
 
@@ -621,15 +653,19 @@
 
   function isInside(containerRect, childRect) {
     return (containerRect.left <= childRect.right && containerRect.right >= childRect.right || containerRect.left <= childRect.left && containerRect.right >= childRect.left) &&
-           (containerRect.top <= childRect.top && containerRect.bottom >= childRect.top || containerRect.top <= childRect.bottom && containerRect.bottom >= childRect.bottom);
+      (containerRect.top <= childRect.top && containerRect.bottom >= childRect.top || containerRect.top <= childRect.bottom && containerRect.bottom >= childRect.bottom);
   }
 
   function isOutside(rect1, rect2, dir) {
     switch (dir) {
-      case 'left': return isRightSide(rect2, rect1);
-      case 'right': return isRightSide(rect1, rect2);
-      case 'up': return isBelow(rect2, rect1);
-      case 'down': return isBelow(rect1, rect2);
+      case 'left':
+        return isRightSide(rect2, rect1);
+      case 'right':
+        return isRightSide(rect1, rect2);
+      case 'up':
+        return isBelow(rect2, rect1);
+      case 'down':
+        return isBelow(rect1, rect2);
     }
     return false;
   }
@@ -664,13 +700,13 @@
     const P1 = Math.abs(points.entryPoint.x - points.exitPoint.x);
     const P2 = Math.abs(points.entryPoint.y - points.exitPoint.y);
     const A = Math.sqrt((P1 * P1) + (P2 * P2));
-    
+
     const intersectionRect = getIntersectionRect(searchOrigin, candidateRect);
     const D = intersectionRect.area;
-    
+
     let B = 0, C = 0;
     const isLR = dir === 'left' || dir === 'right';
-    
+
     if (dir) {
       const alignBias = isAligned(searchOrigin, candidateRect, dir) ? Math.min(intersectionRect[isLR ? 'height' : 'width'] / searchOrigin[isLR ? 'height' : 'width'], 1) : 0;
       const orthogonalBias = alignBias > 0 ? 0 : searchOrigin[isLR ? 'height' : 'width'] / 2;
@@ -694,7 +730,7 @@
 
   function getEntryAndExitPoints(dir = 'down', searchOrigin, candidateRect) {
     const points = { entryPoint: { x: 0, y: 0 }, exitPoint: { x: 0, y: 0 } };
-    
+
     if (startingPoint) {
       points.exitPoint = searchOrigin;
       if (dir === 'left') points.entryPoint.x = candidateRect.right;
@@ -708,19 +744,40 @@
         points.entryPoint.x = Math.max(candidateRect.left, Math.min(startingPoint.x, candidateRect.right));
       }
     } else {
-      if (dir === 'left') { points.exitPoint.x = searchOrigin.left; points.entryPoint.x = Math.min(candidateRect.right, searchOrigin.left); }
-      else if (dir === 'right') { points.exitPoint.x = searchOrigin.right; points.entryPoint.x = Math.max(candidateRect.left, searchOrigin.right); }
-      else if (dir === 'up') { points.exitPoint.y = searchOrigin.top; points.entryPoint.y = Math.min(candidateRect.bottom, searchOrigin.top); }
-      else if (dir === 'down') { points.exitPoint.y = searchOrigin.bottom; points.entryPoint.y = Math.max(candidateRect.top, searchOrigin.bottom); }
+      if (dir === 'left') {
+        points.exitPoint.x = searchOrigin.left;
+        points.entryPoint.x = Math.min(candidateRect.right, searchOrigin.left);
+      } else if (dir === 'right') {
+        points.exitPoint.x = searchOrigin.right;
+        points.entryPoint.x = Math.max(candidateRect.left, searchOrigin.right);
+      } else if (dir === 'up') {
+        points.exitPoint.y = searchOrigin.top;
+        points.entryPoint.y = Math.min(candidateRect.bottom, searchOrigin.top);
+      } else if (dir === 'down') {
+        points.exitPoint.y = searchOrigin.bottom;
+        points.entryPoint.y = Math.max(candidateRect.top, searchOrigin.bottom);
+      }
 
       if (dir === 'left' || dir === 'right') {
-        if (isBelow(searchOrigin, candidateRect)) { points.exitPoint.y = searchOrigin.top; points.entryPoint.y = Math.min(candidateRect.bottom, searchOrigin.top); }
-        else if (isBelow(candidateRect, searchOrigin)) { points.exitPoint.y = searchOrigin.bottom; points.entryPoint.y = Math.max(candidateRect.top, searchOrigin.bottom); }
-        else { points.exitPoint.y = points.entryPoint.y = Math.max(searchOrigin.top, candidateRect.top); }
+        if (isBelow(searchOrigin, candidateRect)) {
+          points.exitPoint.y = searchOrigin.top;
+          points.entryPoint.y = Math.min(candidateRect.bottom, searchOrigin.top);
+        } else if (isBelow(candidateRect, searchOrigin)) {
+          points.exitPoint.y = searchOrigin.bottom;
+          points.entryPoint.y = Math.max(candidateRect.top, searchOrigin.bottom);
+        } else {
+          points.exitPoint.y = points.entryPoint.y = Math.max(searchOrigin.top, candidateRect.top);
+        }
       } else {
-        if (isRightSide(searchOrigin, candidateRect)) { points.exitPoint.x = searchOrigin.left; points.entryPoint.x = Math.min(candidateRect.right, searchOrigin.left); }
-        else if (isRightSide(candidateRect, searchOrigin)) { points.exitPoint.x = searchOrigin.right; points.entryPoint.x = Math.max(candidateRect.left, searchOrigin.right); }
-        else { points.exitPoint.x = points.entryPoint.x = Math.max(searchOrigin.left, candidateRect.left); }
+        if (isRightSide(searchOrigin, candidateRect)) {
+          points.exitPoint.x = searchOrigin.left;
+          points.entryPoint.x = Math.min(candidateRect.right, searchOrigin.left);
+        } else if (isRightSide(candidateRect, searchOrigin)) {
+          points.exitPoint.x = searchOrigin.right;
+          points.entryPoint.x = Math.max(candidateRect.left, searchOrigin.right);
+        } else {
+          points.exitPoint.x = points.entryPoint.x = Math.max(searchOrigin.left, candidateRect.left);
+        }
       }
     }
     return points;
@@ -740,31 +797,37 @@
   }
 
   function handlingEditableElement(e) {
-	  const target = document.activeElement;
-	  const focusNavigableArrowKey = { left: false, up: false, right: false, down: false };
-	  const dir = ARROW_KEY_CODE[e.keyCode];
-	  if (!dir) return focusNavigableArrowKey;
+    const target = document.activeElement;
+    const focusNavigableArrowKey = { left: false, up: false, right: false, down: false };
+    const dir = ARROW_KEY_CODE[e.keyCode];
+    if (!dir) return focusNavigableArrowKey;
 
-	  if (SPINNABLE_INPUT_TYPES.has(target.type) && (dir === 'up' || dir === 'down')) {
-		focusNavigableArrowKey[dir] = true;
-	  } else if (TEXT_INPUT_TYPES.has(target.type) || target.nodeName === 'TEXTAREA') {
-		if (target.selectionStart === target.selectionEnd) {
-		  if (target.selectionStart === 0) { focusNavigableArrowKey.left = true; focusNavigableArrowKey.up = true; }
-		  if (target.selectionEnd === target.value.length) { focusNavigableArrowKey.right = true; focusNavigableArrowKey.down = true; }
-		}
-	  } else {
-		focusNavigableArrowKey[dir] = true;
-	  }
-	  return focusNavigableArrowKey;
-	}
+    if (SPINNABLE_INPUT_TYPES.has(target.type) && (dir === 'up' || dir === 'down')) {
+      focusNavigableArrowKey[dir] = true;
+    } else if (TEXT_INPUT_TYPES.has(target.type) || target.nodeName === 'TEXTAREA') {
+      if (target.selectionStart === target.selectionEnd) {
+        if (target.selectionStart === 0) {
+          focusNavigableArrowKey.left = true;
+          focusNavigableArrowKey.up = true;
+        }
+        if (target.selectionEnd === target.value.length) {
+          focusNavigableArrowKey.right = true;
+          focusNavigableArrowKey.down = true;
+        }
+      }
+    } else {
+      focusNavigableArrowKey[dir] = true;
+    }
+    return focusNavigableArrowKey;
+  }
 
   function getBoundingClientRect(element) {
-    if (!mapOfBoundRect) return element.getBoundingClientRect(); 
-    
+    if (!mapOfBoundRect) return element.getBoundingClientRect();
+
     let rect = mapOfBoundRect.get(element);
     if (!rect) {
       const r = element.getBoundingClientRect();
-      
+
       rect = {
         top: Number(r.top.toFixed(2)),
         right: Number(r.right.toFixed(2)),
@@ -778,11 +841,11 @@
     return rect;
   }
 
-  function getOverlappedCandidates(targetElement) {      
+  function getOverlappedCandidates(targetElement) {
     const areas = targetElement.getSpatialNavigationContainer().focusableAreas();
     const result = [];
     for (let i = 0; i < areas.length; i++) {
-        if (targetElement !== areas[i] && isEntirelyVisible(areas[i], targetElement)) result.push(areas[i]);
+      if (targetElement !== areas[i] && isEntirelyVisible(areas[i], targetElement)) result.push(areas[i]);
     }
     return result;
   }
@@ -790,7 +853,7 @@
   function getExperimentalAPI() {
     function canScroll(container, dir) {
       return (isScrollable(container, dir) && !isScrollBoundary(container, dir)) ||
-             (!container.parentElement && !isHTMLScrollBoundary(container, dir));
+        (!container.parentElement && !isHTMLScrollBoundary(container, dir));
     }
 
     function findTarget(findCandidate, element, dir, option) {
@@ -803,7 +866,7 @@
         if (eventTarget.nodeName === 'IFRAME') eventTarget = eventTarget.contentDocument.body;
         const candidates = getSpatialNavigationCandidates(eventTarget, option);
         if (candidates?.length > 0) {
-          return findCandidate ? getFilteredSpatialNavigationCandidates(eventTarget, dir, candidates) : eventTarget.spatialNavigationSearch(dir, {candidates});
+          return findCandidate ? getFilteredSpatialNavigationCandidates(eventTarget, dir, candidates) : eventTarget.spatialNavigationSearch(dir, { candidates });
         }
         if (canScroll(eventTarget, dir)) return findCandidate ? [] : eventTarget;
       }
@@ -817,7 +880,7 @@
       while (parentContainer) {
         const candidates = filteredCandidates(eventTarget, getSpatialNavigationCandidates(container, option), dir, container);
         if (candidates?.length > 0) {
-          const bestNextTarget = eventTarget.spatialNavigationSearch(dir, {candidates, container});
+          const bestNextTarget = eventTarget.spatialNavigationSearch(dir, { candidates, container });
           if (bestNextTarget) return findCandidate ? candidates : bestNextTarget;
         } else if (canScroll(container, dir)) {
           return findCandidate ? [] : eventTarget;
@@ -840,7 +903,7 @@
       if (!parentContainer && container) {
         const candidates = filteredCandidates(eventTarget, getSpatialNavigationCandidates(container, option), dir, container);
         if (candidates?.length > 0) {
-          const bestNextTarget = eventTarget.spatialNavigationSearch(dir, {candidates, container});
+          const bestNextTarget = eventTarget.spatialNavigationSearch(dir, { candidates, container });
           if (bestNextTarget) return findCandidate ? candidates : bestNextTarget;
         }
       }
@@ -869,9 +932,15 @@
   function getInitialAPIs() {
     return {
       enableExperimentalAPIs,
-      get keyMode() { return this._keymode ? this._keymode : 'ARROW'; },
-      set keyMode(mode) { this._keymode = (['SHIFTARROW', 'ARROW', 'NONE'].includes(mode)) ? mode : 'ARROW'; },
-      setStartingPoint: function (x, y) { startingPoint = (x && y) ? { x, y } : null; }
+      get keyMode() {
+        return this._keymode ? this._keymode : 'ARROW';
+      },
+      set keyMode(mode) {
+        this._keymode = (['SHIFTARROW', 'ARROW', 'NONE'].includes(mode)) ? mode : 'ARROW';
+      },
+      setStartingPoint: function(x, y) {
+        startingPoint = (x && y) ? { x, y } : null;
+      }
     };
   }
 
@@ -884,7 +953,7 @@
 
   initiateSpatialNavigation();
   enableExperimentalAPIs(false);
-  
+
   window.addEventListener('load', spatialNavigationHandler);
 })();
 

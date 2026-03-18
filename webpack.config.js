@@ -32,12 +32,12 @@ const makeConfig = (env) => {
           'regenerator-runtime': false,
           'regenerator-runtime/runtime': false,
           'whatwg-fetch': false,
-          
+
           // Strip local polyfills
           [path.resolve(__dirname, 'src/spatial-navigation-polyfill.js')]: path.resolve(__dirname, 'src/spatial-navigation.modern.js'),
           [path.resolve(__dirname, 'src/domrect-polyfill.js')]: false,
-		  [path.resolve(__dirname, 'src/emoji-font.ts')]: false,
-		  [path.resolve(__dirname, 'src/emoji-font.css')]: false
+          [path.resolve(__dirname, 'src/emoji-font.ts')]: false,
+          [path.resolve(__dirname, 'src/emoji-font.css')]: false
         } : {}
       },
       module: {
@@ -47,12 +47,12 @@ const makeConfig = (env) => {
             loader: 'babel-loader',
             // Restore original exclude for legacy to maintain compatibility
             // Modern build excludes all node_modules for speed
-            exclude: isModern 
-              ? /node_modules/ 
+            exclude: isModern
+              ? /node_modules/
               : [
-                  /node_modules[\\/]core-js/,
-                  /node_modules[\\/]webpack[\\/]buildin/
-                ],
+                /node_modules[\\/]core-js/,
+                /node_modules[\\/]webpack[\\/]buildin/
+              ],
             options: isModern ? {
               // modern config
               cacheDirectory: true,
@@ -60,7 +60,7 @@ const makeConfig = (env) => {
               configFile: false,
               presets: [
                 ['@babel/preset-env', {
-                  targets: 'chrome 87', 
+                  targets: 'chrome 87',
                   bugfixes: true,
                   modules: false,
                   useBuiltIns: false
@@ -68,8 +68,8 @@ const makeConfig = (env) => {
                 // REMOVED missing '@babel/preset-typescript'
               ],
               plugins: [
-                 // Use the plugin you already have installed instead of the preset
-                 ['@babel/plugin-transform-typescript', { strictMode: true }]
+                // Use the plugin you already have installed instead of the preset
+                ['@babel/plugin-transform-typescript', { strictMode: true }]
               ]
             } : {
               // LEGACY CONFIGURATION (Uses babel.config.js)
@@ -85,8 +85,8 @@ const makeConfig = (env) => {
               { loader: 'style-loader' },
               {
                 loader: 'css-loader',
-                options: { 
-                  esModule: false, 
+                options: {
+                  esModule: false,
                   importLoaders: 1,
                   modules: false
                 }
@@ -102,7 +102,7 @@ const makeConfig = (env) => {
                           normalizeWhitespace: true,
                           colormin: true,
                           minifySelectors: true,
-                          minifyFontValues: true,
+                          minifyFontValues: true
                         }]
                       }]
                     ]
@@ -120,23 +120,23 @@ const makeConfig = (env) => {
             terserOptions: {
               format: {
                 comments: false,
-                ascii_only: true,
+                ascii_only: true
               },
               compress: {
                 drop_console: false,
                 drop_debugger: true,
                 passes: 4,
                 arrows: isModern,
-                ecma: isModern ? 2020 : 5,
+                ecma: isModern ? 2020 : 5
               },
-              mangle: isModern ? true : { safari10: true },
+              mangle: isModern ? true : { safari10: true }
             },
-            extractComments: false,
-          }),
-        ],
+            extractComments: false
+          })
+        ]
       },
       performance: {
-        hints: false,
+        hints: false
       },
       plugins: [
         new CopyPlugin({
