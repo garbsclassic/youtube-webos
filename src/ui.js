@@ -812,11 +812,12 @@ function performBurstSeek(seconds, video) {
 
   // Reset accumulators if direction changes (e.g. going from +15 to -15)
   if ((seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0)) {
+    seekCount = 0
     seekAccumulator = 0;
     pendingSeekOffset = 0; // Reset pending seek to prevent jitter
   }
 
-  if (seekAccumulator < 30) {
+  if (++seekCount < 3) {
     seekAccumulator += seconds;
     pendingSeekOffset += seconds; // Add to the queue, don't apply to video yet
   } else {
@@ -849,6 +850,7 @@ function performBurstSeek(seconds, video) {
   }, 200); // 200ms buffer allows rapid key presses without freezing the UI
 
   seekResetTimer = setTimeout(() => {
+    seekCount = 0;
     seekAccumulator = 0;
     pendingSeekOffset = 0;
     activeSeekNotification = null;
@@ -1253,7 +1255,11 @@ function handleShortcutAction(action) {
 // --- Global Input Handler ---
 
 const eventHandler = (evt) => {
-  if (evt.repeat) return;
+  if (evt.repeat) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    return false;
+  }
   // console.info('Key event:', evt.type, evt.charCode, evt.keyCode);
 
   // Identify Key (Name or Color)
