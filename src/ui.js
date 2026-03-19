@@ -817,7 +817,8 @@ function performBurstSeek(seconds, video) {
     pendingSeekOffset = 0; // Reset pending seek to prevent jitter
   }
 
-  if (++seekCount === 2) {
+  seekCount++
+  if (seekCount === 2) {
     seekAccumulator += seconds;
     pendingSeekOffset += seconds; // Add to the queue, don't apply to video yet
   } else if (seekCount % 2 === 0) {
@@ -1212,7 +1213,7 @@ function handleShortcutAction(action) {
       performBurstSeek(15, video);
       break;
     case 'seek_15_back':
-      performBurstSeek(15, video);
+      performBurstSeek(-15, video);
       break;
     case 'play_pause':
       playPauseLogic(video);
