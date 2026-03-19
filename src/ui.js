@@ -29,6 +29,9 @@ let lastShortcutTime = 0;
 let lastShortcutKey = -1;
 let shortcutDebounceTime = 100;
 
+// Track colored button states to prevent doubled inputs (keydown + keyup)
+let colorButtonStates = new Map(); // Maps keyName -> { handled: boolean, timestamp: number }
+
 // Seek Burst Variables
 let seekCount = 0;
 let seekAccumulator = 0;
@@ -722,7 +725,7 @@ async function skipChapter(direction = 'next') {
   const getChapterEls = () => {
     const bar = document.querySelector('ytlr-multi-markers-player-bar-renderer [idomkey="progress-bar"]');
     if (!bar) return [];
-    // Avoid creating an array copy if possible, but structure might require it. 
+    // Avoid creating an array copy if possible, but structure might require it.
     // Using bar.children directly in loop below.
     return bar.children;
   };
@@ -812,7 +815,7 @@ function performBurstSeek(seconds, video) {
 
   // Reset accumulators if direction changes (e.g. going from +15 to -15)
   if ((seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0)) {
-    seekCount = 0
+    seekCount = 0;
     seekAccumulator = 0;
     pendingSeekOffset = 0; // Reset pending seek to prevent jitter
   }
@@ -1255,11 +1258,7 @@ function handleShortcutAction(action) {
 // --- Global Input Handler ---
 
 const eventHandler = (evt) => {
-  if (evt.repeat) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    return false;
-  }
+  if (evt.repeat) return;
   // console.info('Key event:', evt.type, evt.charCode, evt.keyCode);
 
   // Identify Key (Name or Color)
@@ -1280,6 +1279,36 @@ const eventHandler = (evt) => {
   // Get Action
   const action = shortcutCache[keyName];
   if (!action || action === 'none') return true;
+
+  // Prevent doubled inputs from colored buttons (they fire both keydown and keyup)
+  if (keyColor) {
+    const now = Date.now();
+    const state = colorButtonStates.get(keyName);
+    
+    if (evt.type === 'keydown') {
+      // On keydown: mark as handled and allow processing
+      colorButtonStates.set(keyName, { handled: true, timestamp: now });
+    } else if (evt.type === 'keyup') {
+      // On keyup: check if we already handled the keydown
+      if (state && state.handled && (now - state.timestamp) < 500) {
+        // This keyup corresponds to a keydown we already processed - ignore it
+        colorButtonStates.delete(keyName);
+        evt.preventDefault();
+        evt.stopPropagation();
+        return false;
+      } else {
+        // Stale or missing state - this shouldn't normally happen, but allow it through
+        colorButtonStates.set(keyName, { handled: true, timestamp: now });
+      }
+    }
+    
+    // Clean up old states (garbage collection for stuck buttons)
+    for (const [key, val] of colorButtonStates.entries()) {
+      if (now - val.timestamp > 1000) {
+        colorButtonStates.delete(key);
+      }
+    }
+  }
 
   // Scope & Context Checking (O(1) Efficiency)
   const isVideoPage = isWatchPage() || isShortsPage();
@@ -1332,6 +1361,7 @@ const eventHandler = (evt) => {
 };
 
 document.addEventListener('keydown', eventHandler, true);
+document.addEventListener('keyup', eventHandler, true);
 
 let notificationContainer = null;
 
