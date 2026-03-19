@@ -29,9 +29,6 @@ let lastShortcutTime = 0;
 let lastShortcutKey = -1;
 let shortcutDebounceTime = 100;
 
-// Track colored button states to prevent doubled inputs (keydown + keyup)
-let colorButtonStates = new Map(); // Maps keyName -> { handled: boolean, timestamp: number }
-
 // Seek Burst Variables
 let seekCount = 0;
 let seekAccumulator = 0;
@@ -820,10 +817,10 @@ function performBurstSeek(seconds, video) {
     pendingSeekOffset = 0; // Reset pending seek to prevent jitter
   }
 
-  if (++seekCount < 3) {
+  if (++seekCount === 2) {
     seekAccumulator += seconds;
     pendingSeekOffset += seconds; // Add to the queue, don't apply to video yet
-  } else {
+  } else if (seekCount % 2 === 0) {
     seekAccumulator *= 2;
     pendingSeekOffset *= 2; // Double the currently pending offset
   }
@@ -1212,10 +1209,10 @@ function handleShortcutAction(action) {
       skipChapter('prev');
       break;
     case 'seek_15_fwd':
-      performBurstSeek(7.5, video);
+      performBurstSeek(15, video);
       break;
     case 'seek_15_back':
-      performBurstSeek(-7.5, video);
+      performBurstSeek(15, video);
       break;
     case 'play_pause':
       playPauseLogic(video);
@@ -1280,36 +1277,6 @@ const eventHandler = (evt) => {
   const action = shortcutCache[keyName];
   if (!action || action === 'none') return true;
 
-  // Prevent doubled inputs from colored buttons (they fire both keydown and keyup)
-  if (keyColor) {
-    const now = Date.now();
-    const state = colorButtonStates.get(keyName);
-    
-    if (evt.type === 'keydown') {
-      // On keydown: mark as handled and allow processing
-      colorButtonStates.set(keyName, { handled: true, timestamp: now });
-    } else if (evt.type === 'keyup') {
-      // On keyup: check if we already handled the keydown
-      if (state && state.handled && (now - state.timestamp) < 500) {
-        // This keyup corresponds to a keydown we already processed - ignore it
-        colorButtonStates.delete(keyName);
-        evt.preventDefault();
-        evt.stopPropagation();
-        return false;
-      } else {
-        // Stale or missing state - this shouldn't normally happen, but allow it through
-        colorButtonStates.set(keyName, { handled: true, timestamp: now });
-      }
-    }
-    
-    // Clean up old states (garbage collection for stuck buttons)
-    for (const [key, val] of colorButtonStates.entries()) {
-      if (now - val.timestamp > 1000) {
-        colorButtonStates.delete(key);
-      }
-    }
-  }
-
   // Scope & Context Checking (O(1) Efficiency)
   const isVideoPage = isWatchPage() || isShortsPage();
   const actionScope = ACTION_SCOPES[action] || 'VIDEO'; // Default unknown actions to VIDEO for safety
@@ -1361,7 +1328,6 @@ const eventHandler = (evt) => {
 };
 
 document.addEventListener('keydown', eventHandler, true);
-document.addEventListener('keyup', eventHandler, true);
 
 let notificationContainer = null;
 
