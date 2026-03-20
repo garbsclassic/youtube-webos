@@ -258,9 +258,10 @@
 
 .ytaf-notification-container {
   position: fixed;
-  top: 1.85vh;
-  right: 1.85vh;
-  font-size: 1.85vh;
+  top: 2.22vh;
+  right: 2.22vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 2.1vh;
   z-index: 1200;
   max-width: 41.6vh;
 }
