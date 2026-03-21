@@ -848,7 +848,7 @@ function performBurstSeek(seconds, video) {
       video.currentTime += pendingSeekOffset;
       pendingSeekOffset = 0;
     }
-  }, 200); // 200ms buffer allows rapid key presses without freezing the UI
+  }, 250); // 200ms buffer allows rapid key presses without freezing the UI
 
   seekResetTimer = setTimeout(() => {
     seekCount = 0;
