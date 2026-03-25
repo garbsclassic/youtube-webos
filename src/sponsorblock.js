@@ -398,7 +398,7 @@ class SponsorBlockHandler {
         .filter((cat, idx, arr) => arr.indexOf(cat) === idx)
         .map(cat => this.getCategoryName(cat));
 
-      showNotification(`Skipped ${categories.join(', ')}`);
+      showNotification(`Skipped ${categories.join(', ')} segment`);
     });
 
     return true;
