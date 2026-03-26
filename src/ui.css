@@ -261,7 +261,7 @@
   right: 0;
   top: 0;
   margin: 1rem 2rem;
-  max-width: 44.4vh;
+  max-width: 41.6vh;
   z-index: 1200;
 }
 
@@ -269,14 +269,14 @@
   background: #002840;
   border: 0.09vh solid rgba(0, 212, 255, 0.4);
   /*padding: 1.5vh 1.85vh;*/
-  padding: 0.4rem;
+  padding: 0.8rem 1.2rem;
   margin-bottom: 1.1vh;
   /*border-radius: 1.1vh;*/
   border-radius: 0.5rem;
   /* Reduced shadow */
   box-shadow: 0 0.5vh 1.4vh rgba(0, 0, 0, 0.5);
   transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity: .95;
+  opacity: 1;
   transform: translateX(0);
   border-left: 0.37vh solid #00d4ff;
   font-family: Roboto, sans-serif;
