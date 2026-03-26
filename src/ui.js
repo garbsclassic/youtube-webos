@@ -830,8 +830,8 @@ function performBurstSeek(seconds, video) {
   if (seekResetTimer) clearTimeout(seekResetTimer);
 
   // Update UI immediately (lightweight operation)
-  const directionSymbol = seekAccumulator > 0 ? '+' : '';
-  const msg = `Skipped ${directionSymbol}${seekAccumulator}s`;
+  const direction = seekAccumulator < 0 ? 'REW' : 'FF';
+  const msg = `${direction} ${Math.abs(seekAccumulator)}sec`;
 
   if (activeSeekNotification) {
     activeSeekNotification.update(msg);
@@ -1570,4 +1570,4 @@ configAddChangeListener('videoShelfOpacity', () => {
 if (!configRead('enableAdBlock')) destroyAdblock();
 if (configRead('enableTrackingBlock')) initTrackingBlock();
 
-setTimeout(() => showNotification('Press [GREEN] to open SponsorBlock configuration screen'), 2000);
+setTimeout(() => showNotification('Press [8] to open SponsorBlock configuration'), 2000);
