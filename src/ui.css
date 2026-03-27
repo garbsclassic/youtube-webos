@@ -260,7 +260,7 @@
   position: fixed;
   right: 0;
   top: 0;
-  margin: 1rem 2rem;
+  margin: 1.5rem 2rem;
   max-width: 41.6vh;
   z-index: 1200;
 }
@@ -269,7 +269,7 @@
   background: #002840;
   border: 0.09vh solid rgba(0, 212, 255, 0.4);
   /*padding: 1.5vh 1.85vh;*/
-  padding: 0.4rem 0.6rem;
+  padding: 0.4rem 0.8rem;
   margin-bottom: 1.1vh;
   /*border-radius: 1.1vh;*/
   border-radius: 0.5rem;
