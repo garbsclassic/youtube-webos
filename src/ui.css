@@ -260,16 +260,16 @@
   position: fixed;
   right: 0;
   top: 0;
-  margin: 1.5rem 2rem;
+  margin: 1.6rem 2rem;
   max-width: 41.6vh;
   z-index: 1200;
 }
 
 .ytaf-notification-container .message {
   background: #002840;
-  border: 0.09vh solid rgba(0, 212, 255, 0.4);
+  border: 0.08vh solid rgba(0, 212, 255, 0.4);
   /*padding: 1.5vh 1.85vh;*/
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.8rem;
   margin-bottom: 1.1vh;
   /*border-radius: 1.1vh;*/
   border-radius: 0.5rem;
@@ -280,7 +280,7 @@
   transform: translateX(0);
   border-left: 0.37vh solid #00d4ff;
   font-family: Roboto, sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 400;
   color: #ffffff;
   letter-spacing: 0.025rem;
