@@ -258,13 +258,12 @@
 
 .ytaf-notification-container {
   z-index: 1200;
-  opacity: 0.6;
   position: fixed;
   right: 0;
   top: 0;
   margin: 1.6rem 2rem;
   max-width: 41.6vh;
-  background: #002840;
+  min-width: 20.8vh;
 }
 
 .ytaf-notification-container .message {
@@ -272,10 +271,11 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform: translateX(0);
   margin-bottom: 1.1vh;
-  border: 0.09vh solid rgba(0, 212, 255, 0.4);
-  border-left: 0.27vh solid #00d4ff;
+  border: 0.1vh solid rgba(0, 212, 255, 0.4);
+  border-left: 0.3vh solid #00d4ff;
   /*border-radius: 1.1vh;*/
   border-radius: 0.5rem;
+  background: #002840;
   /*padding: 1.5vh 1.85vh;*/
   padding: 0.3rem 0.9rem;
   /* Reduced shadow */
