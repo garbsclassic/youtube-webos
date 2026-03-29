@@ -41,13 +41,13 @@ jobs:
           omitPrereleaseDuringUpdate: true
           artifacts: '*.ipk'
 
-      - name: Trigger build_repo workflow
+      - name: Trigger update-repo workflow
         uses: actions/github-script@v8
         with:
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'build_repo.yml',
+              workflow_id: 'update-repo.yml',
               ref: 'dev'
             })
