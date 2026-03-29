@@ -14,10 +14,10 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: npm
@@ -31,11 +31,11 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           name: 'Release ${{ github.ref }}'
-          prerelease: true
+          prerelease: false
           draft: false
           allowUpdates: true
           omitNameDuringUpdate: true
           omitBodyDuringUpdate: true
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
-          artifacts: '*.ipk,*.manifest.json'
+          artifacts: '*.ipk'
