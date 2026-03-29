@@ -272,12 +272,12 @@
   transform: translateX(0);
   margin-bottom: 1.1vh;
   border: 0.1vh solid rgba(0, 212, 255, 0.4);
-  border-left: 0.3vh solid #00d4ff;
+  border-left: 0.5vh solid #00d4ff;
   /*border-radius: 1.1vh;*/
   border-radius: 0.5rem;
   background: #002840;
   /*padding: 1.5vh 1.85vh;*/
-  padding: 0.3rem 0.9rem;
+  padding: 0.3rem 0.6rem;
   /* Reduced shadow */
   box-shadow: 0 0.5vh 1.4vh rgba(0, 0, 0, 0.5);
   font-family: Roboto, sans-serif;
