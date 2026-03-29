@@ -30,7 +30,7 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          name: 'Release ${{ github.ref }}'
+          name: ${{ github.ref_name }}
           prerelease: false
           draft: false
           allowUpdates: true
@@ -39,3 +39,14 @@ jobs:
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
           artifacts: '*.ipk'
+
+      - name: Trigger build_repo workflow
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build_repo.yml',
+              ref: 'dev'
+            })
