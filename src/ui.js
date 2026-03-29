@@ -830,8 +830,8 @@ function performBurstSeek(seconds, video) {
   if (seekResetTimer) clearTimeout(seekResetTimer);
 
   // Update UI immediately (lightweight operation)
-  const directionSymbol = seekAccumulator < 0 ? '<< ' : '>> +';
-  const msg = `Seek ${directionSymbol}${seekAccumulator}s`;
+  const directionSymbol = seekAccumulator < 0 ? '<<' : '>>';
+  const msg = `Seek ${directionSymbol} ${Math.abs(seekAccumulator)}s`;
 
   if (activeSeekNotification) {
     activeSeekNotification.update(msg);
