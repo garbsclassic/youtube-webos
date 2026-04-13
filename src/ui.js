@@ -805,6 +805,29 @@ async function skipChapter(direction = 'next') {
   }
 }
 
+// Seek burst helper functions
+function updateSeekNotification(amount) {
+  const symbol = amount < 0 ? '<<' : '>>';
+  const msg = `Seek ${symbol} ${Math.abs(amount)}s`;
+  
+  if (activeSeekNotification) {
+    activeSeekNotification.update(msg);
+  } else {
+    activeSeekNotification = showNotification(msg);
+  }
+}
+
+function applySeekToVideo() {
+  const currentVideo = document.querySelector('video');
+  if (!pendingSeekOffset || !currentVideo?.duration) return;
+
+  const targetTime = currentVideo.currentTime + pendingSeekOffset;
+  currentVideo.currentTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
+  
+  pendingSeekOffset = 0;
+  seekAccumulator = 0;
+}
+
 function performBurstSeek(seconds, video) {
   if (!video) video = document.querySelector('video');
   if (!video) return;
@@ -824,42 +847,17 @@ function performBurstSeek(seconds, video) {
 
   seekCount++;
 
-  // Update notification helper
-  const updateNotification = (amount) => {
-    const symbol = amount < 0 ? '<<' : '>>';
-    const msg = `Seek ${symbol} ${Math.abs(amount)}s`;
-    
-    if (activeSeekNotification) {
-      activeSeekNotification.update(msg);
-    } else {
-      activeSeekNotification = showNotification(msg);
-    }
-  };
-
-  // Apply seek helper
-  const applySeek = () => {
-    const currentVideo = document.querySelector('video');
-    if (!pendingSeekOffset || !currentVideo?.duration) return;
-
-    const targetTime = currentVideo.currentTime + pendingSeekOffset;
-    currentVideo.currentTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
-    
-    pendingSeekOffset = 0;
-    seekAccumulator = 0;
-  };
-
   // Handle even presses (complete pairs)
   if (isEvenPress) {
     // Calculate new accumulator: first pair, reinitialize, or double
     seekAccumulator = (seekCount === 2 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
     pendingSeekOffset = seekAccumulator;
 
-    updateNotification(seekAccumulator);
+    updateSeekNotification(seekAccumulator);
 
     // Schedule seek application
     if (seekApplyTimer) clearTimeout(seekApplyTimer);
-    seekApplyTimer = setTimeout(applySeek, SEEK_APPLY_DELAY);
-
+    seekApplyTimer = setTimeout(applySeekToVideo, SEEK_APPLY_DELAY);
   } else if (seekApplyTimer) {
     // Handle odd presses (incomplete pairs) - cancel pending seek
     clearTimeout(seekApplyTimer);
