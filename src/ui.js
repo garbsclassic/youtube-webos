@@ -829,11 +829,11 @@ function applySeekToVideo() {
   seekAccumulator = 0;
 }
 function performBurstSeek(seconds, video) {
-  if (!video) video = document.querySelector('video');\n  if (!video) return;
+  if (!video) video = document.querySelector('video');
+  if (!video) return;
 
   const SEEK_APPLY_DELAY = 250; // ms to wait before applying seek to video
   const SEEK_RESET_DELAY = 1000; // ms to wait before resetting UI (notification fade)
-
   const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
 
   // Reset on direction change
