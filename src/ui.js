@@ -818,25 +818,23 @@ function updateSeekNotification(amount) {
 }
 
 function applySeekToVideo() {
-  console.log('[Seek] applySeekToVideo called, pendingSeekOffset:', pendingSeekOffset);
+  showNotification(`[Seek] applySeek called, pending: ${pendingSeekOffset}`, 2000);
   
   const currentVideo = document.querySelector('video');
-  console.log('[Seek] currentVideo:', currentVideo, 'duration:', currentVideo?.duration);
   
   if (!pendingSeekOffset || !currentVideo?.duration) {
-    console.log('[Seek] Guard clause triggered, exiting');
+    showNotification('[Seek] Guard clause - no video or offset', 2000);
     return;
   }
 
   const targetTime = currentVideo.currentTime + pendingSeekOffset;
   const clampedTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
-  console.log('[Seek] Seeking from', currentVideo.currentTime, 'to', clampedTime);
   
   currentVideo.currentTime = clampedTime;
+  showNotification(`[Seek] Applied: ${currentVideo.currentTime.toFixed(1)}s`, 2000);
   
   pendingSeekOffset = 0;
   seekAccumulator = 0;
-  console.log('[Seek] Seek applied, reset accumulators');
 }
 
 function performBurstSeek(seconds, video) {
@@ -848,6 +846,7 @@ function performBurstSeek(seconds, video) {
 
   const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
   const isEvenPress = seekCount % 2 === 0;
+  showNotification(`[Seek] performBurstSeek called, pending: ${isDirectionChange}`, 2000);
 
   // Reset on direction change
   if (isDirectionChange) {
@@ -860,6 +859,7 @@ function performBurstSeek(seconds, video) {
 
   // Handle even presses (complete pairs)
   if (isEvenPress) {
+    showNotification('[Seek] even press', 2000);
     // Calculate new accumulator: first pair, reinitialize, or double
     seekAccumulator = (seekCount === 2 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
     pendingSeekOffset = seekAccumulator;
@@ -868,14 +868,17 @@ function performBurstSeek(seconds, video) {
 
     // Schedule seek application
     if (seekApplyTimer) clearTimeout(seekApplyTimer);
-    console.log('[Seek] Scheduling applySeekToVideo with pendingSeekOffset:', pendingSeekOffset, 'in', SEEK_APPLY_DELAY, 'ms');
+    showNotification(`[Seek] Scheduled: $≈{pendingSeekOffset}s in ${SEEK_APPLY_DELAY}ms`, 1500);
     seekApplyTimer = setTimeout(applySeekToVideo, SEEK_APPLY_DELAY);
   } else if (seekApplyTimer) {
+    showNotification('[Seek] odd press', 2000);
+
     // Handle odd presses (incomplete pairs) - cancel pending seek
     clearTimeout(seekApplyTimer);
     seekApplyTimer = null;
   }
 
+  showNotification('[Seek] reset timer', 2000);
   // Reset UI after inactivity (both odd and even presses)
   if (seekResetTimer) clearTimeout(seekResetTimer);
   
