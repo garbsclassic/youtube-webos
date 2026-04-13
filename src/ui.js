@@ -36,17 +36,18 @@ let seekResetTimer = null;
 let seekApplyTimer = null;
 let activeSeekNotification = null;
 
-let activePlayPauseNotification = null;
+const notificationTimer = 2000;
 let playPauseNotificationTimer = null;
+let activePlayPauseNotification = null;
 
 // Lazy load variable
 let optionsPanel = null;
 let optionsPanelVisible = false;
 let panelInitBlock = false;
 
-const shortcutCache = {};
 // Define keys including colors
 const shortcutKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'red', 'green', 'blue'];
+const shortcutCache = {};
 
 const COLOR_KEYS = new Set(['red', 'green', 'blue']);
 
@@ -818,35 +819,22 @@ function updateSeekNotification(amount) {
 }
 
 function applySeekToVideo() {
-  showNotification(`[Seek] applySeek called, pending: ${pendingSeekOffset}`, 2000);
-  
   const currentVideo = document.querySelector('video');
-  
-  if (!pendingSeekOffset || !currentVideo?.duration) {
-    showNotification('[Seek] Guard clause - no video or offset', 2000);
-    return;
-  }
+  if (!pendingSeekOffset || !currentVideo?.duration) return;
 
   const targetTime = currentVideo.currentTime + pendingSeekOffset;
-  const clampedTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
-  
-  currentVideo.currentTime = clampedTime;
-  showNotification(`[Seek] Applied: ${currentVideo.currentTime.toFixed(1)}s`, 2000);
+  currentVideo.currentTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
   
   pendingSeekOffset = 0;
   seekAccumulator = 0;
 }
-
 function performBurstSeek(seconds, video) {
-  if (!video) video = document.querySelector('video');
-  if (!video) return;
+  if (!video) video = document.querySelector('video');\n  if (!video) return;
 
   const SEEK_APPLY_DELAY = 250; // ms to wait before applying seek to video
   const SEEK_RESET_DELAY = 1000; // ms to wait before resetting UI (notification fade)
 
   const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
-  const isEvenPress = seekCount % 2 === 0;
-  showNotification(`[Seek] performBurstSeek called, pending: ${isDirectionChange}`, 2000);
 
   // Reset on direction change
   if (isDirectionChange) {
@@ -857,9 +845,11 @@ function performBurstSeek(seconds, video) {
 
   seekCount++;
 
+  // Calculate isEvenPress AFTER incrementing seekCount
+  const isEvenPress = seekCount % 2 === 0;
+
   // Handle even presses (complete pairs)
   if (isEvenPress) {
-    showNotification('[Seek] even press', 2000);
     // Calculate new accumulator: first pair, reinitialize, or double
     seekAccumulator = (seekCount === 2 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
     pendingSeekOffset = seekAccumulator;
@@ -868,17 +858,13 @@ function performBurstSeek(seconds, video) {
 
     // Schedule seek application
     if (seekApplyTimer) clearTimeout(seekApplyTimer);
-    showNotification(`[Seek] Scheduled: $≈{pendingSeekOffset}s in ${SEEK_APPLY_DELAY}ms`, 1500);
     seekApplyTimer = setTimeout(applySeekToVideo, SEEK_APPLY_DELAY);
   } else if (seekApplyTimer) {
-    showNotification('[Seek] odd press', 2000);
-
     // Handle odd presses (incomplete pairs) - cancel pending seek
     clearTimeout(seekApplyTimer);
     seekApplyTimer = null;
   }
 
-  showNotification('[Seek] reset timer', 2000);
   // Reset UI after inactivity (both odd and even presses)
   if (seekResetTimer) clearTimeout(seekResetTimer);
   
@@ -1140,7 +1126,7 @@ function playPauseLogic(video) {
     playPauseNotificationTimer = setTimeout(() => {
       activePlayPauseNotification = null;
       playPauseNotificationTimer = null;
-    }, 3000);
+    }, notificationTimer);
   };
 
   if (video.paused) {
@@ -1363,7 +1349,7 @@ document.addEventListener('keydown', eventHandler, true);
 
 let notificationContainer = null;
 
-export function showNotification(text, time = 3000) {
+export function showNotification(text, time = notificationTimer) {
   if (configRead('disableNotifications')) return {
     remove: () => {
     }, update: () => {
@@ -1414,7 +1400,7 @@ export function showNotification(text, time = 3000) {
     elmInner._removeTimer = setTimeout(remove, time);
   }
 
-  const update = (newText, newTime = 3000) => {
+  const update = (newText, newTime = notificationTimer) => {
     if (elmInner.textContent === newText) {
       if (newTime > 0) {
         if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
