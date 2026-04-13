@@ -15,7 +15,6 @@ import {
 import './ui.css';
 import './auto-login.js';
 import './return-dislike.js';
-// import { initYouTubeFixes } from './yt-fixes.js';
 import { initVideoQuality } from './video-quality.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
 import { sendKey, REMOTE_KEYS, isGuestMode, isWatchPage, isShortsPage, isSearchPage, SELECTORS } from './utils.js';
@@ -810,53 +809,71 @@ function performBurstSeek(seconds, video) {
   if (!video) video = document.querySelector('video');
   if (!video) return;
 
-  // Reset accumulators if direction changes (e.g. going from +15 to -15)
-  if ((seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0)) {
-    seekCount = 0;
-    seekAccumulator = 0;
-    pendingSeekOffset = 0; // Reset pending seek to prevent jitter
-  }
+  const SEEK_APPLY_DELAY = 250; // ms to wait before applying seek to video
+  const SEEK_RESET_DELAY = 1000; // ms to wait before resetting UI (notification fade)
 
-  seekCount++
-  if (seekCount === 2) {
-    seekAccumulator += seconds;
-    pendingSeekOffset += seconds; // Add to the queue, don't apply to video yet
-  } else if (seekCount % 2 === 0) {
-    seekAccumulator *= 2;
-    pendingSeekOffset *= 2; // Double the currently pending offset
-  }
+  const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
+  const isEvenPress = seekCount % 2 === 0;
 
-  // Reset the "UI Fade Out" timer
-  if (seekResetTimer) clearTimeout(seekResetTimer);
-
-  // Update UI immediately (lightweight operation)
-  const directionSymbol = seekAccumulator < 0 ? '<<' : '>>';
-  const msg = `Seek ${directionSymbol} ${Math.abs(seekAccumulator)}s`;
-
-  if (activeSeekNotification) {
-    activeSeekNotification.update(msg);
-  } else {
-    activeSeekNotification = showNotification(msg);
-  }
-
-  // Debounce the heavy video seek operation
-  if (seekApplyTimer) clearTimeout(seekApplyTimer);
-
-  seekApplyTimer = setTimeout(() => {
-    if (pendingSeekOffset !== 0) {
-      // Apply the total calculated seek in one single operation
-      video.currentTime += pendingSeekOffset;
-      pendingSeekOffset = 0;
-    }
-  }, 300); // 200ms buffer allows rapid key presses without freezing the UI
-
-  seekResetTimer = setTimeout(() => {
+  // Reset on direction change
+  if (isDirectionChange) {
     seekCount = 0;
     seekAccumulator = 0;
     pendingSeekOffset = 0;
+  }
+
+  seekCount++;
+
+  // Update notification helper
+  const updateNotification = (amount) => {
+    const symbol = amount < 0 ? '<<' : '>>';
+    const msg = `Seek ${symbol} ${Math.abs(amount)}s`;
+    
+    if (activeSeekNotification) {
+      activeSeekNotification.update(msg);
+    } else {
+      activeSeekNotification = showNotification(msg);
+    }
+  };
+
+  // Apply seek helper
+  const applySeek = () => {
+    const currentVideo = document.querySelector('video');
+    if (!pendingSeekOffset || !currentVideo?.duration) return;
+
+    const targetTime = currentVideo.currentTime + pendingSeekOffset;
+    currentVideo.currentTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
+    
+    pendingSeekOffset = 0;
+    seekAccumulator = 0;
+  };
+
+  // Handle even presses (complete pairs)
+  if (isEvenPress) {
+    // Calculate new accumulator: first pair, reinitialize, or double
+    seekAccumulator = (seekCount === 2 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
+    pendingSeekOffset = seekAccumulator;
+
+    updateNotification(seekAccumulator);
+
+    // Schedule seek application
+    if (seekApplyTimer) clearTimeout(seekApplyTimer);
+    seekApplyTimer = setTimeout(applySeek, SEEK_APPLY_DELAY);
+
+  } else if (seekApplyTimer) {
+    // Handle odd presses (incomplete pairs) - cancel pending seek
+    clearTimeout(seekApplyTimer);
+    seekApplyTimer = null;
+  }
+
+  // Reset UI after inactivity (both odd and even presses)
+  if (seekResetTimer) clearTimeout(seekResetTimer);
+  
+  seekResetTimer = setTimeout(() => {
+    seekCount = 0;
     activeSeekNotification = null;
     seekResetTimer = null;
-  }, 1200);
+  }, SEEK_RESET_DELAY);
 }
 
 function triggerInternal(element, name) {
@@ -1170,6 +1187,7 @@ function handleShortcutAction(action) {
       showNotification('OLED Mode Deactivated');
     } else {
       if (optionsPanelVisible) showOptionsPanel(false);
+      
       overlay = createElement('div', {
         id: 'oled-black-overlay',
         style: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: '#000', zIndex: 9999 }
