@@ -818,14 +818,25 @@ function updateSeekNotification(amount) {
 }
 
 function applySeekToVideo() {
+  console.log('[Seek] applySeekToVideo called, pendingSeekOffset:', pendingSeekOffset);
+  
   const currentVideo = document.querySelector('video');
-  if (!pendingSeekOffset || !currentVideo?.duration) return;
+  console.log('[Seek] currentVideo:', currentVideo, 'duration:', currentVideo?.duration);
+  
+  if (!pendingSeekOffset || !currentVideo?.duration) {
+    console.log('[Seek] Guard clause triggered, exiting');
+    return;
+  }
 
   const targetTime = currentVideo.currentTime + pendingSeekOffset;
-  currentVideo.currentTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
+  const clampedTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
+  console.log('[Seek] Seeking from', currentVideo.currentTime, 'to', clampedTime);
+  
+  currentVideo.currentTime = clampedTime;
   
   pendingSeekOffset = 0;
   seekAccumulator = 0;
+  console.log('[Seek] Seek applied, reset accumulators');
 }
 
 function performBurstSeek(seconds, video) {
@@ -857,6 +868,7 @@ function performBurstSeek(seconds, video) {
 
     // Schedule seek application
     if (seekApplyTimer) clearTimeout(seekApplyTimer);
+    console.log('[Seek] Scheduling applySeekToVideo with pendingSeekOffset:', pendingSeekOffset, 'in', SEEK_APPLY_DELAY, 'ms');
     seekApplyTimer = setTimeout(applySeekToVideo, SEEK_APPLY_DELAY);
   } else if (seekApplyTimer) {
     // Handle odd presses (incomplete pairs) - cancel pending seek
