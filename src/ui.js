@@ -833,6 +833,7 @@ function applySeekToVideo() {
   pendingSeekOffset = 0;
   seekAccumulator = 0;
 }
+
 function performBurstSeek(seconds, video) {
   if (!video) video = document.querySelector('video');
   if (!video) return;
