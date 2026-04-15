@@ -825,6 +825,11 @@ function applySeekToVideo() {
   const targetTime = currentVideo.currentTime + pendingSeekOffset;
   currentVideo.currentTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
   
+  // Unpause if the video is paused
+  if (currentVideo.paused) {
+    currentVideo.play();
+  }
+  
   pendingSeekOffset = 0;
   seekAccumulator = 0;
 }
@@ -832,7 +837,7 @@ function performBurstSeek(seconds, video) {
   if (!video) video = document.querySelector('video');
   if (!video) return;
 
-  const SEEK_APPLY_DELAY = 250; // ms to wait before applying seek to video
+  const SEEK_APPLY_DELAY = 300; // ms to wait before applying seek to video
   const SEEK_RESET_DELAY = 1000; // ms to wait before resetting UI (notification fade)
   const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
 
@@ -907,7 +912,6 @@ function triggerInternal(element, name) {
 
 // --- Shortcut Helper Functions (Static Logic) ---
 // Extracted to prevent object allocation inside handlers
-
 function toggleSubtitlesLogic(player) {
   let toggledViaApi = false;
   if (player) {
@@ -936,6 +940,7 @@ function toggleSubtitlesLogic(player) {
       }
     }
   }
+
   // Fallback to UI clicking
   if (!toggledViaApi) {
     const capsBtn = document.querySelector('ytlr-captions-button yt-button-container') || document.querySelector('ytlr-captions-button ytlr-button');

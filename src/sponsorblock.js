@@ -373,11 +373,9 @@ class SponsorBlockHandler {
                 this.chainSkipVideo = null;
             }
 
-            if (video.readyState >= 2) {
-                video.muted = originalMuteState;
-                window.__sb_pending_unmute = false;
-                this.wasMutedBySB = false;
-            }
+            video.muted = originalMuteState;
+            window.__sb_pending_unmute = false;
+            this.wasMutedBySB = false;
             this.unmuteTimeoutId = null;
         }, CHAIN_SKIP_CONSTANTS.UNMUTE_DELAY);
 
@@ -974,7 +972,7 @@ class SponsorBlockHandler {
                     this.wasMutedBySB = true;
                     window.__sb_pending_unmute = true;
                     setTimeout(() => {
-                        if (this.video && !this.isDestroyed && (this.video.paused || this.video.currentTime < 5)) {
+                        if (this.video && !this.isDestroyed) {
                             this.video.muted = false;
                             this.wasMutedBySB = false;
                             window.__sb_pending_unmute = false;
