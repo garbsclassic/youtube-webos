@@ -810,7 +810,7 @@ async function skipChapter(direction = 'next') {
 function updateSeekNotification(amount) {
   const symbol = amount < 0 ? '<<' : '>>';
   const msg = `Seek ${symbol} ${Math.abs(amount)}s`;
-  
+
   if (activeSeekNotification) {
     activeSeekNotification.update(msg);
   } else {
@@ -824,12 +824,12 @@ function applySeekToVideo() {
 
   const targetTime = currentVideo.currentTime + pendingSeekOffset;
   currentVideo.currentTime = Math.max(0, Math.min(targetTime, currentVideo.duration));
-  
+
   // Unpause if the video is paused
   if (currentVideo.paused) {
     currentVideo.play();
   }
-  
+
   pendingSeekOffset = 0;
   seekAccumulator = 0;
 }
@@ -872,7 +872,7 @@ function performBurstSeek(seconds, video) {
 
   // Reset UI after inactivity (both odd and even presses)
   if (seekResetTimer) clearTimeout(seekResetTimer);
-  
+
   seekResetTimer = setTimeout(() => {
     seekCount = 0;
     activeSeekNotification = null;
@@ -1191,7 +1191,7 @@ function handleShortcutAction(action) {
       showNotification('OLED Mode Deactivated');
     } else {
       if (optionsPanelVisible) showOptionsPanel(false);
-      
+
       overlay = createElement('div', {
         id: 'oled-black-overlay',
         style: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: '#000', zIndex: 9999 }
@@ -1432,19 +1432,11 @@ function initGlobalStyles() {
   // Configurable styles updater
   const updateStyles = () => {
     const hideLogo = configRead('hideLogo');
-    const hideEnd = configRead('hideEndcards');
     const fixTitles = configRead('fixMultilineTitles');
-    const endDisplay = hideEnd ? 'none' : 'block';
 
     style.textContent = `
             /* Hide Logo */
             ytlr-redux-connect-ytlr-logo-entity { visibility: ${hideLogo ? 'hidden' : 'visible'}; }
-            
-            /* Hide Endcards */
-            ytlr-endscreen-renderer, 
-            .ytLrEndscreenElementRendererElementContainer, 
-            .ytLrEndscreenElementRendererVideo, 
-            .ytLrEndscreenElementRendererHost { display: ${endDisplay} !important; }
             
             /* UI Controls Hiding Class */
             body.ytaf-hide-controls .GLc3cc { opacity: 0 !important; }
@@ -1457,7 +1449,6 @@ function initGlobalStyles() {
 
   updateStyles();
   configAddChangeListener('hideLogo', updateStyles);
-  configAddChangeListener('hideEndcards', updateStyles);
   configAddChangeListener('fixMultilineTitles', updateStyles);
 }
 
@@ -1515,7 +1506,7 @@ function applyOledMode(enabled) {
         .ytLrAnimatedOverlayContainer { background-color: #000 !important; } 
         .iha0pc { color: #000 !important; } 
         .ZghAqf { background-color: #000 !important; } 
-        .A0acyf.RAE3Re .AmQJbe { background-color: #000 !important; } 
+        .RAE3Re .AmQJbe { background-color: #000 !important; } 
         .tVp1L { background-color: #000 !important; } 
         .app-quality-root .DnwJH { background-color: #000 !important; } 
         .qRdzpd.stQChb .TYE3Ed { background-color: #000 !important; } 
