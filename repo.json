@@ -13,7 +13,7 @@
       "iconUri": "https://raw.githubusercontent.com/last-wave/youtube-webos/dev/assets/icon.png",
       "manifest": {
         "id": "youtube.leanback.v4",
-        "version": "0.1.41",
+        "version": "0.1.42",
         "type": "web",
         "title": "YouTube AdFree",
         "appDescription": "YouTube AdFree",
