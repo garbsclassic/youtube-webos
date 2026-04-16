@@ -144,7 +144,7 @@ export function configWrite(key, value) {
   const oldValue = localConfig[key];
   if (oldValue === value) return;
 
-  console.info('Changing key', key, 'from', oldValue, 'to', value);
+  // console.info('Changing key', key, 'from', oldValue, 'to', value);
   localConfig[key] = value;
   window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
 

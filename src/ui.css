@@ -31,10 +31,6 @@
   box-shadow: none;
 }
 
-.ytaf-ui-container::before {
-  display: none !important;
-}
-
 .ytaf-ui-container > * {
   position: relative;
   z-index: 1;
@@ -178,18 +174,6 @@
   flex: 1;
 }
 
-.ytaf-ui-container label .color-picker-controls {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  flex-shrink: 0;
-  margin-right: 0.75vh;
-}
-
-.ytaf-ui-container label .color-picker-controls > * {
-  margin-left: 0.75vh;
-}
-
 .ytaf-ui-container .shortcut-control-row:focus {
   background: rgba(0, 212, 255, 0.2);
   border-radius: 0.75vh;
@@ -271,24 +255,24 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform: translateX(0);
   margin-bottom: 1.1vh;
-  border: 0.1vh solid rgba(0, 212, 255, 0.65);
+  border: 0.1vh solid #00d4ff;
   border-left: 0.5vh solid #00d4ff;
   /*border-radius: 1.1vh;*/
   border-radius: 0.5rem;
-  background: rgba(0, 40, 64, 0.3);
+  background: rgba(0, 40, 64, 0.65);
   /*padding: 1.5vh 1.85vh;*/
   padding: 0.3rem 0.6rem;
   box-shadow: 0.5vh 0.5vh 1vh rgb(0, 0, 0);
   font-family: Roboto, sans-serif;
   font-size: 1.25rem;
-  font-weight: 400;
+  font-weight: 500;
   color: #ffffff;
   letter-spacing: 0.025rem;
   line-height: 1.4;
 }
 
 .ytaf-notification-container.theme-classic-red .message {
-  background: rgba(26, 26, 26, 0.3);
+  background: rgba(26, 26, 26, 0.65);
   border-color: #3f3f3f;
   border-left-color: #ff0000;
 }

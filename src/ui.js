@@ -114,7 +114,7 @@ if (!Element.prototype.closest) {
 }
 
 const simulateBack = () => {
-  console.log('[Shortcut] Simulating Back/Escape...');
+  // console.log('[Shortcut] Simulating Back/Escape...');
   sendKey(REMOTE_KEYS.BACK);
 };
 
@@ -364,12 +364,12 @@ function createOpacityControl(key) {
 
 function createOptionsPanel() {
   const elmContainer = createElement('div', {
-    class: isGuestMode() ? 'ytaf-ui-container guest-mode' : 'ytaf-ui-container',
+    class: 'ytaf-ui-container',
     style: { display: 'none' },
     tabIndex: 0,
     events: {
-      focus: () => console.info('Options panel focused!'),
-      blur: () => console.info('Options panel blurred!')
+      focus: () => {}, // console.info('Options panel focused!'),
+      blur: () => {} // console.info('Options panel blurred!')
     }
   });
 
@@ -632,7 +632,7 @@ function createOptionsPanel() {
 
 function showOptionsPanel(visible) {
   if (panelInitBlock) {
-    console.log('[UI] Options panel toggle blocked due to initialization lock.');
+    // console.log('[UI] Options panel toggle blocked due to initialization lock.');
     return;
   }
   if (visible === undefined || visible === null) visible = true;
@@ -641,7 +641,7 @@ function showOptionsPanel(visible) {
 
     // Lazy Initialization
     if (!optionsPanel) {
-      console.log('[UI] Initializing Options Panel (Lazy Load)...');
+      // console.log('[UI] Initializing Options Panel (Lazy Load)...');
       panelInitBlock = true;
       setTimeout(() => {
         panelInitBlock = false;
@@ -654,7 +654,7 @@ function showOptionsPanel(visible) {
       applyTheme(configRead('uiTheme'));
     }
 
-    console.info('Showing and focusing options panel!');
+    // console.info('Showing and focusing options panel!');
     optionsPanel.style.display = 'block';
     if (optionsPanel.activePage === 1 && (isWatchPage())) sponsorBlockUI.togglePopup(true);
     else sponsorBlockUI.togglePopup(false);
@@ -665,20 +665,12 @@ function showOptionsPanel(visible) {
       activeTabBtn.focus();
       lastSafeFocus = activeTabBtn;
     } else {
-      const activeTabBtn = optionsPanel.querySelector('.ytaf-tab-btn.active');
-      if (activeTabBtn) activeTabBtn.focus();
-      else optionsPanel.focus();
-      if (firstVisibleInput) {
-        firstVisibleInput.focus();
-        lastSafeFocus = firstVisibleInput;
-      } else {
-        optionsPanel.focus();
-        lastSafeFocus = optionsPanel;
-      }
+      optionsPanel.focus();
+      lastSafeFocus = optionsPanel;
     }
     optionsPanelVisible = true;
   } else if (!visible && optionsPanelVisible && optionsPanel) {
-    console.info('Hiding options panel!');
+    // console.info('Hiding options panel!');
     optionsPanel.style.display = 'none';
     sponsorBlockUI.togglePopup(false);
     optionsPanel.blur();
@@ -737,7 +729,7 @@ async function skipChapter(direction = 'next') {
 
   // Hack: Force UI to load chapters if they aren't in DOM
   if (chapterEls.length === 0 && !skipChapter.hasForced) {
-    console.log('[Chapters] No chapters found. Forcing UI...');
+    // console.log('[Chapters] No chapters found. Forcing UI...');
     skipChapter.hasForced = true;
     wasForcedNow = true;
     showNotification('Loading chapters...');
@@ -892,7 +884,7 @@ function triggerInternal(element, name) {
   let success = false;
   try {
     element.click();
-    console.log(`[Shortcut] Standard click triggered for ${name}`);
+    // console.log(`[Shortcut] Standard click triggered for ${name}`);
     success = true;
   } catch (e) {
     console.warn(`[Shortcut] Standard click failed for ${name}:`, e);
@@ -901,7 +893,7 @@ function triggerInternal(element, name) {
   // Try to access internal React/Polymer instance for robust clicking
   const instance = element.__instance;
   if (instance && typeof instance.onSelect === 'function') {
-    console.log(`[Shortcut] Also calling internal onSelect() for ${name}`);
+    // console.log(`[Shortcut] Also calling internal onSelect() for ${name}`);
     try {
       const mockEvent = {
         type: 'click', stopPropagation: () => {
@@ -1051,7 +1043,7 @@ function toggleDescriptionLogic() {
   else if (triggerInternal(target, 'Description')) {
     setTimeout(() => {
       if (window.returnYouTubeDislike) {
-        console.log('[Shortcut] Manually triggering RYD check for description panel...');
+        // console.log('[Shortcut] Manually triggering RYD check for description panel...');
         window.returnYouTubeDislike.observeBodyForPanel();
       }
     }, 350);
@@ -1114,7 +1106,7 @@ function refreshPageLogic() {
   };
 
   const appRoot = document.querySelector('ytlr-app') || document.body;
-  console.log('[Shortcut] Triggering soft reload...');
+  // console.log('[Shortcut] Triggering soft reload...');
 
   appRoot.dispatchEvent(new CustomEvent('innertube-command', {
     bubbles: true,
@@ -1289,7 +1281,6 @@ function handleShortcutAction(action) {
 
 const eventHandler = (evt) => {
   if (evt.repeat) return;
-  // console.info('Key event:', evt.type, evt.charCode, evt.keyCode);
 
   // Identify Key (Name or Color)
   let keyName = null;
@@ -1316,7 +1307,7 @@ const eventHandler = (evt) => {
 
   // If the user is typing in a native text box, let standard characters (like 0-9) pass through
   if (!keyColor && (evt.target.tagName === 'INPUT' || evt.target.tagName === 'TEXTAREA')) {
-    console.log('We are typing!');
+    // console.log('We are typing!');
     return true;
   }
   if (!action || action === 'none') {
