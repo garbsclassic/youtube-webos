@@ -101,6 +101,7 @@ if (typeof document !== 'undefined') {
 
 export const isWatchPage = () => _isWatchPage;
 export const isShortsPage = () => _isShortsPage;
+export const isAccountSelectorPage = () => _isAccountSelectorPage;
 export const isSearchPage = () => _isSearchPage;
 
 export function debounce(func, wait) {

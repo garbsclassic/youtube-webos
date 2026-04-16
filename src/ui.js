@@ -17,7 +17,7 @@ import './auto-login.js';
 import './return-dislike.js';
 import { initVideoQuality } from './video-quality.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
-import { sendKey, REMOTE_KEYS, isGuestMode, isWatchPage, isShortsPage, isSearchPage, SELECTORS } from './utils.js';
+import { sendKey, REMOTE_KEYS, isGuestMode, isWatchPage, isShortsPage, isAccountSelectorPage, isSearchPage, SELECTORS } from './utils.js';
 import { initAdblock, destroyAdblock, initTrackingBlock, destroyTrackingBlock } from './adblock.js';
 import { getWebOSVersion } from './webos-utils.js';
 
@@ -850,11 +850,11 @@ function applySeekToVideo() {
   seekAccumulator = 0;
 }
 
-function performBurstSeek(seconds, video, incrementTwice = false) {
+function performBurstSeek(seconds, video) {
   if (!video) video = document.querySelector('video');
   if (!video) return;
 
-  const SEEK_APPLY_DELAY = 300; // ms to wait before applying seek to video
+  const SEEK_APPLY_DELAY = 250; // ms to wait before applying seek to video
   const SEEK_RESET_DELAY = 1000; // ms to wait before resetting UI (notification fade)
   const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
 
@@ -866,29 +866,18 @@ function performBurstSeek(seconds, video, incrementTwice = false) {
   }
 
   seekCount++;
-  if (incrementTwice) {
-    seekCount++;
-  }
 
-  // Handle even presses (complete pairs)
-  const isEvenPress = seekCount % 2 === 0;
-  if (isEvenPress) {
-    // Calculate new accumulator: first pair, reinitialize, or double
-    seekAccumulator = (seekCount === 2 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
-    pendingSeekOffset = seekAccumulator;
+  // Calculate new accumulator: first press, reinitialize, or double
+  seekAccumulator = (seekCount === 1 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
+  pendingSeekOffset = seekAccumulator;
 
-    updateSeekNotification(seekAccumulator);
+  updateSeekNotification(seekAccumulator);
 
-    // Schedule seek application
-    if (seekApplyTimer) clearTimeout(seekApplyTimer);
-    seekApplyTimer = setTimeout(applySeekToVideo, SEEK_APPLY_DELAY);
-  } else if (seekApplyTimer) {
-    // Handle odd presses (incomplete pairs) - cancel pending seek
-    clearTimeout(seekApplyTimer);
-    seekApplyTimer = null;
-  }
+  // Schedule seek application
+  if (seekApplyTimer) clearTimeout(seekApplyTimer);
+  seekApplyTimer = setTimeout(applySeekToVideo, SEEK_APPLY_DELAY);
 
-  // Reset UI after inactivity (both odd and even presses)
+  // Reset UI after inactivity
   if (seekResetTimer) clearTimeout(seekResetTimer);
 
   seekResetTimer = setTimeout(() => {
@@ -1241,7 +1230,7 @@ function handleShortcutAction(action) {
 
   // Player Actions - Require Video/Context
   // Special case: play_pause on non-video pages should activate selected thumbnail
-  if (action === 'play_pause' && !isWatchPage() && !isShortsPage()) {
+  if (action === 'play_pause' && isAccountSelectorPage() && isSearchPage()) {
     const activeEl = document.activeElement;
 
     // Check if a clickable video element is focused (thumbnail, video card, etc.)
@@ -1263,7 +1252,7 @@ function handleShortcutAction(action) {
 
   // Special case: seek buttons on non-video pages should navigate left/right
   if ((action === 'seek_fwd' || action === 'seek_back' || action === 'seek_back_half') && 
-      !isWatchPage() && !isShortsPage()) {
+      isAccountSelectorPage() && isSearchPage()) {
     const direction = action === 'seek_fwd' ? 'right' : 'left';
     navigate(direction);
     return;
@@ -1290,7 +1279,7 @@ function handleShortcutAction(action) {
       performBurstSeek(-15, video);
       break;
     case 'seek_back_half':
-      performBurstSeek(-7.5, video, true);
+      performBurstSeek(-7.5, video);
       break;
     case 'play_pause':
       playPauseLogic(video);
