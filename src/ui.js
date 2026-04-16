@@ -1151,6 +1151,7 @@ function playPauseLogic(video) {
     const isPanelVisible = panel && window.getComputedStyle(panel).display !== 'none';
     const watchOverlay = document.querySelector('.webOs-watch');
     let needsHide = false;
+
     if (!isControlsVisible) {
       needsHide = true;
       document.body.classList.add('ytaf-hide-controls');
@@ -1194,12 +1195,14 @@ function handleShortcutAction(action) {
 
   if (action === 'oled_toggle') {
     let overlay = document.getElementById('oled-black-overlay');
+
     if (overlay) {
       overlay.remove();
       if (oledKeepAliveTimer) {
         clearInterval(oledKeepAliveTimer);
         oledKeepAliveTimer = null;
       }
+
       showNotification('OLED Mode Deactivated');
     } else {
       if (optionsPanelVisible) showOptionsPanel(false);
@@ -1208,6 +1211,7 @@ function handleShortcutAction(action) {
         id: 'oled-black-overlay',
         style: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: '#000', zIndex: 9999 }
       });
+
       document.body.appendChild(overlay);
 
       // Keep TV awake by simulating input
@@ -1215,8 +1219,10 @@ function handleShortcutAction(action) {
         sendKey(REMOTE_KEYS.UP);
         setTimeout(() => sendKey(REMOTE_KEYS.UP), 250);
       }, 30 * 60 * 1000);
+
       showNotification('OLED Mode Activated');
     }
+
     return;
   }
   if (action === 'refresh_page') {
@@ -1224,13 +1230,14 @@ function handleShortcutAction(action) {
       showNotification('Cannot refresh on player pages');
       return;
     }
+
     refreshPageLogic();
     return;
   }
 
   // Player Actions - Require Video/Context
   // Special case: play_pause on non-video pages should activate selected thumbnail
-  if (action === 'play_pause' && isAccountSelectorPage() && isSearchPage()) {
+  if (action === 'play_pause' && (isAccountSelectorPage() || isSearchPage())) {
     const activeEl = document.activeElement;
 
     // Check if a clickable video element is focused (thumbnail, video card, etc.)
@@ -1252,7 +1259,7 @@ function handleShortcutAction(action) {
 
   // Special case: seek buttons on non-video pages should navigate left/right
   if ((action === 'seek_fwd' || action === 'seek_back' || action === 'seek_back_half') && 
-      isAccountSelectorPage() && isSearchPage()) {
+      (isAccountSelectorPage() || isSearchPage())) {
     const direction = action === 'seek_fwd' ? 'right' : 'left';
     navigate(direction);
     return;
