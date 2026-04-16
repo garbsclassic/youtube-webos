@@ -71,10 +71,10 @@ const ACTION_SCOPES = {
   refresh_page: 'NON_VIDEO',
   chapter_skip: 'VIDEO',
   chapter_skip_prev: 'VIDEO',
-  seek_fwd: 'VIDEO',
-  seek_back: 'VIDEO',
-  seek_back_half: 'VIDEO',
-  play_pause: 'VIDEO',
+  seek_fwd: 'GLOBAL',
+  seek_back: 'GLOBAL',
+  seek_back_half: 'GLOBAL',
+  play_pause: 'GLOBAL',
   toggle_subs: 'VIDEO',
   toggle_comments: 'VIDEO',
   toggle_description: 'VIDEO',
@@ -850,7 +850,7 @@ function applySeekToVideo() {
   seekAccumulator = 0;
 }
 
-function performBurstSeek(seconds, video) {
+function performBurstSeek(seconds, video, incrementTwice = false) {
   if (!video) video = document.querySelector('video');
   if (!video) return;
 
@@ -866,11 +866,12 @@ function performBurstSeek(seconds, video) {
   }
 
   seekCount++;
-
-  // Calculate isEvenPress AFTER incrementing seekCount
-  const isEvenPress = seekCount % 2 === 0;
+  if (incrementTwice) {
+    seekCount++;
+  }
 
   // Handle even presses (complete pairs)
+  const isEvenPress = seekCount % 2 === 0;
   if (isEvenPress) {
     // Calculate new accumulator: first pair, reinitialize, or double
     seekAccumulator = (seekCount === 2 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
@@ -1289,7 +1290,7 @@ function handleShortcutAction(action) {
       performBurstSeek(-15, video);
       break;
     case 'seek_back_half':
-      performBurstSeek(-7.5, video);
+      performBurstSeek(-7.5, video, true);
       break;
     case 'play_pause':
       playPauseLogic(video);
