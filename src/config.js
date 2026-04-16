@@ -19,8 +19,9 @@ export const shortcutActions = {
   chapter_skip: 'Skip to Next Chapter',
   chapter_skip_prev: 'Skip to Previous Chapter',
   sb_skip_prev: 'Skip to Last SponsorBlock Segment',
-  seek_15_fwd: 'Fast Forward (Burst)',
-  seek_15_back: 'Rewind (Burst)',
+  seek_fwd: 'Fast Forward (Burst)',
+  seek_back: 'Rewind (Burst)',
+  seek_back_half: 'Rewind Half Speed (Burst)',
   play_pause: 'Play/Pause',
   toggle_subs: 'Toggle Subtitles',
   toggle_comments: 'Toggle Comments',
@@ -95,9 +96,9 @@ for (let i = 0; i < 10; i++) {
 // Register shortcut keys Red, Green, Blue
 ['red', 'green', 'blue'].forEach(color => {
   let def = 'none';
-  if (color === 'red') def = 'seek_15_back';
+  if (color === 'red') def = 'seek_back';
   if (color === 'green') def = 'config_menu';
-  if (color === 'blue') def = 'seek_15_fwd';
+  if (color === 'blue') def = 'seek_fwd';
   configOptions.set(`shortcut_key_${color}`, { default: def, desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action` });
 });
 

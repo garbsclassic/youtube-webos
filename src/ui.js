@@ -71,8 +71,9 @@ const ACTION_SCOPES = {
   refresh_page: 'NON_VIDEO',
   chapter_skip: 'VIDEO',
   chapter_skip_prev: 'VIDEO',
-  seek_15_fwd: 'VIDEO',
-  seek_15_back: 'VIDEO',
+  seek_fwd: 'VIDEO',
+  seek_back: 'VIDEO',
+  seek_back_half: 'VIDEO',
   play_pause: 'VIDEO',
   toggle_subs: 'VIDEO',
   toggle_comments: 'VIDEO',
@@ -387,19 +388,9 @@ function createOptionsPanel() {
       }
     }
   });
+
   const tabs = ['Main', 'SponsorBlock', 'Shortcuts', 'UI Tweaks'];
-  const tabBtns = tabs.map((name, index) => {
-    return createElement('button', {
-      class: index === 0 ? 'ytaf-tab-btn active' : 'ytaf-tab-btn',
-      text: name,
-      tabIndex: 0,
-      events: {
-        click: () => setActivePage(index),
-        mouseenter: (e) => e.target.focus()
-      }
-    });
-  });
-  tabBtns.forEach(btn => tabMenu.appendChild(btn));
+  let tabBtns = []; // Declare first so setActivePage can reference it
 
   const setActivePage = (pageIndex) => {
     if (pageIndex === activePage) return; // Don't do work if we are already on this tab
@@ -428,6 +419,21 @@ function createOptionsPanel() {
     // 4. Handle SponsorBlock popup state
     sponsorBlockUI.togglePopup(hasPopups[activePage] && isWatchPage());
   };
+
+  // Create tab buttons after setActivePage is defined
+  tabBtns = tabs.map((name, index) => {
+    return createElement('button', {
+      class: index === 0 ? 'ytaf-tab-btn active' : 'ytaf-tab-btn',
+      text: name,
+      tabIndex: 0,
+      events: {
+        focus: () => setActivePage(index),
+        click: () => setActivePage(index),
+        mouseenter: (e) => e.target.focus()
+      }
+    });
+  });
+  tabBtns.forEach(btn => void tabMenu.appendChild(btn));
 
   // Keyboard Navigation for the Options Panel
   elmContainer.addEventListener('keydown', (evt) => {
@@ -1232,11 +1238,14 @@ function handleShortcutAction(action) {
     case 'chapter_skip_prev':
       skipChapter('prev');
       break;
-    case 'seek_15_fwd':
-      performBurstSeek(10, video);
+    case 'seek_fwd':
+      performBurstSeek(15, video);
       break;
-    case 'seek_15_back':
-      performBurstSeek(-10, video);
+    case 'seek_back':
+      performBurstSeek(-15, video);
+      break;
+    case 'seek_back_half':
+      performBurstSeek(-7.5, video);
       break;
     case 'play_pause':
       playPauseLogic(video);
@@ -1325,7 +1334,7 @@ const eventHandler = (evt) => {
 
   // --- Proceed to Debounce and Execution ---
 
-  const isBurstAction = action === 'seek_15_fwd' || action === 'seek_15_back';
+  const isBurstAction = action === 'seek_fwd' || action === 'seek_back' || action === 'seek_back_half';
   const now = Date.now();
 
   if (!isBurstAction && now - lastShortcutTime < shortcutDebounceTime && lastShortcutKey === keyName) {
