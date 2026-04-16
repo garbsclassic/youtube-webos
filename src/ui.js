@@ -494,7 +494,25 @@ function createOptionsPanel() {
       }
     } else if (evt.keyCode === REMOTE_KEYS.ENTER.code) {
       if (evt instanceof KeyboardEvent) document.activeElement.click();
-    } else if (evt.keyCode === 27) { // Escape
+    } else if (evt.keyCode === 27 || evt.keyCode === REMOTE_KEYS.BACK.code) { // Escape or Back
+      const currentFocus = document.activeElement;
+      const isOnTabBtn = currentFocus && currentFocus.classList.contains('ytaf-tab-btn');
+      const isInSettingsPage = currentFocus && currentFocus.closest('.ytaf-settings-page');
+      
+      if (isInSettingsPage || (currentFocus && !isOnTabBtn && currentFocus !== elmContainer)) {
+        // Focus is in page content, move to active tab button
+        const activeTabBtn = tabBtns[activePage];
+
+        if (activeTabBtn) {
+          activeTabBtn.focus();
+          evt.preventDefault();
+          evt.stopPropagation();
+
+          return;
+        }
+      }
+      
+      // Focus is on tab button or container, close the menu
       showOptionsPanel(false);
     }
     evt.preventDefault();
@@ -1156,11 +1174,16 @@ function playPauseLogic(video) {
     if (needsHide && !isShortsPage() && !isPanelVisible) {
       shortcutDebounceTime = 650;
 
-      if (document.activeElement && typeof document.activeElement.blur === 'function') {
-        document.activeElement.blur();
+      const activeEl = document.activeElement;
+      if (activeEl && typeof activeEl.blur === 'function') {
+        activeEl.blur();
       }
 
-      setTimeout(() => sendKey(REMOTE_KEYS.BACK, document.activeElement), 250); // don't press back button if we're on shorts or we leave the page
+      // Only send BACK if we're not at the top level (video/body being focused exits page)
+      const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
+      if (!isAtTopLevel) {
+        setTimeout(() => sendKey(REMOTE_KEYS.BACK, activeEl), 250);
+      }
     }
 
     if (needsHide && !isShortsPage()) {
@@ -1216,6 +1239,35 @@ function handleShortcutAction(action) {
   }
 
   // Player Actions - Require Video/Context
+  // Special case: play_pause on non-video pages should activate selected thumbnail
+  if (action === 'play_pause' && !isWatchPage() && !isShortsPage()) {
+    const activeEl = document.activeElement;
+
+    // Check if a clickable video element is focused (thumbnail, video card, etc.)
+    if (activeEl && activeEl !== document.body && 
+        (activeEl.closest('ytlr-video-renderer') || 
+         activeEl.closest('ytlr-compact-video-renderer') ||
+         activeEl.closest('ytlr-grid-video-renderer') ||
+         activeEl.closest('ytlr-rich-item-renderer') ||
+         activeEl.closest('[role="article"]'))) {
+      // Activate the focused video
+      activeEl.click();
+
+      return;
+    }
+
+    // No video selected, do nothing
+    return;
+  }
+
+  // Special case: seek buttons on non-video pages should navigate left/right
+  if ((action === 'seek_fwd' || action === 'seek_back' || action === 'seek_back_half') && 
+      !isWatchPage() && !isShortsPage()) {
+    const direction = action === 'seek_fwd' ? 'right' : 'left';
+    navigate(direction);
+    return;
+  }
+
   // Check context for player actions (same check as used previously for keys 0-9)
   if (!isWatchPage() && !isShortsPage()) return;
 
