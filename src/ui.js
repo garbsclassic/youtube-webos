@@ -17,7 +17,7 @@ import './auto-login.js';
 import './return-dislike.js';
 import { initVideoQuality } from './video-quality.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
-import { sendKey, REMOTE_KEYS, isGuestMode, isWatchPage, isShortsPage, isAccountSelectorPage, isSearchPage, SELECTORS } from './utils.js';
+import { sendKey, REMOTE_KEYS, isGuestMode, isWatchPage, isShortsPage, isSearchPage, SELECTORS } from './utils.js';
 import { initAdblock, destroyAdblock, initTrackingBlock, destroyTrackingBlock } from './adblock.js';
 import { getWebOSVersion } from './webos-utils.js';
 
@@ -69,11 +69,12 @@ const ACTION_SCOPES = {
   config_menu: 'GLOBAL',
   oled_toggle: 'GLOBAL',
   refresh_page: 'NON_VIDEO',
-  chapter_skip: 'VIDEO',
   chapter_skip_prev: 'VIDEO',
-  seek_fwd: 'GLOBAL',
+  chapter_skip_next: 'VIDEO',
   seek_back: 'GLOBAL',
-  seek_back_half: 'GLOBAL',
+  seek_back_ex: 'GLOBAL',
+  seek_fwd: 'GLOBAL',
+  seek_fwd_ex: 'GLOBAL',
   play_pause: 'GLOBAL',
   toggle_subs: 'VIDEO',
   toggle_comments: 'VIDEO',
@@ -1225,8 +1226,11 @@ function handleShortcutAction(action) {
 
     return;
   }
+
+  const isVideoPage = isWatchPage() || isShortsPage();
+
   if (action === 'refresh_page') {
-    if (isWatchPage() || isShortsPage()) {
+    if (isVideoPage) {
       showNotification('Cannot refresh on player pages');
       return;
     }
@@ -1235,61 +1239,55 @@ function handleShortcutAction(action) {
     return;
   }
 
-  // Player Actions - Require Video/Context
-  // Special case: play_pause on non-video pages should activate selected thumbnail
-  if (action === 'play_pause' && (isAccountSelectorPage() || isSearchPage())) {
-    const activeEl = document.activeElement;
-
-    // Check if a clickable video element is focused (thumbnail, video card, etc.)
-    if (activeEl && activeEl !== document.body && 
-        (activeEl.closest('ytlr-video-renderer') || 
-         activeEl.closest('ytlr-compact-video-renderer') ||
-         activeEl.closest('ytlr-grid-video-renderer') ||
-         activeEl.closest('ytlr-rich-item-renderer') ||
-         activeEl.closest('[role="article"]'))) {
-      // Activate the focused video
-      activeEl.click();
-
+  if (!isVideoPage) {
+    // Special case: play_pause on non-video pages should activate selected thumbnail
+    if (action === 'play_pause') {
+      sendKey(REMOTE_KEYS.ENTER);
       return;
     }
 
-    // No video selected, do nothing
+    // Special case: seek buttons on non-video pages should navigate left/right
+    if (action === 'seek_back' || action === 'seek_back_ex') {
+      sendKey(REMOTE_KEYS.LEFT);
+      return;
+    }
+
+    // Special case: seek buttons on non-video pages should navigate left/right
+    if (action === 'seek_fwd' || action === 'seek_fwd_ex') {
+      sendKey(REMOTE_KEYS.RIGHT);
+      return;
+    }
+
     return;
   }
 
-  // Special case: seek buttons on non-video pages should navigate left/right
-  if ((action === 'seek_fwd' || action === 'seek_back' || action === 'seek_back_half') && 
-      (isAccountSelectorPage() || isSearchPage())) {
-    const direction = action === 'seek_fwd' ? 'right' : 'left';
-    navigate(direction);
-    return;
-  }
-
-  // Check context for player actions (same check as used previously for keys 0-9)
-  if (!isWatchPage() && !isShortsPage()) return;
-
+  // Player Actions - Require Video/Context
   const video = document.querySelector('video');
   const player = document.getElementById(SELECTORS.PLAYER_ID) || document.querySelector('.html5-video-player');
   if (!video) return;
 
+  // Check context for player actions (same check as used previously for keys 0-9)
   switch (action) {
-    case 'chapter_skip':
-      skipChapter('next');
+    case 'play_pause':
+      playPauseLogic(video);
       break;
     case 'chapter_skip_prev':
       skipChapter('prev');
       break;
-    case 'seek_fwd':
-      performBurstSeek(15, video);
+    case 'chapter_skip_next':
+      skipChapter('next');
       break;
     case 'seek_back':
-      performBurstSeek(-15, video);
+      performBurstSeek(-10, video);
       break;
-    case 'seek_back_half':
-      performBurstSeek(-7.5, video);
+    case 'seek_back_ex':
+      performBurstSeek(-30, video);
       break;
-    case 'play_pause':
-      playPauseLogic(video);
+    case 'seek_fwd':
+      performBurstSeek(10, video);
+      break;
+    case 'seek_fwd_ex':
+      performBurstSeek(30, video);
       break;
     case 'toggle_subs':
       toggleSubtitlesLogic(player);
@@ -1374,7 +1372,7 @@ const eventHandler = (evt) => {
 
   // --- Proceed to Debounce and Execution ---
 
-  const isBurstAction = action === 'seek_fwd' || action === 'seek_back' || action === 'seek_back_half';
+  const isBurstAction = action === 'seek_back' || action === 'seek_back_ex' || action === 'seek_fwd' || action === 'seek_fwd_ex';
   const now = Date.now();
 
   if (!isBurstAction && now - lastShortcutTime < shortcutDebounceTime && lastShortcutKey === keyName) {
