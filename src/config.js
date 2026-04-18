@@ -1,7 +1,7 @@
 const CONFIG_KEY = 'ytaf-configuration';
 
 export const segmentTypes = {
-  sponsor: { color: '#00d400', opacity: '0.7', name: 'sponsored' },
+  sponsor: { color: '#00d400', opacity: '0.7', name: 'sponsor' },
   intro: { color: '#00ffff', opacity: '0.7', name: 'intro' },
   outro: { color: '#0202ed', opacity: '0.7', name: 'outro' },
   interaction: { color: '#cc00ff', opacity: '0.7', name: 'interaction reminder' },

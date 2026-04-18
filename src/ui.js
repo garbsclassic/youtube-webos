@@ -1215,11 +1215,11 @@ function handleShortcutAction(action) {
 
       document.body.appendChild(overlay);
 
-      // Keep TV awake by simulating input
+      // Keep TV awake by simulating input (every 8 minutes to prevent screensaver)
       oledKeepAliveTimer = setInterval(() => {
         sendKey(REMOTE_KEYS.UP);
         setTimeout(() => sendKey(REMOTE_KEYS.UP), 250);
-      }, 30 * 60 * 1000);
+      }, 8 * 60 * 1000);
 
       showNotification('OLED Mode Activated');
     }
@@ -1328,6 +1328,9 @@ function handleShortcutAction(action) {
 
 const eventHandler = (evt) => {
   if (evt.repeat) return;
+  
+  // Ignore synthetic events that we create ourselves to prevent double inputs
+  if (!evt.isTrusted) return;
 
   // Identify Key (Name or Color)
   let keyName = null;
