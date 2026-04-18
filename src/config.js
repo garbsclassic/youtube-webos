@@ -6,7 +6,7 @@ export const segmentTypes = {
   outro: { color: '#0202ed', opacity: '0.7', name: 'outro' },
   interaction: { color: '#cc00ff', opacity: '0.7', name: 'interaction reminder' },
   selfpromo: { color: '#ffff00', opacity: '0.7', name: 'self-promotion' },
-  musicofftopic: { color: '#ff9900', opacity: '0.7', name: 'non-music part' },
+  musicofftopic: { color: '#ff9900', opacity: '0.7', name: 'non-music portion' },
   preview: { color: '#008fd6', opacity: '0.7', name: 'recap or preview' },
   poi_highlight: { color: '#ff1684', opacity: '0.8', name: 'poi_highlight' },
   filler: { color: '#7300ff', opacity: '0.7', name: 'tangents/jokes' },
@@ -91,7 +91,7 @@ const configOptions = new Map([
 
 // Register shortcut keys 0-9
 for (let i = 0; i < 10; i++) {
-  configOptions.set(`shortcut_key_${i}`, { default: i === 5 ? 'chapter_skip' : 'none', desc: `Key ${i} Action` });
+  configOptions.set(`shortcut_key_${i}`, { default: i === 5 ? 'chapter_skip_next' : 'none', desc: `Key ${i} Action` });
 }
 
 // Register shortcut keys Red, Green, Blue
@@ -115,11 +115,10 @@ for (const [k, v] of configOptions) {
 const changeListeners = new Map();
 
 function loadStoredConfig() {
-  const storage = window.localStorage.getItem(CONFIG_KEY);
-
-  if (storage === null) return null;
-
   try {
+    const storage = window.localStorage.getItem(CONFIG_KEY);
+    if (storage === null) return null;
+
     return JSON.parse(storage);
   } catch {
     return null;
@@ -147,9 +146,14 @@ export function configWrite(key, value) {
   const oldValue = localConfig[key];
   if (oldValue === value) return;
 
-  // console.info('Changing key', key, 'from', oldValue, 'to', value);
   localConfig[key] = value;
-  window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
+  
+  try {
+    window.localStorage.setItem(CONFIG_KEY, JSON.stringify(localConfig));
+  } catch (e) {
+    console.error('Failed to save config to localStorage:', e);
+    // Continue to notify listeners even if storage fails
+  }
 
   const listeners = changeListeners.get(key);
   if (listeners) {
