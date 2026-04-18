@@ -594,7 +594,15 @@ function createOptionsPanel() {
   updateDependencyState();
 
   pageMain.appendChild(createSection('Video Player', [createConfigCheckbox('forceHighResVideo'), createConfigCheckbox('hideEndcards'), createConfigCheckbox('enableReturnYouTubeDislike')]));
-  pageMain.appendChild(createSection('Interface', [createConfigCheckbox('enableAutoLogin'), createConfigCheckbox('upgradeThumbnails'), createConfigCheckbox('hideLogo'), createConfigCheckbox('showWatch'), createConfigCheckbox('enableOledCareMode'), createConfigCheckbox('disableNotifications')]));
+  pageMain.appendChild(createSection('Interface', [
+    createConfigCheckbox('enableAutoLogin'),
+    createConfigCheckbox('upgradeThumbnails'),
+    createConfigCheckbox('hideLogo'),
+    createConfigCheckbox('showWatch'),
+    createConfigCheckbox('enableOledCareMode'),
+    createCycleControl('uiTheme', 'UI Theme', ['blue-force-field', 'classic-red'], { 'blue-force-field': 'Blue Force Field', 'classic-red': 'Classic Red' }),
+    createConfigCheckbox('disableNotifications')
+  ]));
   elmContainer.appendChild(pageMain);
 
   // --- Page 2: SponsorBlock ---
