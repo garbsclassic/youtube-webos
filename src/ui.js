@@ -179,7 +179,6 @@ function createConfigCheckbox(key) {
 
   const labelContent = createElement('div', {
     class: 'label-content',
-    style: { fontSize: '2.1vh' }
   }, elmInput, `\u00A0${configGetDesc(key)}`);
   const elmLabel = createElement('label', {}, labelContent);
 
@@ -227,7 +226,7 @@ function createGenericControlRow(labelText, displayValueGetter, onLeft, onRight,
         click: () => onClick()
       }
     },
-    createElement('span', { text: labelText, class: 'shortcut-label', style: { fontSize: '2.1vh' } }),
+    createElement('span', { text: labelText, class: 'shortcut-label' }),
     createElement('div', { class: 'shortcut-value-container' },
       createElement('span', {
         text: '<', class: 'arrow-btn', events: {

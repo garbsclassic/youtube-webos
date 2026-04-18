@@ -2,7 +2,7 @@
 
 .ytaf-ui-container {
   position: fixed;
-  top: 5%;
+  top: 4%;
   left: 25%;
   transform: translateX(-50%);
   width: 95vw;
@@ -22,7 +22,7 @@
   background-position: -0.1vh -0.1vh;
   border: none;
   border-radius: 1.5vh;
-  box-shadow: none;
+  box-shadow: 0 0.9vh 1.8vh rgba(0, 0, 0 ,0.8);
 }
 
 /* Red Theme Variant */
@@ -103,7 +103,7 @@
   appearance: none;
   -webkit-appearance: none;
   background: rgba(0, 146, 146, 0.3);
-  border: 0.2vh solid rgba(0, 180, 180, 0.3);
+  border: 0.2vh solid rgba(0, 204, 204, 0.3);
   border-radius: 0.4vh;
   position: relative;
   cursor: pointer;
@@ -111,14 +111,15 @@
 }
 
 .ytaf-ui-container input[type='checkbox']:checked {
-  background: #404040;
+  background: #009292;
   border-color: rgba(0, 235, 235, 0.8);
   /* Removed box-shadow for performance */
   box-shadow: none;
 }
 
 .ytaf-ui-container.theme-classic-red input[type='checkbox'] {
-  border-color: rgba(255, 116, 0, 0.3);
+  background: rgba(0, 255, 77, 0.3);
+  border-color: rgba(255, 154, 0, 0.3);
 }
 
 .ytaf-ui-container.theme-classic-red input[type='checkbox']:checked {
@@ -375,21 +376,17 @@
   padding: 1.1vh 0.75vh;
   cursor: pointer;
   border-radius: 0.75vh;
+  color: #e0e0e0;
   font-size: 2.3vh;
+  font-weight: 500;
   margin: 0 -0.75vh 0.4vh;
   box-shadow: 0 0 0 2px transparent;
   transition: box-shadow 0.1s ease-out, background 0.1s ease-out;
 }
 
-.shortcut-label {
-  color: #e0e0e0;
-  font-weight: 500;
-}
-
 .shortcut-value-container {
   display: flex;
   align-items: center;
-  color: #e0e0e0;
 }
 
 .shortcut-value-container > * {
@@ -402,7 +399,6 @@
 
 .shortcut-value-container .arrow-btn {
   color: #00ebeb;
-  font-size: 2.3vh;
   font-weight: 600;
   user-select: none;
 }
@@ -414,7 +410,6 @@
 .shortcut-value-container .current-value {
   min-width: 14vh;
   text-align: center;
-  font-weight: 500;
 }
 
 /* Color Picker */

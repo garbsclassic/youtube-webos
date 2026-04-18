@@ -6,8 +6,8 @@ const STYLES = `
     /* --- Popup Styles --- */
     .sb-segments-popup {
         position: fixed;
-        top: 5%;
-        right: 4%;
+        top: 4%;
+        right: 4.5%;
         bottom: auto;
         left: auto;
         transform: none;
@@ -24,7 +24,7 @@ const STYLES = `
         display: none;
         color: #ececec;
         font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
-        box-shadow: 0 0.93vh 1.56vw rgba(0,0,0,0.8); /* 0 10px 30px */
+        box-shadow: 0 0.9vh 1.8vh rgba(0, 0, 0 ,0.8);
     }
     
     .sb-segments-popup.visible {
