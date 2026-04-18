@@ -7,11 +7,12 @@ const STYLES = `
     .sb-segments-popup {
         position: fixed;
         top: 5%;
-        right: 5%;
+        right: 4%;
         bottom: auto;
         left: auto;
         transform: none;
         
+        background-color: #000000;
         border-radius: 0.83vw;    /* 16px */
         padding: 1.04vw;          /* 20px */
         
