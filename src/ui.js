@@ -2,23 +2,23 @@
 import './spatial-navigation-polyfill.js';
 import {
   configAddChangeListener,
+  configGetDefault,
+  configGetDesc,
   configRead,
   configWrite,
-  configGetDesc,
-  segmentTypes,
-  configGetDefault,
-  shortcutActions,
+  forcePreviewModes,
   sbModes,
   sbModesHighlight,
-  forcePreviewModes
+  segmentTypes,
+  shortcutActions
 } from './config.js';
 import './ui.css';
 import './auto-login.js';
 import './return-dislike.js';
 import { initVideoQuality } from './video-quality.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
-import { sendKey, REMOTE_KEYS, isGuestMode, isWatchPage, isShortsPage, isSearchPage, SELECTORS } from './utils.js';
-import { initAdblock, destroyAdblock, initTrackingBlock, destroyTrackingBlock } from './adblock.js';
+import { isGuestMode, isSearchPage, isShortsPage, isWatchPage, REMOTE_KEYS, SELECTORS, sendKey } from './utils.js';
+import { destroyAdblock, destroyTrackingBlock, initAdblock, initTrackingBlock } from './adblock.js';
 import { getWebOSVersion } from './webos-utils.js';
 
 let lastSafeFocus = null;
@@ -193,13 +193,13 @@ function createConfigCheckbox(key) {
 function createSection(title, elements) {
   const legend = createElement('div', {
     text: title,
-    style: { color: '#aaa', fontSize: '2.4vh', marginBottom: '0.4vh', fontWeight: 'bold', textTransform: 'uppercase' }
+    style: { color: '#888', fontSize: '2.5vh', marginBottom: '0.4vh', fontWeight: 'bold', textTransform: 'uppercase' }
   });
-  const fieldset = createElement('div', {
+
+  return createElement('div', {
     class: 'ytaf-settings-section',
     style: { marginTop: '1vh', marginBottom: '0.5vh', padding: '0vh', border: 'none', borderRadius: '5px' }
   }, legend, ...elements);
-  return fieldset;
 }
 
 // --- Generic UI Components Factory ---
@@ -538,9 +538,9 @@ function createOptionsPanel() {
 
   const elmHeading = createElement('h1', {},
     createElement('span', { text: 'YouTube Extended' }),
-    createLogo('https://raw.githubusercontent.com/NicholasBly/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel.png', 'logo-blue'),
-    createLogo('https://raw.githubusercontent.com/NicholasBly/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel2.png', 'logo-red'),
-    createLogo('https://raw.githubusercontent.com/NicholasBly/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel4.png', 'logo-dark')
+    createLogo('https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel.png', 'logo-blue'),
+    createLogo('https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel2.png', 'logo-red'),
+    createLogo('https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel4.png', 'logo-dark')
   );
   elmContainer.appendChild(elmHeading);
   elmContainer.appendChild(tabMenu);
@@ -600,7 +600,6 @@ function createOptionsPanel() {
     createConfigCheckbox('hideLogo'),
     createConfigCheckbox('showWatch'),
     createConfigCheckbox('enableOledCareMode'),
-    createCycleControl('uiTheme', 'UI Theme', ['blue-force-field', 'classic-red'], { 'blue-force-field': 'Blue Force Field', 'classic-red': 'Classic Red' }),
     createConfigCheckbox('disableNotifications')
   ]));
   elmContainer.appendChild(pageMain);
@@ -629,15 +628,16 @@ function createOptionsPanel() {
   pageUITweaks = createElement('div', { class: 'ytaf-settings-page', id: 'ytaf-page-ui-tweaks', style: { display: 'none' } });
 
   const playerUITweaks = [
+    createCycleControl('uiTheme', 'UI Theme', ['blue-force-field', 'classic-red'], { 'blue-force-field': 'Blue Force Field', 'classic-red': 'Classic Red' }),
     createOpacityControl('videoShelfOpacity'),
     createElement('div', {
       text: 'Adjusts opacity of black background underneath videos (Requires OLED-care mode)',
-      style: { color: '#aaa', fontSize: '18px', padding: '4px 12px 12px' }
+      style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
     }),
     createPreviewControl('forcePreviews'),
     createElement('div', {
       text: 'Forces the video thumbnail preview on/off on app load',
-      style: { color: '#aaa', fontSize: '18px', padding: '4px 12px 12px' }
+      style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
     }),
     createConfigCheckbox('fixMultilineTitles')
   ];

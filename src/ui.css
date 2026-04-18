@@ -1,14 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+
 .ytaf-ui-container {
   position: fixed;
   top: 5vh;
-  left: 30%;
+  left: 25%;
   transform: translateX(-50%);
   width: 95vw;
   max-width: 41.6vw;
   max-height: 95vh;
   color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 4.44vh;
+  font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
+  font-size: 2.3vh;
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -40,10 +42,10 @@
   margin: 0;
   padding: 1.5vh 3vh 1.1vh;
   text-align: center;
-  font-size: 3.89vh;
+  font-size: 3.5vh;
   font-weight: 600;
-  border-bottom: 0.1vh solid rgba(0, 180, 180, 0.2);
-  color: #00dfdf;
+  border-bottom: 0.2vh solid rgba(0, 180, 180, 0.3);
+  color: #00ebeb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,7 +56,7 @@
 
 .ytaf-ui-container.theme-classic-red h1 {
   color: #ffc100;
-  border-bottom-color: rgba(255, 116, 0, 0.2);
+  border-bottom-color: rgba(255, 116, 0, 0.3);
 }
 
 .ytaf-ui-container .ytaf-logo {
@@ -94,10 +96,10 @@
 }
 
 .ytaf-ui-container input[type='checkbox'] {
-  width: 1.85vh;
-  height: 1.85vh;
+  width: 2vh;
+  height: 2vh;
   margin: 0;
-  margin-right: 1.1vh;
+  margin-right: 1vh;
   appearance: none;
   -webkit-appearance: none;
   background: rgba(0, 146, 146, 0.3);
@@ -132,12 +134,12 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: white;
-  font-size: 1.3vh;
+  font-size: 1.4vh;
   font-weight: bold;
 }
 
 .ytaf-ui-container input[type='checkbox']:focus {
-  outline: 0.2vh solid #00dfdf;
+  outline: 0.2vh solid #00ebeb;
   outline-offset: 0.2vh;
 }
 
@@ -150,7 +152,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 2.22vh;
+  font-size: 2.3vh;
   font-weight: 400;
   line-height: 0.85;
   padding: 1.1vh 0;
@@ -176,21 +178,21 @@
 .ytaf-ui-container .shortcut-control-row:focus {
   background: rgba(0, 180, 180, 0.2);
   border-radius: 0.75vh;
-  box-shadow: 0 0 0 0.2vh #00dfdf;
+  box-shadow: 0 0 0 0.2vh #00ebeb;
   outline: none;
 }
 
 .ytaf-ui-container label:focus-within {
   background: rgba(0, 180, 180, 0.2);
   border-radius: 0.75vh;
-  box-shadow: 0 0 0 0.2vh #00dfdf;
+  box-shadow: 0 0 0 0.2vh #00ebeb;
   outline: none;
 }
 
 .ytaf-ui-container label.focused {
   background: rgba(0, 180, 180, 0.2);
   border-radius: 0.75vh;
-  box-shadow: 0 0 0 0.2vh #00dfdf;
+  box-shadow: 0 0 0 0.2vh #00ebeb;
 }
 
 .ytaf-ui-container.theme-classic-red .shortcut-control-row:focus,
@@ -220,23 +222,9 @@
 }
 
 .ytaf-ui-container blockquote label {
-  font-size: 1.85vh;
+  font-size: 2vh;
   color: #e0e0e0;
   padding: 0.75vh 0;
-}
-
-.ytaf-ui-container small {
-  display: block;
-  text-align: center;
-  color: #888888;
-  font-size: 1.48vh;
-  margin-top: 1.85vh;
-  padding-top: 1.5vh;
-  border-top: 0.1vh solid rgba(0, 180, 180, 0.2);
-}
-
-.ytaf-ui-container.theme-classic-red small {
-  border-top-color: rgba(255, 116, 0, 0.2);
 }
 
 .ytaf-notification-container {
@@ -256,13 +244,11 @@
   margin-bottom: 1.1vh;
   border: 0.1vh solid rgba(0, 223, 223, 0.8);
   border-left: 0.5vh solid rgba(0, 223, 223, 0.8);
-  /*border-radius: 1.1vh;*/
   border-radius: 0.5rem;
   background: rgba(0, 146, 146, 0.2);
-  /*padding: 1.5vh 1.85vh;*/
   padding: 0.3rem 0.6rem;
   box-shadow: 0.5vh 0.5vh 1vh rgb(0, 0, 0);
-  font-family: Roboto, sans-serif;
+  font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
   font-size: 1.25rem;
   font-weight: 500;
   color: #ffffff;
@@ -290,7 +276,7 @@
   }
 
   .ytaf-ui-container h1 {
-    font-size: 2.22vh;
+    font-size: 2.3vh;
     padding: 1.3vh 2.2vh 1vh;
   }
 
@@ -352,8 +338,8 @@
   margin: 0 0.5vh;
   background: transparent;
   border: none;
-  color: #00b4b4;
-  font-size: 2.1vh;
+  color: #888888;
+  font-size: 2.3vh;
   font-weight: 600;
   padding: 1vh 2vh;
   border-radius: 0.75vh;
@@ -363,12 +349,8 @@
   font-family: inherit;
 }
 
-.ytaf-ui-container.theme-classic-red .ytaf-tab-btn {
-  color: #aaaaaa;
-}
-
 .ytaf-tab-btn.active {
-  color: #00dfdf;
+  color: #00ebeb;
   background: rgba(0, 180, 180, 0.15);
 }
 
@@ -379,7 +361,7 @@
 
 .ytaf-tab-btn:focus {
   background: rgba(0, 204, 204, 0.3);
-  box-shadow: 0 0 0 0.2vh #00dfdf;
+  box-shadow: 0 0 0 0.2vh #00ebeb;
   color: #ffffff;
 }
 
@@ -397,7 +379,7 @@
   padding: 1.1vh 0.75vh;
   cursor: pointer;
   border-radius: 0.75vh;
-  font-size: 2.22vh;
+  font-size: 2.3vh;
   margin: 0 -0.75vh 0.4vh;
   box-shadow: 0 0 0 2px transparent;
   transition: box-shadow 0.1s ease-out, background 0.1s ease-out;
@@ -427,9 +409,9 @@
 }
 
 .shortcut-value-container .arrow-btn {
-  color: #00dfdf;
+  color: #00ebeb;
   font-weight: bold;
-  font-size: 2.22vh;
+  font-size: 2.3vh;
   user-select: none;
 }
 
@@ -452,7 +434,7 @@
   padding: 0.2vh 0.75vh;
   margin-right: 0.75vh;
   cursor: pointer;
-  font-size: 1.2vh;
+  font-size: 1.3vh;
   flex-shrink: 0;
 }
 
@@ -462,7 +444,7 @@
 }
 
 .reset-color-btn:focus {
-  outline: 0.2vh solid #00dfdf;
+  outline: 0.2vh solid #00ebeb;
 }
 
 .ytaf-ui-container.theme-classic-red .reset-color-btn:focus {
@@ -473,7 +455,7 @@
   -webkit-appearance: none;
   appearance: none;
   width: 3.7vh;
-  height: 2.22vh;
+  height: 2.3vh;
   border: 0.1vh solid rgba(0, 180, 180, 0.3);
   border-radius: 0.4vh;
   background-color: transparent;
