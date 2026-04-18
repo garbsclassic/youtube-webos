@@ -6,7 +6,7 @@ export const segmentTypes = {
   outro: { color: '#0202ed', opacity: '0.7', name: 'outro' },
   interaction: { color: '#cc00ff', opacity: '0.7', name: 'interaction reminder' },
   selfpromo: { color: '#ffff00', opacity: '0.7', name: 'self-promotion' },
-  musicofftopic: { color: '#ff9900', opacity: '0.7', name: 'non-music portion' },
+  musicofftopic: { color: '#ff9900', opacity: '0.7', name: 'non-music segment' },
   preview: { color: '#008fd6', opacity: '0.7', name: 'recap or preview' },
   poi_highlight: { color: '#ff1684', opacity: '0.8', name: 'poi_highlight' },
   filler: { color: '#7300ff', opacity: '0.7', name: 'tangents/jokes' },

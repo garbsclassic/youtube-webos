@@ -1,6 +1,8 @@
-const sponsorBlockIcon = 'https://raw.githubusercontent.com/NicholasBly/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
+const sponsorBlockIcon = 'https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
 
 const STYLES = `
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap');
+    
     /* --- Popup Styles --- */
     .sb-segments-popup {
         position: fixed;
@@ -10,8 +12,6 @@ const STYLES = `
         left: auto;
         transform: none;
         
-        background-color: #000000;
-        border: 0.05vw solid red;
         border-radius: 0.83vw;    /* 16px */
         padding: 1.04vw;          /* 20px */
         
@@ -21,8 +21,8 @@ const STYLES = `
         
         z-index: 9999;
         display: none;
-        color: #eee;
-        font-family: Roboto, Arial, sans-serif;
+        color: #ececec;
+        font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
         box-shadow: 0 0.93vh 1.56vw rgba(0,0,0,0.8); /* 0 10px 30px */
     }
     
@@ -35,9 +35,9 @@ const STYLES = `
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding-bottom: 1.39vh;   /* 15px */
-        margin-bottom: 1.39vh;    /* 15px */
-        border-bottom: 0.05vw solid rgba(255,255,255,0.1);
+        padding-bottom: 1.38vh;   /* 15px */
+        margin-bottom: 1.38vh;    /* 15px */
+        border-bottom: 0.2vw solid rgba(255,255,255,0.2);
         text-align: center;
     }
 
@@ -55,14 +55,9 @@ const STYLES = `
     }
 
     .sb-header-text {
-        font-size: 2.5vw;         /* 48px */
-        font-weight: 700;
-        color: #fff;
-    }
-
-    .sb-header-subtitle {
-        font-size: 1.46vw;        /* 28px */
-        color: #aaa;
+        font-size: 2.2vw;         /* 48px */
+        font-weight: 600;
+        color: #ececec;
     }
 
     .sb-segment-row {
@@ -70,8 +65,8 @@ const STYLES = `
         align-items: center;
         justify-content: space-between;
         padding: 0.93vh 0.63vw;   /* 10px 12px */
-        border-radius: 0.31vw;    /* 6px */
-        margin-bottom: 0.37vh;    /* 4px */
+        border-radius: 0.3vw;    /* 6px */
+        margin-bottom: 0.28vh;    /* 3px */
         background: transparent;
         transition: background-color 0.2s;
     }
@@ -90,15 +85,15 @@ const STYLES = `
     }
 
     .sb-segment-category {
-        font-weight: 600;
-        font-size: 1.67vw;        /* 32px */
+        font-weight: 500;
+        font-size: 1.47vw;        /* 28px */
         color: #e0e0e0;
     }
 
     .sb-segment-time {
-        font-size: 1.67vw;        /* 32px */
-        font-family: "Roboto Mono", monospace;
-        color: #fff;
+        font-size: 1.47vw;        /* 28px */
+        font-family: 'Noto Sans Mono', 'Roboto Mono', monospace;
+        color: #ececec;
         font-weight: 500;
     }
 
@@ -196,16 +191,9 @@ class SponsorBlockUI {
     const titleText = document.createElement('span');
     titleText.className = 'sb-header-text';
     titleText.textContent = 'SponsorBlock';
-
     titleRow.appendChild(icon);
     titleRow.appendChild(titleText);
-
-    const subtitle = document.createElement('div');
-    subtitle.className = 'sb-header-subtitle';
-    subtitle.textContent = 'This video has segments in the database!';
-
     header.appendChild(titleRow);
-    header.appendChild(subtitle);
 
     const listContainer = document.createElement('div');
     listContainer.className = 'sb-list-container';
