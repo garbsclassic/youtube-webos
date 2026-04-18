@@ -15,21 +15,21 @@ export const segmentTypes = {
 
 export const shortcutActions = {
   none: 'None',
-  refresh_page: 'Refresh Page',
-  chapter_skip_prev: 'Skip to Previous Chapter',
-  chapter_skip_next: 'Skip to Next Chapter',
-  sb_skip_prev: 'Skip to Last SponsorBlock Segment',
+  play_pause: 'Play / Pause',
   seek_back: 'Rewind (Burst)',
   seek_back_ex: 'Rewind EX (Burst)',
   seek_fwd: 'Fast Forward (Burst)',
   seek_fwd_ex: 'Fast Forward EX (Burst)',
-  play_pause: 'Play / Pause',
-  toggle_subs: 'Toggle Subtitles',
-  toggle_comments: 'Toggle Comments',
+  chapter_skip_prev: 'Skip to Previous Chapter',
+  chapter_skip_next: 'Skip to Next Chapter',
+  sb_skip_prev: 'Skip to Last SponsorBlock Segment',
+  sb_manual_skip: 'Manual Skip / Jump to Highlight',
   toggle_description: 'Toggle Description',
+  toggle_comments: 'Toggle Comments',
+  toggle_subs: 'Toggle Subtitles',
   save_to_playlist: 'Save / Watch Later',
   oled_toggle: 'Toggle OLED Care Mode',
-  sb_manual_skip: 'Manual Skip / Jump to Highlight',
+  refresh_page: 'Refresh Page',
   config_menu: 'Open/Close Settings'
 };
 
@@ -116,10 +116,12 @@ const changeListeners = new Map();
 
 function loadStoredConfig() {
   const storage = window.localStorage.getItem(CONFIG_KEY);
+
   if (storage === null) return null;
+
   try {
     return JSON.parse(storage);
-  } catch (err) {
+  } catch {
     return null;
   }
 }
