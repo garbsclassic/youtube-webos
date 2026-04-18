@@ -18,7 +18,7 @@
   linear-gradient(90deg, rgba(0, 180, 180, 0.15) 0.1vh, transparent 0.1vh);
   background-size: 3.7vh 3.7vh;
   background-position: -0.1vh -0.1vh;
-  border: 0.1vh solid rgba(0, 223, 223, 0.4);
+  border: none;
   border-radius: 1.5vh;
   box-shadow: none;
 }
@@ -27,7 +27,7 @@
 .ytaf-ui-container.theme-classic-red {
   background-color: #1a1a1a;
   background-image: none;
-  border-color: rgba(255, 154, 0, 0.4);
+  border: none;
   box-shadow: none;
 }
 
@@ -303,12 +303,12 @@
 /* OLED Care Mode */
 .ytaf-ui-container.oled-care {
   background: #000000;
-  border: 0.1vh solid rgba(0, 223, 223, 0.4);
+  border: none;
   box-shadow: none;
 }
 
 .ytaf-ui-container.oled-care.theme-classic-red {
-  border-color: rgba(255, 154, 0, 0.4);
+  border: none;
 }
 
 .ytaf-ui-container.oled-care input[type='checkbox'] {

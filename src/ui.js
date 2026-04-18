@@ -197,7 +197,7 @@ function createSection(title, elements) {
   });
   const fieldset = createElement('div', {
     class: 'ytaf-settings-section',
-    style: { marginTop: '1vh', marginBottom: '0.5vh', padding: '0vh', border: '2px solid #444', borderRadius: '5px' }
+    style: { marginTop: '1vh', marginBottom: '0.5vh', padding: '0vh', border: 'none', borderRadius: '5px' }
   }, legend, ...elements);
   return fieldset;
 }
@@ -616,7 +616,6 @@ function createOptionsPanel() {
     createConfigCheckbox('skipSegmentsOnce')
   );
   pageSponsor.appendChild(elmBlock);
-  pageSponsor.appendChild(createElement('div', {}, createElement('small', { text: 'Sponsor segments skipping - https://sponsor.ajay.app' })));
   elmContainer.appendChild(pageSponsor);
 
   // --- Page 3: Shortcuts ---
