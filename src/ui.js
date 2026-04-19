@@ -1155,11 +1155,17 @@ function playPauseLogic(video) {
     const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
     const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
     
-    // Check if panel is intentionally opened by user (not just transiently visible)
-    const descBtn = document.querySelector('#structured-description button[aria-label*="escription"], #structured-description button[aria-label*="ESCRIPTION"]');
-    const commBtn = document.querySelector('ytd-comments-entry-point-header-renderer button, ytd-comments-header-renderer button[aria-label*="omment"], ytd-comments-header-renderer button[aria-label*="OMMENT"]');
-    const isPanelOpen = (descBtn && descBtn.getAttribute('aria-expanded') === 'true') ||
-                                      (commBtn && commBtn.getAttribute('aria-expanded') === 'true');
+    // Debug: Check if controls element found and what classes it has
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[Pause Debug] controls element:', controls);
+      console.log('[Pause Debug] controls classes:', controls?.className);
+      console.log('[Pause Debug] isControlsVisible:', isControlsVisible);
+      
+      // Visual debug for TV testing (no console)
+      setTimeout(() => {
+        showNotification(`Debug: controls=${!!controls} visible=${isControlsVisible} class=${controls?.className.split(' ')[0] || 'none'}`, 3000);
+      }, 100);
+    }
     
     const watchOverlay = document.querySelector('.webOs-watch');
     let needsHide = false;
@@ -1168,22 +1174,59 @@ function playPauseLogic(video) {
       needsHide = true;
       document.body.classList.add('ytaf-hide-controls');
       if (watchOverlay) watchOverlay.style.opacity = '0';
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Pause Debug] needsHide set to true, added ytaf-hide-controls class');
+      }
     }
 
     video.pause();
     notify('Paused');
+    
+    // Clear any pending seek timers to prevent interference with BACK key
+    if (seekApplyTimer) {
+      clearTimeout(seekApplyTimer);
+      seekApplyTimer = null;
+    }
+    if (seekResetTimer) {
+      clearTimeout(seekResetTimer);
+      seekResetTimer = null;
+    }
+    
+    // Debug: Check if seek is still in progress
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[Pause Debug] seekApplyTimer active:', !!seekApplyTimer);
+      console.log('[Pause Debug] pendingSeekOffset:', pendingSeekOffset);
+    }
 
-    // Dismiss controls only if panel was not intentionally opened by user
-    if (needsHide && !isShortsPage() && !isPanelOpen) {
+    // Dismiss controls (temporarily removed panel check for debugging)
+    if (needsHide && !isShortsPage()) {
       shortcutDebounceTime = 650;
 
       const activeEl = document.activeElement;
+      
+      // Debug: Log what element has focus
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Pause Debug] activeElement:', activeEl?.tagName, activeEl?.className, activeEl?.id);
+        
+        // Visual debug for TV testing
+        setTimeout(() => {
+          const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
+          showNotification(`Debug: active=${activeEl?.tagName || 'none'} topLevel=${isAtTopLevel} willSendBack=${!isAtTopLevel}`, 3000);
+        }, 200);
+      }
+      
       if (activeEl && typeof activeEl.blur === 'function') {
         activeEl.blur();
       }
 
       // Only send BACK if we're not at the top level (video/body being focused exits page)
       const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Pause Debug] isAtTopLevel:', isAtTopLevel, 'will send BACK:', !isAtTopLevel);
+      }
+      
       if (!isAtTopLevel) {
         setTimeout(() => sendKey(REMOTE_KEYS.BACK, activeEl), 250);
       }
@@ -1503,7 +1546,7 @@ export function showNotification(text, time = notificationTimer) {
       // Detect theme for appropriate pulse colors
       const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
       const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-      const pulseBorderLeft = isRedTheme ? 'rgba(255, 220, 0, 1)' : 'rgba(0, 255, 255, 1)';
+      const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
       
       elmInner.style.animation = 'none';
       requestAnimationFrame(() => {

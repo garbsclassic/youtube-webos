@@ -235,8 +235,8 @@
   will-change: opacity, transform;
   transform: translateX(0);
   margin-bottom: 1vh;
-  border: 0.2vh solid rgba(0, 180, 180, 0.8);
-  border-left: 0.4vh solid rgba(0, 235, 235, 0.8);
+  border: 0.2vh solid rgba(0, 204, 204, 0.7);
+  border-left: 0.4vh solid rgba(0, 204, 204, 0.9);
   border-radius: 0.8rem;
   box-shadow: 0 0.6vh 1.2vh rgba(0, 0, 0, 0.8);
   padding: 0.3rem 0.6rem;
@@ -252,8 +252,8 @@
 }
 
 .ytaf-notification-container.theme-classic-red .message {
-  border-color: rgba(255, 116, 0, 0.8);
-  border-left-color: rgba(255, 193, 0, 0.8);
+  border-color: rgba(255, 154, 0, 0.7);
+  border-left-color: rgba(255, 154, 0, 0.9);
 }
 
 .ytaf-notification-container .message-hidden {
