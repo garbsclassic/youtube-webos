@@ -89,7 +89,7 @@ const STYLES = `
     .sb-segment-category {
         font-weight: 500;
         font-size: 1.47vw;        /* 28px */
-        color: #e0e0e0;
+        color: #f0f0f0;
     }
 
     .sb-segment-time {
