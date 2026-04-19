@@ -861,7 +861,7 @@ function performBurstSeek(seconds, video) {
   if (!video) video = document.querySelector('video');
   if (!video) return;
 
-  const SEEK_APPLY_DELAY = 250; // ms to wait before applying seek to video
+  const SEEK_APPLY_DELAY = 300; // ms to wait before applying seek to video
   const SEEK_RESET_DELAY = 1000; // ms to wait before resetting UI (notification fade)
   const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
 
@@ -1235,7 +1235,7 @@ function handleShortcutAction(action) {
 
       document.body.appendChild(overlay);
 
-      // Keep TV awake by preventing system sleep (every 2 minutes)
+      // Keep TV awake by preventing system sleep
       oledKeepAliveTimer = setInterval(() => {
         // Method 1: Try webOS API if available
         if (window.webOSDev?.connection?.setKeepAlive) {
@@ -1462,7 +1462,7 @@ export function showNotification(text, time = notificationTimer) {
     if (time > 0) {
       existing._removeTimer = setTimeout(() => {
         existing.classList.add('message-hidden');
-        setTimeout(() => existing.parentElement.remove(), 1000);
+        setTimeout(() => existing.parentElement.remove(), 350);
       }, time);
     }
     return {
@@ -1476,6 +1476,10 @@ export function showNotification(text, time = notificationTimer) {
   const elm = createElement('div', {}, elmInner);
   notificationContainer.appendChild(elm);
 
+  // Force layout calculation to ensure size is stable before animating in
+  // Reading offsetHeight triggers reflow, ensuring browser knows final dimensions
+  void elmInner.offsetHeight;
+
   requestAnimationFrame(() => requestAnimationFrame(() => elmInner.classList.remove('message-hidden')));
 
   const remove = () => {
@@ -1483,7 +1487,7 @@ export function showNotification(text, time = notificationTimer) {
     elmInner._removeTimer = null;
 
     elmInner.classList.add('message-hidden');
-    setTimeout(() => elm.remove(), 1000);
+    setTimeout(() => elm.remove(), 350); // Wait for all transitions to complete
   };
 
   if (time > 0) {
@@ -1492,6 +1496,29 @@ export function showNotification(text, time = notificationTimer) {
 
   const update = (newText, newTime = notificationTimer) => {
     if (elmInner.textContent === newText) {
+      // Text unchanged - add visual pulse to show update was registered
+      const originalBorder = elmInner.style.borderColor;
+      const originalBorderLeft = elmInner.style.borderLeftColor;
+      
+      // Detect theme for appropriate pulse colors
+      const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
+      const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
+      const pulseBorderLeft = isRedTheme ? 'rgba(255, 220, 0, 1)' : 'rgba(0, 255, 255, 1)';
+      
+      elmInner.style.animation = 'none';
+      requestAnimationFrame(() => {
+        elmInner.style.animation = '';
+        elmInner.style.transform = 'scale(1.08)';
+        elmInner.style.borderColor = pulseBorder;
+        elmInner.style.borderLeftColor = pulseBorderLeft;
+        
+        setTimeout(() => {
+          elmInner.style.transform = '';
+          elmInner.style.borderColor = originalBorder;
+          elmInner.style.borderLeftColor = originalBorderLeft;
+        }, 150);
+      });
+      
       if (newTime > 0) {
         if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
         elmInner._removeTimer = setTimeout(remove, newTime);
