@@ -39,7 +39,7 @@ const STYLES = `
         justify-content: center;
         padding-bottom: 1.38vh;   /* 15px */
         margin-bottom: 1.38vh;    /* 15px */
-        border-bottom: 0.2vw solid rgba(255,255,255,0.2);
+        border-bottom: 0.1vw solid rgba(52, 52, 52, 0.6);
         text-align: center;
     }
 
@@ -57,7 +57,7 @@ const STYLES = `
     }
 
     .sb-header-text {
-        font-size: 2.2vw;         /* 48px */
+        font-size: 3.6vh;
         font-weight: 600;
         color: #ececec;
     }
