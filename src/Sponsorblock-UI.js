@@ -7,7 +7,7 @@ const STYLES = `
     .sb-segments-popup {
         position: fixed;
         top: 5%;
-        right: 5%;
+        right: 4%;
         bottom: auto;
         left: auto;
         transform: none;
@@ -17,8 +17,8 @@ const STYLES = `
         border-radius: 1.6vh;
         padding: 1.04vw;          /* 20px */
         
-        width: 40vw;
-        max-height: 85vh;
+        width: 44vw;
+        max-height: 90vh;
         overflow-y: auto;
         
         z-index: 9999;
