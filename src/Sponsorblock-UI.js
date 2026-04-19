@@ -6,14 +6,15 @@ const STYLES = `
     /* --- Popup Styles --- */
     .sb-segments-popup {
         position: fixed;
-        top: 4%;
+        top: 5%;
         right: 4.5%;
         bottom: auto;
         left: auto;
         transform: none;
         
         background-color: #000000;
-        border-radius: 0.83vw;    /* 16px */
+        border: 0.4vh solid rgba(52, 52, 52, 0.4);
+        border-radius: 1.6vh;
         padding: 1.04vw;          /* 20px */
         
         width: 39.06vw;           /* 750px */
@@ -24,7 +25,7 @@ const STYLES = `
         display: none;
         color: #ececec;
         font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
-        box-shadow: 0 0.9vh 1.8vh rgba(0, 0, 0 ,0.8);
+        box-shadow: 0 0.8vh 1.6vh rgba(0, 0, 0, 0.8);
     }
     
     .sb-segments-popup.visible {
