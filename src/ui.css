@@ -66,8 +66,8 @@
 
 .ytaf-ui-container > div.ytaf-settings-page {
   padding: 0 3vh 2.0vh;
-  overflow-y: auto;
   overflow-x: hidden;
+  overflow-y: auto;
   flex: 1;
   min-height: 0;
 }
@@ -152,7 +152,7 @@
   cursor: pointer;
   border-radius: 0.4rem;
   margin: 0 -0.75vh 0.4vh;
-  padding: 1vh 0.8vh;
+  padding: 1vh;
   box-shadow: 0 0 0 2px transparent;
   transition: box-shadow 0.1s ease-out, background 0.1s ease-out;
 }
@@ -162,7 +162,7 @@
 }
 
 .ytaf-settings-section label {
-  margin-bottom: 0.25vh;
+  margin-bottom: 0.2vh;
 }
 
 .ytaf-ui-container label .label-content {
@@ -205,7 +205,7 @@
   margin: 1.5vh 0 1.5vh 1.5vh;
   border-left: 0.28vh solid rgba(0, 204, 204, 0.6);
   border-radius: 0 0.8vh 0.8vh 0;
-  padding-left: 2.0vh;
+  padding-left: 1.5vh;
   background-color: rgba(0, 180, 180, 0.05);
 }
 
@@ -217,7 +217,7 @@
 .ytaf-ui-container blockquote label {
   font-size: 2vh;
   color: #f0f0f0;
-  padding: 0.8vh;
+  padding: 0.8vh 1vh;
 }
 
 .ytaf-notification-container {
@@ -226,8 +226,8 @@
   right: 0;
   top: 0;
   margin: 1.6rem 2rem;
-  max-width: 24vw;
-  min-width: 12vw;
+  max-width: 28vw;
+  min-width: 14vw;
 }
 
 .ytaf-notification-container .message {
@@ -305,7 +305,7 @@
   flex-shrink: 0;
   margin-bottom: 1vh;
   border-bottom: 0.1vh solid rgba(0, 204, 204, 0.4);
-  padding: 0.5vh;
+  /*padding: 0.5vh;*/
   background-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -315,17 +315,18 @@
 
 .ytaf-tab-btn {
   flex: 1;
-  /*margin: 0 0.5vh;*/
-  background: transparent;
+  margin: 0 0.2vh;
+  outline: none;
   border: none;
+  border-radius: 0.4rem;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  background: transparent;
+  padding: 1vh 2vh;
+  cursor: pointer;
   color: #999999;
+  font-family: inherit;
   font-size: 2.4vh;
   font-weight: 600;
-  padding: 1vh 2vh;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .ytaf-tab-btn.active {
