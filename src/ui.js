@@ -196,8 +196,7 @@ function createSection(title, elements) {
   });
 
   return createElement('div', {
-    class: 'ytaf-settings-section',
-    style: { marginTop: '1vh', marginBottom: '0.4vh', padding: '0vh', border: 'none', borderRadius: '5px' }
+    class: 'ytaf-settings-section'
   }, legend, ...elements);
 }
 
