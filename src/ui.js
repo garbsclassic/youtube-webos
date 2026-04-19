@@ -837,10 +837,14 @@ function updateSeekNotification(amount) {
   const symbolStyled = `<span style="font-size: 1.2em; font-weight: 600;">${symbol}</span>`;
   const msg = `Seek ${symbolStyled} ${Math.abs(amount)}s`;
 
+  console.log('[Seek Debug] activeSeekNotification exists:', !!activeSeekNotification);
+  console.log('[Seek Debug] has updateHTML:', typeof activeSeekNotification?.updateHTML);
+
   if (activeSeekNotification) {
     activeSeekNotification.updateHTML(msg);
   } else {
     activeSeekNotification = showNotification(msg, notificationTimer, true); // true = isHTML
+    console.log('[Seek Debug] Created new notification, methods:', Object.keys(activeSeekNotification));
   }
 }
 
@@ -1513,9 +1517,12 @@ export function showNotification(text, time = notificationTimer, isHTML = false)
     document.body.appendChild(notificationContainer);
   }
 
-  // Check for existing notification with same text to prevent stacking
+  // Check for existing notification with same text/HTML to prevent stacking
   const existing = Array.from(notificationContainer.querySelectorAll('.message'))
-    .find(el => el.textContent === text && !el.classList.contains('message-hidden'));
+    .find(el => {
+      const compare = isHTML ? el.innerHTML : el.textContent;
+      return compare === text && !el.classList.contains('message-hidden');
+    });
 
   if (existing) {
     if (existing._removeTimer) clearTimeout(existing._removeTimer);
@@ -1528,6 +1535,7 @@ export function showNotification(text, time = notificationTimer, isHTML = false)
     return {
       remove: () => {
       }, update: () => {
+      }, updateHTML: () => {
       }
     };
   }

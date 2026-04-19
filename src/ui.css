@@ -48,6 +48,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
   /* Removed text-shadow for performance */
   text-shadow: none;
 }
@@ -61,7 +62,9 @@
   width: 4vh;
   height: 4vh;
   object-fit: contain;
-  margin-left: 1vh;
+  position: absolute;
+  right: 3vh;
+  cursor: pointer;
 }
 
 .ytaf-ui-container > div.ytaf-settings-page {
