@@ -506,7 +506,7 @@ class SponsorBlockHandler {
                 if (hlMode === 'auto_skip') {
                     this.jumpToNextHighlight();
                 } else if (hlMode === 'ask') {
-                    showNotification('Highlight available: Press Blue to jump');
+                    showNotification('Highlight available: press Blue to jump');
                 }
             }
         } catch (e) {
@@ -920,7 +920,7 @@ class SponsorBlockHandler {
             if (segmentIdx !== this.lastNotifiedSegmentIndex) {
                 this.lastNotifiedSegmentIndex = segmentIdx;
                 const categoryName = this.getCategoryName(seg.category);
-                showNotification(`${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} segment`);
+                showNotification(`${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}`);
             }
             return;
         }
@@ -1001,7 +1001,7 @@ class SponsorBlockHandler {
                 `${uniqueNames[0]} and ${uniqueNames[1]}` :
                 `${uniqueNames.slice(0, -1).join(', ')}, and ${uniqueNames[uniqueNames.length - 1]}`;
 
-            showNotification(`Skipped ${formattedName} segment`);
+            showNotification(`Skipped ${formattedName}`);
         });
 
         this.log('info', `Skipped to ${jumpTarget}`);
@@ -1015,7 +1015,7 @@ class SponsorBlockHandler {
         if (!mode || mode === 'disable') return false;
 
         this.video.currentTime = this.highlightSegment.segment[0];
-        this.requestAF(() => showNotification('Jumped to Highlight'));
+        this.requestAF(() => showNotification('Jumped to highlight'));
         return true;
     }
     
@@ -1053,7 +1053,7 @@ class SponsorBlockHandler {
 
                 this.clearManualNotification();
 
-                this.requestAF(() => showNotification('Skipped Segment'));
+                this.requestAF(() => showNotification('Skipped segment'));
 
                 setTimeout(() => { this.isSkipping = false; }, 500);
                 return true;

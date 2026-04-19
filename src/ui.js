@@ -297,6 +297,10 @@ function createSegmentControl(key) {
       }
     });
 
+    const handleColorInput = (evt) => {
+      configWrite(colorKey, evt.target.value);
+    };
+
     const colorInput = createElement('input', {
       type: 'color',
       value: configRead(colorKey),
@@ -305,7 +309,7 @@ function createSegmentControl(key) {
         click: (evt) => {
           evt.stopPropagation();
         },
-        input: (evt) => configWrite(colorKey, evt.target.value)
+        input: handleColorInput
       }
     });
 
@@ -421,18 +425,16 @@ function createOptionsPanel() {
   };
 
   // Create tab buttons after setActivePage is defined
-  tabBtns = tabs.map((name, index) => {
-    return createElement('button', {
-      class: index === 0 ? 'ytaf-tab-btn active' : 'ytaf-tab-btn',
-      text: name,
-      tabIndex: 0,
-      events: {
-        focus: () => setActivePage(index),
-        click: () => setActivePage(index),
-        mouseenter: (e) => e.target.focus()
-      }
-    });
-  });
+  tabBtns = tabs.map((name, index) => createElement('button', {
+    class: index === 0 ? 'ytaf-tab-btn active' : 'ytaf-tab-btn',
+    text: name,
+    tabIndex: 0,
+    events: {
+      focus: () => setActivePage(index),
+      click: () => setActivePage(index),
+      mouseenter: (e) => e.target.focus()
+    }
+  }));
   tabBtns.forEach(btn => void tabMenu.appendChild(btn));
 
   // Keyboard Navigation for the Options Panel
@@ -832,12 +834,13 @@ async function skipChapter(direction = 'next') {
 // Seek burst helper functions
 function updateSeekNotification(amount) {
   const symbol = amount < 0 ? '<<' : '>>';
-  const msg = `Seek ${symbol} ${Math.abs(amount)}s`;
+  const symbolStyled = `<span style="font-size: 1.2em; font-weight: 600;">${symbol}</span>`;
+  const msg = `Seek ${symbolStyled} ${Math.abs(amount)}s`;
 
   if (activeSeekNotification) {
-    activeSeekNotification.update(msg);
+    activeSeekNotification.updateHTML(msg);
   } else {
-    activeSeekNotification = showNotification(msg);
+    activeSeekNotification = showNotification(msg, notificationTimer, true); // true = isHTML
   }
 }
 
@@ -1155,17 +1158,22 @@ function playPauseLogic(video) {
     const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
     const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
     
-    // Debug: Check if controls element found and what classes it has
+    // Check if video is loading (spinner showing)
+    const loadingSpinner = document.querySelector('.ytp-spinner, .html5-video-loader, .loading-icon');
+    const isLoading = loadingSpinner && window.getComputedStyle(loadingSpinner).display !== 'none';
+    
+    // Debug: Console logs for development
     if (process.env.NODE_ENV !== 'production') {
       console.log('[Pause Debug] controls element:', controls);
       console.log('[Pause Debug] controls classes:', controls?.className);
       console.log('[Pause Debug] isControlsVisible:', isControlsVisible);
-      
-      // Visual debug for TV testing (no console)
-      setTimeout(() => {
-        showNotification(`Debug: controls=${!!controls} visible=${isControlsVisible} class=${controls?.className.split(' ')[0] || 'none'}`, 3000);
-      }, 100);
+      console.log('[Pause Debug] isLoading:', isLoading);
     }
+    
+    // Visual debug for TV testing (always show)
+    setTimeout(() => {
+      showNotification(`Debug: controls=${!!controls} visible=${isControlsVisible} loading=${isLoading}`, 3000);
+    }, 100);
     
     const watchOverlay = document.querySelector('.webOs-watch');
     let needsHide = false;
@@ -1199,6 +1207,14 @@ function playPauseLogic(video) {
       console.log('[Pause Debug] pendingSeekOffset:', pendingSeekOffset);
     }
 
+    // Skip dismiss logic if video is loading (YouTube blocks events during load)
+    if (isLoading) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[Pause Debug] Skipping dismiss - video is loading');
+      }
+      return;
+    }
+
     // Dismiss controls (temporarily removed panel check for debugging)
     if (needsHide && !isShortsPage()) {
       shortcutDebounceTime = 650;
@@ -1208,13 +1224,13 @@ function playPauseLogic(video) {
       // Debug: Log what element has focus
       if (process.env.NODE_ENV !== 'production') {
         console.log('[Pause Debug] activeElement:', activeEl?.tagName, activeEl?.className, activeEl?.id);
-        
-        // Visual debug for TV testing
-        setTimeout(() => {
-          const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
-          showNotification(`Debug: active=${activeEl?.tagName || 'none'} topLevel=${isAtTopLevel} willSendBack=${!isAtTopLevel}`, 3000);
-        }, 200);
       }
+      
+      // Visual debug for TV testing (always show)
+      setTimeout(() => {
+        const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
+        showNotification(`Debug: active=${activeEl?.tagName || 'none'} topLevel=${isAtTopLevel} willSendBack=${!isAtTopLevel}`, 3000);
+      }, 200);
       
       if (activeEl && typeof activeEl.blur === 'function') {
         activeEl.blur();
@@ -1482,10 +1498,11 @@ document.addEventListener('keydown', eventHandler, true);
 
 let notificationContainer = null;
 
-export function showNotification(text, time = notificationTimer) {
+export function showNotification(text, time = notificationTimer, isHTML = false) {
   if (configRead('disableNotifications')) return {
     remove: () => {
     }, update: () => {
+    }, updateHTML: () => {
     }
   };
 
@@ -1515,7 +1532,13 @@ export function showNotification(text, time = notificationTimer) {
     };
   }
 
-  const elmInner = createElement('div', { text, class: 'message message-hidden' });
+  const elmInner = createElement('div', { class: 'message message-hidden' });
+  if (isHTML) {
+    elmInner.innerHTML = text;
+  } else {
+    elmInner.textContent = text;
+  }
+
   const elm = createElement('div', {}, elmInner);
   notificationContainer.appendChild(elm);
 
@@ -1538,44 +1561,68 @@ export function showNotification(text, time = notificationTimer) {
   }
 
   const update = (newText, newTime = notificationTimer) => {
-    if (elmInner.textContent === newText) {
-      // Text unchanged - add visual pulse to show update was registered
-      const originalBorder = elmInner.style.borderColor;
-      const originalBorderLeft = elmInner.style.borderLeftColor;
+    // Always pulse when updating to show the update was registered
+    const originalBorder = elmInner.style.borderColor;
+    const originalBorderLeft = elmInner.style.borderLeftColor;
+    
+    // Detect theme for appropriate pulse colors
+    const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
+    const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
+    const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
+    
+    elmInner.style.animation = 'none';
+    requestAnimationFrame(() => {
+      elmInner.style.animation = '';
+      elmInner.style.transform = 'scale(1.08)';
+      elmInner.style.borderColor = pulseBorder;
+      elmInner.style.borderLeftColor = pulseBorderLeft;
       
-      // Detect theme for appropriate pulse colors
-      const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
-      const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-      const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-      
-      elmInner.style.animation = 'none';
-      requestAnimationFrame(() => {
-        elmInner.style.animation = '';
-        elmInner.style.transform = 'scale(1.08)';
-        elmInner.style.borderColor = pulseBorder;
-        elmInner.style.borderLeftColor = pulseBorderLeft;
-        
-        setTimeout(() => {
-          elmInner.style.transform = '';
-          elmInner.style.borderColor = originalBorder;
-          elmInner.style.borderLeftColor = originalBorderLeft;
-        }, 150);
-      });
-      
-      if (newTime > 0) {
-        if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
-        elmInner._removeTimer = setTimeout(remove, newTime);
-      }
-      return;
-    }
+      setTimeout(() => {
+        elmInner.style.transform = '';
+        elmInner.style.borderColor = originalBorder;
+        elmInner.style.borderLeftColor = originalBorderLeft;
+      }, 150);
+    });
 
+    // Update content and timer
     elmInner.textContent = newText;
     elmInner.classList.remove('message-hidden');
     if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
     if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
   };
 
-  return { remove, update };
+  const updateHTML = (newHTML, newTime = notificationTimer) => {
+    // Always pulse when updating to show the update was registered
+    const originalBorder = elmInner.style.borderColor;
+    const originalBorderLeft = elmInner.style.borderLeftColor;
+
+    // Detect theme for appropriate pulse colors
+    const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
+    const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
+    const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
+
+    elmInner.style.animation = 'none';
+    requestAnimationFrame(() => {
+      elmInner.style.animation = '';
+      elmInner.style.transform = 'scale(1.08)';
+      elmInner.style.borderColor = pulseBorder;
+      elmInner.style.borderLeftColor = pulseBorderLeft;
+
+      setTimeout(() => {
+        elmInner.style.transform = '';
+        elmInner.style.borderColor = originalBorder;
+        elmInner.style.borderLeftColor = originalBorderLeft;
+      }, 150);
+    });
+
+    // Update content and timer
+    elmInner.innerHTML = newHTML;
+    elmInner.classList.remove('message-hidden');
+    if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
+    if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
+  };
+
+  return { remove, update, updateHTML };
 }
 
 // --- Initialization & CSS Injection ---
