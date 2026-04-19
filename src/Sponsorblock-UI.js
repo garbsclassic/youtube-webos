@@ -17,7 +17,7 @@ const STYLES = `
         border-radius: 1.6vh;
         padding: 1.04vw;          /* 20px */
         
-        width: 44vw;
+        width: 42vw;
         max-height: 90vh;
         overflow-y: auto;
         
