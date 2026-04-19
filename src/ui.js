@@ -208,7 +208,6 @@ function createGenericControlRow(labelText, displayValueGetter, onLeft, onRight,
 
   const container = createElement('div', {
       class: 'shortcut-control-row',
-      style: { padding: '0.6vh 0', margin: '0.2vh 0' },
       tabIndex: 0,
       events: {
         keydown: (e) => {
