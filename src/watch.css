@@ -2,14 +2,14 @@
 
 .webOs-watch {
   position: fixed;
-  right: 0;
   top: 0;
+  right: 0;
   margin: 1.6rem 2rem;
-  background-color: rgba(16, 16, 16, 0.4);
   border-radius: 0.8rem;
   padding: 0.4rem 0.6rem;
+  background-color: rgba(16, 16, 16, 0.4);
   font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
   font-size: 1.4rem;
-  letter-spacing: 0.05rem;
+  letter-spacing: 0.04rem;
   z-index: 1199;
 }
