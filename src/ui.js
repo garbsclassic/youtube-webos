@@ -296,6 +296,7 @@ function createSegmentControl(key) {
         }
       }
     });
+
     const colorInput = createElement('input', {
       type: 'color',
       value: configRead(colorKey),
@@ -312,6 +313,7 @@ function createSegmentControl(key) {
       colorInput.value = evt.detail.newValue;
       window.sponsorblock?.buildOverlay();
     });
+
     extraElements = createElement('div', { style: { display: 'flex', marginLeft: '10px' } }, resetButton, colorInput);
   }
 
@@ -1009,7 +1011,7 @@ function toggleCommentsLogic() {
 
   const isBtnActive = commBtn && (commBtn.getAttribute('aria-pressed') === 'true' || commBtn.getAttribute('aria-selected') === 'true');
   const panel = document.querySelector('ytlr-engagement-panel-section-list-renderer') || document.querySelector('ytlr-engagement-panel-title-header-renderer');
-  const isPanelVisible = panel && window.getComputedStyle(panel).display !== 'none';
+  const isPanelVisible = panel && panel.offsetParent !== null && window.getComputedStyle(panel).visibility !== 'hidden' && window.getComputedStyle(panel).opacity !== '0';
 
   if ((isBtnActive || isPanelVisible) && !isLiveChat) simulateBack();
   else if (triggerInternal(commBtn, isLiveChat ? 'Live Chat' : 'Comments')) {
@@ -1050,7 +1052,7 @@ function toggleDescriptionLogic() {
 
   const isDescActive = target && (target.getAttribute('aria-pressed') === 'true' || target.getAttribute('aria-selected') === 'true');
   const panel = document.querySelector('ytlr-engagement-panel-section-list-renderer') || document.querySelector('ytlr-engagement-panel-title-header-renderer');
-  const isPanelVisible = panel && window.getComputedStyle(panel).display !== 'none';
+  const isPanelVisible = panel && panel.offsetParent !== null && window.getComputedStyle(panel).visibility !== 'hidden' && window.getComputedStyle(panel).opacity !== '0';
 
   if (isDescActive || isPanelVisible) simulateBack();
   else if (triggerInternal(target, 'Description')) {
@@ -1152,8 +1154,13 @@ function playPauseLogic(video) {
   } else {
     const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
     const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
-    const panel = document.querySelector('ytlr-engagement-panel-section-list-renderer') || document.querySelector('ytlr-engagement-panel-title-header-renderer');
-    const isPanelVisible = panel && window.getComputedStyle(panel).display !== 'none';
+    
+    // Check if panel is intentionally opened by user (not just transiently visible)
+    const descBtn = document.querySelector('#structured-description button[aria-label*="escription"], #structured-description button[aria-label*="ESCRIPTION"]');
+    const commBtn = document.querySelector('ytd-comments-entry-point-header-renderer button, ytd-comments-header-renderer button[aria-label*="omment"], ytd-comments-header-renderer button[aria-label*="OMMENT"]');
+    const isPanelOpen = (descBtn && descBtn.getAttribute('aria-expanded') === 'true') ||
+                                      (commBtn && commBtn.getAttribute('aria-expanded') === 'true');
+    
     const watchOverlay = document.querySelector('.webOs-watch');
     let needsHide = false;
 
@@ -1166,8 +1173,8 @@ function playPauseLogic(video) {
     video.pause();
     notify('Paused');
 
-    // Dismiss controls
-    if (needsHide && !isShortsPage() && !isPanelVisible) {
+    // Dismiss controls only if panel was not intentionally opened by user
+    if (needsHide && !isShortsPage() && !isPanelOpen) {
       shortcutDebounceTime = 650;
 
       const activeEl = document.activeElement;
@@ -1206,6 +1213,15 @@ function handleShortcutAction(action) {
       if (oledKeepAliveTimer) {
         clearInterval(oledKeepAliveTimer);
         oledKeepAliveTimer = null;
+        
+        // Reset webOS keepAlive to allow normal sleep
+        if (window.webOSDev?.connection?.setKeepAlive) {
+          try {
+            window.webOSDev.connection.setKeepAlive(false);
+          } catch (e) {
+            console.warn('[OLED] webOS setKeepAlive reset failed:', e);
+          }
+        }
       }
 
       showNotification('OLED Mode Deactivated');
@@ -1219,11 +1235,25 @@ function handleShortcutAction(action) {
 
       document.body.appendChild(overlay);
 
-      // Keep TV awake by simulating input (every 8 minutes to prevent screensaver)
+      // Keep TV awake by preventing system sleep (every 2 minutes)
       oledKeepAliveTimer = setInterval(() => {
-        sendKey(REMOTE_KEYS.UP);
-        setTimeout(() => sendKey(REMOTE_KEYS.UP), 250);
-      }, 8 * 60 * 1000);
+        // Method 1: Try webOS API if available
+        if (window.webOSDev?.connection?.setKeepAlive) {
+          try {
+            window.webOSDev.connection.setKeepAlive(true);
+          } catch (e) {
+            console.warn('[OLED] webOS setKeepAlive failed:', e);
+          }
+        }
+        
+        // Method 2: Interact with video element (resets system activity timer)
+        const video = document.querySelector('video');
+        if (video && !isNaN(video.duration)) {
+          // Touch video properties to signal activity
+          const currentVol = video.volume;
+          video.volume = currentVol; // No-op but signals system activity
+        }
+      }, 2 * 60 * 1000); // 2 minutes - works with 3+ min screensaver timeouts
 
       showNotification('OLED Mode Activated');
     }
