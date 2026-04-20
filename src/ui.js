@@ -36,7 +36,7 @@ let seekResetTimer = null;
 let seekApplyTimer = null;
 let activeSeekNotification = null;
 
-const notificationTimer = 3000;
+const notificationTimer = 1500;
 let playPauseNotificationTimer = null;
 let activePlayPauseNotification = null;
 
@@ -1235,20 +1235,43 @@ function playPauseLogic(video) {
       }
 
       if (!isAtTopLevel) {
-        // Wait longer for YouTube overlay to fully render before dismissing
-        setTimeout(() => {
-          // Try sending to document instead of activeElement
-          sendKey(REMOTE_KEYS.BACK);
+        // Wait for YouTube overlay to actually appear before dismissing
+        const startTime = Date.now();
+        const maxWaitTime = 1000; // Max 1 second
 
-          const now = Date.now();
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('[Pause Debug] BACK sent at +' + (now - pauseTime) + 'ms');
+        const waitForOverlay = () => {
+          // Check for common YouTube overlay selectors
+          const overlay = document.querySelector('ytlr-watch-actions-bar, .ytp-chrome-bottom, .ytp-chrome-controls');
+          const elapsed = Date.now() - startTime;
+
+          if (overlay && window.getComputedStyle(overlay).display !== 'none') {
+            // Overlay found and visible - send BACK now
+            setTimeout(() => {
+              sendKey(REMOTE_KEYS.BACK);
+
+              if (process.env.NODE_ENV !== 'production') {
+                console.log('[Pause Debug] Overlay detected at +' + elapsed + 'ms, BACK sent');
+              }
+              showNotification('[Pause Debug] Overlay detected at +' + elapsed + 'ms, BACK sent');
+            }, 50); // Small delay to ensure it's fully rendered
+          } else if (elapsed < maxWaitTime) {
+            // Keep waiting - check again in 50ms
+            setTimeout(waitForOverlay, 50);
+          } else {
+            // Timeout - send BACK anyway
+            sendKey(REMOTE_KEYS.BACK);
+
+            if (process.env.NODE_ENV !== 'production') {
+              console.log('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent anyway');
+            }
+            showNotification('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent anyway');
           }
-          showNotification('[Pause Debug] BACK sent at +' + (now - pauseTime) + 'ms', 4000);
-        }, 500); // Increased from 250ms to 500ms
+        };
+
+        // Start polling
+        waitForOverlay();
       }
     }
-
     if (needsHide && !isShortsPage()) {
       setTimeout(() => {
         document.body.classList.remove('ytaf-hide-controls');
@@ -1556,37 +1579,45 @@ export function showNotification(text, time = notificationTimer) {
     elmInner._removeTimer = setTimeout(remove, time);
   }
 
-  const update = (newText, newTime = notificationTimer) => {
-    // Always pulse when updating to show the update was registered
-    const originalBorder = elmInner.style.borderColor;
-    const originalBorderLeft = elmInner.style.borderLeftColor;
-    
-    // Detect theme for appropriate pulse colors
-    const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
-    const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-    const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-    
-    elmInner.style.animation = 'none';
-    requestAnimationFrame(() => {
-      elmInner.style.animation = '';
-      elmInner.style.transform = 'scale(1.08)';
-      elmInner.style.borderColor = pulseBorder;
-      elmInner.style.borderLeftColor = pulseBorderLeft;
+    const update = (newText, newTime = notificationTimer) => {
+      // Temporarily enable width transition for this update only
+      const originalTransition = elmInner.style.transition;
+      elmInner.style.transition = 'opacity 0.3s ease, transform 0.15s ease, border-color 0.15s ease, max-height 0.3s ease, margin-bottom 0.3s ease, padding 0.3s ease, width 0.2s ease';
       
+      // Always pulse when updating to show the update was registered
+      const originalBorder = elmInner.style.borderColor;
+      const originalBorderLeft = elmInner.style.borderLeftColor;
+  
+      // Detect theme for appropriate pulse colors
+      const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
+      const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
+      const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
+  
+      elmInner.style.animation = 'none';
+      requestAnimationFrame(() => {
+        elmInner.style.animation = '';
+        elmInner.style.transform = 'scale(1.08)';
+        elmInner.style.borderColor = pulseBorder;
+        elmInner.style.borderLeftColor = pulseBorderLeft;
+  
+        setTimeout(() => {
+          elmInner.style.transform = '';
+          elmInner.style.borderColor = originalBorder;
+          elmInner.style.borderLeftColor = originalBorderLeft;
+        }, 150);
+      });
+  
+      // Update content and timer
+      elmInner.textContent = newText;
+      elmInner.classList.remove('message-hidden');
+      if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
+      if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
+      
+      // Remove width transition after it completes to not affect other notifications
       setTimeout(() => {
-        elmInner.style.transform = '';
-        elmInner.style.borderColor = originalBorder;
-        elmInner.style.borderLeftColor = originalBorderLeft;
-      }, 150);
-    });
-
-    // Update content and timer
-    elmInner.textContent = newText;
-    elmInner.classList.remove('message-hidden');
-    if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
-    if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
-  };
-
+        elmInner.style.transition = originalTransition;
+      }, 250); // After width transition (200ms) + buffer
+    };
   return { remove, update };
 }
 
