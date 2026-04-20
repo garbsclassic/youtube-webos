@@ -15,7 +15,7 @@ export const segmentTypes = {
 
 export const shortcutActions = {
   none: 'None',
-  config_menu: 'Open/Close Settings'
+  config_menu: 'Open/Close Settings',
   oled_toggle: 'Toggle OLED Care Mode',
   refresh_page: 'Refresh Page',
   play_pause: 'Play / Pause',
