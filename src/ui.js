@@ -1169,11 +1169,6 @@ function playPauseLogic(video) {
       console.log('[Pause Debug] isLoading:', isLoading);
     }
     
-    // Visual debug for TV testing (always show)
-    setTimeout(() => {
-      showNotification(`Debug: controls=${!!controls} visible=${isControlsVisible} loading=${isLoading}`, 3000);
-    }, 100);
-    
     const watchOverlay = document.querySelector('.webOs-watch');
     let needsHide = false;
 
@@ -1219,43 +1214,38 @@ function playPauseLogic(video) {
       shortcutDebounceTime = 650;
 
       const activeEl = document.activeElement;
-      
+
+      // Track pause time for debug timing
+      const pauseTime = Date.now();
+
       // Debug: Log what element has focus
       if (process.env.NODE_ENV !== 'production') {
         console.log('[Pause Debug] activeElement:', activeEl?.tagName, activeEl?.className, activeEl?.id);
       }
-      
-      // Visual debug for TV testing (always show)
-      setTimeout(() => {
-        const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
-        showNotification(`Debug: active=${activeEl?.tagName || 'none'} topLevel=${isAtTopLevel} willSendBack=${!isAtTopLevel}`, 3000);
-      }, 200);
-      
+
       if (activeEl && typeof activeEl.blur === 'function') {
         activeEl.blur();
       }
 
       // Only send BACK if we're not at the top level (video/body being focused exits page)
       const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
-      
+
       if (process.env.NODE_ENV !== 'production') {
         console.log('[Pause Debug] isAtTopLevel:', isAtTopLevel, 'will send BACK:', !isAtTopLevel);
       }
-      
+
       if (!isAtTopLevel) {
+        // Wait longer for YouTube overlay to fully render before dismissing
         setTimeout(() => {
-          sendKey(REMOTE_KEYS.BACK, activeEl);
-          
-          // Debug: Confirm BACK was sent
-          setTimeout(() => {
-            showNotification(`Debug: BACK key sent!`, 2000);
-          }, 100);
-        }, 250);
-      } else {
-        // Debug: Show why BACK wasn't sent
-        setTimeout(() => {
-          showNotification(`Debug: BACK NOT sent - element is top level`, 2000);
-        }, 500);
+          // Try sending to document instead of activeElement
+          sendKey(REMOTE_KEYS.BACK);
+
+          const now = Date.now();
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('[Pause Debug] BACK sent at +' + (now - pauseTime) + 'ms');
+          }
+          showNotification('[Pause Debug] BACK sent at +' + (now - pauseTime) + 'ms', 4000);
+        }, 500); // Increased from 250ms to 500ms
       }
     }
 
