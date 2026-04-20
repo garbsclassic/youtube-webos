@@ -506,7 +506,7 @@ class SponsorBlockHandler {
                 if (hlMode === 'auto_skip') {
                     this.jumpToNextHighlight();
                 } else if (hlMode === 'ask') {
-                    showNotification('Highlight available: press Blue to jump');
+                    showNotification('Highlight available: press BLUE to jump');
                 }
             }
         } catch (e) {
@@ -911,7 +911,7 @@ class SponsorBlockHandler {
                 const title = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
                 if (this.activeManualNotification) this.activeManualNotification.remove();
-                this.activeManualNotification = showNotification(`${title}: Press Blue to skip`, 0);
+                this.activeManualNotification = showNotification(`${title}: Press BLUE to skip`, 0);
             }
             return;
         }

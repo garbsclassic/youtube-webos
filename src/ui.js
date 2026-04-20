@@ -36,7 +36,7 @@ let seekResetTimer = null;
 let seekApplyTimer = null;
 let activeSeekNotification = null;
 
-const notificationTimer = 2000;
+const notificationTimer = 1500;
 let playPauseNotificationTimer = null;
 let activePlayPauseNotification = null;
 
@@ -834,17 +834,12 @@ async function skipChapter(direction = 'next') {
 // Seek burst helper functions
 function updateSeekNotification(amount) {
   const symbol = amount < 0 ? '<<' : '>>';
-  const symbolStyled = `<span style="font-size: 1.2em; font-weight: 600;">${symbol}</span>`;
-  const msg = `Seek ${symbolStyled} ${Math.abs(amount)}s`;
-
-  console.log('[Seek Debug] activeSeekNotification exists:', !!activeSeekNotification);
-  console.log('[Seek Debug] has updateHTML:', typeof activeSeekNotification?.updateHTML);
+  const msg = `Seek ${symbol} ${Math.abs(amount)}s`;
 
   if (activeSeekNotification) {
-    activeSeekNotification.updateHTML(msg);
+    activeSeekNotification.update(msg);
   } else {
-    activeSeekNotification = showNotification(msg, notificationTimer, true); // true = isHTML
-    console.log('[Seek Debug] Created new notification, methods:', Object.keys(activeSeekNotification));
+    activeSeekNotification = showNotification(msg);
   }
 }
 
@@ -1502,11 +1497,10 @@ document.addEventListener('keydown', eventHandler, true);
 
 let notificationContainer = null;
 
-export function showNotification(text, time = notificationTimer, isHTML = false) {
+export function showNotification(text, time = notificationTimer) {
   if (configRead('disableNotifications')) return {
     remove: () => {
     }, update: () => {
-    }, updateHTML: () => {
     }
   };
 
@@ -1517,36 +1511,28 @@ export function showNotification(text, time = notificationTimer, isHTML = false)
     document.body.appendChild(notificationContainer);
   }
 
-  // Check for existing notification with same text/HTML to prevent stacking
+  // Check for existing notification with same text to prevent stacking
   const existing = Array.from(notificationContainer.querySelectorAll('.message'))
-    .find(el => {
-      const compare = isHTML ? el.innerHTML : el.textContent;
-      return compare === text && !el.classList.contains('message-hidden');
-    });
+    .find(el => el.textContent === text && !el.classList.contains('message-hidden'));
 
   if (existing) {
     if (existing._removeTimer) clearTimeout(existing._removeTimer);
+
     if (time > 0) {
       existing._removeTimer = setTimeout(() => {
         existing.classList.add('message-hidden');
         setTimeout(() => existing.parentElement.remove(), 350);
       }, time);
     }
+
     return {
       remove: () => {
       }, update: () => {
-      }, updateHTML: () => {
       }
     };
   }
 
-  const elmInner = createElement('div', { class: 'message message-hidden' });
-  if (isHTML) {
-    elmInner.innerHTML = text;
-  } else {
-    elmInner.textContent = text;
-  }
-
+  const elmInner = createElement('div', { text, class: 'message message-hidden' });
   const elm = createElement('div', {}, elmInner);
   notificationContainer.appendChild(elm);
 
@@ -1599,38 +1585,7 @@ export function showNotification(text, time = notificationTimer, isHTML = false)
     if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
   };
 
-  const updateHTML = (newHTML, newTime = notificationTimer) => {
-    // Always pulse when updating to show the update was registered
-    const originalBorder = elmInner.style.borderColor;
-    const originalBorderLeft = elmInner.style.borderLeftColor;
-
-    // Detect theme for appropriate pulse colors
-    const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
-    const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-    const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-
-    elmInner.style.animation = 'none';
-    requestAnimationFrame(() => {
-      elmInner.style.animation = '';
-      elmInner.style.transform = 'scale(1.08)';
-      elmInner.style.borderColor = pulseBorder;
-      elmInner.style.borderLeftColor = pulseBorderLeft;
-
-      setTimeout(() => {
-        elmInner.style.transform = '';
-        elmInner.style.borderColor = originalBorder;
-        elmInner.style.borderLeftColor = originalBorderLeft;
-      }, 150);
-    });
-
-    // Update content and timer
-    elmInner.innerHTML = newHTML;
-    elmInner.classList.remove('message-hidden');
-    if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
-    if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
-  };
-
-  return { remove, update, updateHTML };
+  return { remove, update };
 }
 
 // --- Initialization & CSS Injection ---
@@ -1792,4 +1747,4 @@ configAddChangeListener('videoShelfOpacity', () => {
 if (!configRead('enableAdBlock')) destroyAdblock();
 if (configRead('enableTrackingBlock')) initTrackingBlock();
 
-setTimeout(() => showNotification('Press [8] to open SponsorBlock configuration'), 2000);
+setTimeout(() => showNotification('Press GREEN to open SponsorBlock configuration'), notificationTimer);
