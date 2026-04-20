@@ -1154,38 +1154,34 @@ function playPauseLogic(video) {
     video.play();
     notify('Playing');
   } else {
-    const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
-    const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
-    
     // Check if video is loading (spinner showing)
     const loadingSpinner = document.querySelector('.ytp-spinner, .html5-video-loader, .loading-icon');
     const isLoading = loadingSpinner && window.getComputedStyle(loadingSpinner).display !== 'none';
     
+    // Use watch overlay visibility as indicator of controls being up
+    const watchOverlay = document.querySelector('.webOs-watch');
+    const controlsAreUp = watchOverlay && window.getComputedStyle(watchOverlay).opacity !== '0';
+    
     // Debug: Console logs for development
     if (process.env.NODE_ENV !== 'production') {
-      console.log('[Pause Debug] controls element:', controls);
-      console.log('[Pause Debug] controls classes:', controls?.className);
-      console.log('[Pause Debug] isControlsVisible:', isControlsVisible);
+      console.log('[Pause Debug] controlsAreUp:', controlsAreUp);
       console.log('[Pause Debug] isLoading:', isLoading);
     }
     
-    const watchOverlay = document.querySelector('.webOs-watch');
     let needsHide = false;
 
-    if (!isControlsVisible) {
+    // Only try to dismiss if controls are actually showing
+    if (controlsAreUp) {
       needsHide = true;
       document.body.classList.add('ytaf-hide-controls');
       if (watchOverlay) watchOverlay.style.opacity = '0';
       
       if (process.env.NODE_ENV !== 'production') {
-        console.log('[Pause Debug] needsHide set to true, added ytaf-hide-controls class');
+        console.log('[Pause Debug] Controls detected, will dismiss overlay');
       }
     }
 
-    video.pause();
-    notify('Paused');
-    
-    // Clear any pending seek timers to prevent interference with BACK key
+    // Clear any pending seek timers BEFORE pausing
     if (seekApplyTimer) {
       clearTimeout(seekApplyTimer);
       seekApplyTimer = null;
@@ -1194,6 +1190,9 @@ function playPauseLogic(video) {
       clearTimeout(seekResetTimer);
       seekResetTimer = null;
     }
+
+    video.pause();
+    notify('Paused');
     
     // Debug: Check if seek is still in progress
     if (process.env.NODE_ENV !== 'production') {
