@@ -1209,68 +1209,47 @@ function playPauseLogic(video) {
       return;
     }
 
-    // Dismiss controls (temporarily removed panel check for debugging)
+    // Dismiss controls only if they were not visible (overlay showing)
     if (needsHide && !isShortsPage()) {
       shortcutDebounceTime = 650;
 
-      const activeEl = document.activeElement;
+      // Wait for buffering to complete before trying to dismiss overlay
+      const startTime = Date.now();
+      const maxWaitTime = 2000; // Max 2 seconds for buffering
 
-      // Track pause time for debug timing
-      const pauseTime = Date.now();
+      const waitForBufferingComplete = () => {
+        const video = document.querySelector('video');
+        const elapsed = Date.now() - startTime;
 
-      // Debug: Log what element has focus
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[Pause Debug] activeElement:', activeEl?.tagName, activeEl?.className, activeEl?.id);
-      }
+        // Check if video is buffering/seeking
+        const isBuffering = video && (video.seeking || video.readyState < 3);
 
-      if (activeEl && typeof activeEl.blur === 'function') {
-        activeEl.blur();
-      }
-
-      // Only send BACK if we're not at the top level (video/body being focused exits page)
-      const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
-
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[Pause Debug] isAtTopLevel:', isAtTopLevel, 'will send BACK:', !isAtTopLevel);
-      }
-
-      if (!isAtTopLevel) {
-        // Wait for buffering to complete before trying to dismiss overlay
-        const startTime = Date.now();
-        const maxWaitTime = 2000; // Max 2 seconds for buffering
-
-        const waitForBufferingComplete = () => {
-          const video = document.querySelector('video');
-          const elapsed = Date.now() - startTime;
-
-          // Check if video is buffering/seeking
-          const isBuffering = video && (video.seeking || video.readyState < 3);
-          if (isBuffering && elapsed < maxWaitTime) {
-            // Still buffering - wait longer
-            if (process.env.NODE_ENV !== 'production') {
-              console.log('[Pause Debug] Video buffering at +' + elapsed + 'ms, waiting...');
-            }
-
-            setTimeout(waitForBufferingComplete, 100);
-            return;
-          }
-
-          // Buffering complete or timeout - send BACK now
-          sendKey(REMOTE_KEYS.BACK);
-
+        if (isBuffering && elapsed < maxWaitTime) {
+          // Still buffering - wait longer
           if (process.env.NODE_ENV !== 'production') {
-            if (isBuffering) {
-              console.log('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent during buffering');
-            } else {
-              console.log('[Pause Debug] Buffering complete at +' + elapsed + 'ms, BACK sent');
-            }
+            console.log('[Pause Debug] Video buffering at +' + elapsed + 'ms, waiting...');
           }
-        };
+          
+          setTimeout(waitForBufferingComplete, 100);
+          return;
+        }
 
-        // Start polling
-        waitForBufferingComplete();
-      }
+        // Buffering complete or timeout - send BACK now to dismiss overlay
+        sendKey(REMOTE_KEYS.BACK);
+
+        if (process.env.NODE_ENV !== 'production') {
+          if (isBuffering) {
+            console.log('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent during buffering');
+          } else {
+            console.log('[Pause Debug] Buffering complete at +' + elapsed + 'ms, BACK sent');
+          }
+        }
+      };
+
+      // Start polling
+      waitForBufferingComplete();
     }
+
     if (needsHide && !isShortsPage()) {
       setTimeout(() => {
         document.body.classList.remove('ytaf-hide-controls');
