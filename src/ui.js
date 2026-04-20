@@ -36,7 +36,7 @@ let seekResetTimer = null;
 let seekApplyTimer = null;
 let activeSeekNotification = null;
 
-const notificationTimer = 1500;
+const notificationTimer = 3000;
 let playPauseNotificationTimer = null;
 let activePlayPauseNotification = null;
 
@@ -1243,7 +1243,19 @@ function playPauseLogic(video) {
       }
       
       if (!isAtTopLevel) {
-        setTimeout(() => sendKey(REMOTE_KEYS.BACK, activeEl), 250);
+        setTimeout(() => {
+          sendKey(REMOTE_KEYS.BACK, activeEl);
+          
+          // Debug: Confirm BACK was sent
+          setTimeout(() => {
+            showNotification(`Debug: BACK key sent!`, 2000);
+          }, 100);
+        }, 250);
+      } else {
+        // Debug: Show why BACK wasn't sent
+        setTimeout(() => {
+          showNotification(`Debug: BACK NOT sent - element is top level`, 2000);
+        }, 500);
       }
     }
 
