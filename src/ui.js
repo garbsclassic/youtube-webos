@@ -71,11 +71,11 @@ const ACTION_SCOPES = {
   refresh_page: 'NON_VIDEO',
   chapter_skip_prev: 'VIDEO',
   chapter_skip_next: 'VIDEO',
-  seek_back: 'GLOBAL',
-  seek_back_ex: 'GLOBAL',
-  seek_fwd: 'GLOBAL',
-  seek_fwd_ex: 'GLOBAL',
-  play_pause: 'GLOBAL',
+  seek_back: 'VIDEO',
+  seek_back_ex: 'VIDEO',
+  seek_fwd: 'VIDEO',
+  seek_fwd_ex: 'VIDEO',
+  play_pause: 'VIDEO',
   toggle_subs: 'VIDEO',
   toggle_comments: 'VIDEO',
   toggle_description: 'VIDEO',
@@ -1013,7 +1013,7 @@ function toggleCommentsLogic() {
 
   const isBtnActive = commBtn && (commBtn.getAttribute('aria-pressed') === 'true' || commBtn.getAttribute('aria-selected') === 'true');
   const panel = document.querySelector('ytlr-engagement-panel-section-list-renderer') || document.querySelector('ytlr-engagement-panel-title-header-renderer');
-  const isPanelVisible = panel && panel.offsetParent !== null && window.getComputedStyle(panel).visibility !== 'hidden' && window.getComputedStyle(panel).opacity !== '0';
+  const isPanelVisible = panel && window.getComputedStyle(panel).display !== 'none';
 
   if ((isBtnActive || isPanelVisible) && !isLiveChat) simulateBack();
   else if (triggerInternal(commBtn, isLiveChat ? 'Live Chat' : 'Comments')) {
@@ -1054,7 +1054,7 @@ function toggleDescriptionLogic() {
 
   const isDescActive = target && (target.getAttribute('aria-pressed') === 'true' || target.getAttribute('aria-selected') === 'true');
   const panel = document.querySelector('ytlr-engagement-panel-section-list-renderer') || document.querySelector('ytlr-engagement-panel-title-header-renderer');
-  const isPanelVisible = panel && panel.offsetParent !== null && window.getComputedStyle(panel).visibility !== 'hidden' && window.getComputedStyle(panel).opacity !== '0';
+  const isPanelVisible = panel && window.getComputedStyle(panel).display !== 'none';
 
   if (isDescActive || isPanelVisible) simulateBack();
   else if (triggerInternal(target, 'Description')) {
@@ -1154,99 +1154,36 @@ function playPauseLogic(video) {
     video.play();
     notify('Playing');
   } else {
-    // Check if video is loading (spinner showing)
-    const loadingSpinner = document.querySelector('.ytp-spinner, .html5-video-loader, .loading-icon');
-    const isLoading = loadingSpinner && window.getComputedStyle(loadingSpinner).display !== 'none';
-    
-    // Use watch overlay visibility as indicator of controls being up
+    const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
+    const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
+    const panel = document.querySelector('ytlr-engagement-panel-section-list-renderer') || document.querySelector('ytlr-engagement-panel-title-header-renderer');
+    const isPanelVisible = panel && window.getComputedStyle(panel).display !== 'none';
     const watchOverlay = document.querySelector('.webOs-watch');
-    const controlsAreUp = watchOverlay && window.getComputedStyle(watchOverlay).opacity !== '0';
-    
-    // Debug: Console logs for development
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[Pause Debug] controlsAreUp:', controlsAreUp);
-      console.log('[Pause Debug] isLoading:', isLoading);
-    }
-    
     let needsHide = false;
 
-    // Only try to dismiss if controls are actually showing
-    if (controlsAreUp) {
+    if (!isControlsVisible) {
       needsHide = true;
       document.body.classList.add('ytaf-hide-controls');
       if (watchOverlay) watchOverlay.style.opacity = '0';
-      
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[Pause Debug] Controls detected, will dismiss overlay');
-      }
-    }
-
-    // Clear any pending seek timers BEFORE pausing
-    if (seekApplyTimer) {
-      clearTimeout(seekApplyTimer);
-      seekApplyTimer = null;
-    }
-    if (seekResetTimer) {
-      clearTimeout(seekResetTimer);
-      seekResetTimer = null;
     }
 
     video.pause();
     notify('Paused');
     
-    // Debug: Check if seek is still in progress
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[Pause Debug] seekApplyTimer active:', !!seekApplyTimer);
-      console.log('[Pause Debug] pendingSeekOffset:', pendingSeekOffset);
-    }
-
-    // Skip dismiss logic if video is loading (YouTube blocks events during load)
-    if (isLoading) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[Pause Debug] Skipping dismiss - video is loading');
-      }
-      return;
-    }
-
-    // Dismiss controls only if they were not visible (overlay showing)
-    if (needsHide && !isShortsPage()) {
+    // Dismiss controls
+    if (needsHide && !isShortsPage() && !isPanelVisible) {
       shortcutDebounceTime = 650;
 
-      // Wait for buffering to complete before trying to dismiss overlay
-      const startTime = Date.now();
-      const maxWaitTime = 2000; // Max 2 seconds for buffering
+      const activeEl = document.activeElement;
+      if (activeEl && typeof activeEl.blur === 'function') {
+        activeEl.blur();
+      }
 
-      const waitForBufferingComplete = () => {
-        const video = document.querySelector('video');
-        const elapsed = Date.now() - startTime;
-
-        // Check if video is buffering/seeking
-        const isBuffering = video && (video.seeking || video.readyState < 3);
-
-        if (isBuffering && elapsed < maxWaitTime) {
-          // Still buffering - wait longer
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('[Pause Debug] Video buffering at +' + elapsed + 'ms, waiting...');
-          }
-          
-          setTimeout(waitForBufferingComplete, 100);
-          return;
-        }
-
-        // Buffering complete or timeout - send BACK now to dismiss overlay
-        sendKey(REMOTE_KEYS.BACK);
-
-        if (process.env.NODE_ENV !== 'production') {
-          if (isBuffering) {
-            console.log('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent during buffering');
-          } else {
-            console.log('[Pause Debug] Buffering complete at +' + elapsed + 'ms, BACK sent');
-          }
-        }
-      };
-
-      // Start polling
-      waitForBufferingComplete();
+      // Only send BACK if we're not at the top level (video/body being focused exits page)
+      const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
+      if (!isAtTopLevel) {
+        setTimeout(() => sendKey(REMOTE_KEYS.BACK, activeEl), 600);
+      }
     }
 
     if (needsHide && !isShortsPage()) {
@@ -1306,14 +1243,10 @@ function handleShortcutAction(action) {
           }
         }
         
-        // Method 2: Interact with video element (resets system activity timer)
-        const video = document.querySelector('video');
-        if (video && !isNaN(video.duration)) {
-          // Touch video properties to signal activity
-          const currentVol = video.volume;
-          video.volume = currentVol; // No-op but signals system activity
-        }
-      }, 2 * 60 * 1000); // 2 minutes - works with 3+ min screensaver timeouts
+        // Method 2: Simulate input
+        sendKey(REMOTE_KEYS.UP);
+        setTimeout(() => sendKey(REMOTE_KEYS.UP), 1000);
+      }, 2.5 * 60 * 1000);
 
       showNotification('OLED Mode Activated');
     }
@@ -1333,27 +1266,27 @@ function handleShortcutAction(action) {
     return;
   }
 
-  if (!isVideoPage) {
-    // Special case: play_pause on non-video pages should activate selected thumbnail
-    if (action === 'play_pause') {
-      sendKey(REMOTE_KEYS.ENTER);
-      return;
-    }
-
-    // Special case: seek buttons on non-video pages should navigate left/right
-    if (action === 'seek_back' || action === 'seek_back_ex') {
-      sendKey(REMOTE_KEYS.LEFT);
-      return;
-    }
-
-    // Special case: seek buttons on non-video pages should navigate left/right
-    if (action === 'seek_fwd' || action === 'seek_fwd_ex') {
-      sendKey(REMOTE_KEYS.RIGHT);
-      return;
-    }
-
-    return;
-  }
+  // if (!isVideoPage) {
+  //   // Special case: play_pause on non-video pages should activate selected thumbnail
+  //   if (action === 'play_pause') {
+  //     sendKey(REMOTE_KEYS.ENTER);
+  //     return;
+  //   }
+  //
+  //   // Special case: seek buttons on non-video pages should navigate left/right
+  //   if (action === 'seek_back' || action === 'seek_back_ex') {
+  //     sendKey(REMOTE_KEYS.LEFT);
+  //     return;
+  //   }
+  //
+  //   // Special case: seek buttons on non-video pages should navigate left/right
+  //   if (action === 'seek_fwd' || action === 'seek_fwd_ex') {
+  //     sendKey(REMOTE_KEYS.RIGHT);
+  //     return;
+  //   }
+  //
+  //   return;
+  // }
 
   // Player Actions - Require Video/Context
   const video = document.querySelector('video');
