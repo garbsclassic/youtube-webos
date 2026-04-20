@@ -1235,41 +1235,40 @@ function playPauseLogic(video) {
       }
 
       if (!isAtTopLevel) {
-        // Wait for YouTube overlay to actually appear before dismissing
+        // Wait for buffering to complete before trying to dismiss overlay
         const startTime = Date.now();
-        const maxWaitTime = 1000; // Max 1 second
+        const maxWaitTime = 2000; // Max 2 seconds for buffering
 
-        const waitForOverlay = () => {
-          // Check for common YouTube overlay selectors
-          const overlay = document.querySelector('ytlr-watch-actions-bar, .ytp-chrome-bottom, .ytp-chrome-controls');
+        const waitForBufferingComplete = () => {
+          const video = document.querySelector('video');
           const elapsed = Date.now() - startTime;
 
-          if (overlay && window.getComputedStyle(overlay).display !== 'none') {
-            // Overlay found and visible - send BACK now
-            setTimeout(() => {
-              sendKey(REMOTE_KEYS.BACK);
-
-              if (process.env.NODE_ENV !== 'production') {
-                console.log('[Pause Debug] Overlay detected at +' + elapsed + 'ms, BACK sent');
-              }
-              showNotification('[Pause Debug] Overlay detected at +' + elapsed + 'ms, BACK sent');
-            }, 50); // Small delay to ensure it's fully rendered
-          } else if (elapsed < maxWaitTime) {
-            // Keep waiting - check again in 50ms
-            setTimeout(waitForOverlay, 50);
-          } else {
-            // Timeout - send BACK anyway
-            sendKey(REMOTE_KEYS.BACK);
-
+          // Check if video is buffering/seeking
+          const isBuffering = video && (video.seeking || video.readyState < 3);
+          if (isBuffering && elapsed < maxWaitTime) {
+            // Still buffering - wait longer
             if (process.env.NODE_ENV !== 'production') {
-              console.log('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent anyway');
+              console.log('[Pause Debug] Video buffering at +' + elapsed + 'ms, waiting...');
             }
-            showNotification('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent anyway');
+
+            setTimeout(waitForBufferingComplete, 100);
+            return;
+          }
+
+          // Buffering complete or timeout - send BACK now
+          sendKey(REMOTE_KEYS.BACK);
+
+          if (process.env.NODE_ENV !== 'production') {
+            if (isBuffering) {
+              console.log('[Pause Debug] Timeout at +' + elapsed + 'ms, BACK sent during buffering');
+            } else {
+              console.log('[Pause Debug] Buffering complete at +' + elapsed + 'ms, BACK sent');
+            }
           }
         };
 
         // Start polling
-        waitForOverlay();
+        waitForBufferingComplete();
       }
     }
     if (needsHide && !isShortsPage()) {
