@@ -13,16 +13,16 @@
       "iconUri": "https://raw.githubusercontent.com/last-wave/youtube-webos/dev/assets/icon.png",
       "manifest": {
         "id": "youtube.leanback.v4",
-        "version": "0.1.68",
+        "version": "0.1.69",
         "type": "web",
         "title": "YouTube AdFree",
         "appDescription": "YouTube AdFree",
         "iconUri": "https://raw.githubusercontent.com/last-wave/youtube-webos/dev/assets/icon.png",
         "sourceUrl": "https://github.com/last-wave/youtube-webos",
         "rootRequired": false,
-        "ipkUrl": "https://github.com/last-wave/youtube-webos/releases/download/v0.1.68/youtube.leanback.v4_0.1.68_all.ipk",
+        "ipkUrl": "https://github.com/last-wave/youtube-webos/releases/download/v0.1.69/youtube.leanback.v4_0.1.69_all.ipk",
         "ipkHash": {
-          "sha256": "5a81b86d9b47a7ec5d1274e8adfd79998ca6acbec907c5969ae1abe83607cc49"
+          "sha256": "de4ece35b6b4f4d2a33c84ce4e17f4ed403caff39efe1718c7512cb067c15286"
         }
       }
     }
