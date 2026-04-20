@@ -69,19 +69,19 @@ const ACTION_SCOPES = {
   config_menu: 'GLOBAL',
   oled_toggle: 'GLOBAL',
   refresh_page: 'NON_VIDEO',
-  chapter_skip_prev: 'VIDEO',
-  chapter_skip_next: 'VIDEO',
+  play_pause: 'VIDEO',
   seek_back: 'VIDEO',
   seek_back_ex: 'VIDEO',
   seek_fwd: 'VIDEO',
   seek_fwd_ex: 'VIDEO',
-  play_pause: 'VIDEO',
-  toggle_subs: 'VIDEO',
-  toggle_comments: 'VIDEO',
-  toggle_description: 'VIDEO',
-  save_to_playlist: 'VIDEO',
+  chapter_skip_prev: 'VIDEO',
+  chapter_skip_next: 'VIDEO',
   sb_skip_prev: 'VIDEO',
-  sb_manual_skip: 'VIDEO'
+  sb_manual_skip: 'VIDEO',
+  toggle_description: 'VIDEO',
+  toggle_comments: 'VIDEO',
+  toggle_subs: 'VIDEO',
+  save_to_playlist: 'VIDEO',
 };
 
 function updateShortcutCache(key) {

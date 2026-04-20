@@ -15,6 +15,9 @@ export const segmentTypes = {
 
 export const shortcutActions = {
   none: 'None',
+  config_menu: 'Open/Close Settings'
+  oled_toggle: 'Toggle OLED Care Mode',
+  refresh_page: 'Refresh Page',
   play_pause: 'Play / Pause',
   seek_back: 'Rewind (Burst)',
   seek_back_ex: 'Rewind EX (Burst)',
@@ -28,9 +31,6 @@ export const shortcutActions = {
   toggle_comments: 'Toggle Comments',
   toggle_subs: 'Toggle Subtitles',
   save_to_playlist: 'Save / Watch Later',
-  oled_toggle: 'Toggle OLED Care Mode',
-  refresh_page: 'Refresh Page',
-  config_menu: 'Open/Close Settings'
 };
 
 
