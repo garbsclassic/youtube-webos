@@ -133,9 +133,9 @@ class Watch {
       this._timer = null;
     }
 
-    // Note: Debounce internal timer is managed by closure in shared helper, 
+    // Note: Debounce internal timer is managed by closure in shared helper,
     // so strictly speaking we can't cancel it externally easily unless debounce returns a cancel method.
-    // For this use case (UI visibility), letting a pending check run once after destroy is harmless, 
+    // For this use case (UI visibility), letting a pending check run once after destroy is harmless,
     // but the shared debounce usually doesn't expose cancel.
     // If strict cleanup is needed, update the shared debounce to return { run, cancel }.
 

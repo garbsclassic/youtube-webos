@@ -500,7 +500,7 @@ function createOptionsPanel() {
       const currentFocus = document.activeElement;
       const isOnTabBtn = currentFocus && currentFocus.classList.contains('ytaf-tab-btn');
       const isInSettingsPage = currentFocus && currentFocus.closest('.ytaf-settings-page');
-      
+
       if (isInSettingsPage || (currentFocus && !isOnTabBtn && currentFocus !== elmContainer)) {
         // Focus is in page content, move to active tab button
         const activeTabBtn = tabBtns[activePage];
@@ -513,7 +513,7 @@ function createOptionsPanel() {
           return;
         }
       }
-      
+
       // Focus is on tab button or container, close the menu
       showOptionsPanel(false);
     }
@@ -552,11 +552,12 @@ function createOptionsPanel() {
   const elAdBlock = createConfigCheckbox('enableAdBlock');
   const elTrackingBlock = createConfigCheckbox('enableTrackingBlock');
   const cosmeticGroup = [elAdBlock, elTrackingBlock];
-  let elRemoveGlobalShorts = null, elRemoveTopLiveGames = null, elGuestPrompts = null;
+  let elRemoveGlobalShorts = null, elRemoveTopLiveGames = null, elRemoveMostRelevant = null, elGuestPrompts = null;
 
   elRemoveGlobalShorts = createConfigCheckbox('removeGlobalShorts');
   elRemoveTopLiveGames = createConfigCheckbox('removeTopLiveGames');
-  cosmeticGroup.push(elRemoveGlobalShorts, elRemoveTopLiveGames);
+  elRemoveMostRelevant = createConfigCheckbox('removeMostRelevant');
+  cosmeticGroup.push(elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant);
   if (isGuestMode()) {
     elGuestPrompts = createConfigCheckbox('hideGuestSignInPrompts');
     cosmeticGroup.push(elGuestPrompts);
@@ -576,12 +577,12 @@ function createOptionsPanel() {
   const updateDependencyState = () => {
     const isAdBlockOn = configRead('enableAdBlock');
     if (!isAdBlockOn) {
-      [elRemoveGlobalShorts, elRemoveTopLiveGames, elGuestPrompts].forEach(el => {
+      [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(el => {
         setState(el, false);
       });
       return;
     }
-    [elRemoveGlobalShorts, elRemoveTopLiveGames, elGuestPrompts].forEach(el => {
+    [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(el => {
       setState(el, true);
     });
   };
@@ -640,7 +641,8 @@ function createOptionsPanel() {
       text: 'Forces the video thumbnail preview on/off on app load',
       style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
     }),
-    createConfigCheckbox('fixMultilineTitles')
+    createConfigCheckbox('fixMultilineTitles'),
+	  createConfigCheckbox('removeBlackBorders')
   ];
 
   if (getWebOSVersion() <= 4) {
@@ -1169,7 +1171,7 @@ function playPauseLogic(video) {
 
     video.pause();
     notify('Paused');
-    
+
     // Dismiss controls
     if (needsHide && !isShortsPage() && !isPanelVisible) {
       shortcutDebounceTime = 650;
@@ -1210,7 +1212,7 @@ function handleShortcutAction(action) {
       if (oledKeepAliveTimer) {
         clearInterval(oledKeepAliveTimer);
         oledKeepAliveTimer = null;
-        
+
         // Reset webOS keepAlive to allow normal sleep
         if (window.webOSDev?.connection?.setKeepAlive) {
           try {
@@ -1242,7 +1244,7 @@ function handleShortcutAction(action) {
             console.warn('[OLED] webOS setKeepAlive failed:', e);
           }
         }
-        
+
         // Method 2: Simulate input
         sendKey(REMOTE_KEYS.UP);
         setTimeout(() => sendKey(REMOTE_KEYS.UP), 1000);
@@ -1355,7 +1357,7 @@ function handleShortcutAction(action) {
 
 const eventHandler = (evt) => {
   if (evt.repeat) return;
-  
+
   // Ignore synthetic events that we create ourselves to prevent double inputs
   if (!evt.isTrusted) return;
 
@@ -1493,36 +1495,36 @@ export function showNotification(text, time = notificationTimer) {
       // Temporarily enable width transition for this update only
       const originalTransition = elmInner.style.transition;
       elmInner.style.transition = 'opacity 0.3s ease, transform 0.15s ease, border-color 0.15s ease, max-height 0.3s ease, margin-bottom 0.3s ease, padding 0.3s ease, width 0.2s ease';
-      
+
       // Always pulse when updating to show the update was registered
       const originalBorder = elmInner.style.borderColor;
       const originalBorderLeft = elmInner.style.borderLeftColor;
-  
+
       // Detect theme for appropriate pulse colors
       const isRedTheme = notificationContainer.classList.contains('theme-classic-red');
       const pulseBorder = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
       const pulseBorderLeft = isRedTheme ? 'rgba(255, 193, 0, 1)' : 'rgba(0, 235, 235, 1)';
-  
+
       elmInner.style.animation = 'none';
       requestAnimationFrame(() => {
         elmInner.style.animation = '';
         elmInner.style.transform = 'scale(1.08)';
         elmInner.style.borderColor = pulseBorder;
         elmInner.style.borderLeftColor = pulseBorderLeft;
-  
+
         setTimeout(() => {
           elmInner.style.transform = '';
           elmInner.style.borderColor = originalBorder;
           elmInner.style.borderLeftColor = originalBorderLeft;
         }, 150);
       });
-  
+
       // Update content and timer
       elmInner.textContent = newText;
       elmInner.classList.remove('message-hidden');
       if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
       if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
-      
+
       // Remove width transition after it completes to not affect other notifications
       setTimeout(() => {
         elmInner.style.transition = originalTransition;
@@ -1537,27 +1539,83 @@ function initGlobalStyles() {
   const style = createElement('style');
   document.head.appendChild(style);
 
-  // Configurable styles updater
   const updateStyles = () => {
     const hideLogo = configRead('hideLogo');
     const fixTitles = configRead('fixMultilineTitles');
+        const removeBorders = configRead('removeBlackBorders');
 
     style.textContent = `
             /* Hide Logo */
-            ytlr-redux-connect-ytlr-logo-entity { visibility: ${hideLogo ? 'hidden' : 'visible'}; }
+            ytlr-redux-connect-ytlr-logo-entity, ytlr-logo-entity { visibility: ${hideLogo ? 'hidden' : 'visible'} !important; }
             
             /* UI Controls Hiding Class */
             body.ytaf-hide-controls .GLc3cc { opacity: 0 !important; }
             body.ytaf-hide-controls .webOs-watch { opacity: 0 !important; }
 			
-			/* Fix Multiline Titles */
+            /* Fix Multiline Titles */
             ${fixTitles ? '.app-quality-root .SK1srf .WVWtef, .app-quality-root .SK1srf .niS3yd { padding-bottom: 0.37vh !important; padding-top: 0.37vh !important; }' : ''}
+            
+            /* Remove Black Borders */
+            ${removeBorders ? `
+            yt-formatted-string, 
+            .style-scope.ytd-rich-grid-media, 
+            #video-title,
+            #metadata-line,
+            .ytd-video-meta-block {
+                background-color: transparent !important;
+                background: none !important;
+                box-shadow: none !important;
+            }
+            #details.ytd-rich-grid-media {
+                background-color: transparent !important;
+                margin-top: 4px !important;
+            }
+            ytd-thumbnail {
+                background-color: transparent !important;
+            }
+            .ytd-searchbox, .ytp-videowall-still-info-bg {
+                background-color: transparent !important;
+            }
+            /* WebOS App Specific Background Overrides */
+            .app-quality-root .boSXqb .QFqCxd:before,
+            .app-quality-root .V7jTHe, 
+            .app-quality-root .g6XRz,
+            .app-quality-root .UGcxnc .sjENQb {
+                background-color: transparent !important;
+            }
+            /* Liquid Glass Player UI Overrides */
+            .ltewod.BZ345e {
+                background-color: #f1f1f1 !important;
+            }
+            .MIiKQd.CgA6bd, .clJQEe, .dySudf, .ltewod {
+                background-color: rgba(45, 45, 45, 0.45) !important;
+                background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%) !important;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+            }` : ''}
+
+            /* * Video player shadows
+             */
+            body .ytLrWatchDefaultShadow,
+            body [idomkey='shadow'] {
+                display: block !important;
+                height: 100% !important;
+                width: 100% !important;
+                pointer-events: none !important;
+                position: absolute !important;
+                background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0.8) 90%) !important;
+                background-color: rgba(0, 0, 0, 0.3) !important;
+            }
+
+            body .ytLrWatchDefault2025Shadow {
+                background-color: rgba(11, 11, 11, 0.5) !important;
+            }
         `;
   };
 
   updateStyles();
   configAddChangeListener('hideLogo', updateStyles);
   configAddChangeListener('fixMultilineTitles', updateStyles);
+    configAddChangeListener('removeBlackBorders', updateStyles);
 }
 
 function updateLogoState() {
@@ -1595,6 +1653,7 @@ function applyOledMode(enabled) {
   }
 
   if (enabled) {
+	document.body.classList.add('oled-theme-active');
     if (notificationContainer) notificationContainer.classList.add(oledClass);
 
     const opacityVal = configRead('videoShelfOpacity');
@@ -1622,10 +1681,14 @@ function applyOledMode(enabled) {
         .Jx9xPc { background-color: rgba(0, 0, 0, ${opacity}) !important; } 
         .p0DeOc { background-color: #000 !important; background-image: none !important; }
         ytlr-player-focus-ring { border: 0.375rem solid rgb(200, 200, 200) !important; }
+		ytlr-surface-page { background-image: none !important; background-color: #000 !important; }
         ${transparentBgRules}`
     });
     document.head.appendChild(style);
-  } else if (notificationContainer) notificationContainer.classList.remove(oledClass);
+  } else {
+	  document.body.classList.remove('oled-theme-active');
+	  if (notificationContainer) notificationContainer.classList.remove(oledClass);
+  }
   updateLogoState();
 }
 

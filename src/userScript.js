@@ -1,5 +1,6 @@
 import 'whatwg-fetch';
 import './domrect-polyfill';
+import './adblock.js';
 
 if (typeof window !== 'undefined' && typeof Node !== 'undefined' && !('isConnected' in Node.prototype)) {
   Object.defineProperty(Node.prototype, 'isConnected', {
@@ -15,13 +16,14 @@ import { handleLaunch, SELECTORS, extractLaunchParams } from './utils';
 import { attemptActiveBypass, resetActiveBypass } from './auto-login.js';
 import { isWebOS25, simulatorMode } from './webos-utils.js';
 import { initBlockWebOSCast } from './block-webos-cast';
-import './adblock.js';
+import './app_api/index';
 import './sponsorblock.js';
 import './emoji-font.js';
 import './thumbnail-quality.js';
 import './screensaver-fix.js';
 import './yt-fixes.css';
 import './watch.js';
+import './lang-settings-fix';
 
 (function oneTimeParamsCheck() {
   const params = extractLaunchParams();

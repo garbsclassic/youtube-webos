@@ -40,7 +40,6 @@ const STATE_UNSTARTED = -1;
 const STATE_PLAYING = 1;
 // const STATE_PAUSED = 2;
 const STATE_BUFFERING = 3;
-
 // const STATE_CUED = 5;
 
 function isForceEnabled() {

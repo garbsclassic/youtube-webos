@@ -33,7 +33,6 @@ export const shortcutActions = {
   save_to_playlist: 'Save / Watch Later',
 };
 
-
 export const sbModes = {
   auto_skip: 'Auto Skip',
   manual_skip: 'Manual Skip',
@@ -62,6 +61,7 @@ const configOptions = new Map([
   ['upgradeThumbnails', { default: false, desc: 'Max Thumbnail Quality' }],
   ['removeGlobalShorts', { default: false, desc: 'Remove Shorts (Global)' }],
   ['removeTopLiveGames', { default: false, desc: 'Remove Top Live Games' }],
+  ['removeMostRelevant', { default: false, desc: 'Remove "Most Relevant" Shelf' }],
   ['enableSponsorBlock', { default: true, desc: 'SponsorBlock' }],
   ['enableMutedSegments', { default: false, desc: 'Allow segments that mute audio' }],
   ['skipSegmentsOnce', { default: false, desc: 'Skip Segments Once' }],
@@ -82,6 +82,7 @@ const configOptions = new Map([
   ['enableOledCareMode', { default: false, desc: 'OLED-Care Mode (True Black UI)' }],
   ['videoShelfOpacity', { default: 100, desc: 'Video shelf opacity' }],
   ['fixMultilineTitles', { default: true, desc: 'Fix Multiline Titles' }],
+  ['removeBlackBorders', { default: false, desc: 'New Liquid Glass UI' }],
   ['forcePreviews', { default: 'disabled', desc: 'Force Previews' }],
   ['enableLegacyEmojiFix', { default: true, desc: 'Emoji + Characters Fix' }],
   ['hideGuestSignInPrompts', { default: false, desc: 'Guest Mode: Hide Sign-in Buttons' }],
@@ -147,7 +148,7 @@ export function configWrite(key, value) {
   if (oldValue === value) return;
 
   localConfig[key] = value;
-  
+
   try {
     window.localStorage.setItem(CONFIG_KEY, JSON.stringify(localConfig));
   } catch (e) {

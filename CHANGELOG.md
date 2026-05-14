@@ -4,6 +4,52 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.7.7] - 2026/05/13
+
+## Added
+
+### UI Tweaks / Video Player
++ Added "Liquid Glass UI" toggle in UI Tweaks to replicate the default YouTube app's UI by removing black borders
++ Added liquid glass design to the video player UI, including the "Up Next" label and "Repeat" button
++ Added shadow rules to video player UI (from webosbrew)
+
+### AdBlock
++ Add filtering for "Most relevant" shelf - https://github.com/NicholasBly/youtube-webos/issues/101
+
+### Thumbnail Quality
++ Upgrade thumbnail quality on the background image of playlists - https://github.com/NicholasBly/youtube-webos/issues/112
+
+## Changes
+
+### General
++ Updated appinfo.json from the latest LG Content Store YouTube app (replaced useragent string with the newest string, added missing splashscreen images, and added missing config settings)
+
+### OLED-Care Mode
++ Replace background image of playlist with a pure black screen - https://github.com/NicholasBly/youtube-webos/issues/112
+
+## Optimizations
+
+### Performance
++ Implemented performance improvements to the max thumbnail quality and adblock engines
++ Reduced recursion depths to prevent CPU stalls at startup
+
+## Fixes
+
+### AdBlock
++ Move adblock import up higher to improve/fix filtering on initial app load - https://github.com/NicholasBly/youtube-webos/issues/105
+
+### SponsorBlock
++ Fix SponsorBlock segment chain skip ignoring manual skip segments - https://github.com/NicholasBly/youtube-webos/issues/120
+
+### Thumbnail Quality
++ Fix pop-in effect on max thumbnail quality
++ Fix thumbnails sometimes not loading or showing a generic grey thumbnail
++ Fix thumbnails not being upgraded immediately - https://github.com/NicholasBly/youtube-webos/issues/111
+
+### General
++ Fix language switching (from webosbrew#316)
++ Fix "Hide YouTube Logo" not working on some webOS versions
+
 ## [0.7.6] - 2026/04/15
 
 ## Changes
