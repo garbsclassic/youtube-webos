@@ -836,7 +836,7 @@ async function skipChapter(direction = 'next') {
 // Seek burst helper functions
 function updateSeekNotification(amount) {
   const symbol = amount < 0 ? '<<' : '>>';
-  const msg = `Seek ${symbol} ${Math.abs(amount)}s`;
+  const msg = `Seek ${symbol} ${Math.abs(amount)}`;
 
   if (activeSeekNotification) {
     activeSeekNotification.update(msg);
@@ -1549,9 +1549,14 @@ function initGlobalStyles() {
             ytlr-redux-connect-ytlr-logo-entity, ytlr-logo-entity { visibility: ${hideLogo ? 'hidden' : 'visible'} !important; }
             
             /* UI Controls Hiding Class */
-            body.ytaf-hide-controls .GLc3cc { opacity: 0 !important; }
-            body.ytaf-hide-controls .webOs-watch { opacity: 0 !important; }
-			
+            body.ytaf-hide-controls .GLc3cc,
+            body.ytaf-hide-controls .webOs-watch,
+            body.ytaf-hide-controls .ytLrWatchDefaultShadow,
+            body.ytaf-hide-controls [idomkey='shadow'],
+            body.ytaf-hide-controls .ytLrWatchDefault2025Shadow { 
+                opacity: 0 !important; 
+            }
+
             /* Fix Multiline Titles */
             ${fixTitles ? '.app-quality-root .SK1srf .WVWtef, .app-quality-root .SK1srf .niS3yd { padding-bottom: 0.37vh !important; padding-top: 0.37vh !important; }' : ''}
             
