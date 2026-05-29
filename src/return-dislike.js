@@ -152,31 +152,42 @@ class ReturnYouTubeDislike {
   }
 
   // --- Observer Logic ---
+  // Two-layer detection: a MutationObserver on the main container catches
+  // panel additions for the cursor-click and shortcut-triggered paths
+  // (where focus may stay on the Description button and never enter the
+  // panel). The focusin fallback in handleFocusIn catches the D-pad Enter
+  // dialog case — that dialog is appended to a sibling overlay container
+  // outside SELECTORS.mainContainer, so the bodyObserver never sees it.
+  // Removing either layer creates a regression for one of the entry paths.
   observeBodyForPanel() {
+    if (!this.active) return;
     if (this.bodyObserver) this.bodyObserver.disconnect();
     const mainContainer = document.querySelector(SELECTORS.mainContainer) || document.body;
 
     this.bodyObserver = new MutationObserver(this.handleBodyMutation);
-    this.bodyObserver.observe(mainContainer, { childList: true, subtree: true, attributes: true });
+    // Only childList — attribute mutations on body/descendants fire constantly
+    // (focus animations etc.) and we only care about panel add/remove.
+    this.bodyObserver.observe(mainContainer, { childList: true, subtree: true });
     this.observers.add(this.bodyObserver);
 
     const existingPanel = document.querySelector(SELECTORS.panel);
     if (existingPanel) this.setupPanel(existingPanel);
   }
 
-  handleBodyMutation(mutations) {
+  handleBodyMutation() {
     if (!this.active) return;
     if (this.panelElement) {
       if (!this.panelElement.isConnected) {
-        // Panel removed: Clear references immediately
+        // Panel removed — clear refs so the next setupPanel can re-bind.
         this.panelElement = null;
         this.isPanelFocused = false;
-        this.menuItemsCache = []; // Clear stale cache
+        this.menuItemsCache = [];
         this.menuItemsMap.clear();
         this.lastFocusedElement = null;
         this.focusedIndex = -1;
+        this.cachedMode = null;
       } else {
-        return; // Still connected, no need to re-query
+        return; // Still connected, no need to re-query.
       }
     }
 
@@ -294,7 +305,32 @@ class ReturnYouTubeDislike {
   }
 
   handleFocusIn(e) {
-    if (!this.active || !this.panelElement || this.isProgrammaticFocus) return;
+      if (!this.active || this.isProgrammaticFocus) return;
+
+      // Defensive: if our cached panel is somehow stale (the bodyObserver
+      // normally clears panelElement on disconnect, but timing races can
+      // leave it stranded), drop the reference so the focusin fallback
+      // below can rebind to whatever's actually in the DOM now.
+      if (this.panelElement && !this.panelElement.isConnected) {
+          this.panelElement = null;
+          this.isPanelFocused = false;
+          this.menuItemsCache = [];
+          this.menuItemsMap.clear();
+          this.lastFocusedElement = null;
+          this.focusedIndex = -1;
+          this.cachedMode = null;
+      }
+
+      // Primary panel detection path: focus crossed into something matching
+      // the panel selector, so wire it up. The description dialog has
+      // role="dialog" and is appended to a sibling overlay container — focus
+      // is the only reliable signal we get for it on webOS.
+      if (!this.panelElement) {
+          const found = e.target.closest && e.target.closest(SELECTORS.panel);
+          if (!found) return;
+          this.setupPanel(found);
+          if (!this.panelElement) return; // setup bailed for some reason
+      }
 
     // PERF: fast DOM check only on focus change
     if (this.panelElement.contains(e.target)) {
@@ -423,8 +459,15 @@ class ReturnYouTubeDislike {
 
     if (isEnter) {
       const current = this.menuItemsCache[this.focusedIndex];
-      // Double check current is actually focused/valid
-      if (current && (current === document.activeElement || current.contains(document.activeElement))) {
+          // Only intercept Enter when the menuitem container is *itself* the
+          // active element. If focus is on a focusable descendant (e.g. the
+          // Description chip's inner <yt-button-container role="button">),
+          // the real Enter must reach YouTube's native handler — dispatching
+          // a synthetic keydown on the parent menuitem targets the wrong node
+          // and, being isTrusted=false, is rejected by YT's nav handlers
+          // anyway. Net effect of the old `contains` branch: real Enter was
+          // swallowed and the panel never opened.
+          if (current && current === document.activeElement) {
         e.preventDefault();
         e.stopPropagation();
         this.dispatching = true;

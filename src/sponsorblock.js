@@ -1,8 +1,9 @@
 import sha256 from 'tiny-sha256';
 import { configAddChangeListener, configRemoveChangeListener, segmentTypes, configGetAll } from './config';
-import { showNotification } from './ui';
+import { showNotification } from './notifications.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
 import { isLegacyWebOS } from './webos-utils.js';
+import './sponsorblock.css';
 
 const SPONSORBLOCK_CONFIG = {
     primaryAPI: 'https://sponsorblock.inf.re/api',
@@ -30,6 +31,8 @@ const CHAIN_SKIP_CONSTANTS = {
     OVERLAP_TOLERANCE: 0.2,
     MIN_PLAYBACK_TIME: 0.1
 };
+
+const HAS_ABORT_CONTROLLER = typeof AbortController !== 'undefined';
 
 class SponsorBlockHandler {
     constructor(videoID) {
@@ -418,7 +421,7 @@ class SponsorBlockHandler {
         if (!video || this.hasPerformedChainSkip || this.isDestroyed) return false;
 
         if (video.readyState === 0) {
-            if (this.boundChainSkipRetry) {
+            if (this.boundChainSkipRetry && this.chainSkipVideo) {
                 this.chainSkipVideo.removeEventListener('loadedmetadata', this.boundChainSkipRetry);
             }
             this.chainSkipVideo = video;
@@ -537,8 +540,8 @@ class SponsorBlockHandler {
         this.video = document.querySelector('video');
         if (!this.video) return;
 
-        this.injectCSS();
-        // Initial tracking setup
+        // CSS is loaded via static import (./sponsorblock.css) — no runtime
+        // <style> injection needed.
         this.resetSegmentTracking();
 
         this.boundStateChange = (e) => {
@@ -562,6 +565,16 @@ class SponsorBlockHandler {
         };
 
         window.addEventListener('yt-player-state-change', this.boundStateChange);
+
+        // Resize forces an immediate overlay re-sync (bypassing the timeupdate throttle).
+        this.boundResize = () => {
+            this._lastSyncTime = 0;
+            if (this.overlay && this.progressBar && !this.isDestroyed) {
+                const { container, asSibling } = this._getProgressBarAnchor();
+                if (asSibling && container) this._syncOverlayPosition(container);
+            }
+        };
+        window.addEventListener('resize', this.boundResize);
 
         this.addEvent(this.video, 'seeked', () => {
             if (this.isDestroyed) return;
@@ -839,11 +852,17 @@ class SponsorBlockHandler {
     handleTimeUpdate() {
         if (this.isSkipping) return;
 
-        // Force overlay positioning sync during playback to handle layout changes dynamically
+        // Sync overlay layout at most every 500ms — timeupdate fires ~4Hz and the
+        // viewport rarely changes, so the previous unconditional sync wasted two
+        // getBoundingClientRect() calls + DOM writes per frame on webOS 3.
         if (this.overlay && this.progressBar) {
-            const { container, asSibling } = this._getProgressBarAnchor();
-            if (asSibling && container) {
-                this._syncOverlayPosition(container);
+            const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+            if (!this._lastSyncTime || now - this._lastSyncTime > 500) {
+                const { container, asSibling } = this._getProgressBarAnchor();
+                if (asSibling && container) {
+                    this._syncOverlayPosition(container);
+                }
+                this._lastSyncTime = now;
             }
         }
 
@@ -1110,10 +1129,9 @@ class SponsorBlockHandler {
 
             try {
                 const fetchURL = `${url}/skipSegments/${hashPrefix}?categories=${encodeURIComponent(categories)}&actionTypes=${encodeURIComponent(actionTypes)}&videoID=${this.videoID}`;
-                const hasAbortController = typeof AbortController !== 'undefined';
 
                 let res;
-                if (hasAbortController) {
+                if (HAS_ABORT_CONTROLLER) {
                     this.abortController = new AbortController();
                     const timeoutId = setTimeout(() => this.abortController.abort(), SPONSORBLOCK_CONFIG.timeout);
                     try {
@@ -1142,21 +1160,6 @@ class SponsorBlockHandler {
         return res;
     }
 
-    injectCSS() {
-        if (document.getElementById('sb-css')) return;
-
-        const css = `
-            #previewbar { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: 100% !important; pointer-events: none !important; z-index: 2000 !important; overflow: visible !important; transition: opacity 0.2s ease !important; }
-            .previewbar { position: absolute !important; list-style: none !important; height: 100% !important; top: 0 !important; display: block !important; z-index: 2001 !important; }
-            .previewbar.highlight { min-width: 5.47px !important; max-width: 5.47px !important; height: 100% !important; top: 0 !important; background-color: #ff0000; }
-            ytlr-progress-bar.zylon-hidden ~ #previewbar { opacity: 0 !important; visibility: hidden !important; }
-        `;
-        const style = document.createElement('style');
-        style.id = 'sb-css';
-        style.textContent = css;
-        document.head.appendChild(style);
-    }
-
     addEvent(elem, type, handler) {
         if (!elem) return;
         elem.addEventListener(type, handler);
@@ -1174,6 +1177,11 @@ class SponsorBlockHandler {
         if (this.boundStateChange) {
             window.removeEventListener('yt-player-state-change', this.boundStateChange);
             this.boundStateChange = null;
+        }
+
+        if (this.boundResize) {
+            window.removeEventListener('resize', this.boundResize);
+            this.boundResize = null;
         }
 
         this.rafIds.forEach(id => cancelAnimationFrame(id));
@@ -1204,8 +1212,8 @@ class SponsorBlockHandler {
             this.overlay = null;
         }
 
-        const style = document.getElementById('sb-css');
-        if (style) style.remove();
+        // sponsorblock.css stays in the page (static import) — nothing to
+        // remove. It only styles elements that exist while SB is active.
 
         this.listeners.forEach((events, elem) => {
             events.forEach((handler, type) => elem.removeEventListener(type, handler));
@@ -1280,7 +1288,7 @@ if (typeof window !== 'undefined') {
     window.__ytaf_sb_init = initSB;
     window.addEventListener('hashchange', initSB);
 
-    if (document.readyState === 'complete') {
+    if (document.readyState !== 'loading') {
         setTimeout(initSB, 500);
     } else {
         window.addEventListener('load', () => setTimeout(initSB, 500), { once: true });

@@ -4,6 +4,61 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.8.0] - 2026/05/27
+
+## Summary
+
+This update features a codebase-wide audit focused on **performance and efficiency**. Consolidated resources across files resulting in lower CPU usage across all TVs.
+
+**Key Highlights:**
++ **Performance:** Core systems like AdBlock, SponsorBlock, and shortcuts were improved to use less memory and CPU cycles for better responsiveness across the YouTube app.
++ **Visual & UI Fixes:** [YouTube homescreen UI](https://github.com/NicholasBly/youtube-webos/issues/129) and [YouTube Kids debug overlay](https://github.com/NicholasBly/youtube-webos/issues/127).
++ **Snappier UI:** OLED-Care sliders, remote shortcuts, and scrolling through thumbnails are now significantly more responsive when toggled.
++ **Build Fix:** Fixed typo in webpack causing modern build to include emoji fix from the legacy version. 
+
+## Optimizations & Improvements
+
+### AdBlock
++ **Faster JSON Filtering:** Populated configuration flags once per session and removed redundant API checks -> eliminates unnecessary boolean checks on every single network response.
++ **Streamlined Telemetry Blocking:** Switched from `url.href` to `url.pathname` and pre-compiled regex -> skips full URL serialization, saving CPU cycles on outgoing requests.
++ **Early Exit Logic:** The engine now bails immediately if all filters are disabled.
+
+### Interface & OLED-Care Mode
++ **CSS Opacity Rules:** Replaced dynamic style rebuilds with pure CSS custom properties (`--ytaf-oled-opacity`) -> completely eliminates lag/stuttering when quickly changing the Video Shelf Opacity.
++ **Bundled Styling:** Moved runtime CSS injections for SponsorBlock, Auto-Login, and Emoji-Font into dedicated `.css` files -> removes runtime string parsing and speeds up initial app boot time. 
++ **Event Listener Consolidation:** Chained `toggleComments`, `toggleDescription`, and `playPause` into a single helper and merged three separate keydown listeners into one -> saves 4 queries per shortcut press for instant remote response.
++ **ui.js:** Cached document.querySelector('video') in utils.js
+
+### Thumbnail Quality & Emojis
++ **Smart Queueing:** Capped the thumbnail request queue to 50 and increased polling intervals -> prevents runaway memory growth and stuttering during fast scrolling.
++ **Cache Trimming:** `parsedTextCache` now trims the oldest half of its data instead of completely clearing -> keeps recently viewed emojis loaded to prevent visual pop-in during long scroll sessions.
+
+### SponsorBlock
++ **Throttle UI Sync:** Overlay position syncing is now throttled to 500ms -> prevents forced layout recalculations, eliminating frame drops on older webOS 3 TVs.
++ **Load:** SponsorBlock segments inject and are shown immediately on video load. Eliminates flicker of colored segments in some scenarios.
++ **SponsorBlock UI:** Fixed segment list category keys - musicofftopic and hook rows now show the correct color and label (previously fell through to gray with raw category text)
+
+## Fixes
+
+### General UI
++ **Homescreen Fix:** Fixed an issue where the YouTube homescreen was cutting off certain UI elements (https://github.com/NicholasBly/youtube-webos/issues/129).
++ **YouTube Kids:** Fixed and removed the debug overlay appearing in the YouTube Kids app (https://github.com/NicholasBly/youtube-webos/issues/127).
++ **Config Saves:** Debounced `localStorage` writes -> prevents the TV from stuttering when quickly dragging color pickers or sliders.
+
+### Return YouTube Dislike
++ **Description Button Fix:** Fixed a bug where highlighting and selecting the description button with the LG remote (Arrow Keys/Enter) failed to apply the dislike value and navigation fix.
++ **Observer Efficiency:** Eliminated the `bodyObserver` and replaced it with a targeted `focusin` fallback -> reduces background DOM scanning.
+
+### Modern Build (webOS 22+)
++ **Emoji-Font Typo:** Fixed a webpack alias typo (`emoji-font.ts` instead of `.js`) -> successfully strips out a useless legacy mutation observer, fixing font inconsistencies and shrinking the modern bundle file size.
++ **Auto Login:** Fixed Guest Mode cache invalidation on `webOSRelaunch` -> signing in and out between app launches is now reflected correctly.
+
+## [0.7.9] - 2026/05/15
+
+## Fixes
+
+Fixed app scaling issue
+
 ## [0.7.8] - 2026/05/15
 
 ## Fixes

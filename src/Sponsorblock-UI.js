@@ -1,135 +1,12 @@
+import './sponsorblock-ui.css';
+
 const sponsorBlockIcon = 'https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
-
-const STYLES = `
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap');
-    
-    /* --- Popup Styles --- */
-    .sb-segments-popup {
-        position: fixed;
-        top: 5%;
-        right: 4%;
-        bottom: auto;
-        left: auto;
-        transform: none;
-        
-        background-color: #000000;
-        border: 0.4vh solid rgba(52, 52, 52, 0.4);
-        border-radius: 1.6vh;
-        padding: 1.04vw;          /* 20px */
-        
-        width: 42vw;
-        max-height: 90vh;
-        overflow-y: auto;
-        
-        z-index: 9999;
-        display: none;
-        color: #ececec;
-        font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
-        box-shadow: 0 0.8vh 1.6vh rgba(0, 0, 0, 0.8);
-    }
-    
-    .sb-segments-popup.visible {
-        display: block;
-    }
-
-    .sb-popup-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding-bottom: 1.38vh;   /* 15px */
-        margin-bottom: 1.38vh;    /* 15px */
-        border-bottom: 0.1vw solid rgba(52, 52, 52, 0.6);
-        text-align: center;
-    }
-
-    .sb-header-title-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.46vh;    /* 5px */
-    }
-
-    .sb-header-icon {
-        width: 1.67vw;            /* 32px */
-        height: 1.67vw;           /* 32px - Kept square using vw */
-        fill: #ff0000;
-        margin-right: 0.52vw;     /* 10px */
-    }
-
-    .sb-header-text {
-        font-size: 3.6vh;
-        font-weight: 600;
-        color: #ececec;
-    }
-
-    .sb-segment-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.93vh 0.63vw;   /* 10px 12px */
-        border-radius: 0.3vw;    /* 6px */
-        margin-bottom: 0.28vh;    /* 3px */
-        background: transparent;
-        transition: background-color 0.2s;
-    }
-
-    .sb-row-left {
-        display: flex;
-        align-items: center;
-    }
-
-    .sb-segment-dot {
-        width: 0.52vw;            /* 10px */
-        height: 0.52vw;           /* 10px - Kept square using vw */
-        border-radius: 50%;
-        flex-shrink: 0;
-        margin-right: 0.63vw;     /* 12px */
-    }
-
-    .sb-segment-category {
-        font-weight: 500;
-        font-size: 1.47vw;        /* 28px */
-        color: #f0f0f0;
-    }
-
-    .sb-segment-time {
-        font-size: 1.47vw;        /* 28px */
-        font-family: 'Noto Sans Mono', 'Roboto Mono', monospace;
-        color: #ececec;
-        font-weight: 500;
-    }
-
-    .sb-segments-popup:focus {
-        outline: none;
-        border-color: #fff;
-    }
-
-    .sb-segment-row:focus {
-        background-color: #fff;
-        outline: none;
-    }
-    
-    .sb-segment-row:focus .sb-segment-category,
-    .sb-segment-row:focus .sb-segment-time {
-        color: #000;
-    }
-`;
 
 class SponsorBlockUI {
   constructor() {
     this.popup = null;
     this.visible = false;
     this.hasSegments = false;
-    this.injectStyles();
-  }
-
-  injectStyles() {
-    if (!document.getElementById('sb-ui-styles')) {
-      const style = document.createElement('style');
-      style.id = 'sb-ui-styles';
-      style.textContent = STYLES;
-      document.head.appendChild(style);
-    }
   }
 
   formatTime(seconds) {
@@ -146,9 +23,8 @@ class SponsorBlockUI {
       outro: '#0202ed',
       interaction: '#cc00ff',
       selfpromo: '#ffff00',
-      music_offtopic: '#ff9900',
+            musicofftopic: '#ff9900',
       preview: '#008fd6',
-      poi: '#ff1684',
       filler: '#7300FF',
       poi_highlight: '#ff1684',
       hook: '#395699'
@@ -163,11 +39,11 @@ class SponsorBlockUI {
       outro: 'Endcards/Credits',
       interaction: 'Interaction',
       selfpromo: 'Unpaid/Self Promotion',
-      music_offtopic: 'Non-Music Section',
+            musicofftopic: 'Non-Music Section',
       preview: 'Preview/Recap',
-      poi: 'Highlight',
       poi_highlight: 'Highlight',
-      filler: 'Filler/Tangents'
+            filler: 'Filler/Tangents',
+            hook: 'Hook/Greetings'
     };
     return names[category] || category.charAt(0).toUpperCase() + category.slice(1);
   }

@@ -6,6 +6,10 @@ const MAX_CONCURRENT_REQUESTS = 3;
 const IMAGE_LOAD_TIMEOUT = 5000;
 const CACHE_SIZE_LIMIT = 200;
 const PLACEHOLDER_MAX_BYTES = 5000;
+// Cap on pending upgrades. Fast scrolling can stream thumbnails faster than
+// HEAD probes complete; without this the Map grows unbounded. The visibility
+// observer will re-queue anything still on-screen if it gets evicted.
+const REQUEST_QUEUE_MAX = 50;
 
 const YT_TARGET_THUMBNAIL_NAMES = new Set(['maxresdefault', 'sddefault', 'hqdefault', 'mqdefault', 'default']);
 
@@ -35,7 +39,9 @@ const VisibilityObserverClass = window.IntersectionObserver || class {
   observe(target) {
     this.elements.add(target);
     if (!this.interval) {
-      this.interval = setInterval(() => this._check(), 300);
+      // Polled fallback (used on webOS 3 / Chrome 38). 600ms keeps perceived
+      // responsiveness while halving the per-tile getBoundingClientRect() reflow cost.
+      this.interval = setInterval(() => this._check(), 600);
     }
     setTimeout(() => this._check(), 0);
   }
@@ -316,6 +322,9 @@ const styleObserver = new MutationObserver(mutations => {
       const currentGen = s ? s.generationId : 0;
       elementState.set(node, { generationId: currentGen + 1 });
 
+      if (requestQueue.size >= REQUEST_QUEUE_MAX) {
+        requestQueue.delete(requestQueue.keys().next().value);
+      }
       requestQueue.set(node, () => processUpgrade(node, currentGen + 1));
       processRequestQueue();
     }
@@ -329,6 +338,9 @@ const visibilityObserver = new VisibilityObserverClass((entries) => {
     if (entry.isIntersecting) {
       const s = elementState.get(node);
       if (s && node.style.backgroundImage !== '') {
+        if (requestQueue.size >= REQUEST_QUEUE_MAX) {
+          requestQueue.delete(requestQueue.keys().next().value);
+        }
         requestQueue.set(node, () => processUpgrade(node, s.generationId));
         processRequestQueue();
       }

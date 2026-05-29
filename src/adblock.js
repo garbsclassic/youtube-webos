@@ -1,4 +1,4 @@
-import { configGetAll } from './config';
+import { configGetAll, configAddChangeListener } from './config';
 import { isShortsPage } from './utils';
 import { getWebOSVersion } from './webos-utils';
 import { FetchRegistry } from './hooks';
@@ -10,20 +10,23 @@ const FORCE_FALLBACK = false;
 let isTelemetryHooked = false;
 let originalXHROpen = null;
 let originalXHRSend = null;
-let cachedWebOSVersion = null;
+const cachedWebOSVersion = getWebOSVersion();
 
 // --- CONSTANTS & CONFIGURATION ---
 
+// Single source of truth — TELEMETRY_REGEX is derived from this list.
+// '/api/stats/watchtime' intentionally omitted (affects watch time statistics).
 const BLOCKED_TELEMETRY_PATHS = [
   '/youtubei/v1/log_event',
   '/ptracking',
-  // '/api/stats/watchtime', probably don't filter this out as it affects watch time statistics
   '/api/stats/atr',
   '/api/stats/qoe',
   '/pagead/viewthroughconversion'
 ];
 
-const TELEMETRY_REGEX = /\/youtubei\/v1\/log_event|\/ptracking|\/api\/stats\/atr|\/api\/stats\/qoe|\/pagead\/viewthroughconversion/;
+const TELEMETRY_REGEX = new RegExp(
+  BLOCKED_TELEMETRY_PATHS.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+);
 
 const UI_STRINGS = {
   SHORTS_TITLE: 'Shorts',
@@ -56,6 +59,60 @@ const EMOJI_RE_GLOBAL = new RegExp(EMOJI_RE.source, 'g');
 const CLEAN_TEXT_RE = /[\u2060\uFEFF]/g;
 
 const IGNORE_ON_SHORTS = new Set(['SEARCH', 'PLAYER', 'ACTION']);
+
+// Combined needle regex — one pass instead of three string scans per JSON.parse
+const RESPONSE_NEEDLE_RE = /responseContext|playerResponse|continuationContents/;
+
+// Snapshot of config — configGetAll() returns the live reference, so this only
+// needs to be re-bound when the module loads. Flags below are recomputed on
+// change to avoid 8 boolean ORs per request.
+const cfgSnapshot = configGetAll();
+let anyFilterEnabled = false;
+let cfgNeedsContentFiltering = false;
+let cfgEmojiFixEffective = false;
+
+// Singleton passed to filter functions — refreshed by recomputeFilterFlags()
+// rather than re-allocated on every JSON.parse.
+const cfgFlags = {
+  enableAdBlock: false,
+  enableTrackingBlock: false,
+  removeGlobalShorts: false,
+  removeTopLiveGames: false,
+  removeMostRelevant: false,
+  hideGuestPrompts: false,
+  enableLegacyEmojiFix: false,
+  hideEndcards: false
+};
+
+function recomputeFilterFlags() {
+  cfgEmojiFixEffective = !!cfgSnapshot[CONFIG_KEYS.EMOJI_FIX] && cachedWebOSVersion <= 4;
+  cfgNeedsContentFiltering = !!(cfgSnapshot[CONFIG_KEYS.ADBLOCK] || cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] || cfgEmojiFixEffective);
+
+  cfgFlags.enableAdBlock = !!cfgSnapshot[CONFIG_KEYS.ADBLOCK];
+  cfgFlags.enableTrackingBlock = !!cfgSnapshot[CONFIG_KEYS.TRACKING];
+  cfgFlags.removeGlobalShorts = !!cfgSnapshot[CONFIG_KEYS.SHORTS];
+  cfgFlags.removeTopLiveGames = !!cfgSnapshot[CONFIG_KEYS.LIVE_GAMES];
+  cfgFlags.removeMostRelevant = !!cfgSnapshot[CONFIG_KEYS.MOST_RELEVANT];
+  cfgFlags.hideGuestPrompts = !!cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS];
+  cfgFlags.enableLegacyEmojiFix = cfgEmojiFixEffective;
+  cfgFlags.hideEndcards = !!cfgSnapshot[CONFIG_KEYS.ENDCARDS];
+
+  anyFilterEnabled = !!(
+    cfgFlags.enableAdBlock ||
+    cfgFlags.enableTrackingBlock ||
+    cfgFlags.removeGlobalShorts ||
+    cfgFlags.removeTopLiveGames ||
+    cfgFlags.removeMostRelevant ||
+    cfgFlags.hideGuestPrompts ||
+    cfgFlags.enableLegacyEmojiFix ||
+    cfgFlags.hideEndcards
+  );
+}
+
+recomputeFilterFlags();
+for (const k of Object.values(CONFIG_KEYS)) {
+  configAddChangeListener(k, recomputeFilterFlags);
+}
 
 const SCHEMA_REGISTRY = {
   typeSignatures: [
@@ -211,15 +268,12 @@ function stripTrackingParams(obj, maxDepth = 15, currentDepth = 0) {
   }
 }
 
-function isTelemetryUrl(urlStr) {
-  if (!urlStr) return false;
-  return TELEMETRY_REGEX.test(urlStr);
-}
-
 const telemetryFetchHandler = (evt) => {
   const { url } = evt.detail;
-  if (isTelemetryUrl(url.href)) {
-    if (DEBUG) console.info('[AdBlock] Blocked telemetry Fetch request:', url.href);
+  // url.pathname avoids the .href getter rebuilding the full URL string,
+  // and is sufficient since all BLOCKED_TELEMETRY_PATHS are path-only.
+  if (TELEMETRY_REGEX.test(url.pathname)) {
+    if (DEBUG) console.info('[AdBlock] Blocked telemetry Fetch request:', url.pathname);
     evt.preventDefault();
   }
 };
@@ -251,8 +305,9 @@ export function initTrackingBlock() {
     };
 
     window.XMLHttpRequest.prototype.send = function(body) {
-      if (isTelemetryUrl(this.__adblockRequestUrl)) {
-        if (DEBUG) console.info('[AdBlock] Blocked telemetry XHR request:', this.__adblockRequestUrl);
+      const reqUrl = this.__adblockRequestUrl;
+      if (reqUrl && TELEMETRY_REGEX.test(reqUrl)) {
+        if (DEBUG) console.info('[AdBlock] Blocked telemetry XHR request:', reqUrl);
         // Silently drop the request
         return;
       }
@@ -312,55 +367,35 @@ function logSchemaMiss(data, textLength) {
 function hookedParse(text, reviver) {
   const data = origParse.call(this, text, reviver);
   if (!text || text.length < 500 || !data || typeof data !== 'object') return data;
-
-  if (!text.includes('responseContext') && !text.includes('playerResponse') && !text.includes('continuationContents')) {
-    return data;
-  }
-
-  // Pull live configuration per-request
-  const globalCfg = configGetAll();
-  const config = {
-    enableAdBlock: globalCfg[CONFIG_KEYS.ADBLOCK],
-    enableTrackingBlock: globalCfg[CONFIG_KEYS.TRACKING],
-    removeGlobalShorts: globalCfg[CONFIG_KEYS.SHORTS],
-    removeTopLiveGames: globalCfg[CONFIG_KEYS.LIVE_GAMES],
-	removeMostRelevant: globalCfg[CONFIG_KEYS.MOST_RELEVANT],
-    hideGuestPrompts: globalCfg[CONFIG_KEYS.GUEST_PROMPTS],
-    enableLegacyEmojiFix: globalCfg[CONFIG_KEYS.EMOJI_FIX] && cachedWebOSVersion <= 4,
-	hideEndcards: globalCfg[CONFIG_KEYS.ENDCARDS]
-  };
-
-  if (!config.enableAdBlock && !config.enableTrackingBlock && !config.removeGlobalShorts && !config.removeTopLiveGames && !config.removeMostRelevant && !config.hideGuestPrompts && !config.enableLegacyEmojiFix && !config.hideEndcards) return data;
-  if (!data || typeof data !== 'object') return data;
-
-  const isAPIResponse = !!(data.responseContext || data.playerResponse || data.onResponseReceivedActions || data.onResponseReceivedEndpoints || data.frameworkUpdates || data.sectionListRenderer || data.entries || data.continuationContents);
-  if (!isAPIResponse || data.botguardData) return data;
+  if (!anyFilterEnabled) return data;
+  if (!RESPONSE_NEEDLE_RE.test(text)) return data;
+  if (data.botguardData) return data;
 
   try {
     const responseType = detectResponseType(data);
-    const needsContentFiltering = config.enableAdBlock || config.hideGuestPrompts || config.enableLegacyEmojiFix;
+    const needsContentFiltering = cfgNeedsContentFiltering;
 
     if (isShortsPage() && responseType && IGNORE_ON_SHORTS.has(responseType)) return data;
 
     if (FORCE_FALLBACK) {
       if (DEBUG) debugLog(`FORCE_FALLBACK active. Using fallback filters.`);
-      if (!Array.isArray(data)) applyFallbackFilters(data, config, needsContentFiltering);
+      if (!Array.isArray(data)) applyFallbackFilters(data, cfgFlags, needsContentFiltering);
     } else if (responseType && SCHEMA_REGISTRY.paths[responseType]) {
       if (DEBUG) debugLog(`Schema Match: [${responseType}]`);
-      applySchemaFilters(data, responseType, config, needsContentFiltering);
+      applySchemaFilters(data, responseType, cfgFlags, needsContentFiltering);
     } else if (responseType === 'ACTION' || responseType === 'PLAYER') {
       if (DEBUG) debugLog(`Schema Match: [${responseType}]`);
-      applySchemaFilters(data, responseType, config, needsContentFiltering);
+      applySchemaFilters(data, responseType, cfgFlags, needsContentFiltering);
     } else if (text.length > 10000 && !Array.isArray(data)) {
       if (DEBUG) logSchemaMiss(data, text.length);
-      applyFallbackFilters(data, config, needsContentFiltering);
+      applyFallbackFilters(data, cfgFlags, needsContentFiltering);
     }
 
-    if (config.enableLegacyEmojiFix && data.frameworkUpdates) {
+    if (cfgFlags.enableLegacyEmojiFix && data.frameworkUpdates) {
         findAndProcessText(data.frameworkUpdates, 20);
     }
 
-    if (config.enableTrackingBlock) {
+    if (cfgFlags.enableTrackingBlock) {
         stripTrackingParams(data, 15);
       if (DEBUG) debugLog('Stripped trackingParams globally');
     }
@@ -737,7 +772,6 @@ function findObjects(haystack, needlesArray, maxDepth = 10) {
 export function initAdblock() {
   if (isHooked) return;
   if (DEBUG) console.info('[AdBlock] Initializing hybrid hook (Debug Mode: ' + DEBUG + ')');
-  if (cachedWebOSVersion === null) cachedWebOSVersion = getWebOSVersion();
 
   origParse = JSON.parse;
   JSON.parse = function(text, reviver) {
