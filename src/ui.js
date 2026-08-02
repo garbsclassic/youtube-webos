@@ -555,9 +555,9 @@ function createOptionsPanel() {
 
   const elmHeading = createElement('h1', {},
     createElement('span', { text: 'YouTube Extended' }),
-    createLogo('https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel.png', 'logo-blue'),
-    createLogo('https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel2.png', 'logo-red'),
-    createLogo('https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel4.png', 'logo-dark')
+    createLogo('https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel.png', 'logo-blue'),
+    createLogo('https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel2.png', 'logo-red'),
+    createLogo('https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel4.png', 'logo-dark')
   );
   elmContainer.appendChild(elmHeading);
   elmContainer.appendChild(tabMenu);

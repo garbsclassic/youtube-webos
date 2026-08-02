@@ -1,6 +1,6 @@
 import './sponsorblock-ui.css';
 
-const sponsorBlockIcon = 'https://raw.githubusercontent.com/last-wave/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
+const sponsorBlockIcon = 'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
 
 class SponsorBlockUI {
   constructor() {
