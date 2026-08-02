@@ -126,6 +126,10 @@ function loadStoredConfig() {
   }
 }
 
+// MUTATE IN PLACE ONLY — adblock.js (and other modules) hold a module-level
+// reference to this object via the configGetAll() snapshot. Reassigning
+// localConfig (e.g. for a future "reset to defaults") would silently desync
+// those holders. Use Object.assign(localConfig, defaultConfig) to reset.
 let localConfig = Object.assign({}, defaultConfig, loadStoredConfig() || {});
 
 // Debounce localStorage writes — rapid input (e.g. color picker drag) was
@@ -165,11 +169,17 @@ export function configRead(key) {
   return localConfig[key];
 }
 
+// Gate the per-write log behind a flag — configWrite fires per event during
+// color-picker drags / opacity-slider scrubs (the localStorage write itself is
+// already debounced).
+const DEBUG = false;
+
 export function configWrite(key, value) {
   if (!configExists(key)) throw new Error('tried to write unknown config key: ' + key);
   const oldValue = localConfig[key];
   if (oldValue === value) return;
 
+  DEBUG && console.info('Changing key', key, 'from', oldValue, 'to', value);
   localConfig[key] = value;
   scheduleWrite();
 

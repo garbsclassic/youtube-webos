@@ -1399,18 +1399,8 @@ const eventHandler = (evt) => {
 
   // If the user is typing in a native text box, let standard characters (like 0-9) pass through
   if (!keyColor && (evt.target.tagName === 'INPUT' || evt.target.tagName === 'TEXTAREA')) {
-    // console.log('We are typing!');
-    return true;
-  }
-  if (!action || action === 'none') {
-    if (isVideoPage) {
-      evt.preventDefault();
-      evt.stopPropagation();
-      return false;
-    } else {
       return true;
     }
-  }
 
   // Release the key instantly if the action's required scope doesn't match the page
   if (actionScope === 'VIDEO' && !isVideoPage) return true;
