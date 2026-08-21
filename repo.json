@@ -20,7 +20,7 @@
         "iconUri": "https://raw.githubusercontent.com/garbsclassic/youtube-webos/dev/assets/icon.png",
         "sourceUrl": "https://github.com/garbsclassic/youtube-webos",
         "rootRequired": false,
-        "ipkUrl": "https://github.com/garbsclassic/youtube-webos/releases/download/v0.1.79/youtube.leanback.v4_0.1.79_all.ipk",
+        "ipkUrl": "https://github.com/garbsclassic/youtube-webos/releases/download/v0.1.80/youtube.leanback.v4_0.1.80_all.ipk",
         "ipkHash": {
           "sha256": "5a6f4364b95c9477e21a02fe51483489636bc19818d16811415e878c8621176c"
         }
