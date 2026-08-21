@@ -1,9 +1,9 @@
 {
   "paging": {
     "page": 1,
-    "count": 2,
+    "count": 1,
     "maxPage": 1,
-    "itemsTotal": 2
+    "itemsTotal": 1
   },
   "packages": [
     {
@@ -13,16 +13,16 @@
       "iconUri": "https://raw.githubusercontent.com/garbsclassic/youtube-webos/dev/assets/icon.png",
       "manifest": {
         "id": "youtube.leanback.v4",
-        "version": "0.1.80",
+        "version": "0.1.81",
         "type": "web",
         "title": "YouTube AdFree",
         "appDescription": "YouTube AdFree",
         "iconUri": "https://raw.githubusercontent.com/garbsclassic/youtube-webos/dev/assets/icon.png",
         "sourceUrl": "https://github.com/garbsclassic/youtube-webos",
         "rootRequired": false,
-        "ipkUrl": "https://github.com/garbsclassic/youtube-webos/releases/download/v0.1.80/youtube.leanback.v4_0.1.80_all.ipk",
+        "ipkUrl": "https://github.com/garbsclassic/youtube-webos/releases/download/v0.1.81/youtube.leanback.v4_0.1.81_all.ipk",
         "ipkHash": {
-          "sha256": "5a6f4364b95c9477e21a02fe51483489636bc19818d16811415e878c8621176c"
+          "sha256": "f0c016aded9f4d8013ca7882aff37bf9b1379f12314fffc261dcfd104d8d9585"
         }
       }
     }
