@@ -135,21 +135,17 @@ let localConfig = Object.assign({}, defaultConfig, loadStoredConfig() || {});
 // Debounce localStorage writes — rapid input (e.g. color picker drag) was
 // stringifying the entire ~50-key config object on every event.
 let pendingWriteTimer = null;
-function flushPendingWrite() {
-  if (pendingWriteTimer === null) return;
-  clearTimeout(pendingWriteTimer);
+function writeNow() {
   pendingWriteTimer = null;
   try { window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig); }
-  catch (e) { /* quota / SecurityError on private mode */ }
+  catch { /* quota / SecurityError on private mode */ }
 }
-function scheduleWrite() {
-  if (pendingWriteTimer !== null) return;
-  pendingWriteTimer = setTimeout(() => {
-    pendingWriteTimer = null;
-    try { window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig); }
-    catch (e) { /* ignore */ }
-  }, 200);
-}
+const flushPendingWrite = () => {
+  if (pendingWriteTimer !== null) { clearTimeout(pendingWriteTimer); writeNow(); }
+};
+const scheduleWrite = () => {
+  if (pendingWriteTimer === null) pendingWriteTimer = setTimeout(writeNow, 200);
+};
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', flushPendingWrite);
   window.addEventListener('pagehide', flushPendingWrite);
@@ -187,7 +183,8 @@ export function configWrite(key, value) {
   if (listeners) {
     const syntheticEvent = { detail: { key, newValue: value, oldValue } };
     for (const callback of listeners) {
-      callback(syntheticEvent);
+     try { callback(syntheticEvent);
+    }catch (err) { console.warn('[Config] change listener failed for', key, err); }
     }
   }
 }
@@ -207,7 +204,7 @@ export function configGetDefault(key) {
   return configOptions.get(key).default;
 }
 
-// NEW: Export the live object reference directly for zero-overhead caching
+// Export the live object reference directly for zero-overhead caching
 export function configGetAll() {
   return localConfig;
 }

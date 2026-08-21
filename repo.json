@@ -1,9 +1,9 @@
 {
   "paging": {
     "page": 1,
-    "count": 1,
+    "count": 2,
     "maxPage": 1,
-    "itemsTotal": 1
+    "itemsTotal": 2
   },
   "packages": [
     {
@@ -13,7 +13,7 @@
       "iconUri": "https://raw.githubusercontent.com/garbsclassic/youtube-webos/dev/assets/icon.png",
       "manifest": {
         "id": "youtube.leanback.v4",
-        "version": "0.1.79",
+        "version": "0.1.80",
         "type": "web",
         "title": "YouTube AdFree",
         "appDescription": "YouTube AdFree",
