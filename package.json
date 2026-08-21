@@ -22,7 +22,7 @@
   },
   "repository": "github:webosbrew/youtube-webos",
   "license": "GPL-3.0-only",
-  "homepage": "https://github.com/last-wave/youtube-webos#readme",
+  "homepage": "https://github.com/garbsclassic/youtube-webos#readme",
   "dependencies": {
     "@babel/runtime-corejs3": "^7.28.0",
     "@twemoji/api": "^17.0.2",
