@@ -1137,43 +1137,51 @@ function playPauseLogic(video) {
     video.play();
     notify('Playing');
   } else {
+    const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
+    const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
+    const isPanelVisible = isEngagementPanelVisible();
+    const watchOverlay = document.querySelector('.webOs-watch');
+    let needsHide = false;
+
+    if (!isControlsVisible) {
+      needsHide = true;
+      document.body.classList.add('ytaf-hide-controls');
+      if (watchOverlay) watchOverlay.style.opacity = '0';
+    }
+
     video.pause();
     notify('Paused');
 
-    const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
-    const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
+    if (needsHide && !isShortsPage() && !isPanelVisible) {
+      shortcutDebounceTime = 650;
 
-    // Only run hiding logic if the controls are not already visible
-    if (!isControlsVisible) {
-      const watchOverlay = document.querySelector('.webOs-watch');
-
-      document.body.classList.add('ytaf-hide-controls');
-      if (watchOverlay) watchOverlay.style.opacity = '0';
-
-      // Shorts pages manage their own control visibility; skip dismissal there.
-      if (!isShortsPage() && !isEngagementPanelVisible()) {
-        shortcutDebounceTime = 650;
-
-        const activeEl = document.activeElement;
-        if (activeEl && typeof activeEl.blur === 'function') {
-          activeEl.blur();
-        }
-
-        // YouTube auto-shows (and focuses) its transport controls right after a
-        // pause. Wait out that transition, then dismiss them with BACK — but
-        // never at top level: with body/video focus a BACK exits the page or
-        // opens YouTube's side menu instead of dismissing anything.
-        setTimeout(() => {
-          const currentControls = document.querySelector('yt-focus-container[idomkey="controls"]');
-          if (!currentControls?.classList.contains('MFDzfe--focused')) return;
-
-          const focused = document.activeElement;
-          const isAtTopLevel = !focused || focused === document.body || focused.tagName === 'VIDEO';
-          if (!isAtTopLevel) sendKey(REMOTE_KEYS.BACK, focused);
-        }, 600);
+      // Capture focus BEFORE blur(): once blurred, activeElement falls back to
+      // <body> and we lose the element the synthetic BACK must bubble from.
+      // Reading focus after the blur is what broke control dismissal.
+      const activeEl = document.activeElement;
+      if (activeEl && typeof activeEl.blur === 'function') {
+        activeEl.blur();
       }
 
-      // Cleanup runs on every page so the hiding class can never leak.
+      // Only send BACK when something real had focus. At top level (body/video
+      // focus) a BACK exits the page or opens YouTube's side menu instead of
+      // dismissing anything.
+      const isAtTopLevel = !activeEl || activeEl === document.body || activeEl.tagName === 'VIDEO';
+      if (!isAtTopLevel) {
+        setTimeout(() => {
+          // YouTube may have rebuilt or dismissed its controls by now; only
+          // fire if they are still up, and still attached to the DOM.
+          if (!activeEl.isConnected) return;
+          const currentControls = document.querySelector('yt-focus-container[idomkey="controls"]');
+          if (currentControls && currentControls.classList.contains('MFDzfe--focused')) {
+            sendKey(REMOTE_KEYS.BACK, activeEl);
+          }
+        }, 600);
+      }
+    }
+
+    // Cleanup runs on every page so the hiding class can never leak.
+    if (needsHide) {
       setTimeout(() => {
         document.body.classList.remove('ytaf-hide-controls');
         if (watchOverlay) watchOverlay.style.opacity = '';

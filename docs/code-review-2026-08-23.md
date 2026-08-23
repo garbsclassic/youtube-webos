@@ -48,16 +48,23 @@ Why it breaks:
 
 1. YouTube auto-shows and focuses (`MFDzfe--focused`) its transport controls on every pause, so the
    re-check inside the timeout is essentially always true.
-2. The `isAtTopLevel` guard was removed. A BACK dispatched while focus sits on `<body>` is a
-   top-level BACK: instead of dismissing anything, YouTube's global back handler runs and opens its
-   exit/side menu.
-3. Target changed from the captured pre-blur element to post-blur focus, and the delay shrank
-   600 ms → 250 ms, landing mid-animation during the pause transition.
+2. The `isAtTopLevel` guard was removed, and the BACK target changed from the element captured
+   _before_ `blur()` to whatever `document.activeElement` holds _after_ it. Blurring drops focus to
+   `<body>`, so the dispatch becomes a top-level BACK: instead of dismissing the controls bar,
+   YouTube's global back handler runs and opens its exit/side menu.
+3. The delay also shrank 600 ms → 250 ms, landing mid-animation during the pause transition.
 
-Fix applied: keep the merged code's improvements (re-checking control visibility at fire time,
-targeting live focus) but restore the top-level guard and the 600 ms delay. Do not revert the whole
-merge — it also contains good changes (selector caching via `resolveCached()`, bundled logos,
-polyfill extraction).
+Fix applied: restore dev's proven mechanism — capture `document.activeElement` **before** calling
+`blur()`, gate on that captured element with the `isAtTopLevel` check, and dispatch BACK at the
+captured element after 600 ms. Two safe additions are kept: inside the timer, re-check that the
+controls are still up and that the captured element is still connected (YouTube may have rebuilt
+its DOM), so no stale BACK is ever fired. Do not revert the whole merge — it also contains good
+changes (selector caching via `resolveCached()`, bundled logos, polyfill extraction).
+
+> **Note:** an intermediate patch kept the merged version's "read focus at fire time" approach and
+> only added the top-level guard. That variant made dismissal _never_ fire: post-blur focus is
+> always `<body>`, so the guard always tripped and the pause UI stayed visible. The pre-blur capture
+> is the load-bearing part of dev's original logic.
 
 ## 2. Other bugs
 
@@ -137,6 +144,10 @@ callback: any)` (`src/hooks/fetch.ts`) defeats its own typed EventTarget wrapper
 
 ## 5. Workflow and CI
 
+- **Husky is installed but no hooks exist** [proposed] — `.husky/` contains only husky's `_` shims;
+  there is no `.husky/pre-commit` file, so `lint-staged` (and its `prettier --write` pass) has never
+  run on commit. This is how the formatting debt and indentation churn survived unnoticed. Either
+  add a minimal `.husky/pre-commit` (`lint-staged`) or drop the deps.
 - **CI only triggers on branch `test`** [proposed] — `.github/workflows/test.yml` builds nothing for
   PRs targeting main/dev. Add those branches to `on.push`/`on.pull_request`.
 - **Build/release mismatch** [proposed] — `npm run build` produces modern-only bundles, yet
