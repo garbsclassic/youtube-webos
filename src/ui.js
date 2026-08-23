@@ -1137,24 +1137,21 @@ function playPauseLogic(video) {
     video.play();
     notify('Playing');
   } else {
-      video.pause();
-      notify('Paused');
+    video.pause();
+    notify('Paused');
 
-      const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
-      const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
+    const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
+    const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
 
-      // Only run hiding logic if the controls are not already visible
-      if (!isControlsVisible) {
+    // Only run hiding logic if the controls are not already visible
+    if (!isControlsVisible) {
       const watchOverlay = document.querySelector('.webOs-watch');
 
       document.body.classList.add('ytaf-hide-controls');
       if (watchOverlay) watchOverlay.style.opacity = '0';
 
-            // We only process the dismissal timers if we aren't on a Shorts page
-            if (!isShortsPage()) {
-
-      // Lazy-check the engagement panel visibility
-      if (!isEngagementPanelVisible()) {
+      // Shorts pages manage their own control visibility; skip dismissal there.
+      if (!isShortsPage() && !isEngagementPanelVisible()) {
         shortcutDebounceTime = 650;
 
         const activeEl = document.activeElement;
@@ -1162,22 +1159,27 @@ function playPauseLogic(video) {
           activeEl.blur();
         }
 
+        // YouTube auto-shows (and focuses) its transport controls right after a
+        // pause. Wait out that transition, then dismiss them with BACK — but
+        // never at top level: with body/video focus a BACK exits the page or
+        // opens YouTube's side menu instead of dismissing anything.
         setTimeout(() => {
-            const currentControls = document.querySelector('yt-focus-container[idomkey="controls"]');
-            if (currentControls && currentControls.classList.contains('MFDzfe--focused')) {
-                sendKey(REMOTE_KEYS.BACK, document.activeElement);
-            }
-        }, 250);
+          const currentControls = document.querySelector('yt-focus-container[idomkey="controls"]');
+          if (!currentControls?.classList.contains('MFDzfe--focused')) return;
+
+          const focused = document.activeElement;
+          const isAtTopLevel = !focused || focused === document.body || focused.tagName === 'VIDEO';
+          if (!isAtTopLevel) sendKey(REMOTE_KEYS.BACK, focused);
+        }, 600);
       }
 
-      // Cleanup CSS and overlay
+      // Cleanup runs on every page so the hiding class can never leak.
       setTimeout(() => {
         document.body.classList.remove('ytaf-hide-controls');
         if (watchOverlay) watchOverlay.style.opacity = '';
       }, 750);
     }
   }
-}
 }
 
 function handleShortcutAction(action) {
