@@ -1,4 +1,5 @@
 name: Update Homebrew Repository
+
 on:
   release:
     types: [published]
@@ -7,16 +8,19 @@ permissions:
   contents: write
   pages: write
   id-token: write
+
 jobs:
   update-repo:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
+
       - name: Generate repo.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,7 +105,7 @@ jobs:
                   "type": app_info.get('type', 'web'),
                   "title": title,
                   "appDescription": description,
-                  "iconUri": f"https://raw.githubusercontent.com/{repo_name}/main/{ICON_PATH_IN_REPO}",
+                  "iconUri": f"https://raw.githubusercontent.com/{repo_name}/dev/{ICON_PATH_IN_REPO}",
                   "sourceUrl": f"https://github.com/{repo_name}",
                   "rootRequired": False,
                   "ipkUrl": ipk_url,
@@ -114,7 +118,7 @@ jobs:
                   "id": pkg_id,
                   "title": title,
                   "description": description,
-                  "iconUri": f"https://raw.githubusercontent.com/{repo_name}/main/{ICON_PATH_IN_REPO}",
+                  "iconUri": f"https://raw.githubusercontent.com/{repo_name}/dev/{ICON_PATH_IN_REPO}",
                   "manifest": manifest
               }
 
@@ -149,9 +153,9 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           
-          # Checkout the main branch explicitly
-          git fetch origin main
-          git checkout main
+          # Checkout the dev branch explicitly
+          git fetch origin dev
+          git checkout dev
           
           # Add and commit changes
           git add repo.json
@@ -161,5 +165,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update repo.json for new release"
-            git push origin main
+            git push origin dev
           fi

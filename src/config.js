@@ -1,12 +1,12 @@
 const CONFIG_KEY = 'ytaf-configuration';
 
 export const segmentTypes = {
-  sponsor: { color: '#00d400', opacity: '0.7', name: 'sponsored' },
+  sponsor: { color: '#00d400', opacity: '0.7', name: 'sponsor' },
   intro: { color: '#00ffff', opacity: '0.7', name: 'intro' },
   outro: { color: '#0202ed', opacity: '0.7', name: 'outro' },
   interaction: { color: '#cc00ff', opacity: '0.7', name: 'interaction reminder' },
   selfpromo: { color: '#ffff00', opacity: '0.7', name: 'self-promotion' },
-  musicofftopic: { color: '#ff9900', opacity: '0.7', name: 'non-music part' },
+  musicofftopic: { color: '#ff9900', opacity: '0.7', name: 'non-music segment' },
   preview: { color: '#008fd6', opacity: '0.7', name: 'recap or preview' },
   poi_highlight: { color: '#ff1684', opacity: '0.8', name: 'poi_highlight' },
   filler: { color: '#7300ff', opacity: '0.7', name: 'tangents/jokes' },
@@ -15,22 +15,23 @@ export const segmentTypes = {
 
 export const shortcutActions = {
   none: 'None',
-  refresh_page: 'Refresh Page',
-  chapter_skip: 'Skip to Next Chapter',
-  chapter_skip_prev: 'Skip to Previous Chapter',
-  sb_skip_prev: 'Skip to Last SponsorBlock Segment',
-  seek_15_fwd: 'Fast Forward (Burst)',
-  seek_15_back: 'Rewind (Burst)',
-  play_pause: 'Play/Pause',
-  toggle_subs: 'Toggle Subtitles',
-  toggle_comments: 'Toggle Comments',
-  toggle_description: 'Toggle Description',
-  save_to_playlist: 'Save / Watch Later',
+  config_menu: 'Open/Close Settings',
   oled_toggle: 'Toggle OLED Care Mode',
+  refresh_page: 'Refresh Page',
+  play_pause: 'Play / Pause',
+  seek_back: 'Rewind (Burst)',
+  seek_back_ex: 'Rewind EX (Burst)',
+  seek_fwd: 'Fast Forward (Burst)',
+  seek_fwd_ex: 'Fast Forward EX (Burst)',
+  chapter_skip_prev: 'Skip to Previous Chapter',
+  chapter_skip_next: 'Skip to Next Chapter',
+  sb_skip_prev: 'Skip to Last SponsorBlock Segment',
   sb_manual_skip: 'Manual Skip / Jump to Highlight',
-  config_menu: 'Open/Close Settings'
+  toggle_description: 'Toggle Description',
+  toggle_comments: 'Toggle Comments',
+  toggle_subs: 'Toggle Subtitles',
+  save_to_playlist: 'Save / Watch Later',
 };
-
 
 export const sbModes = {
   auto_skip: 'Auto Skip',
@@ -91,16 +92,16 @@ const configOptions = new Map([
 
 // Register shortcut keys 0-9
 for (let i = 0; i < 10; i++) {
-  configOptions.set(`shortcut_key_${i}`, { default: i === 5 ? 'chapter_skip' : 'none', desc: `Key ${i} Action` });
+  configOptions.set(`shortcut_key_${i}`, { default: i === 5 ? 'chapter_skip_next' : 'none', desc: `Key ${i} Action` });
 }
 
 // Register shortcut keys Red, Green, Blue
 ['red', 'green', 'blue'].forEach(color => {
-    let def = 'none';
-    if (color === 'red') def = 'oled_toggle';
-    if (color === 'green') def = 'config_menu';
-    if (color === 'blue') def = 'sb_manual_skip';
-    configOptions.set(`shortcut_key_${color}`, { default: def, desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action` });
+  let def = 'none';
+  if (color === 'red') def = 'seek_back';
+  if (color === 'green') def = 'config_menu';
+  if (color === 'blue') def = 'seek_fwd';
+  configOptions.set(`shortcut_key_${color}`, { default: def, desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action` });
 });
 
 for (const [key, value] of Object.entries(segmentTypes)) {
@@ -108,14 +109,21 @@ for (const [key, value] of Object.entries(segmentTypes)) {
 }
 
 const defaultConfig = {};
-for (const [k, v] of configOptions) { defaultConfig[k] = v.default; }
+for (const [k, v] of configOptions) {
+  defaultConfig[k] = v.default;
+}
 
 const changeListeners = new Map();
 
 function loadStoredConfig() {
-  const storage = window.localStorage.getItem(CONFIG_KEY);
-  if (storage === null) return null;
-  try { return JSON.parse(storage); } catch (err) { return null; }
+  try {
+    const storage = window.localStorage.getItem(CONFIG_KEY);
+    if (storage === null) return null;
+
+    return JSON.parse(storage);
+  } catch {
+    return null;
+  }
 }
 
 // MUTATE IN PLACE ONLY — adblock.js (and other modules) hold a module-level
@@ -147,7 +155,9 @@ if (typeof window !== 'undefined') {
   window.addEventListener('pagehide', flushPendingWrite);
 }
 
-function configExists(key) { return configOptions.has(key); }
+function configExists(key) {
+  return configOptions.has(key);
+}
 
 export function configGetDesc(key) {
   if (!configExists(key)) throw new Error('tried to get desc for unknown config key: ' + key);
@@ -176,7 +186,9 @@ export function configWrite(key, value) {
   const listeners = changeListeners.get(key);
   if (listeners) {
     const syntheticEvent = { detail: { key, newValue: value, oldValue } };
-    for (const callback of listeners) { callback(syntheticEvent); }
+    for (const callback of listeners) {
+      callback(syntheticEvent);
+    }
   }
 }
 

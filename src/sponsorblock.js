@@ -42,16 +42,16 @@ class SponsorBlockHandler {
     constructor(videoID) {
         this.videoID = videoID;
         this.logPrefix = `[SB:${this.videoID}]`;
-        
+
         this.segments = [];
         this.highlightSegment = null;
         this.video = null;
         this.progressBar = null;
         this.overlay = null;
         this.activeBarSelector = null;
-        
+
         this.debugMode = false;
-        
+
         this.isLegacyWebOSVer = isLegacyWebOS();
 
         // Tracking state
@@ -113,7 +113,7 @@ class SponsorBlockHandler {
     _getClosest(el, selector) {
         if (!el || el.nodeType !== 1) return null;
         if (el.closest) return el.closest(selector);
-        
+
         const matches = el.matches || el.webkitMatchesSelector || el.mozMatchesSelector || el.msMatchesSelector;
         let current = el;
         while (current && current.nodeType === 1) {
@@ -286,10 +286,10 @@ class SponsorBlockHandler {
         // Find the first segment that starts AFTER the current time, or contains current time.
         if (this.video && !isNaN(this.video.currentTime) && this.skipSegments.length > 0) {
             const time = this.video.currentTime;
-            
+
             // Check if we are currently inside a segment
             const currentIdx = this.findSegmentAtTime(time);
-            
+
             if (currentIdx !== -1) {
                 this.nextSegmentIndex = currentIdx;
                 this.nextSegmentStart = this.skipSegments[currentIdx].start;
@@ -366,14 +366,14 @@ class SponsorBlockHandler {
             this.rebuildSkipSegments();
             this.drawOverlay();
         };
-        
+
         const configKeys = [...Object.values(CONFIG_MAPPING), ...EXTRA_CONFIG_KEYS];
 
         for (const key of configKeys) {
             configAddChangeListener(key, this.boundConfigUpdate);
             this.configListeners.push({ key, callback: this.boundConfigUpdate });
         }
-        
+
         // Initial setup run
         this.boundConfigUpdate();
     }
@@ -396,7 +396,7 @@ class SponsorBlockHandler {
                 break;
             }
         }
-        
+
         if (firstSegIdx === -1) return null;
 
         const firstSeg = segments[firstSegIdx];
@@ -412,7 +412,7 @@ class SponsorBlockHandler {
                     finalSeekTime = Math.min(finalSeekTime, current.start);
                     break;
                 }
-                continue; 
+                continue;
             }
 
             const gapToNext = current.start - finalSeekTime;
@@ -464,7 +464,7 @@ class SponsorBlockHandler {
         video.currentTime = chain.endTime;
         this.lastSkipTime = chain.endTime;
         this.hasPerformedChainSkip = true;
-        
+
         // Mark all auto_skip segments that were successfully bypassed as skipped
         this.skipSegments.forEach(seg => {
             if (seg.mode === 'auto_skip' && seg.start < chain.endTime && seg.end <= chain.endTime + 0.1) {
@@ -507,7 +507,7 @@ class SponsorBlockHandler {
 
             if (!videoData || !videoData.segments || videoData.segments.length === 0) {
                 this.log('debug', 'No SponsorBlock segments available, cleaning up');
-                this.destroy(); 
+                this.destroy();
                 return;
             }
 
@@ -529,7 +529,7 @@ class SponsorBlockHandler {
 
             // UI was already started, so now we just update the data
             sponsorBlockUI.updateSegments(this.segments);
-            
+
             // Explicitly draw overlay now that data is ready
             // (checkForProgressBar might have run when segments were empty)
             this.drawOverlay();
@@ -540,7 +540,7 @@ class SponsorBlockHandler {
                 if (hlMode === 'auto_skip') {
                     this.jumpToNextHighlight();
                 } else if (hlMode === 'ask') {
-                    showNotification('Highlight available: Press Blue to jump');
+                    showNotification('Highlight available: press BLUE to jump');
                 }
             }
         } catch (e) {
@@ -561,7 +561,7 @@ class SponsorBlockHandler {
 
         this.boundStateChange = (e) => {
             const state = e.detail.state;
-            
+
             if (state === 0) { // ENDED
                 this.hasPerformedChainSkip = false;
                 this.toggleTimeListener(false);
@@ -577,7 +577,7 @@ class SponsorBlockHandler {
                 this.toggleTimeListener(false);
             }
         };
-        
+
         window.addEventListener('yt-player-state-change', this.boundStateChange);
 
         // Resize forces an immediate overlay re-sync (bypassing the timeupdate throttle).
@@ -602,7 +602,7 @@ class SponsorBlockHandler {
                 this.lastNotifiedSegmentIndex = -1;
                 this.resetSegmentTracking();
                 // Only handle time update immediately if not paused
-                if (!this.video.paused) this.handleTimeUpdate(); 
+                if (!this.video.paused) this.handleTimeUpdate();
             }
             this.isSkipping = false;
         });
@@ -632,7 +632,7 @@ class SponsorBlockHandler {
             // Observe parent to catch if the bar itself is destroyed/recreated by the framework
             const observeTarget = targetNode.parentNode || targetNode;
             this.log('info', 'Attaching optimized observer to:', observeTarget.tagName);
-            
+
             this.domObserver = new MutationObserver((mutations) => {
                 if (this.isProcessing || this.isDestroyed) return;
 
@@ -944,9 +944,9 @@ class SponsorBlockHandler {
         }
 
         if (segmentIdx === -1) {
-            // We aren't in a segment. Since resetSegmentTracking was correct, 
+            // We aren't in a segment. Since resetSegmentTracking was correct,
             // and we checked timeToNext, we are just between segments or past the last one.
-            
+
             // Re-sync next segment just in case (e.g. slight drift)
             if (currentTime >= this.nextSegmentStart) {
                  this.nextSegmentIndex = this.findNextSegmentIndex(currentTime);
@@ -963,7 +963,7 @@ class SponsorBlockHandler {
 
         // We are inside a segment
         const seg = this.skipSegments[segmentIdx];
-        
+
         if (this.tempWhitelistIndex !== -1 && seg.originalIndex !== this.tempWhitelistIndex) {
             this.tempWhitelistIndex = -1;
         }
@@ -975,7 +975,7 @@ class SponsorBlockHandler {
                 const title = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
                 if (this.activeManualNotification) this.activeManualNotification.remove();
-                this.activeManualNotification = showNotification(`${title}: Press Blue to skip`, 0);
+                this.activeManualNotification = showNotification(`${title}: Press BLUE to skip`, 0);
             }
             return;
         }
@@ -984,11 +984,11 @@ class SponsorBlockHandler {
             if (segmentIdx !== this.lastNotifiedSegmentIndex) {
                 this.lastNotifiedSegmentIndex = segmentIdx;
                 const categoryName = seg.categoryName;
-                showNotification(`${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} segment`);
+                showNotification(`${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}`);
             }
             return;
         }
-        
+
         if (seg.originalIndex === this.tempWhitelistIndex) {
             return;
         }
@@ -1032,7 +1032,7 @@ class SponsorBlockHandler {
         this.isSkipping = true;
         this.lastSkipTime = currentTime;
         this.lastSkippedSegmentIndex = segmentIdx;
-        
+
         segmentsToMark.forEach(idx => this.skippedSegmentIndices.add(idx));
 
         if (this.isLegacyWebOSVer) {
@@ -1055,7 +1055,7 @@ class SponsorBlockHandler {
         this.nextSegmentIndex = segmentIdx + 1;
         // Re-find next index properly via binary search just to be safe after a skip
         const targetSegIdx = this.findSegmentAtTime(jumpTarget);
-        
+
         if (targetSegIdx !== -1) {
             // We landed exactly inside a manual segment (or another adjacent segment)
             this.nextSegmentIndex = targetSegIdx;
@@ -1079,7 +1079,7 @@ class SponsorBlockHandler {
                 `${uniqueNames[0]} and ${uniqueNames[1]}` :
                 `${uniqueNames.slice(0, -1).join(', ')}, and ${uniqueNames[uniqueNames.length - 1]}`;
 
-            showNotification(`Skipped ${formattedName} segment`);
+            showNotification(`Skipped ${formattedName}`);
         });
 
         this.log('info', `Skipped to ${jumpTarget}`);
@@ -1093,10 +1093,10 @@ class SponsorBlockHandler {
         if (!mode || mode === 'disable') return false;
 
         this.video.currentTime = this.highlightSegment.segment[0];
-        this.requestAF(() => showNotification('Jumped to Highlight'));
+        this.requestAF(() => showNotification('Jumped to highlight'));
         return true;
     }
-    
+
     skipToPreviousSegment() {
     if (!this.video || !this.skipSegments.length) return false;
 
@@ -1111,13 +1111,13 @@ class SponsorBlockHandler {
     }
 
     if (!targetSeg) return false;
-    
+
     this.tempWhitelistIndex = targetSeg.originalIndex;
     this.video.currentTime = targetSeg.start;
-    
+
     const categoryName = this.getCategoryName(targetSeg.category);
     const title = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
-    
+
     this.requestAF(() => showNotification(`Seeked to ${title}`));
     return true;
     }
@@ -1131,7 +1131,7 @@ class SponsorBlockHandler {
 
                 this.clearManualNotification();
 
-                this.requestAF(() => showNotification('Skipped Segment'));
+                this.requestAF(() => showNotification('Skipped segment'));
 
                 setTimeout(() => { this.isSkipping = false; }, 500);
                 return true;
@@ -1207,7 +1207,7 @@ class SponsorBlockHandler {
         this.log('info', 'Destroying instance.');
 
         this.toggleTimeListener(false);
-        
+
         if (this.boundStateChange) {
             window.removeEventListener('yt-player-state-change', this.boundStateChange);
             this.boundStateChange = null;

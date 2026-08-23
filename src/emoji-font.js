@@ -5,7 +5,7 @@ import './emoji-font.css';
 
 const DEBUG_EMOJI_DOM = false;
 
-const WRAPPED_EMOJI_RE = /\u200B([^\u200C]+)\u200C/; 
+const WRAPPED_EMOJI_RE = /\u200B([^\u200C]+)\u200C/;
 const HAS_WRAPPED_EMOJI_RE = /\u200B[^\u200C]+\u200C/;
 const IMG_ALT_RE = /<img([^>]+)alt="([^"]+)"([^>]*)>/g;
 
@@ -61,7 +61,7 @@ function processTextNode(textNode) {
   while (match) {
     const startIndex = match.index;
     const emojiLength = match[0].length;
-    const cleanEmoji = match[1]; 
+    const cleanEmoji = match[1];
 
     if (startIndex > 0) {
       currentNode = currentNode.splitText(startIndex);
@@ -71,7 +71,7 @@ function processTextNode(textNode) {
     if (currentNode.nodeValue.length > emojiLength) {
       nextNode = currentNode.splitText(emojiLength);
     }
-    
+
     let parsedHTML = parsedTextCache.get(cleanEmoji);
     if (!parsedHTML) {
       let twemojiHTML = twemoji.parse(cleanEmoji, twemojiOptions);
@@ -81,7 +81,7 @@ function processTextNode(textNode) {
           const hiddenText = `<span class="twemoji-hidden-text">\u200B${altText}\u200C</span>`;
           return `<img${beforeAlt}alt="${altText}"${afterAlt}>${hiddenText}`;
         });
-        
+
         parsedTextCache.set(cleanEmoji, parsedHTML);
         if (parsedTextCache.size > MAX_CACHE_SIZE) {
             // Trim oldest half rather than .clear() — Map iteration is insertion
@@ -110,7 +110,7 @@ function processTextNode(textNode) {
         existingSpan = document.createElement('emoji-render');
         existingSpan.className = 'twemoji-injected';
         existingSpan.innerHTML = parsedHTML;
-        
+
         parent.insertBefore(existingSpan, currentNode.nextSibling);
         nodeToSpan.set(currentNode, existingSpan);
         if (DEBUG_EMOJI_DOM) console.log('[Emoji-DOM-Debug] Injected new emoji-render span for:', cleanEmoji);
@@ -121,30 +121,30 @@ function processTextNode(textNode) {
       currentNode = nextNode;
       match = WRAPPED_EMOJI_RE.exec(currentNode.nodeValue || '');
     } else {
-      break; 
+      break;
     }
   }
 }
 
 function scanElement(el) {
-    if (!ALLOWED_EMOJI_TAGS.has(el.tagName) && el.tagName !== 'BODY' && el.tagName !== 'YTLR-APP') return;
-    
-    const textContent = el.textContent;
-    if (!textContent || !HAS_WRAPPED_EMOJI_RE.test(textContent)) return;
-    try {
-        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-        let tNode;
-        let queuedCount = 0;
-        while ((tNode = walker.nextNode())) {
-            queueTextNode(tNode);
-            queuedCount++;
-        }
-        if (DEBUG_EMOJI_DOM && queuedCount > 0) {
-            console.log(`[Emoji-DOM-Debug] Found and queued ${queuedCount} text nodes in element:`, el.tagName);
-        }
-    } catch (err) {
-        if (DEBUG_EMOJI_DOM) console.error('[Emoji-DOM-Debug] TreeWalker error:', err);
+  if (!ALLOWED_EMOJI_TAGS.has(el.tagName) && el.tagName !== 'BODY' && el.tagName !== 'YTLR-APP') return;
+
+  const textContent = el.textContent;
+  if (!textContent || !HAS_WRAPPED_EMOJI_RE.test(textContent)) return;
+  try {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    let tNode;
+    let queuedCount = 0;
+    while ((tNode = walker.nextNode())) {
+      queueTextNode(tNode);
+      queuedCount++;
     }
+    if (DEBUG_EMOJI_DOM && queuedCount > 0) {
+      console.log(`[Emoji-DOM-Debug] Found and queued ${queuedCount} text nodes in element:`, el.tagName);
+    }
+  } catch (err) {
+    if (DEBUG_EMOJI_DOM) console.error('[Emoji-DOM-Debug] TreeWalker error:', err);
+  }
 }
 
 const emojiObs = new MutationObserver((mutations) => {
@@ -159,7 +159,7 @@ const emojiObs = new MutationObserver((mutations) => {
       const addedNodes = mut.addedNodes;
       for (let j = 0; j < addedNodes.length; j++) {
         const node = addedNodes[j];
-        
+
         if (node.nodeType === Node.TEXT_NODE) {
           queueTextNode(node);
         } else if (node.nodeType === Node.ELEMENT_NODE) {
@@ -178,28 +178,28 @@ const emojiObs = new MutationObserver((mutations) => {
 let isObserving = false;
 
 function manageObserverState() {
-    // Only turn on if fixing is requested AND we're actively watching content
-    const shouldObserve = configRead('enableLegacyEmojiFix');
-    
-    if (shouldObserve && !isObserving) {
-        emojiObs.observe(document.body, {
-            childList: true,
-            subtree: true,
-            characterData: true
-        });
-        scanElement(document.body);
-        if (textNodesToProcess.size > 0 && frameId === null) {
-            frameId = window.requestAnimationFrame(processQueue);
-        }
-        isObserving = true;
-        if (DEBUG_EMOJI_DOM) console.log('[Emoji-Debug] Legacy Emoji fix enabled.');
-    } else if (!shouldObserve && isObserving) {
-        emojiObs.disconnect();
-        textNodesToProcess.clear();
-        parsedTextCache.clear();
-        isObserving = false;
-        if (DEBUG_EMOJI_DOM) console.log('[Emoji-Debug] Legacy Emoji fix disabled.');
+  // Only turn on if fixing is requested AND we're actively watching content
+  const shouldObserve = configRead('enableLegacyEmojiFix');
+
+  if (shouldObserve && !isObserving) {
+    emojiObs.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+    scanElement(document.body);
+    if (textNodesToProcess.size > 0 && frameId === null) {
+      frameId = window.requestAnimationFrame(processQueue);
     }
+    isObserving = true;
+    if (DEBUG_EMOJI_DOM) console.log('[Emoji-Debug] Legacy Emoji fix enabled.');
+  } else if (!shouldObserve && isObserving) {
+    emojiObs.disconnect();
+    textNodesToProcess.clear();
+    parsedTextCache.clear();
+    isObserving = false;
+    if (DEBUG_EMOJI_DOM) console.log('[Emoji-Debug] Legacy Emoji fix disabled.');
+  }
 }
 
 if (document.characterSet === 'UTF-8' && getWebOSVersion() <= 4) {
@@ -211,11 +211,11 @@ if (document.characterSet === 'UTF-8' && getWebOSVersion() <= 4) {
   // Hook into configurations
   manageObserverState();
   configAddChangeListener('enableLegacyEmojiFix', manageObserverState);
-  
+
   // Pause scanning immediately on heavy nav states
   window.addEventListener('ytaf-page-update', (e) => {
     if (e.detail.isAccountSelector && isObserving) {
-       textNodesToProcess.clear(); // Flush queue on big UI transitions
+      textNodesToProcess.clear(); // Flush queue on big UI transitions
     }
   });
 }

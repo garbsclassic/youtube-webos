@@ -49,7 +49,7 @@ function disableWhosWatching(enable = true) {
 
 export function setInlinePlayback(mode) {
   if (mode === 'disabled') return;
-  
+
   const isEnabled = mode === 'force_on';
   try {
     localStorage.setItem('yt.leanback.default::inline-playback-enabled', JSON.stringify({ data: isEnabled }));
@@ -66,7 +66,7 @@ export function initPreviews() {
   // Delay by 2.5 seconds to ensure it applies after YouTube's initial load overrides
   setTimeout(() => {
     setInlinePlayback(mode);
-  }, 2500); 
+  }, 2500);
 }
 
 // CSS rules live in auto-login.css and are scoped by body.ytaf-bypassing-login,
@@ -77,51 +77,54 @@ function injectBypassCSS() {
 }
 
 function finalizeBypass() {
-    console.info('[Auto Login] Bypass: Done. Cleaning up...');
-    setTimeout(() => {
+  console.info('[Auto Login] Bypass: Done. Cleaning up...');
+  setTimeout(() => {
         if (document.body) document.body.classList.remove(BYPASS_BODY_CLASS);
-    }, 2000);
+  }, 2000);
 }
 
 export function attemptActiveBypass(force = false) {
-    const isSelector = document.body && document.body.classList.contains(SELECTORS.ACCOUNT_SELECTOR);
-    
-    // const params = extractLaunchParams();
-    // const hasParams = params && Object.keys(params).length > 0;
+  const isSelector = document.body && document.body.classList.contains(SELECTORS.ACCOUNT_SELECTOR);
 
-    if (!isSelector && !force) return;
-    // if (!hasParams && !force) return; Still checking for account selector page on normal loads too
-    if (hasBypassed && !force) return;
-	
-    console.info('[Auto Login] Active Bypass: Selector Detected! Executing sequence...');
-    hasBypassed = true;
-    injectBypassCSS();
+  // const params = extractLaunchParams();
+  // const hasParams = params && Object.keys(params).length > 0;
 
-    setTimeout(() => {
-        if (isGuestMode()) {
-            sendKey(REMOTE_KEYS.DOWN);
-            setTimeout(() => { sendKey(REMOTE_KEYS.ENTER); finalizeBypass(); }, 200);
-        } else {
-            sendKey(REMOTE_KEYS.ENTER);
-            finalizeBypass();
-        }
-    }, 500);
+  if (!isSelector && !force) return;
+  // if (!hasParams && !force) return; Still checking for account selector page on normal loads too
+  if (hasBypassed && !force) return;
+
+  console.info('[Auto Login] Active Bypass: Selector Detected! Executing sequence...');
+  hasBypassed = true;
+  injectBypassCSS();
+
+  setTimeout(() => {
+    if (isGuestMode()) {
+      sendKey(REMOTE_KEYS.DOWN);
+      setTimeout(() => {
+        sendKey(REMOTE_KEYS.ENTER);
+        finalizeBypass();
+      }, 200);
+    } else {
+      sendKey(REMOTE_KEYS.ENTER);
+      finalizeBypass();
+    }
+  }, 500);
 }
 
 export function resetActiveBypass() {
-    hasBypassed = false;
+  hasBypassed = false;
     // Identity may have changed between launches (sign-in/out); drop the cached guest flag.
     invalidateGuestModeCache();
 }
 
 function setupActiveBypassListener() {
-    if (pageObserverAttached) return;
-    window.addEventListener('ytaf-page-update', (evt) => {
-        if (evt.detail && evt.detail.isAccountSelector) {
-            attemptActiveBypass();
-        } 
-    });
-    pageObserverAttached = true;
+  if (pageObserverAttached) return;
+  window.addEventListener('ytaf-page-update', (evt) => {
+    if (evt.detail && evt.detail.isAccountSelector) {
+      attemptActiveBypass();
+    }
+  });
+  pageObserverAttached = true;
 }
 
 export function initAutoLogin() {
@@ -129,18 +132,21 @@ export function initAutoLogin() {
     console.info('[Auto Login] Initializing...');
     disableWhosWatching();
     setupActiveBypassListener();
-    
+
     setTimeout(() => {
-        if (!hasBypassed) {
-            console.info('[Auto Login] Startup window closed');
-            hasBypassed = true;
-        }
+      if (!hasBypassed) {
+        console.info('[Auto Login] Startup window closed');
+        hasBypassed = true;
+      }
     }, 15000);
   }
 }
 
 document.readyState === 'loading'
-  ? document.addEventListener('DOMContentLoaded', () => { initAutoLogin(); initPreviews(); })
+  ? document.addEventListener('DOMContentLoaded', () => {
+    initAutoLogin();
+    initPreviews();
+  })
   : (initAutoLogin(), initPreviews());
 
 configAddChangeListener('enableAutoLogin', ({ detail }) => {

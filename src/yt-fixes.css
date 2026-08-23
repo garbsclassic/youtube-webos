@@ -43,8 +43,8 @@ ytlr-tile-renderer[style*='width: 12.75rem; height: 21.25rem;']
 
 /* move stats for nerds UI to the left side of the screen so it's not blocked by the settings panel */
 .iLKnN .html5-video-info-panel {
-	right: 40rem !important;
-	top: 12rem !important;
+  right: 40rem !important;
+  top: 12rem !important;
 }
 
 /**
@@ -55,6 +55,5 @@ ytlr-tile-renderer[style*='width: 12.75rem; height: 21.25rem;']
 .WEB_PAGE_TYPE_SHORTS video {
   border: black 1px solid;
   /* Smallest transparent image */
-  border-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')
-    30%;
+  border-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') 30%;
 }

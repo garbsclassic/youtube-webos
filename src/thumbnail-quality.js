@@ -70,21 +70,21 @@ const VisibilityObserverClass = window.IntersectionObserver || class {
   _check() {
     // Guard against document.hidden and forced reflows for empty lists
     if (this.elements.size === 0 || document.hidden) return;
-    
+
     const vh = (window.innerHeight || document.documentElement.clientHeight) + this.margin;
     const vw = (window.innerWidth || document.documentElement.clientWidth) + this.margin;
     const entries = [];
-    
+
     this.elements.forEach(el => {
-      const rect = el.getBoundingClientRect(); 
+      const rect = el.getBoundingClientRect();
       const isIntersecting = (
         rect.width > 0 && rect.height > 0 &&
-        rect.top < vh && 
+        rect.top < vh &&
         rect.bottom > -this.margin &&
         rect.left < vw &&
         rect.right > -this.margin
       );
-      
+
       const previousState = this.states.get(el);
       if (previousState !== isIntersecting) {
         this.states.set(el, isIntersecting);
@@ -102,7 +102,7 @@ const VisibilityObserverClass = window.IntersectionObserver || class {
 let elementState = new WeakMap();
 const urlCache = new Map();
 const qualityCache = new Map();
-const requestQueue = new Map(); 
+const requestQueue = new Map();
 let activeRequests = 0;
 
 // --- WebP Detection ---
@@ -116,7 +116,7 @@ function detectWebP() {
       webpSupported = supported;
       img.onload = null;
       img.onerror = null;
-      img = null; 
+      img = null;
       resolve();
     };
     img.onload = () => done(img.width > 0 && img.height > 0);
@@ -156,7 +156,7 @@ function getThumbnailUrl(originalUrl, targetQuality, pathMatch) {
 
 function parseCSSUrl(value) {
   if (!value) return undefined;
-  
+
   if (value.indexOf('&amp;') !== -1) {
     value = value.replace(AMPERSAND_REGEX, '&');
   }
@@ -169,11 +169,11 @@ function parseCSSUrl(value) {
     const match = value.match(CSS_URL_REGEX);
     if (match && match[1]) {
       const url = new URL(match[1]);
-      
+
       if (urlCache.size >= CACHE_SIZE_LIMIT) {
         urlCache.delete(urlCache.keys().next().value);
       }
-      
+
       urlCache.set(value, url);
       return url;
     }
@@ -190,21 +190,21 @@ async function testAndLoadImage(url) {
     const xhr = new XMLHttpRequest();
     xhr.open('HEAD', url, true);
     xhr.timeout = IMAGE_LOAD_TIMEOUT;
-    
+
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         const contentLength = parseInt(xhr.getResponseHeader('Content-Length'), 10);
         // Fallback placeholders have very small payloads
         if (!isNaN(contentLength) && contentLength <= PLACEHOLDER_MAX_BYTES) {
-          resolve(false); 
+          resolve(false);
         } else {
-          resolve(true); 
+          resolve(true);
         }
       } else {
         resolve(false);
       }
     };
-    
+
     xhr.onerror = () => resolve(false);
     xhr.ontimeout = () => resolve(false);
     xhr.send();
@@ -240,7 +240,7 @@ async function processUpgrade(element, generationId) {
   // Consolidate Video ID extraction
   const pathMatch = currentUrl.pathname.match(YT_THUMBNAIL_PATHNAME_REGEX);
   if (!pathMatch) return;
-  const videoId = pathMatch[1].replace(/\//g, ''); 
+  const videoId = pathMatch[1].replace(/\//g, '');
   const thumbName = pathMatch[2];
 
   // Cache dataset accesses to prevent garbage generation in Chrome 38
@@ -255,7 +255,7 @@ async function processUpgrade(element, generationId) {
   }
 
   await ensureWebpDetection();
-  
+
   const applyUpgrade = (targetUrl, quality) => {
     requestAnimationFrame(() => {
       const freshState = elementState.get(element);
@@ -263,7 +263,7 @@ async function processUpgrade(element, generationId) {
         ds.thumbVideoId = videoId;
         ds.thumbBestQuality = quality;
 
-        freshState.lastAppliedUrl = targetUrl.href; 
+        freshState.lastAppliedUrl = targetUrl.href;
         element.style.backgroundImage = `url("${targetUrl.href}"), ${oldBackgroundStyle}`;
       }
     });
@@ -330,8 +330,8 @@ const styleObserver = new MutationObserver(mutations => {
 
       // Skip our exact programmatic update
       if (s && s.lastAppliedUrl && currentBg.indexOf(s.lastAppliedUrl) !== -1) {
-        s.lastAppliedUrl = null; 
-        continue; 
+        s.lastAppliedUrl = null;
+        continue;
       }
 
       const currentGen = s ? s.generationId : 0;
@@ -349,7 +349,7 @@ const styleObserver = new MutationObserver(mutations => {
 const visibilityObserver = new VisibilityObserverClass((entries) => {
   entries.forEach(entry => {
     const node = entry.target;
-    
+
     if (entry.isIntersecting) {
       const s = elementState.get(node);
       if (s && node.style.backgroundImage !== '') {
@@ -375,12 +375,12 @@ const domObserver = new MutationObserver(mutations => {
         const node = mut.removedNodes[j];
         if (node.nodeType === Node.ELEMENT_NODE) {
           const matchesFn = node.matches || node.webkitMatchesSelector || node.mozMatchesSelector || node.msMatchesSelector;
-          
+
           if (matchesFn && matchesFn.call(node, YT_THUMBNAIL_SELECTOR)) {
             visibilityObserver.unobserve(node);
             requestQueue.delete(node);
           }
-          
+
           const nested = node.querySelectorAll(YT_THUMBNAIL_SELECTOR);
           for (let k = 0, kLen = nested.length; k < kLen; k++) {
             visibilityObserver.unobserve(nested[k]);
@@ -396,19 +396,19 @@ const domObserver = new MutationObserver(mutations => {
         const node = addedNodes[j];
         if (node.nodeType === Node.ELEMENT_NODE) {
           const matchesFn = node.matches || node.webkitMatchesSelector || node.mozMatchesSelector || node.msMatchesSelector;
-          
+
           if (matchesFn && matchesFn.call(node, YT_THUMBNAIL_SELECTOR)) {
             elementState.set(node, { generationId: 1 });
             styleObserver.observe(node, { attributes: true, attributeFilter: ['style'] });
             visibilityObserver.observe(node);
-            
+
           } else if (node.firstElementChild) {
             const nested = node.querySelectorAll(YT_THUMBNAIL_SELECTOR);
             for(let k = 0, kLen = nested.length; k < kLen; k++) {
                const targetNode = nested[k];
-               if (elementState.has(targetNode)) continue;
+              if (elementState.has(targetNode)) continue;
 
-               elementState.set(targetNode, { generationId: 1 });
+              elementState.set(targetNode, { generationId: 1 });
                styleObserver.observe(targetNode, { attributes: true, attributeFilter: ['style'] });
                visibilityObserver.observe(targetNode);
             }
@@ -464,7 +464,7 @@ async function enableObserver() {
   });
 
   isObserving = true;
-  
+
   const existingThumbnails = appContainer.querySelectorAll(YT_THUMBNAIL_SELECTOR);
   for (let i = 0, len = existingThumbnails.length; i < len; i++) {
     const node = existingThumbnails[i];
@@ -482,12 +482,12 @@ export function cleanup() {
   visibilityObserver.disconnect();
   window.removeEventListener('ytaf-page-update', handlePageUpdate);
   document.removeEventListener('visibilitychange', handleVisibilityChange);
-  
+
   isObserving = false;
   // Remove abrupt zeroing of activeRequests here
   requestQueue.clear();
   urlCache.clear();
-  qualityCache.clear(); 
+  qualityCache.clear();
   elementState = new WeakMap();
 }
 
