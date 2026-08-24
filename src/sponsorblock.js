@@ -44,7 +44,7 @@ const CHAIN_SKIP_CONSTANTS = {
 
 const HAS_ABORT_CONTROLLER = typeof AbortController !== 'undefined';
 
-class SponsorBlockHandler {
+export class SponsorBlockHandler {
   constructor(videoID) {
     this.videoID = videoID;
     this.logPrefix = `[SB:${this.videoID}]`;

@@ -354,7 +354,7 @@ function hookedParse(text, reviver) {
   return data;
 }
 
-function detectResponseType(data) {
+export function detectResponseType(data) {
   const signatures = SCHEMA_REGISTRY.typeSignatures;
   for (let i = 0; i < signatures.length; i++) {
     const sig = signatures[i];
@@ -730,7 +730,7 @@ function filterItemsOptimized(items, config, needsContentFiltering) {
   return items;
 }
 
-function getByPath(obj, parts) {
+export function getByPath(obj, parts) {
   if (!parts) return undefined;
   let current = obj;
   for (let i = 0; i < parts.length; i++) {
@@ -786,7 +786,7 @@ function removePlayerAdsOptimized(data) {
   if (DEBUG && cleared > 0) debugLog('Cleaned Player Ads/Placements');
 }
 
-function findObjects(haystack, needlesArray, maxDepth = 10) {
+export function findObjects(haystack, needlesArray, maxDepth = 10) {
   if (!haystack || typeof haystack !== 'object' || maxDepth <= 0 || !needlesArray.length) return {};
   const results = {};
   let foundCount = 0;
