@@ -57,26 +57,23 @@ jobs:
               print(f"Failed to fetch release: {e}")
               sys.exit(1)
 
-          standard_asset = None
-          modern_asset = None
+          ipk_asset = None
 
           for asset in release_data['assets']:
               if asset['name'].endswith('.ipk'):
-                  if 'webOS22+' in asset['name']:
-                      modern_asset = asset
-                  else:
-                      standard_asset = asset
+                  ipk_asset = asset
+                  break
 
-          if not standard_asset and not modern_asset:
+          if not ipk_asset:
               print("No .ipk files found in the latest release")
               sys.exit(1)
-              
+
           packages = []
 
-          def create_package(asset, is_modern=False):
+          def create_package(asset):
               ipk_url = asset['browser_download_url']
               print(f"Downloading IPK from {ipk_url}")
-              
+
               try:
                   req = urllib.request.Request(ipk_url)
                   with urllib.request.urlopen(req) as response:
@@ -85,20 +82,13 @@ jobs:
               except Exception as e:
                   print(f"Failed to download asset: {e}")
                   return None
-              
+
               print(f"SHA256: {sha256_hash}")
-              
-              # Default values
+
               pkg_id = app_info.get('id')
               title = app_info.get('title')
               description = app_info.get('description', title)
-              
-              # Overrides for modern build
-              if is_modern:
-                  pkg_id = f"{pkg_id}.webos22"
-                  title = f"{title} (webOS 22+)"
-                  description = "YouTube AdFree for webOS 22 and newer. Lighter optimized build supporting newer hardware."
-              
+
               manifest = {
                   "id": pkg_id,
                   "version": app_info.get('version'),
@@ -122,15 +112,8 @@ jobs:
                   "manifest": manifest
               }
 
-          if standard_asset:
-              print("Processing Standard Asset...")
-              pkg = create_package(standard_asset)
-              if pkg: packages.append(pkg)
-              
-          if modern_asset:
-              print("Processing Modern (webOS 22+) Asset...")
-              pkg = create_package(modern_asset, is_modern=True)
-              if pkg: packages.append(pkg)
+          pkg = create_package(ipk_asset)
+          if pkg: packages.append(pkg)
 
           repo_data = {
               "paging": {

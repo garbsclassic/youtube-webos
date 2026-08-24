@@ -1,5 +1,4 @@
-/* Modern Spatial Navigation Polyfill (Target: Chrome 87+)
- * Optimized for webOS 22-25 & modern environments.
+/* Spatial Navigation Polyfill (Target: Chrome 87+, webOS 22-25)
  * Hyper-Optimized for maximum throughput, zero layout thrashing, and minimal GC.
  */
 (function () {

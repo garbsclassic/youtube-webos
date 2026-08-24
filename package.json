@@ -5,8 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --mode=production --env modern",
-    "build:modern": "webpack --mode=production --env modern",
+    "build": "webpack --mode=production",
     "build:dev": "webpack --mode=development",
     "package": "ares-package -n dist",
     "deploy": "node tools/deploy.js",
@@ -18,22 +17,18 @@
     "patch": "npm version patch",
     "lint": "eslint",
     "type-check": "tsc -b",
-    "prettier-check": "prettier --ignore-path .prettierignore --check ."
+    "prettier-check": "prettier --ignore-path .prettierignore --check .",
+    "test": "node --import ./tools/register-node-esm-loader.mjs --test"
   },
   "repository": "github:webosbrew/youtube-webos",
   "license": "GPL-3.0-only",
   "homepage": "https://github.com/garbsclassic/youtube-webos#readme",
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.28.0",
     "@twemoji/api": "^17.0.2",
-    "core-js-pure": "^3.47.0",
-    "regenerator-runtime": "^0.14.1",
-    "tiny-sha256": "^1.0.2",
-    "whatwg-fetch": "^3.6.20"
+    "tiny-sha256": "^1.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
-    "@babel/plugin-transform-runtime": "^7.28.0",
     "@babel/plugin-transform-typescript": "^7.28.0",
     "@babel/preset-env": "^7.28.0",
     "@eslint/js": "^9.30.1",
@@ -44,8 +39,6 @@
     "@types/node": "^24.10.1",
     "@webos-tools/cli": "^3.2.1",
     "babel-loader": "^10.0.0",
-    "babel-plugin-polyfill-corejs3": "^0.13.0",
-    "babel-plugin-polyfill-regenerator": "^0.6.5",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
     "cssnano": "^7.1.2",
@@ -62,7 +55,6 @@
     "prettier": "^3.7.4",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.6.1",
-    "transform-async-modules-webpack-plugin": "^1.1.1",
     "typescript": "^5.8.3",
     "webpack": "^5.103.0",
     "webpack-cli": "^6.0.1"

@@ -7,7 +7,6 @@ import {
 } from './config';
 import { showNotification } from './notifications.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
-import { isLegacyWebOS } from './webos-utils.js';
 import './sponsorblock.css';
 
 const SPONSORBLOCK_CONFIG = {
@@ -45,7 +44,7 @@ const CHAIN_SKIP_CONSTANTS = {
 
 const HAS_ABORT_CONTROLLER = typeof AbortController !== 'undefined';
 
-class SponsorBlockHandler {
+export class SponsorBlockHandler {
   constructor(videoID) {
     this.videoID = videoID;
     this.logPrefix = `[SB:${this.videoID}]`;
@@ -58,8 +57,6 @@ class SponsorBlockHandler {
     this.activeBarSelector = null;
 
     this.debugMode = false;
-
-    this.isLegacyWebOSVer = isLegacyWebOS();
 
     // Tracking state
     this.lastSkipTime = -1;
@@ -108,27 +105,13 @@ class SponsorBlockHandler {
     this.log('info', `Created handler for ${this.videoID}`);
   }
 
-  // ==========================================
-  // WebOS 3 DOM Helper Methods
-  // ==========================================
-
   _isNodeConnected(node) {
-    if (!node) return false;
-    return node.isConnected !== undefined ? node.isConnected : document.body.contains(node);
+    return !!node && node.isConnected;
   }
 
   _getClosest(el, selector) {
     if (!el || el.nodeType !== 1) return null;
-    if (el.closest) return el.closest(selector);
-
-    const matches =
-      el.matches || el.webkitMatchesSelector || el.mozMatchesSelector || el.msMatchesSelector;
-    let current = el;
-    while (current && current.nodeType === 1) {
-      if (matches && matches.call(current, selector)) return current;
-      current = current.parentNode;
-    }
-    return null;
+    return el.closest(selector);
   }
 
   // Returns where/how to inject the overlay.
@@ -853,10 +836,6 @@ class SponsorBlockHandler {
         segment.segment[1] = duration;
         changed = true;
       }
-      if (this.isLegacyWebOSVer && segment.segment[1] >= duration - 0.5) {
-        segment.segment[1] = Math.max(0, duration - 0.3);
-        changed = true;
-      }
     }
 
     if (changed) {
@@ -1024,14 +1003,6 @@ class SponsorBlockHandler {
       return;
     }
 
-    if (
-      this.isLegacyWebOSVer &&
-      segmentIdx === this.lastSkippedSegmentIndex &&
-      this.video.duration - currentTime < 1.0
-    ) {
-      return;
-    }
-
     let jumpTarget = seg.end;
     const categoryName = seg.categoryName;
     const skippedCategories = [categoryName];
@@ -1068,21 +1039,12 @@ class SponsorBlockHandler {
       this.skippedSegmentIndices.add(idx);
     });
 
-    if (this.isLegacyWebOSVer) {
-      const duration = this.video.duration;
-      if (jumpTarget >= duration - 0.5) {
-        jumpTarget = Math.max(0, duration - 0.25);
-      }
-    }
-
     // Prevents a micro-rewind if a frame drop caused us to overshoot the jump target
     this.video.currentTime = Math.max(jumpTarget, currentTime);
 
-    if (!this.isLegacyWebOSVer) {
-      const timeRemaining = this.video.duration - this.video.currentTime;
-      if (timeRemaining > 0.5 && this.video.paused) {
-        this.video.play();
-      }
+    const timeRemaining = this.video.duration - this.video.currentTime;
+    if (timeRemaining > 0.5 && this.video.paused) {
+      this.video.play();
     }
 
     this.nextSegmentIndex = segmentIdx + 1;

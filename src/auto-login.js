@@ -1,4 +1,4 @@
-import { configRead, configAddChangeListener } from './config.js';
+import { configRead, configAddChangeListener } from './config';
 import { SELECTORS, REMOTE_KEYS, isGuestMode, sendKey, invalidateGuestModeCache } from './utils';
 import './auto-login.css';
 

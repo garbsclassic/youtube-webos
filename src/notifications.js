@@ -1,4 +1,4 @@
-import { configRead } from './config.js';
+import { configRead } from './config';
 
 // Notification container is created lazily on first showNotification() call.
 // Theme/OLED setters are no-ops until then; ui.js wires them on config changes.
