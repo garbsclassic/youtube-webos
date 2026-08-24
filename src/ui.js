@@ -11,7 +11,7 @@ import {
   sbModesHighlight,
   segmentTypes,
   shortcutActions
-} from './config.js';
+} from './config';
 import './ui.css';
 import logoBlue from './icons/NB Logo-gigapixel.png';
 import logoRed from './icons/NB Logo-gigapixel2.png';

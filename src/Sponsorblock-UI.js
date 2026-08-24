@@ -1,5 +1,5 @@
 import './sponsorblock-ui.css';
-import { configRead, segmentTypes } from './config.js';
+import { configRead, segmentTypes } from './config';
 import sponsorBlockIcon from './icons/IconSponsorBlocker64px.png';
 
 class SponsorBlockUI {

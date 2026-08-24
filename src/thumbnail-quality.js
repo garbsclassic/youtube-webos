@@ -1,5 +1,5 @@
 import { waitForChildAdd } from './utils.js';
-import { configRead, configAddChangeListener } from './config.js';
+import { configRead, configAddChangeListener } from './config';
 
 // --- Configuration & Constants ---
 // Gates concurrent upgrade JOBS (not XHRs). Each job now fires up to 3 HEAD

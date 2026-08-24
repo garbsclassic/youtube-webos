@@ -1,4 +1,4 @@
-import { configRead, configAddChangeListener } from './config.js';
+import { configRead, configAddChangeListener } from './config';
 
 // Global cache for API responses
 const dislikeCache = new Map();
