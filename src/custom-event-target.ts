@@ -3,28 +3,19 @@ type TypedEventPartial<T extends EventTarget, U> = {
   readonly type: U;
 };
 
-type BaseTypedEvent<T extends EventTarget, E extends Event, U> = E &
-  TypedEventPartial<T, U>;
+type BaseTypedEvent<T extends EventTarget, E extends Event, U> = E & TypedEventPartial<T, U>;
 
-type EventInstanceType<T, O> = T extends abstract new (
-  type: string,
-  options?: O
-) => infer R
+type EventInstanceType<T, O> = T extends abstract new (type: string, options?: O) => infer R
   ? R
   : never;
 
-type EventOptionsType<T> = T extends new (
-  type: string,
-  options?: infer O
-) => Event
-  ? O
-  : never;
+type EventOptionsType<T> = T extends new (type: string, options?: infer O) => Event ? O : never;
 
-export type TypedCustomEvent<
-  D,
-  T extends EventTarget,
-  U = string
-> = BaseTypedEvent<T, CustomEvent<D>, U>;
+export type TypedCustomEvent<D, T extends EventTarget, U = string> = BaseTypedEvent<
+  T,
+  CustomEvent<D>,
+  U
+>;
 
 export const TypedCustomEvent = CustomEvent as {
   new <const U extends string, const D = undefined>(
@@ -37,10 +28,9 @@ export const TypedCustomEvent = CustomEvent as {
 
 interface EmptyEventMap {}
 
-type EventMapValue<
-  T extends EmptyEventMap,
-  K extends keyof T & string
-> = T[K] extends Event ? T[K] : never;
+type EventMapValue<T extends EmptyEventMap, K extends keyof T & string> = T[K] extends Event
+  ? T[K]
+  : never;
 
 interface EventListener<
   Self extends EventTarget,
@@ -62,10 +52,7 @@ type EventListenerArg<
   Self extends EventTarget,
   T extends EmptyEventMap,
   EventName extends keyof T
-> =
-  | EventListener<Self, T, EventName>
-  | EventListenerObject<Self, T, EventName>
-  | null;
+> = EventListener<Self, T, EventName> | EventListenerObject<Self, T, EventName> | null;
 
 interface CustomEventTarget<T extends EmptyEventMap> {
   addEventListener<K extends keyof T & string>(
@@ -80,9 +67,7 @@ interface CustomEventTarget<T extends EmptyEventMap> {
     options?: boolean | EventListenerOptions
   ): void;
 
-  dispatchEvent<K extends keyof T & string>(
-    event: EventMapValue<T, K>
-  ): boolean;
+  dispatchEvent<K extends keyof T & string>(event: EventMapValue<T, K>): boolean;
 }
 
 export const CustomEventTarget = EventTarget as {
@@ -91,6 +76,4 @@ export const CustomEventTarget = EventTarget as {
 };
 
 export type EventMapOf<T> =
-  T extends CustomEventTarget<infer U>
-    ? { [K in keyof U]: U[K] & TypedEvent<T, K> }
-    : never;
+  T extends CustomEventTarget<infer U> ? { [K in keyof U]: U[K] & TypedEvent<T, K> } : never;

@@ -1,6 +1,7 @@
 import './sponsorblock-ui.css';
 
-const sponsorBlockIcon = 'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
+const sponsorBlockIcon =
+  'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
 
 class SponsorBlockUI {
   constructor() {
@@ -23,7 +24,7 @@ class SponsorBlockUI {
       outro: '#0202ed',
       interaction: '#cc00ff',
       selfpromo: '#ffff00',
-            musicofftopic: '#ff9900',
+      musicofftopic: '#ff9900',
       preview: '#008fd6',
       filler: '#7300FF',
       poi_highlight: '#ff1684',
@@ -39,11 +40,11 @@ class SponsorBlockUI {
       outro: 'Endcards/Credits',
       interaction: 'Interaction',
       selfpromo: 'Unpaid/Self Promotion',
-            musicofftopic: 'Non-Music Section',
+      musicofftopic: 'Non-Music Section',
       preview: 'Preview/Recap',
       poi_highlight: 'Highlight',
-            filler: 'Filler/Tangents',
-            hook: 'Hook/Greetings'
+      filler: 'Filler/Tangents',
+      hook: 'Hook/Greetings'
     };
     return names[category] || category.charAt(0).toUpperCase() + category.slice(1);
   }

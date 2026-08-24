@@ -14,8 +14,9 @@
   flex-direction: column;
   overflow: hidden;
   background-color: #001a2e;
-  background-image: linear-gradient(rgba(0, 180, 180, 0.15) 0.1vh, transparent 0.1vh),
-  linear-gradient(90deg, rgba(0, 180, 180, 0.15) 0.1vh, transparent 0.1vh);
+  background-image:
+    linear-gradient(rgba(0, 180, 180, 0.15) 0.1vh, transparent 0.1vh),
+    linear-gradient(90deg, rgba(0, 180, 180, 0.15) 0.1vh, transparent 0.1vh);
   background-size: 3.7vh 3.7vh;
   background-position: -0.1vh -0.1vh;
   border: 0.4vh solid rgba(52, 52, 52, 0.4);
@@ -66,7 +67,7 @@
 }
 
 .ytaf-ui-container > div.ytaf-settings-page {
-  padding: 0 3vh 2.0vh;
+  padding: 0 3vh 2vh;
   overflow-x: hidden;
   overflow-y: auto;
   flex: 1;
@@ -155,7 +156,9 @@
   margin: 0 -0.75vh 0.4vh;
   padding: 1vh;
   box-shadow: 0 0 0 2px transparent;
-  transition: box-shadow 0.1s ease-out, background 0.1s ease-out;
+  transition:
+    box-shadow 0.1s ease-out,
+    background 0.1s ease-out;
 }
 
 .ytaf-settings-section {
@@ -234,7 +237,13 @@
 }
 
 .ytaf-notification-container .message {
-  transition: opacity 0.3s ease, transform 0.15s ease, border-color 0.15s ease, max-height 0.3s ease, margin-bottom 0.3s ease, padding 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    max-height 0.3s ease,
+    margin-bottom 0.3s ease,
+    padding 0.3s ease;
   transform: translateX(0);
   will-change: opacity, transform;
   margin-bottom: 1vh;
@@ -279,7 +288,7 @@
 
   .ytaf-ui-container h1 {
     font-size: 2.3vh;
-    padding: 1.2vh 2.0vh 1vh;
+    padding: 1.2vh 2vh 1vh;
   }
 
   .ytaf-ui-container .ytaf-logo {
@@ -330,7 +339,10 @@
   outline: none;
   border: none;
   border-radius: 0.4rem;
-  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
   background: transparent;
   padding: 1vh;
   cursor: pointer;
@@ -369,7 +381,9 @@
   justify-content: space-between;
   margin: 0.2vh 0;
   box-shadow: 0 0 0 2px transparent;
-  transition: box-shadow 0.1s ease-out, background 0.1s ease-out;
+  transition:
+    box-shadow 0.1s ease-out,
+    background 0.1s ease-out;
   border-radius: 0.4rem;
   padding: 0.4vh 0.8vh;
   cursor: pointer;

@@ -25,7 +25,7 @@ const BLOCKED_TELEMETRY_PATHS = [
 ];
 
 const TELEMETRY_REGEX = new RegExp(
-  BLOCKED_TELEMETRY_PATHS.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+  BLOCKED_TELEMETRY_PATHS.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
 );
 
 const UI_STRINGS = {
@@ -53,7 +53,8 @@ const CONFIG_KEYS = {
   ENDCARDS: 'hideEndcards'
 };
 
-const EMOJI_RE = /[\u00A9\u00AE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|[\uD83C-\uDBFF][\uDC00-\uDFFF]/;
+const EMOJI_RE =
+  /[\u00A9\u00AE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|[\uD83C-\uDBFF][\uDC00-\uDFFF]/;
 const EMOJI_RE_CAP = new RegExp(`(${EMOJI_RE.source})`, 'g');
 const EMOJI_RE_GLOBAL = new RegExp(EMOJI_RE.source, 'g');
 const CLEAN_TEXT_RE = /[\u2060\uFEFF]/g;
@@ -86,7 +87,11 @@ const cfgFlags = {
 
 function recomputeFilterFlags() {
   cfgEmojiFixEffective = !!cfgSnapshot[CONFIG_KEYS.EMOJI_FIX] && cachedWebOSVersion <= 4;
-  cfgNeedsContentFiltering = !!(cfgSnapshot[CONFIG_KEYS.ADBLOCK] || cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] || cfgEmojiFixEffective);
+  cfgNeedsContentFiltering = !!(
+    cfgSnapshot[CONFIG_KEYS.ADBLOCK] ||
+    cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] ||
+    cfgEmojiFixEffective
+  );
 
   cfgFlags.enableAdBlock = !!cfgSnapshot[CONFIG_KEYS.ADBLOCK];
   cfgFlags.enableTrackingBlock = !!cfgSnapshot[CONFIG_KEYS.TRACKING];
@@ -116,12 +121,26 @@ for (const k of Object.values(CONFIG_KEYS)) {
 
 const SCHEMA_REGISTRY = {
   typeSignatures: [
-    { type: 'SHORTS_SEQUENCE', detectionPath: ['entries'], matchFn: (data) => Array.isArray(data.entries) },
+    {
+      type: 'SHORTS_SEQUENCE',
+      detectionPath: ['entries'],
+      matchFn: data => Array.isArray(data.entries)
+    },
     { type: 'PLAYER', detectionPath: ['streamingData'] },
     { type: 'NEXT', detectionPath: ['contents', 'singleColumnWatchNextResults'] },
-    { type: 'HOME_BROWSE', detectionPath: ['contents', 'tvBrowseRenderer', 'content', 'tvSurfaceContentRenderer'] },
-    { type: 'BROWSE_TABS', detectionPath: ['contents', 'tvBrowseRenderer', 'content', 'tvSecondaryNavRenderer'] },
-    { type: 'SEARCH', detectionPath: ['contents', 'sectionListRenderer'], excludePath: ['contents', 'tvBrowseRenderer'] },
+    {
+      type: 'HOME_BROWSE',
+      detectionPath: ['contents', 'tvBrowseRenderer', 'content', 'tvSurfaceContentRenderer']
+    },
+    {
+      type: 'BROWSE_TABS',
+      detectionPath: ['contents', 'tvBrowseRenderer', 'content', 'tvSecondaryNavRenderer']
+    },
+    {
+      type: 'SEARCH',
+      detectionPath: ['contents', 'sectionListRenderer'],
+      excludePath: ['contents', 'tvBrowseRenderer']
+    },
     { type: 'CONTINUATION', detectionPath: ['continuationContents'] },
     { type: 'ACTION', detectionPath: ['onResponseReceivedActions'] },
     { type: 'ACTION', detectionPath: ['onResponseReceivedEndpoints'] }
@@ -130,17 +149,50 @@ const SCHEMA_REGISTRY = {
     PLAYER: { overlayPath: ['playerOverlays', 'playerOverlayRenderer'] },
     NEXT: {
       overlayPath: ['playerOverlays', 'playerOverlayRenderer'],
-      pivotPath: ['contents', 'singleColumnWatchNextResults', 'pivot', 'sectionListRenderer', 'contents']
+      pivotPath: [
+        'contents',
+        'singleColumnWatchNextResults',
+        'pivot',
+        'sectionListRenderer',
+        'contents'
+      ]
     },
     SHORTS_SEQUENCE: { listPath: ['entries'] },
-    HOME_BROWSE: { mainContent: ['contents', 'tvBrowseRenderer', 'content', 'tvSurfaceContentRenderer', 'content', 'sectionListRenderer', 'contents'] },
-    BROWSE_TABS: { tabsPath: ['contents', 'tvBrowseRenderer', 'content', 'tvSecondaryNavRenderer', 'sections', '0', 'tvSecondaryNavSectionRenderer', 'tabs'] },
+    HOME_BROWSE: {
+      mainContent: [
+        'contents',
+        'tvBrowseRenderer',
+        'content',
+        'tvSurfaceContentRenderer',
+        'content',
+        'sectionListRenderer',
+        'contents'
+      ]
+    },
+    BROWSE_TABS: {
+      tabsPath: [
+        'contents',
+        'tvBrowseRenderer',
+        'content',
+        'tvSecondaryNavRenderer',
+        'sections',
+        '0',
+        'tvSecondaryNavSectionRenderer',
+        'tabs'
+      ]
+    },
     SEARCH: { mainContent: ['contents', 'sectionListRenderer', 'contents'] },
     CONTINUATION: {
       sectionPath: ['continuationContents', 'sectionListContinuation', 'contents'],
       gridPath: ['continuationContents', 'gridContinuation', 'items'],
       horizontalPath: ['continuationContents', 'horizontalListContinuation', 'items'],
-      tvSurfacePath: ['continuationContents', 'tvSurfaceContentContinuation', 'content', 'sectionListRenderer', 'contents']
+      tvSurfacePath: [
+        'continuationContents',
+        'tvSurfaceContentContinuation',
+        'content',
+        'sectionListRenderer',
+        'contents'
+      ]
     }
   }
 };
@@ -191,7 +243,6 @@ function splitIntoRuns(text, originalRun = {}) {
 // per node without a recursive walk of its own. Callers (walkAndProcess)
 // guarantee obj is a non-null object before invoking this.
 function processTextFieldsInPlace(obj) {
-
   if (typeof obj.simpleText === 'string') {
     const runs = splitIntoRuns(obj.simpleText);
     if (runs) {
@@ -248,13 +299,15 @@ function walkAndProcess(obj, doEmoji, doTracking, maxDepth, currentDepth = 0) {
   if (Array.isArray(obj)) {
     for (let i = 0; i < obj.length; i++) {
       const v = obj[i];
-      if (v && typeof v === 'object') walkAndProcess(v, doEmoji, doTracking, maxDepth, currentDepth + 1);
+      if (v && typeof v === 'object')
+        walkAndProcess(v, doEmoji, doTracking, maxDepth, currentDepth + 1);
     }
   } else {
     const keys = Object.keys(obj);
     for (let i = 0; i < keys.length; i++) {
       const v = obj[keys[i]];
-      if (v && typeof v === 'object') walkAndProcess(v, doEmoji, doTracking, maxDepth, currentDepth + 1);
+      if (v && typeof v === 'object')
+        walkAndProcess(v, doEmoji, doTracking, maxDepth, currentDepth + 1);
     }
   }
 }
@@ -266,7 +319,7 @@ function findAndProcessText(obj, maxDepth = 20) {
   walkAndProcess(obj, true, false, maxDepth);
 }
 
-const telemetryFetchHandler = (evt) => {
+const telemetryFetchHandler = evt => {
   const { url } = evt.detail;
   // url.pathname avoids the .href getter rebuilding the full URL string,
   // and is sufficient since all BLOCKED_TELEMETRY_PATHS are path-only.
@@ -293,16 +346,17 @@ export function initTrackingBlock() {
     originalXHROpen = window.XMLHttpRequest.prototype.open;
     originalXHRSend = window.XMLHttpRequest.prototype.send;
 
-    window.XMLHttpRequest.prototype.open = function(method, url) {
+    window.XMLHttpRequest.prototype.open = function (method, url) {
       // Store the URL on the instance so we can read it during send()
       // Fallback for older engines that might not support optional chaining properly
-      this.__adblockRequestUrl = typeof url === 'string' ? url : (url && url.toString ? url.toString() : '');
+      this.__adblockRequestUrl =
+        typeof url === 'string' ? url : url && url.toString ? url.toString() : '';
 
       // Use standard 'arguments' instead of spread syntax (...args) for webOS 3 compatibility
       return originalXHROpen.apply(this, arguments);
     };
 
-    window.XMLHttpRequest.prototype.send = function(body) {
+    window.XMLHttpRequest.prototype.send = function (body) {
       const reqUrl = this.__adblockRequestUrl;
       if (reqUrl && TELEMETRY_REGEX.test(reqUrl)) {
         if (DEBUG) console.info('[AdBlock] Blocked telemetry XHR request:', reqUrl);
@@ -310,8 +364,12 @@ export function initTrackingBlock() {
         // caller's request queue settles, instead of leaving the XHR pending
         // forever (which can cause YT's telemetry queue to grow/retry).
         const xhr = this;
-        setTimeout(function() {
-          try { xhr.abort(); } catch { /* already done/aborted */ }
+        setTimeout(function () {
+          try {
+            xhr.abort();
+          } catch {
+            /* already done/aborted */
+          }
         }, 0);
         return;
       }
@@ -396,19 +454,18 @@ function hookedParse(text, reviver) {
     }
 
     if (cfgFlags.enableTrackingBlock) {
-        // Single combined pass: strip trackingParams across the whole tree,
-        // then (if enabled) wrap emoji on frameworkUpdates as a small targeted
-        // walk on top. Preserves the original depths (15 tracking / 20 emoji)
-        // and replaces the old separate stripTrackingParams + emoji traversals.
-        walkAndProcess(data, false, true, 15);
+      // Single combined pass: strip trackingParams across the whole tree,
+      // then (if enabled) wrap emoji on frameworkUpdates as a small targeted
+      // walk on top. Preserves the original depths (15 tracking / 20 emoji)
+      // and replaces the old separate stripTrackingParams + emoji traversals.
+      walkAndProcess(data, false, true, 15);
       if (DEBUG) debugLog('Stripped trackingParams globally');
-        if (cfgFlags.enableLegacyEmojiFix && data.frameworkUpdates) {
-            walkAndProcess(data.frameworkUpdates, true, false, 20);
-        }
-    } else if (cfgFlags.enableLegacyEmojiFix && data.frameworkUpdates) {
+      if (cfgFlags.enableLegacyEmojiFix && data.frameworkUpdates) {
         walkAndProcess(data.frameworkUpdates, true, false, 20);
+      }
+    } else if (cfgFlags.enableLegacyEmojiFix && data.frameworkUpdates) {
+      walkAndProcess(data.frameworkUpdates, true, false, 20);
     }
-
   } catch (e) {
     if (DEBUG) console.error('[AdBlock] Error during filtering:', e);
   }
@@ -437,7 +494,8 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
         if (Array.isArray(entries)) {
           const oldLen = entries.length;
           filterItemsOptimized(entries, config, needsContentFiltering);
-          if (DEBUG && entries.length !== oldLen) debugLog(`SHORTS_SEQUENCE: Removed ${oldLen - entries.length} items`);
+          if (DEBUG && entries.length !== oldLen)
+            debugLog(`SHORTS_SEQUENCE: Removed ${oldLen - entries.length} items`);
         }
       }
       break;
@@ -448,7 +506,8 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
           contents = findObjects(data, ['sectionListRenderer'], 8).sectionListRenderer?.contents;
           if (DEBUG && contents) debugLog(`${responseType}: Using fallback search`);
         }
-        if (Array.isArray(contents)) processSectionListOptimized(contents, config, needsContentFiltering, responseType);
+        if (Array.isArray(contents))
+          processSectionListOptimized(contents, config, needsContentFiltering, responseType);
       }
       break;
     case 'BROWSE_TABS':
@@ -456,8 +515,17 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
         const tabs = getByPath(data, schema.tabsPath);
         if (Array.isArray(tabs)) {
           for (let i = 0; i < tabs.length; i++) {
-            const gridContents = tabs[i].tabRenderer?.content?.sectionListRenderer?.contents || tabs[i].tabRenderer?.content?.tvSurfaceContentRenderer?.content?.sectionListRenderer?.contents;
-            if (Array.isArray(gridContents)) processSectionListOptimized(gridContents, config, needsContentFiltering, 'BROWSE_TAB_GENERIC');
+            const gridContents =
+              tabs[i].tabRenderer?.content?.sectionListRenderer?.contents ||
+              tabs[i].tabRenderer?.content?.tvSurfaceContentRenderer?.content?.sectionListRenderer
+                ?.contents;
+            if (Array.isArray(gridContents))
+              processSectionListOptimized(
+                gridContents,
+                config,
+                needsContentFiltering,
+                'BROWSE_TAB_GENERIC'
+              );
           }
         }
       }
@@ -469,24 +537,38 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
           contents = findObjects(data, ['sectionListRenderer'], 8).sectionListRenderer?.contents;
           if (DEBUG && contents) debugLog(`${responseType}: Using fallback search`);
         }
-        if (Array.isArray(contents)) processSectionListOptimized(contents, config, needsContentFiltering, responseType);
+        if (Array.isArray(contents))
+          processSectionListOptimized(contents, config, needsContentFiltering, responseType);
       }
       break;
     case 'CONTINUATION':
       if (schema?.sectionPath) {
         const secList = getByPath(data, schema.sectionPath);
-        if (Array.isArray(secList)) processSectionListOptimized(secList, config, needsContentFiltering, 'CONTINUATION (Section)');
+        if (Array.isArray(secList))
+          processSectionListOptimized(
+            secList,
+            config,
+            needsContentFiltering,
+            'CONTINUATION (Section)'
+          );
       }
       if (schema?.tvSurfacePath) {
         const tvList = getByPath(data, schema.tvSurfacePath);
-        if (Array.isArray(tvList)) processSectionListOptimized(tvList, config, needsContentFiltering, 'CONTINUATION (TV Surface)');
+        if (Array.isArray(tvList))
+          processSectionListOptimized(
+            tvList,
+            config,
+            needsContentFiltering,
+            'CONTINUATION (TV Surface)'
+          );
       }
       if (schema?.gridPath) {
         const gridItems = getByPath(data, schema.gridPath);
         if (Array.isArray(gridItems)) {
           const oldLen = gridItems.length;
           filterItemsOptimized(gridItems, config, needsContentFiltering);
-          if (DEBUG && oldLen !== gridItems.length) debugLog(`CONTINUATION (Grid): Removed ${oldLen - gridItems.length} items`);
+          if (DEBUG && oldLen !== gridItems.length)
+            debugLog(`CONTINUATION (Grid): Removed ${oldLen - gridItems.length} items`);
         }
       }
       if (schema?.horizontalPath) {
@@ -494,11 +576,12 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
         if (Array.isArray(horizItems)) {
           const oldLen = horizItems.length;
           filterItemsOptimized(horizItems, config, needsContentFiltering);
-          if (DEBUG && oldLen !== horizItems.length) debugLog(`CONTINUATION (Horizontal): Removed ${oldLen - horizItems.length} items`);
+          if (DEBUG && oldLen !== horizItems.length)
+            debugLog(`CONTINUATION (Horizontal): Removed ${oldLen - horizItems.length} items`);
         }
       }
       if (config.enableLegacyEmojiFix && data.continuationContents) {
-          findAndProcessText(data.continuationContents, 20);
+        findAndProcessText(data.continuationContents, 20);
       }
       break;
     case 'ACTION': {
@@ -506,7 +589,7 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
       if (Array.isArray(actions)) {
         processActions(actions, config, needsContentFiltering);
         if (config.enableLegacyEmojiFix) {
-            findAndProcessText(actions, 20);
+          findAndProcessText(actions, 20);
         }
       }
       break;
@@ -518,15 +601,16 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
         let overlay = getByPath(data, schema?.overlayPath);
         if (!overlay) {
           overlay = findObjects(data, ['playerOverlayRenderer'], 8).playerOverlayRenderer;
-          if (DEBUG && overlay) debugLog(`${responseType}: Path failed, found overlay via fallback`);
+          if (DEBUG && overlay)
+            debugLog(`${responseType}: Path failed, found overlay via fallback`);
         }
         if (overlay?.timelyActionRenderers) {
           delete overlay.timelyActionRenderers;
           if (DEBUG) debugLog(`${responseType}: Removed timelyActionRenderers (QR Code)`);
         }
       }
-	  if (config.hideEndcards) {
-          removeEndcardsOptimized(data);
+      if (config.hideEndcards) {
+        removeEndcardsOptimized(data);
       }
       if (config.hideGuestPrompts) {
         let pivotContents = getByPath(data, schema?.pivotPath);
@@ -534,7 +618,13 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
           pivotContents = findObjects(data, ['pivot'], 8).pivot?.sectionListRenderer?.contents;
           if (DEBUG && pivotContents) debugLog(`${responseType}: Found pivot via fallback search`);
         }
-        if (Array.isArray(pivotContents)) processSectionListOptimized(pivotContents, config, needsContentFiltering, `${responseType} (Pivot)`);
+        if (Array.isArray(pivotContents))
+          processSectionListOptimized(
+            pivotContents,
+            config,
+            needsContentFiltering,
+            `${responseType} (Pivot)`
+          );
       }
       if (config.enableLegacyEmojiFix) {
         if (responseType === 'NEXT') {
@@ -552,31 +642,62 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
 function applyFallbackFilters(data, config, needsContentFiltering) {
   if (config.enableAdBlock) removePlayerAdsOptimized(data);
   if (config.hideEndcards) removeEndcardsOptimized(data);
-  const needles = ['playerOverlayRenderer', 'pivot', 'sectionListRenderer', 'gridRenderer', 'gridContinuation', 'sectionListContinuation', 'entries'];
+  const needles = [
+    'playerOverlayRenderer',
+    'pivot',
+    'sectionListRenderer',
+    'gridRenderer',
+    'gridContinuation',
+    'sectionListContinuation',
+    'entries'
+  ];
   const found = findObjects(data, needles, 10);
 
   if (config.enableAdBlock && found.playerOverlayRenderer?.timelyActionRenderers) {
     delete found.playerOverlayRenderer.timelyActionRenderers;
     if (DEBUG) debugLog('FALLBACK: Removed timelyActionRenderers');
   }
-  if (Array.isArray(found.pivot?.sectionListRenderer?.contents)) processSectionListOptimized(found.pivot.sectionListRenderer.contents, config, needsContentFiltering, 'Fallback Pivot');
-  if (Array.isArray(found.sectionListRenderer?.contents)) processSectionListOptimized(found.sectionListRenderer.contents, config, needsContentFiltering, 'Fallback sectionListRenderer');
-  if (Array.isArray(found.sectionListContinuation?.contents)) processSectionListOptimized(found.sectionListContinuation.contents, config, needsContentFiltering, 'Fallback sectionListContinuation');
+  if (Array.isArray(found.pivot?.sectionListRenderer?.contents))
+    processSectionListOptimized(
+      found.pivot.sectionListRenderer.contents,
+      config,
+      needsContentFiltering,
+      'Fallback Pivot'
+    );
+  if (Array.isArray(found.sectionListRenderer?.contents))
+    processSectionListOptimized(
+      found.sectionListRenderer.contents,
+      config,
+      needsContentFiltering,
+      'Fallback sectionListRenderer'
+    );
+  if (Array.isArray(found.sectionListContinuation?.contents))
+    processSectionListOptimized(
+      found.sectionListContinuation.contents,
+      config,
+      needsContentFiltering,
+      'Fallback sectionListContinuation'
+    );
 
   if (found.gridRenderer?.items) {
     const oldLen = found.gridRenderer.items.length;
     filterItemsOptimized(found.gridRenderer.items, config, needsContentFiltering);
-    if (DEBUG && oldLen !== found.gridRenderer.items.length) debugLog(`FALLBACK (Grid): Removed ${oldLen - found.gridRenderer.items.length} items`);
+    if (DEBUG && oldLen !== found.gridRenderer.items.length)
+      debugLog(`FALLBACK (Grid): Removed ${oldLen - found.gridRenderer.items.length} items`);
   }
   if (found.gridContinuation?.items) {
     const oldLen = found.gridContinuation.items.length;
     filterItemsOptimized(found.gridContinuation.items, config, needsContentFiltering);
-    if (DEBUG && oldLen !== found.gridContinuation.items.length) debugLog(`FALLBACK (Grid Continuation): Removed ${oldLen - found.gridContinuation.items.length} items`);
+    if (DEBUG && oldLen !== found.gridContinuation.items.length)
+      debugLog(
+        `FALLBACK (Grid Continuation): Removed ${oldLen - found.gridContinuation.items.length} items`
+      );
   }
   if (Array.isArray(found.entries)) {
     const oldLen = found.entries.length;
     filterItemsOptimized(found.entries, config, needsContentFiltering);
-    if (DEBUG && oldLen !== found.entries.length) debugLog(`FALLBACK (Entries): Removed ${oldLen - found.entries.length} items`);
+    if (DEBUG && oldLen !== found.entries.length)
+      debugLog(`FALLBACK (Entries): Removed ${oldLen - found.entries.length} items`);
   }
 
   const actions = data.onResponseReceivedActions || data.onResponseReceivedEndpoints;
@@ -588,23 +709,40 @@ function processActions(actions, config, needsContentFiltering) {
   for (let i = 0; i < actions.length; i++) {
     const action = actions[i];
     if (action.reloadContinuationItemsCommand?.continuationItems) {
-      filterItemsOptimized(action.reloadContinuationItemsCommand.continuationItems, config, needsContentFiltering);
+      filterItemsOptimized(
+        action.reloadContinuationItemsCommand.continuationItems,
+        config,
+        needsContentFiltering
+      );
     }
     if (action.appendContinuationItemsAction?.continuationItems) {
-      filterItemsOptimized(action.appendContinuationItemsAction.continuationItems, config, needsContentFiltering);
+      filterItemsOptimized(
+        action.appendContinuationItemsAction.continuationItems,
+        config,
+        needsContentFiltering
+      );
     }
   }
 }
 
 function getShelfTitleOptimized(shelf) {
   if (!shelf) return '';
-  return shelf.title?.runs?.[0]?.text || shelf.headerRenderer?.shelfHeaderRenderer?.avatarLockup?.avatarLockupRenderer?.title?.runs?.[0]?.text || '';
+  return (
+    shelf.title?.runs?.[0]?.text ||
+    shelf.headerRenderer?.shelfHeaderRenderer?.avatarLockup?.avatarLockupRenderer?.title?.runs?.[0]
+      ?.text ||
+    ''
+  );
 }
 
 function isReelAd(item, enableAdBlock) {
   if (!enableAdBlock) return false;
   const endpoint = item.command?.reelWatchEndpoint;
-  return endpoint?.adClientParams?.isAd === true || endpoint?.adClientParams?.isAd === 'true' || endpoint?.videoType === YT_CONSTANTS.VIDEO_TYPE_REEL_AD;
+  return (
+    endpoint?.adClientParams?.isAd === true ||
+    endpoint?.adClientParams?.isAd === 'true' ||
+    endpoint?.videoType === YT_CONSTANTS.VIDEO_TYPE_REEL_AD
+  );
 }
 
 function hasAdRenderer(item, enableAdBlock) {
@@ -617,7 +755,14 @@ function hasGuestPromptRenderer(item, hideGuestPrompts) {
 
 function processSectionListOptimized(contents, config, needsContentFiltering, contextName = '') {
   if (!Array.isArray(contents) || contents.length === 0) return;
-  const { enableAdBlock, removeGlobalShorts, removeTopLiveGames, removeMostRelevant, hideGuestPrompts, enableLegacyEmojiFix } = config;
+  const {
+    enableAdBlock,
+    removeGlobalShorts,
+    removeTopLiveGames,
+    removeMostRelevant,
+    hideGuestPrompts,
+    enableLegacyEmojiFix
+  } = config;
   const initialCount = contents.length;
   let writeIdx = 0;
 
@@ -627,7 +772,8 @@ function processSectionListOptimized(contents, config, needsContentFiltering, co
 
     if (item.shelfRenderer) {
       const shelf = item.shelfRenderer;
-      if (removeGlobalShorts && shelf.tvhtml5ShelfRendererType === YT_CONSTANTS.SHELF_TYPE_SHORTS) keepItem = false;
+      if (removeGlobalShorts && shelf.tvhtml5ShelfRendererType === YT_CONSTANTS.SHELF_TYPE_SHORTS)
+        keepItem = false;
       else if (removeGlobalShorts || removeTopLiveGames || removeMostRelevant) {
         const title = getShelfTitleOptimized(shelf);
         if (removeGlobalShorts && title === UI_STRINGS.SHORTS_TITLE) keepItem = false;
@@ -635,10 +781,20 @@ function processSectionListOptimized(contents, config, needsContentFiltering, co
         else if (removeMostRelevant && title === UI_STRINGS.MOST_RELEVANT_TITLE) keepItem = false;
       }
       if (keepItem && shelf.content) {
-        if (shelf.content.horizontalListRenderer?.items) filterItemsOptimized(shelf.content.horizontalListRenderer.items, config, needsContentFiltering);
-        if (shelf.content.gridRenderer?.items) filterItemsOptimized(shelf.content.gridRenderer.items, config, needsContentFiltering);
+        if (shelf.content.horizontalListRenderer?.items)
+          filterItemsOptimized(
+            shelf.content.horizontalListRenderer.items,
+            config,
+            needsContentFiltering
+          );
+        if (shelf.content.gridRenderer?.items)
+          filterItemsOptimized(shelf.content.gridRenderer.items, config, needsContentFiltering);
       }
-    } else if (hasAdRenderer(item, enableAdBlock) || hasGuestPromptRenderer(item, hideGuestPrompts) || isReelAd(item, enableAdBlock)) {
+    } else if (
+      hasAdRenderer(item, enableAdBlock) ||
+      hasGuestPromptRenderer(item, hideGuestPrompts) ||
+      isReelAd(item, enableAdBlock)
+    ) {
       keepItem = false;
     }
 
@@ -652,7 +808,10 @@ function processSectionListOptimized(contents, config, needsContentFiltering, co
 
   if (DEBUG) {
     const removed = initialCount - writeIdx;
-    if (removed > 0) debugLog(`${contextName ? contextName + ': ' : ''}Filtered ${removed} top-level items from ${initialCount}`);
+    if (removed > 0)
+      debugLog(
+        `${contextName ? contextName + ': ' : ''}Filtered ${removed} top-level items from ${initialCount}`
+      );
   }
 }
 
@@ -667,14 +826,34 @@ function filterItemsOptimized(items, config, needsContentFiltering) {
     let keep = true;
 
     if (needsContentFiltering) {
-      if (hasAdRenderer(item, enableAdBlock) || isReelAd(item, enableAdBlock) || hasGuestPromptRenderer(item, hideGuestPrompts)) keep = false;
-      else if (hideGuestPrompts && item.gridButtonRenderer?.title?.runs?.[0]?.text === UI_STRINGS.GUEST_PROMPT_TEXT) keep = false;
+      if (
+        hasAdRenderer(item, enableAdBlock) ||
+        isReelAd(item, enableAdBlock) ||
+        hasGuestPromptRenderer(item, hideGuestPrompts)
+      )
+        keep = false;
+      else if (
+        hideGuestPrompts &&
+        item.gridButtonRenderer?.title?.runs?.[0]?.text === UI_STRINGS.GUEST_PROMPT_TEXT
+      )
+        keep = false;
     }
 
     if (keep && removeGlobalShorts) {
       const tile = item.tileRenderer;
-      if (tile && (tile.style === YT_CONSTANTS.TILE_STYLE_SHORTS || tile.contentType === YT_CONSTANTS.CONTENT_TYPE_SHORTS || tile.onSelectCommand?.reelWatchEndpoint)) keep = false;
-      else if (item.reelItemRenderer || item.contentType === YT_CONSTANTS.CONTENT_TYPE_SHORTS || item.onSelectCommand?.reelWatchEndpoint) keep = false;
+      if (
+        tile &&
+        (tile.style === YT_CONSTANTS.TILE_STYLE_SHORTS ||
+          tile.contentType === YT_CONSTANTS.CONTENT_TYPE_SHORTS ||
+          tile.onSelectCommand?.reelWatchEndpoint)
+      )
+        keep = false;
+      else if (
+        item.reelItemRenderer ||
+        item.contentType === YT_CONSTANTS.CONTENT_TYPE_SHORTS ||
+        item.onSelectCommand?.reelWatchEndpoint
+      )
+        keep = false;
     }
 
     if (keep) {
@@ -708,12 +887,12 @@ function clearArrayIfExists(obj, key) {
 function removeEndcardsOptimized(data) {
   let cleared = 0;
   if (data.endscreen) {
-      delete data.endscreen;
-      cleared++;
+    delete data.endscreen;
+    cleared++;
   }
   if (data.playerResponse && data.playerResponse.endscreen) {
-      delete data.playerResponse.endscreen;
-      cleared++;
+    delete data.playerResponse.endscreen;
+    cleared++;
   }
   if (DEBUG && cleared > 0) debugLog('Cleaned Player Endcards');
 }
@@ -783,7 +962,7 @@ export function initAdblock() {
   if (DEBUG) console.info('[AdBlock] Initializing hybrid hook (Debug Mode: ' + DEBUG + ')');
 
   origParse = JSON.parse;
-  JSON.parse = function(text, reviver) {
+  JSON.parse = function (text, reviver) {
     return hookedParse.call(this, text, reviver);
   };
   isHooked = true;

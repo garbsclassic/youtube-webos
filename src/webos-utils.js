@@ -52,7 +52,8 @@ export function getWebOSVersion() {
 
     if (chromeVersion >= 120) {
       cachedWebOSVersion = 25;
-    } else if (chromeVersion <= 53) { // webOS 4
+    } else if (chromeVersion <= 53) {
+      // webOS 4
       cachedWebOSVersion = 4;
     } else {
       cachedWebOSVersion = 6;
@@ -61,7 +62,7 @@ export function getWebOSVersion() {
   }
 
   console.warn('[WebOSUtils] Could not detect webOS version from user agent. Defaulting to 6.');
-  return cachedWebOSVersion = 6;
+  return (cachedWebOSVersion = 6);
 }
 
 export function isWebOS25() {

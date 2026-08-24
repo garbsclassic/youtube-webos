@@ -56,40 +56,46 @@ function updatePageState() {
   const newAccountSelector = cl.contains(SELECTORS.ACCOUNT_SELECTOR);
   const newSearch = cl.contains(SELECTORS.SEARCH_PAGE_CLASS);
 
-  if (newWatch === _isWatchPage &&
+  if (
+    newWatch === _isWatchPage &&
     newShorts === _isShortsPage &&
     newAccountSelector === _isAccountSelectorPage &&
-    newSearch === _isSearchPage) return;
+    newSearch === _isSearchPage
+  )
+    return;
 
   _isWatchPage = newWatch;
   _isShortsPage = newShorts;
   _isAccountSelectorPage = newAccountSelector;
   _isSearchPage = newSearch;
 
-  window.dispatchEvent(new CustomEvent('ytaf-page-update', {
-    detail: {
-      isWatch: _isWatchPage,
-      isShorts: _isShortsPage,
-      isAccountSelector: _isAccountSelectorPage,
-      isSearch: _isSearchPage
-    }
-  }));
+  window.dispatchEvent(
+    new CustomEvent('ytaf-page-update', {
+      detail: {
+        isWatch: _isWatchPage,
+        isShorts: _isShortsPage,
+        isAccountSelector: _isAccountSelectorPage,
+        isSearch: _isSearchPage
+      }
+    })
+  );
 }
 
 if (typeof document !== 'undefined') {
   const initObserver = () => {
     _body = document.body;
-    const pageObserver = new MutationObserver((mutations) => {
+    const pageObserver = new MutationObserver(mutations => {
       for (let m of mutations) {
-                // Cheap pre-filter: only care if a WEB_PAGE_TYPE_ class actually changed.
-                // Body classes flip constantly for focus/animation state.
-                const oldV = m.oldValue || '';
-                const newV = m.target.className || '';
-                if (newV === oldV) continue;
-                if (oldV.indexOf('WEB_PAGE_TYPE_') === -1 && newV.indexOf('WEB_PAGE_TYPE_') === -1) continue;
-          updatePageState();
-          break;
-        }
+        // Cheap pre-filter: only care if a WEB_PAGE_TYPE_ class actually changed.
+        // Body classes flip constantly for focus/animation state.
+        const oldV = m.oldValue || '';
+        const newV = m.target.className || '';
+        if (newV === oldV) continue;
+        if (oldV.indexOf('WEB_PAGE_TYPE_') === -1 && newV.indexOf('WEB_PAGE_TYPE_') === -1)
+          continue;
+        updatePageState();
+        break;
+      }
     });
     pageObserver.observe(_body, {
       attributes: true,
@@ -121,7 +127,7 @@ export function getVideo() {
   return _cachedVideo;
 }
 if (typeof window !== 'undefined') {
-  window.addEventListener('ytaf-page-update', (e) => {
+  window.addEventListener('ytaf-page-update', e => {
     // Drop the cache whenever we leave a video page; the next getVideo() call
     // will re-query on demand.
     if (!e.detail.isWatch && !e.detail.isShorts) _cachedVideo = null;
@@ -130,7 +136,7 @@ if (typeof window !== 'undefined') {
 
 export function debounce(func, wait) {
   let timeout;
-  return function(...args) {
+  return function (...args) {
     const context = this;
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(context, args), wait);
@@ -171,7 +177,7 @@ export function isGuestMode() {
 }
 
 // Define Property Descriptor factory to reduce object allocation
-const createDescriptor = (val) => ({ get: () => val });
+const createDescriptor = val => ({ get: () => val });
 
 // Feature Detect once at startup
 let createEventStrategy;
@@ -200,8 +206,15 @@ export function sendKey(keyDef, target = document.body) {
   }
 
   const eventOpts = {
-    bubbles: true, cancelable: false, composed: true, view: window,
-    key: keyDef.key, code: keyDef.key, keyCode: keyDef.code, which: keyDef.code, charCode: keyDef.charCode || 0
+    bubbles: true,
+    cancelable: false,
+    composed: true,
+    view: window,
+    key: keyDef.key,
+    code: keyDef.key,
+    keyCode: keyDef.code,
+    which: keyDef.code,
+    charCode: keyDef.charCode || 0
   };
 
   const keyDownEvt = createEventStrategy('keydown', eventOpts);
@@ -275,19 +288,25 @@ export function handleLaunch(params) {
   }
 
   if (ytURL.searchParams.get('theme') === 'k') {
-      ytURL.searchParams.delete('env_forceFullAnimation');
-      ytURL.searchParams.delete('env_enableWebSpeech');
-      ytURL.searchParams.delete('env_enableVoice');
+    ytURL.searchParams.delete('env_forceFullAnimation');
+    ytURL.searchParams.delete('env_enableWebSpeech');
+    ytURL.searchParams.delete('env_enableVoice');
   }
 
   window.location.href = ytURL.toString();
 }
 
-export async function waitForChildAdd(parent, predicate, observeAttributes, abortSignal, timeoutMs = 30000) {
+export async function waitForChildAdd(
+  parent,
+  predicate,
+  observeAttributes,
+  abortSignal,
+  timeoutMs = 30000
+) {
   return new Promise((resolve, reject) => {
     let timer = null;
 
-    const obs = new MutationObserver((mutations) => {
+    const obs = new MutationObserver(mutations => {
       for (let i = 0; i < mutations.length; i++) {
         const mut = mutations[i];
 

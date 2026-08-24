@@ -97,7 +97,8 @@ class Watch {
     }
 
     const isHybridFocused = this._cachedPlayer.getAttribute('hybridnavfocusable') === 'true';
-    const isPlayerElementActive = document.activeElement === this._cachedPlayer || document.activeElement === document.body;
+    const isPlayerElementActive =
+      document.activeElement === this._cachedPlayer || document.activeElement === document.body;
     const isOverlayActive = !!this._cachedOverlay;
 
     const shouldHide = isHybridFocused || isPlayerElementActive || isOverlayActive;
@@ -110,7 +111,7 @@ class Watch {
   }
 
   setupGlobalListeners() {
-    this.boundStateChange = (e) => {
+    this.boundStateChange = e => {
       const state = e.detail.state;
       if (state === 1 || state === 2 || state === -1) {
         this.debouncedUpdate();
@@ -172,6 +173,6 @@ function toggleWatch(show) {
 
 toggleWatch(configRead('showWatch'));
 
-configAddChangeListener('showWatch', (evt) => {
+configAddChangeListener('showWatch', evt => {
   toggleWatch(evt.detail.newValue);
 });

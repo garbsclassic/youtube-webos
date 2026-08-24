@@ -3,7 +3,14 @@
  * the entire screen, the screensaver can kick in.
  */
 
-import { waitForChildAdd, sendKey, SELECTORS, REMOTE_KEYS, isWatchPage, isShortsPage } from './utils';
+import {
+  waitForChildAdd,
+  sendKey,
+  SELECTORS,
+  REMOTE_KEYS,
+  isWatchPage,
+  isShortsPage
+} from './utils';
 
 /**
  * document.querySelector but waits for the Element to be added if it doesn't already exist.
@@ -17,7 +24,7 @@ export async function requireElement(cssSelectors, expected) {
 
   const result = await waitForChildAdd(
     document.body,
-    (node) => node instanceof Element && node.matches(cssSelectors),
+    node => node instanceof Element && node.matches(cssSelectors),
     true
   );
 
@@ -42,7 +49,10 @@ function setShortsKeepAlive(enable) {
     shortsKeepAliveTimer = window.setInterval(() => {
       // Check player state to ensure we only keep awake if actually playing
       const player = document.getElementById(SELECTORS.PLAYER_ID);
-      const isPlaying = player && typeof player.getPlayerState === 'function' && player.getPlayerState() === STATE_PLAYING;
+      const isPlaying =
+        player &&
+        typeof player.getPlayerState === 'function' &&
+        player.getPlayerState() === STATE_PLAYING;
 
       if (isPlaying) {
         console.log('[ScreensaverFix] Video is playing, preparing to send yellow presses');
@@ -59,15 +69,15 @@ function setShortsKeepAlive(enable) {
         }
 
         console.log(`[ScreensaverFix] Target picked: ${source}`, target);
-            console.log(`[ScreensaverFix] Sending YELLOW (${REMOTE_KEYS.YELLOW.code})`);
+        console.log(`[ScreensaverFix] Sending YELLOW (${REMOTE_KEYS.YELLOW.code})`);
 
-            sendKey(REMOTE_KEYS.YELLOW, target);
+        sendKey(REMOTE_KEYS.YELLOW, target);
 
         if (shortsBufferTimer) clearTimeout(shortsBufferTimer);
 
         shortsBufferTimer = window.setTimeout(() => {
-                console.log(`[ScreensaverFix] Sending YELLOW_ALT (${REMOTE_KEYS.YELLOW_ALT.code})`);
-                sendKey(REMOTE_KEYS.YELLOW_ALT, target);
+          console.log(`[ScreensaverFix] Sending YELLOW_ALT (${REMOTE_KEYS.YELLOW_ALT.code})`);
+          sendKey(REMOTE_KEYS.YELLOW_ALT, target);
           shortsBufferTimer = null;
         }, 250);
       }
@@ -88,7 +98,7 @@ function setShortsKeepAlive(enable) {
 let rafPending = false;
 let rafTargetVideo = null;
 
-const playerCtrlObs = new MutationObserver((mutations) => {
+const playerCtrlObs = new MutationObserver(mutations => {
   // Only watch page has a full-screen player fix logic.
   if (lastPageType !== 'WATCH') {
     playerCtrlObs.disconnect();
@@ -144,7 +154,7 @@ const updateState = async () => {
   const isWatch = isWatchPage();
   const isShorts = isShortsPage();
 
-  const newPageType = isWatch ? 'WATCH' : (isShorts ? 'SHORTS' : 'OTHER');
+  const newPageType = isWatch ? 'WATCH' : isShorts ? 'SHORTS' : 'OTHER';
 
   // Optimization: If the page type hasn't changed, ignore
   if (newPageType === lastPageType) return;
@@ -185,11 +195,7 @@ const updateState = async () => {
 
     // If not found immediately, use the waiter (scoped to root)
     if (!video) {
-      video = await waitForChildAdd(
-        searchRoot,
-        (node) => node instanceof HTMLVideoElement,
-        false
-      );
+      video = await waitForChildAdd(searchRoot, node => node instanceof HTMLVideoElement, false);
     }
 
     // Double check we are still on Watch page after await

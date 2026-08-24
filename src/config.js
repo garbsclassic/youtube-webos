@@ -30,7 +30,7 @@ export const shortcutActions = {
   toggle_description: 'Toggle Description',
   toggle_comments: 'Toggle Comments',
   toggle_subs: 'Toggle Subtitles',
-  save_to_playlist: 'Save / Watch Later',
+  save_to_playlist: 'Save / Watch Later'
 };
 
 export const sbModes = {
@@ -92,7 +92,10 @@ const configOptions = new Map([
 
 // Register shortcut keys 0-9
 for (let i = 0; i < 10; i++) {
-  configOptions.set(`shortcut_key_${i}`, { default: i === 5 ? 'chapter_skip_next' : 'none', desc: `Key ${i} Action` });
+  configOptions.set(`shortcut_key_${i}`, {
+    default: i === 5 ? 'chapter_skip_next' : 'none',
+    desc: `Key ${i} Action`
+  });
 }
 
 // Register shortcut keys Red, Green, Blue
@@ -101,7 +104,10 @@ for (let i = 0; i < 10; i++) {
   if (color === 'red') def = 'seek_back';
   if (color === 'green') def = 'config_menu';
   if (color === 'blue') def = 'seek_fwd';
-  configOptions.set(`shortcut_key_${color}`, { default: def, desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action` });
+  configOptions.set(`shortcut_key_${color}`, {
+    default: def,
+    desc: `${color.charAt(0).toUpperCase() + color.slice(1)} Button Action`
+  });
 });
 
 for (const [key, value] of Object.entries(segmentTypes)) {
@@ -139,15 +145,21 @@ function flushPendingWrite() {
   if (pendingWriteTimer === null) return;
   clearTimeout(pendingWriteTimer);
   pendingWriteTimer = null;
-  try { window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig); }
-  catch (e) { /* quota / SecurityError on private mode */ }
+  try {
+    window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
+  } catch (e) {
+    /* quota / SecurityError on private mode */
+  }
 }
 function scheduleWrite() {
   if (pendingWriteTimer !== null) return;
   pendingWriteTimer = setTimeout(() => {
     pendingWriteTimer = null;
-    try { window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig); }
-    catch (e) { /* ignore */ }
+    try {
+      window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
+    } catch (e) {
+      /* ignore */
+    }
   }, 200);
 }
 if (typeof window !== 'undefined') {

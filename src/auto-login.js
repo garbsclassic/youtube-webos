@@ -1,5 +1,12 @@
 import { configRead, configAddChangeListener } from './config.js';
-import { SELECTORS, REMOTE_KEYS, isGuestMode, sendKey, extractLaunchParams, invalidateGuestModeCache } from './utils';
+import {
+  SELECTORS,
+  REMOTE_KEYS,
+  isGuestMode,
+  sendKey,
+  extractLaunchParams,
+  invalidateGuestModeCache
+} from './utils';
 import './auto-login.css';
 
 const STORAGE_KEY = 'yt.leanback.default::recurring_actions';
@@ -28,7 +35,7 @@ function disableWhosWatching(enable = true) {
     if (!actions) return;
 
     // Use a future date if enabling, or Date.now() if disabling
-    const targetDate = enable ? Date.now() + (7 * 24 * 60 * 60 * 1000) : Date.now();
+    const targetDate = enable ? Date.now() + 7 * 24 * 60 * 60 * 1000 : Date.now();
     let isModified = false;
 
     for (const key of TARGET_ACTIONS) {
@@ -52,7 +59,10 @@ export function setInlinePlayback(mode) {
 
   const isEnabled = mode === 'force_on';
   try {
-    localStorage.setItem('yt.leanback.default::inline-playback-enabled', JSON.stringify({ data: isEnabled }));
+    localStorage.setItem(
+      'yt.leanback.default::inline-playback-enabled',
+      JSON.stringify({ data: isEnabled })
+    );
     console.info(`[Auto Login] Inline playback (previews) forced to: ${isEnabled}`);
   } catch (error) {
     console.error('[Auto Login] Failed to update inline playback setting:', error);
@@ -73,13 +83,13 @@ export function initPreviews() {
 // so toggling the body class activates/deactivates the page-hide instantly with
 // no <style> element churn.
 function injectBypassCSS() {
-    if (document.body) document.body.classList.add(BYPASS_BODY_CLASS);
+  if (document.body) document.body.classList.add(BYPASS_BODY_CLASS);
 }
 
 function finalizeBypass() {
   console.info('[Auto Login] Bypass: Done. Cleaning up...');
   setTimeout(() => {
-        if (document.body) document.body.classList.remove(BYPASS_BODY_CLASS);
+    if (document.body) document.body.classList.remove(BYPASS_BODY_CLASS);
   }, 2000);
 }
 
@@ -113,13 +123,13 @@ export function attemptActiveBypass(force = false) {
 
 export function resetActiveBypass() {
   hasBypassed = false;
-    // Identity may have changed between launches (sign-in/out); drop the cached guest flag.
-    invalidateGuestModeCache();
+  // Identity may have changed between launches (sign-in/out); drop the cached guest flag.
+  invalidateGuestModeCache();
 }
 
 function setupActiveBypassListener() {
   if (pageObserverAttached) return;
-  window.addEventListener('ytaf-page-update', (evt) => {
+  window.addEventListener('ytaf-page-update', evt => {
     if (evt.detail && evt.detail.isAccountSelector) {
       attemptActiveBypass();
     }
@@ -144,9 +154,9 @@ export function initAutoLogin() {
 
 document.readyState === 'loading'
   ? document.addEventListener('DOMContentLoaded', () => {
-    initAutoLogin();
-    initPreviews();
-  })
+      initAutoLogin();
+      initPreviews();
+    })
   : (initAutoLogin(), initPreviews());
 
 configAddChangeListener('enableAutoLogin', ({ detail }) => {

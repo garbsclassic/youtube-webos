@@ -37,11 +37,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     }
   }
 
-  override removeEventListener(
-    type: any,
-    callback: any,
-    options?: any
-  ): void {
+  override removeEventListener(type: any, callback: any, options?: any): void {
     super.removeEventListener(type, callback, options);
     if (callback && (type === 'request' || type === 'response')) {
       const key = type as 'request' | 'response';
@@ -68,7 +64,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
 
     const fr = new FileReader();
 
-    const res = new Promise<string | ArrayBuffer | null>((resolve) => {
+    const res = new Promise<string | ArrayBuffer | null>(resolve => {
       fr.addEventListener('load', () => {
         resolve(fr.result);
       });
@@ -79,10 +75,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     return res;
   }
 
-  #customFetch = async (
-    resource: FetchTarget,
-    init?: RequestInit
-  ): Promise<Response> => {
+  #customFetch = async (resource: FetchTarget, init?: RequestInit): Promise<Response> => {
     // Fast path: no listeners and not debugging — pass straight through with
     // zero allocations (no URL object, no CustomEvent dispatch). Tracking
     // block off is the common case for most sessions.
@@ -120,11 +113,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     }
 
     if (!reqAllowed) {
-      console.info(
-        `Fetch request ${this.#fetchCount} was cancelled by listener.`,
-        resource,
-        init
-      );
+      console.info(`Fetch request ${this.#fetchCount} was cancelled by listener.`, resource, init);
       throw new TypeError('Failed to fetch');
     }
 
@@ -145,10 +134,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     }
 
     if (!resAllowed) {
-      console.info(
-        `Fetch response ${this.#fetchCount} was cancelled by listener.`,
-        res
-      );
+      console.info(`Fetch response ${this.#fetchCount} was cancelled by listener.`, res);
       throw new TypeError('Failed to fetch');
     }
 

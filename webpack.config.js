@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /** @type {(env: Record<string, string>) => (import('webpack').Configuration)[]} */
-const makeConfig = (env) => {
+const makeConfig = env => {
   const isModern = env && env.modern;
 
   return [
@@ -25,20 +25,25 @@ const makeConfig = (env) => {
       },
       resolve: {
         extensions: ['.mjs', '.cjs', '.js', '.json', '.ts'],
-        alias: isModern ? {
-          // Strip global polyfills for modern build
-          'core-js-pure': false,
-          '@babel/runtime-corejs3': false,
-          'regenerator-runtime': false,
-          'regenerator-runtime/runtime': false,
-          'whatwg-fetch': false,
+        alias: isModern
+          ? {
+              // Strip global polyfills for modern build
+              'core-js-pure': false,
+              '@babel/runtime-corejs3': false,
+              'regenerator-runtime': false,
+              'regenerator-runtime/runtime': false,
+              'whatwg-fetch': false,
 
-          // Strip local polyfills
-          [path.resolve(__dirname, 'src/spatial-navigation-polyfill.js')]: path.resolve(__dirname, 'src/spatial-navigation.modern.js'),
-          [path.resolve(__dirname, 'src/domrect-polyfill.js')]: false,
-		  [path.resolve(__dirname, 'src/emoji-font.js')]: false,
-          [path.resolve(__dirname, 'src/emoji-font.css')]: false
-        } : {}
+              // Strip local polyfills
+              [path.resolve(__dirname, 'src/spatial-navigation-polyfill.js')]: path.resolve(
+                __dirname,
+                'src/spatial-navigation.modern.js'
+              ),
+              [path.resolve(__dirname, 'src/domrect-polyfill.js')]: false,
+              [path.resolve(__dirname, 'src/emoji-font.js')]: false,
+              [path.resolve(__dirname, 'src/emoji-font.css')]: false
+            }
+          : {}
       },
       module: {
         rules: [
@@ -49,32 +54,34 @@ const makeConfig = (env) => {
             // Modern build excludes all node_modules for speed
             exclude: isModern
               ? /node_modules/
-              : [
-                /node_modules[\\/]core-js/,
-                /node_modules[\\/]webpack[\\/]buildin/
-              ],
-            options: isModern ? {
-              // modern config
-              cacheDirectory: true,
-              babelrc: false,
-              configFile: false,
-              presets: [
-                ['@babel/preset-env', {
-                  targets: 'chrome 87',
-                  bugfixes: true,
-                  modules: false,
-                  useBuiltIns: false
-                }]
-                // REMOVED missing '@babel/preset-typescript'
-              ],
-              plugins: [
-                // Use the plugin you already have installed instead of the preset
-                ['@babel/plugin-transform-typescript', { strictMode: true }]
-              ]
-            } : {
-              // LEGACY CONFIGURATION (Uses babel.config.js)
-              cacheDirectory: true
-            },
+              : [/node_modules[\\/]core-js/, /node_modules[\\/]webpack[\\/]buildin/],
+            options: isModern
+              ? {
+                  // modern config
+                  cacheDirectory: true,
+                  babelrc: false,
+                  configFile: false,
+                  presets: [
+                    [
+                      '@babel/preset-env',
+                      {
+                        targets: 'chrome 87',
+                        bugfixes: true,
+                        modules: false,
+                        useBuiltIns: false
+                      }
+                    ]
+                    // REMOVED missing '@babel/preset-typescript'
+                  ],
+                  plugins: [
+                    // Use the plugin you already have installed instead of the preset
+                    ['@babel/plugin-transform-typescript', { strictMode: true }]
+                  ]
+                }
+              : {
+                  // LEGACY CONFIGURATION (Uses babel.config.js)
+                  cacheDirectory: true
+                },
             resolve: {
               fullySpecified: false
             }
@@ -96,15 +103,21 @@ const makeConfig = (env) => {
                 options: {
                   postcssOptions: {
                     plugins: [
-                      ['cssnano', {
-                        preset: ['default', {
-                          discardComments: { removeAll: true },
-                          normalizeWhitespace: true,
-                          colormin: true,
-                          minifySelectors: true,
-                          minifyFontValues: true
-                        }]
-                      }]
+                      [
+                        'cssnano',
+                        {
+                          preset: [
+                            'default',
+                            {
+                              discardComments: { removeAll: true },
+                              normalizeWhitespace: true,
+                              colormin: true,
+                              minifySelectors: true,
+                              minifyFontValues: true
+                            }
+                          ]
+                        }
+                      ]
                     ]
                   }
                 }
@@ -146,14 +159,16 @@ const makeConfig = (env) => {
           ]
         }),
         // Only add Async Module support for Legacy builds
-        ...(isModern ? [] : [
-          new TransformAsyncModulesPlugin({
-            // @ts-expect-error Bad types
-            runtime: {
-              version: pkgJson.devDependencies['@babel/plugin-transform-runtime']
-            }
-          })
-        ])
+        ...(isModern
+          ? []
+          : [
+              new TransformAsyncModulesPlugin({
+                // @ts-expect-error Bad types
+                runtime: {
+                  version: pkgJson.devDependencies['@babel/plugin-transform-runtime']
+                }
+              })
+            ])
       ]
     }
   ];

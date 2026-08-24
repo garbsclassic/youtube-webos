@@ -17,10 +17,23 @@ import './auto-login.js';
 import './return-dislike.js';
 import { initVideoQuality } from './video-quality.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
-import { sendKey, REMOTE_KEYS, isGuestMode, isWatchPage, isShortsPage, isSearchPage, SELECTORS, getVideo } from './utils.js';
+import {
+  sendKey,
+  REMOTE_KEYS,
+  isGuestMode,
+  isWatchPage,
+  isShortsPage,
+  isSearchPage,
+  SELECTORS,
+  getVideo
+} from './utils.js';
 import { initAdblock, destroyAdblock, initTrackingBlock, destroyTrackingBlock } from './adblock.js';
 import { getWebOSVersion } from './webos-utils.js';
-import { showNotification as _showNotification, setNotificationOled, setNotificationTheme } from './notifications.js';
+import {
+  showNotification as _showNotification,
+  setNotificationOled,
+  setNotificationTheme
+} from './notifications.js';
 
 // Re-export so existing `import { showNotification } from './ui'` sites keep working.
 export const showNotification = _showNotification;
@@ -61,7 +74,7 @@ const cachedSelectors = {
   save: null
 };
 
-window.addEventListener('ytaf-page-update', (e) => {
+window.addEventListener('ytaf-page-update', e => {
   if (e.detail.isWatch) {
     cachedSelectors.comments = null;
     cachedSelectors.description = null;
@@ -85,7 +98,7 @@ const ACTION_SCOPES = {
   toggle_description: 'VIDEO',
   toggle_comments: 'VIDEO',
   toggle_subs: 'VIDEO',
-  save_to_playlist: 'VIDEO',
+  save_to_playlist: 'VIDEO'
 };
 
 function updateShortcutCache(key) {
@@ -108,7 +121,7 @@ if (!Element.prototype.matches) {
     Element.prototype.oMatchesSelector;
 }
 if (!Element.prototype.closest) {
-  Element.prototype.closest = function(s) {
+  Element.prototype.closest = function (s) {
     let el = this;
     do {
       if (Element.prototype.matches.call(el, s)) return el;
@@ -128,11 +141,11 @@ const simulateBack = () => {
 // panels); we query both and return whichever exists. Centralized here because
 // the same chain was inlined in three shortcut handlers.
 const ENGAGEMENT_PANEL_SELECTOR =
-    'ytlr-engagement-panel-section-list-renderer, ytlr-engagement-panel-title-header-renderer';
+  'ytlr-engagement-panel-section-list-renderer, ytlr-engagement-panel-title-header-renderer';
 const getEngagementPanel = () => document.querySelector(ENGAGEMENT_PANEL_SELECTOR);
 const isEngagementPanelVisible = () => {
-    const panel = getEngagementPanel();
-    return !!(panel && window.getComputedStyle(panel).display !== 'none');
+  const panel = getEngagementPanel();
+  return !!(panel && window.getComputedStyle(panel).display !== 'none');
 };
 
 window.__spatialNavigation__.keyMode = 'NONE';
@@ -144,12 +157,17 @@ const ARROW_KEY_CODE = {
 };
 
 const colorCodeMap = new Map([
-  [403, 'red'], [166, 'red'],
-  [404, 'green'], [172, 'green'],
-  [405, 'yellow'], [170, 'yellow'],
-  [406, 'blue'], [167, 'blue'], [191, 'blue']
+  [403, 'red'],
+  [166, 'red'],
+  [404, 'green'],
+  [172, 'green'],
+  [405, 'yellow'],
+  [170, 'yellow'],
+  [406, 'blue'],
+  [167, 'blue'],
+  [191, 'blue']
 ]);
-const getKeyColor = (charCode) => colorCodeMap.get(charCode) || null;
+const getKeyColor = charCode => colorCodeMap.get(charCode) || null;
 
 // --- DOM Utility Functions ---
 
@@ -190,17 +208,22 @@ function createConfigCheckbox(key) {
   const elmInput = createElement('input', {
     type: 'checkbox',
     checked: configRead(key),
-    events: { change: (evt) => configWrite(key, evt.target.checked) }
+    events: { change: evt => configWrite(key, evt.target.checked) }
   });
 
-  const labelContent = createElement('div', {
-    class: 'label-content',
-  }, elmInput, `\u00A0${configGetDesc(key)}`);
+  const labelContent = createElement(
+    'div',
+    {
+      class: 'label-content'
+    },
+    elmInput,
+    `\u00A0${configGetDesc(key)}`
+  );
   const elmLabel = createElement('label', {}, labelContent);
 
   elmInput.addEventListener('focus', () => elmLabel.classList.add('focused'));
   elmInput.addEventListener('blur', () => elmLabel.classList.remove('focused'));
-  configAddChangeListener(key, (evt) => elmInput.checked = evt.detail.newValue);
+  configAddChangeListener(key, evt => (elmInput.checked = evt.detail.newValue));
 
   return elmLabel;
 }
@@ -208,25 +231,45 @@ function createConfigCheckbox(key) {
 function createSection(title, elements) {
   const legend = createElement('div', {
     text: title,
-    style: { color: '#888', fontSize: '2.5vh', marginBottom: '0.4vh', fontWeight: 'bold', textTransform: 'uppercase' }
+    style: {
+      color: '#888',
+      fontSize: '2.5vh',
+      marginBottom: '0.4vh',
+      fontWeight: 'bold',
+      textTransform: 'uppercase'
+    }
   });
 
-  return createElement('div', {
-    class: 'ytaf-settings-section'
-  }, legend, ...elements);
+  return createElement(
+    'div',
+    {
+      class: 'ytaf-settings-section'
+    },
+    legend,
+    ...elements
+  );
 }
 
 // --- Generic UI Components Factory ---
 
-function createGenericControlRow(labelText, displayValueGetter, onLeft, onRight, onClick, extraElements = null) {
+function createGenericControlRow(
+  labelText,
+  displayValueGetter,
+  onLeft,
+  onRight,
+  onClick,
+  extraElements = null
+) {
   const valueText = createElement('span', { class: 'current-value' });
-  const updateDisplay = () => valueText.textContent = displayValueGetter();
+  const updateDisplay = () => (valueText.textContent = displayValueGetter());
 
-  const container = createElement('div', {
+  const container = createElement(
+    'div',
+    {
       class: 'shortcut-control-row',
       tabIndex: 0,
       events: {
-        keydown: (e) => {
+        keydown: e => {
           if (e.keyCode === REMOTE_KEYS.LEFT.code) {
             onLeft();
             e.stopPropagation();
@@ -241,10 +284,14 @@ function createGenericControlRow(labelText, displayValueGetter, onLeft, onRight,
       }
     },
     createElement('span', { text: labelText, class: 'shortcut-label' }),
-    createElement('div', { class: 'shortcut-value-container' },
+    createElement(
+      'div',
+      { class: 'shortcut-value-container' },
       createElement('span', {
-        text: '<', class: 'arrow-btn', events: {
-          click: (e) => {
+        text: '<',
+        class: 'arrow-btn',
+        events: {
+          click: e => {
             e.stopPropagation();
             onLeft();
           }
@@ -252,8 +299,10 @@ function createGenericControlRow(labelText, displayValueGetter, onLeft, onRight,
       }),
       valueText,
       createElement('span', {
-        text: '>', class: 'arrow-btn', events: {
-          click: (e) => {
+        text: '>',
+        class: 'arrow-btn',
+        events: {
+          click: e => {
             e.stopPropagation();
             onRight();
           }
@@ -269,19 +318,32 @@ function createGenericControlRow(labelText, displayValueGetter, onLeft, onRight,
   return { container, updateDisplay };
 }
 
-function createCycleControl(configKey, labelText, modesArray, displayMap = null, extraElements = null) {
-  const displayValueGetter = () => displayMap ? displayMap[configRead(configKey)] || configRead(configKey) : configRead(configKey);
-  const cycle = (dir) => {
+function createCycleControl(
+  configKey,
+  labelText,
+  modesArray,
+  displayMap = null,
+  extraElements = null
+) {
+  const displayValueGetter = () =>
+    displayMap ? displayMap[configRead(configKey)] || configRead(configKey) : configRead(configKey);
+  const cycle = dir => {
     let idx = modesArray.indexOf(configRead(configKey));
     if (idx === -1) idx = 0;
-    idx = dir === 'next' ? (idx + 1) % modesArray.length : (idx - 1 + modesArray.length) % modesArray.length;
+    idx =
+      dir === 'next'
+        ? (idx + 1) % modesArray.length
+        : (idx - 1 + modesArray.length) % modesArray.length;
     configWrite(configKey, modesArray[idx]);
     updateDisplay();
   };
 
   const { container, updateDisplay } = createGenericControlRow(
-    labelText, displayValueGetter,
-    () => cycle('prev'), () => cycle('next'), () => cycle('next'),
+    labelText,
+    displayValueGetter,
+    () => cycle('prev'),
+    () => cycle('next'),
+    () => cycle('next'),
     extraElements
   );
 
@@ -296,7 +358,8 @@ function createSegmentControl(key) {
   const modes = Object.keys(modesMap);
   const colorKey = isHighlight ? 'poi_highlightColor' : key.replace('sbMode_', '') + 'Color';
 
-  const hasColorPicker = segmentTypes[key.replace('sbMode_', '')] || (isHighlight && segmentTypes['poi_highlight']);
+  const hasColorPicker =
+    segmentTypes[key.replace('sbMode_', '')] || (isHighlight && segmentTypes['poi_highlight']);
   let extraElements = null;
 
   if (hasColorPicker) {
@@ -305,7 +368,7 @@ function createSegmentControl(key) {
       class: 'reset-color-btn',
       tabIndex: -1,
       events: {
-        click: (evt) => {
+        click: evt => {
           evt.preventDefault();
           evt.stopPropagation();
           configWrite(colorKey, configGetDefault(colorKey));
@@ -313,7 +376,7 @@ function createSegmentControl(key) {
       }
     });
 
-    const handleColorInput = (evt) => {
+    const handleColorInput = evt => {
       configWrite(colorKey, evt.target.value);
     };
 
@@ -322,19 +385,24 @@ function createSegmentControl(key) {
       value: configRead(colorKey),
       tabIndex: -1,
       events: {
-        click: (evt) => {
+        click: evt => {
           evt.stopPropagation();
         },
         input: handleColorInput
       }
     });
 
-    configAddChangeListener(colorKey, (evt) => {
+    configAddChangeListener(colorKey, evt => {
       colorInput.value = evt.detail.newValue;
       window.sponsorblock?.buildOverlay();
     });
 
-    extraElements = createElement('div', { style: { display: 'flex', marginLeft: '10px' } }, resetButton, colorInput);
+    extraElements = createElement(
+      'div',
+      { style: { display: 'flex', marginLeft: '10px' } },
+      resetButton,
+      colorInput
+    );
   }
 
   return createCycleControl(key, configGetDesc(key), modes, modesMap, extraElements);
@@ -353,7 +421,12 @@ function createShortcutControl(keyIdentifier) {
 }
 
 function createPreviewControl(key) {
-  return createCycleControl(key, configGetDesc(key), Object.keys(forcePreviewModes), forcePreviewModes);
+  return createCycleControl(
+    key,
+    configGetDesc(key),
+    Object.keys(forcePreviewModes),
+    forcePreviewModes
+  );
 }
 
 function createOpacityControl(key) {
@@ -363,7 +436,7 @@ function createOpacityControl(key) {
 
   const displayValueGetter = () => `${configRead(key)}%`;
 
-  const changeValue = (delta) => {
+  const changeValue = delta => {
     let val = configRead(key);
     val = Math.min(max, Math.max(min, val + delta));
     configWrite(key, val);
@@ -371,8 +444,11 @@ function createOpacityControl(key) {
   };
 
   const { container, updateDisplay } = createGenericControlRow(
-    configGetDesc(key), displayValueGetter,
-    () => changeValue(-step), () => changeValue(step), () => changeValue(step)
+    configGetDesc(key),
+    displayValueGetter,
+    () => changeValue(-step),
+    () => changeValue(step),
+    () => changeValue(step)
   );
 
   configAddChangeListener(key, updateDisplay);
@@ -402,7 +478,11 @@ function createOptionsPanel() {
     events: {
       mouseleave: () => {
         const activeTabBtn = elmContainer.querySelector('.ytaf-tab-btn.active');
-        if (activeTabBtn && document.activeElement && document.activeElement.classList.contains('ytaf-tab-btn')) {
+        if (
+          activeTabBtn &&
+          document.activeElement &&
+          document.activeElement.classList.contains('ytaf-tab-btn')
+        ) {
           activeTabBtn.focus();
         }
       }
@@ -412,10 +492,15 @@ function createOptionsPanel() {
   const tabs = ['Main', 'SponsorBlock', 'Shortcuts', 'UI Tweaks'];
   let tabBtns = []; // Declare first so setActivePage can reference it
 
-  const setActivePage = (pageIndex) => {
+  const setActivePage = pageIndex => {
     if (pageIndex === activePage) return; // Don't do work if we are already on this tab
     const pagesArray = [pageMain, pageSponsor, pageShortcuts, pageUITweaks];
-    const focusSelectors = ['input', '.shortcut-control-row, input', '.shortcut-control-row', '.shortcut-control-row, input'];
+    const focusSelectors = [
+      'input',
+      '.shortcut-control-row, input',
+      '.shortcut-control-row',
+      '.shortcut-control-row, input'
+    ];
     const hasPopups = [false, true, false, false];
 
     // 1. Deactivate old state
@@ -441,123 +526,151 @@ function createOptionsPanel() {
   };
 
   // Create tab buttons after setActivePage is defined
-  tabBtns = tabs.map((name, index) => createElement('button', {
-    class: index === 0 ? 'ytaf-tab-btn active' : 'ytaf-tab-btn',
-    text: name,
-    tabIndex: 0,
-    events: {
-      focus: () => setActivePage(index),
-      click: () => setActivePage(index),
-      mouseenter: (e) => e.target.focus()
-    }
-  }));
+  tabBtns = tabs.map((name, index) =>
+    createElement('button', {
+      class: index === 0 ? 'ytaf-tab-btn active' : 'ytaf-tab-btn',
+      text: name,
+      tabIndex: 0,
+      events: {
+        focus: () => setActivePage(index),
+        click: () => setActivePage(index),
+        mouseenter: e => e.target.focus()
+      }
+    })
+  );
   tabBtns.forEach(btn => void tabMenu.appendChild(btn));
 
   // Keyboard Navigation for the Options Panel
-  elmContainer.addEventListener('keydown', (evt) => {
-    if (getKeyColor(evt.charCode || evt.keyCode) === 'green') return; // Let global handler handle close if mapped to green (or config_menu logic)
+  elmContainer.addEventListener(
+    'keydown',
+    evt => {
+      if (getKeyColor(evt.charCode || evt.keyCode) === 'green') return; // Let global handler handle close if mapped to green (or config_menu logic)
 
-    if (evt.keyCode in ARROW_KEY_CODE) {
-      const dir = ARROW_KEY_CODE[evt.keyCode];
-      const preFocus = document.activeElement;
+      if (evt.keyCode in ARROW_KEY_CODE) {
+        const dir = ARROW_KEY_CODE[evt.keyCode];
+        const preFocus = document.activeElement;
 
-      if (dir === 'left' || dir === 'right') {
-        // Prevent modifying row from navigating away
-        if (preFocus.classList.contains('shortcut-control-row')) return;
+        if (dir === 'left' || dir === 'right') {
+          // Prevent modifying row from navigating away
+          if (preFocus.classList.contains('shortcut-control-row')) return;
 
-        navigate(dir);
+          navigate(dir);
 
-        // Tab menu wrap-around logic
-        if (preFocus === document.activeElement && preFocus.classList.contains('ytaf-tab-btn')) {
-          const idx = tabBtns.indexOf(preFocus);
-          if (dir === 'right' && idx === tabBtns.length - 1) tabBtns[0].focus();
-          else if (dir === 'left' && idx === 0) tabBtns[tabBtns.length - 1].focus();
-        }
-
-        evt.preventDefault();
-        evt.stopPropagation();
-        return;
-      } else if (dir === 'up' || dir === 'down') {
-        navigate(dir);
-        const postFocus = document.activeElement;
-
-        if (dir === 'up' && preFocus !== postFocus) {
-          if (preFocus.closest('.ytaf-settings-page') && postFocus.classList.contains('ytaf-tab-btn')) {
-            const activeTabBtn = elmContainer.querySelector('.ytaf-tab-btn.active');
-            if (activeTabBtn) activeTabBtn.focus();
-          }
-        }
-
-        if (preFocus === postFocus) {
-          const activeTabBtn = tabBtns[activePage];
-          const pagesList = [pageMain, pageSponsor, pageShortcuts, pageUITweaks];
-          const visiblePage = pagesList[activePage];
-          let pageFocusables = [];
-
-          if (visiblePage) {
-            pageFocusables = Array.from(visiblePage.querySelectorAll('input:not([disabled]), .shortcut-control-row, button:not([disabled])'))
-              .filter(el => el.tabIndex !== -1);
+          // Tab menu wrap-around logic
+          if (preFocus === document.activeElement && preFocus.classList.contains('ytaf-tab-btn')) {
+            const idx = tabBtns.indexOf(preFocus);
+            if (dir === 'right' && idx === tabBtns.length - 1) tabBtns[0].focus();
+            else if (dir === 'left' && idx === 0) tabBtns[tabBtns.length - 1].focus();
           }
 
-          const focusables = [activeTabBtn, ...pageFocusables].filter(Boolean);
-
-          if (focusables.length > 0) {
-            if (dir === 'up') focusables[focusables.length - 1].focus();
-            else if (dir === 'down') focusables[0].focus();
-          }
-        }
-        evt.preventDefault();
-        evt.stopPropagation();
-        return;
-      }
-    } else if (evt.keyCode === REMOTE_KEYS.ENTER.code) {
-      if (evt instanceof KeyboardEvent) document.activeElement.click();
-    } else if (evt.keyCode === 27 || evt.keyCode === REMOTE_KEYS.BACK.code) { // Escape or Back
-      const currentFocus = document.activeElement;
-      const isOnTabBtn = currentFocus && currentFocus.classList.contains('ytaf-tab-btn');
-      const isInSettingsPage = currentFocus && currentFocus.closest('.ytaf-settings-page');
-
-      if (isInSettingsPage || (currentFocus && !isOnTabBtn && currentFocus !== elmContainer)) {
-        // Focus is in page content, move to active tab button
-        const activeTabBtn = tabBtns[activePage];
-
-        if (activeTabBtn) {
-          activeTabBtn.focus();
           evt.preventDefault();
           evt.stopPropagation();
+          return;
+        } else if (dir === 'up' || dir === 'down') {
+          navigate(dir);
+          const postFocus = document.activeElement;
 
+          if (dir === 'up' && preFocus !== postFocus) {
+            if (
+              preFocus.closest('.ytaf-settings-page') &&
+              postFocus.classList.contains('ytaf-tab-btn')
+            ) {
+              const activeTabBtn = elmContainer.querySelector('.ytaf-tab-btn.active');
+              if (activeTabBtn) activeTabBtn.focus();
+            }
+          }
+
+          if (preFocus === postFocus) {
+            const activeTabBtn = tabBtns[activePage];
+            const pagesList = [pageMain, pageSponsor, pageShortcuts, pageUITweaks];
+            const visiblePage = pagesList[activePage];
+            let pageFocusables = [];
+
+            if (visiblePage) {
+              pageFocusables = Array.from(
+                visiblePage.querySelectorAll(
+                  'input:not([disabled]), .shortcut-control-row, button:not([disabled])'
+                )
+              ).filter(el => el.tabIndex !== -1);
+            }
+
+            const focusables = [activeTabBtn, ...pageFocusables].filter(Boolean);
+
+            if (focusables.length > 0) {
+              if (dir === 'up') focusables[focusables.length - 1].focus();
+              else if (dir === 'down') focusables[0].focus();
+            }
+          }
+          evt.preventDefault();
+          evt.stopPropagation();
           return;
         }
+      } else if (evt.keyCode === REMOTE_KEYS.ENTER.code) {
+        if (evt instanceof KeyboardEvent) document.activeElement.click();
+      } else if (evt.keyCode === 27 || evt.keyCode === REMOTE_KEYS.BACK.code) {
+        // Escape or Back
+        const currentFocus = document.activeElement;
+        const isOnTabBtn = currentFocus && currentFocus.classList.contains('ytaf-tab-btn');
+        const isInSettingsPage = currentFocus && currentFocus.closest('.ytaf-settings-page');
+
+        if (isInSettingsPage || (currentFocus && !isOnTabBtn && currentFocus !== elmContainer)) {
+          // Focus is in page content, move to active tab button
+          const activeTabBtn = tabBtns[activePage];
+
+          if (activeTabBtn) {
+            activeTabBtn.focus();
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            return;
+          }
+        }
+
+        // Focus is on tab button or container, close the menu
+        showOptionsPanel(false);
       }
+      evt.preventDefault();
+      evt.stopPropagation();
+    },
+    true
+  );
 
-      // Focus is on tab button or container, close the menu
-      showOptionsPanel(false);
-    }
+  const toggleTheme = evt => {
     evt.preventDefault();
     evt.stopPropagation();
-  }, true);
-
-  const toggleTheme = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-    configWrite('uiTheme', configRead('uiTheme') === 'blue-force-field' ? 'classic-red' : 'blue-force-field');
+    configWrite(
+      'uiTheme',
+      configRead('uiTheme') === 'blue-force-field' ? 'classic-red' : 'blue-force-field'
+    );
     const activeTab = elmContainer.querySelector('.ytaf-tab-btn.active');
     if (activeTab) activeTab.focus();
   };
-  const createLogo = (src, cls) => createElement('img', {
-    src,
-    alt: 'Logo',
-    class: `ytaf-logo ${cls}`,
-    title: 'Click to switch theme',
-    style: cls !== 'logo-blue' ? { display: 'none' } : {},
-    events: { click: toggleTheme }
-  });
+  const createLogo = (src, cls) =>
+    createElement('img', {
+      src,
+      alt: 'Logo',
+      class: `ytaf-logo ${cls}`,
+      title: 'Click to switch theme',
+      style: cls !== 'logo-blue' ? { display: 'none' } : {},
+      events: { click: toggleTheme }
+    });
 
-  const elmHeading = createElement('h1', {},
+  const elmHeading = createElement(
+    'h1',
+    {},
     createElement('span', { text: 'YouTube Extended' }),
-    createLogo('https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel.png', 'logo-blue'),
-    createLogo('https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel2.png', 'logo-red'),
-    createLogo('https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel4.png', 'logo-dark')
+    createLogo(
+      'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel.png',
+      'logo-blue'
+    ),
+    createLogo(
+      'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel2.png',
+      'logo-red'
+    ),
+    createLogo(
+      'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel4.png',
+      'logo-dark'
+    )
   );
   elmContainer.appendChild(elmHeading);
   elmContainer.appendChild(tabMenu);
@@ -568,7 +681,10 @@ function createOptionsPanel() {
   const elAdBlock = createConfigCheckbox('enableAdBlock');
   const elTrackingBlock = createConfigCheckbox('enableTrackingBlock');
   const cosmeticGroup = [elAdBlock, elTrackingBlock];
-  let elRemoveGlobalShorts = null, elRemoveTopLiveGames = null, elRemoveMostRelevant = null, elGuestPrompts = null;
+  let elRemoveGlobalShorts = null,
+    elRemoveTopLiveGames = null,
+    elRemoveMostRelevant = null,
+    elGuestPrompts = null;
 
   elRemoveGlobalShorts = createConfigCheckbox('removeGlobalShorts');
   elRemoveTopLiveGames = createConfigCheckbox('removeTopLiveGames');
@@ -593,14 +709,18 @@ function createOptionsPanel() {
   const updateDependencyState = () => {
     const isAdBlockOn = configRead('enableAdBlock');
     if (!isAdBlockOn) {
-      [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(el => {
-        setState(el, false);
-      });
+      [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(
+        el => {
+          setState(el, false);
+        }
+      );
       return;
     }
-    [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(el => {
-      setState(el, true);
-    });
+    [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(
+      el => {
+        setState(el, true);
+      }
+    );
   };
 
   elAdBlock.querySelector('input').addEventListener('change', updateDependencyState);
@@ -611,23 +731,47 @@ function createOptionsPanel() {
   configAddChangeListener('enableAdBlock', updateDependencyState);
   updateDependencyState();
 
-  pageMain.appendChild(createSection('Video Player', [createConfigCheckbox('forceHighResVideo'), createConfigCheckbox('hideEndcards'), createConfigCheckbox('enableReturnYouTubeDislike')]));
-  pageMain.appendChild(createSection('Interface', [
-    createConfigCheckbox('enableAutoLogin'),
-    createConfigCheckbox('upgradeThumbnails'),
-    createConfigCheckbox('hideLogo'),
-    createConfigCheckbox('showWatch'),
-    createConfigCheckbox('enableOledCareMode'),
-    createConfigCheckbox('disableNotifications')
-  ]));
+  pageMain.appendChild(
+    createSection('Video Player', [
+      createConfigCheckbox('forceHighResVideo'),
+      createConfigCheckbox('hideEndcards'),
+      createConfigCheckbox('enableReturnYouTubeDislike')
+    ])
+  );
+  pageMain.appendChild(
+    createSection('Interface', [
+      createConfigCheckbox('enableAutoLogin'),
+      createConfigCheckbox('upgradeThumbnails'),
+      createConfigCheckbox('hideLogo'),
+      createConfigCheckbox('showWatch'),
+      createConfigCheckbox('enableOledCareMode'),
+      createConfigCheckbox('disableNotifications')
+    ])
+  );
   elmContainer.appendChild(pageMain);
 
   // --- Page 2: SponsorBlock ---
-  pageSponsor = createElement('div', { class: 'ytaf-settings-page', id: 'ytaf-page-sponsor', style: { display: 'none' } });
+  pageSponsor = createElement('div', {
+    class: 'ytaf-settings-page',
+    id: 'ytaf-page-sponsor',
+    style: { display: 'none' }
+  });
   pageSponsor.appendChild(createConfigCheckbox('enableSponsorBlock'));
 
-  const elmBlock = createElement('blockquote', {},
-    ...['Sponsor', 'Intro', 'Outro', 'Interaction', 'SelfPromo', 'MusicOfftopic', 'Filler', 'Hook', 'Preview'].map(s => createSegmentControl(`sbMode_${s.toLowerCase()}`)),
+  const elmBlock = createElement(
+    'blockquote',
+    {},
+    ...[
+      'Sponsor',
+      'Intro',
+      'Outro',
+      'Interaction',
+      'SelfPromo',
+      'MusicOfftopic',
+      'Filler',
+      'Hook',
+      'Preview'
+    ].map(s => createSegmentControl(`sbMode_${s.toLowerCase()}`)),
     createSegmentControl('sbMode_highlight'),
     createConfigCheckbox('enableMutedSegments'),
     createConfigCheckbox('skipSegmentsOnce')
@@ -636,17 +780,28 @@ function createOptionsPanel() {
   elmContainer.appendChild(pageSponsor);
 
   // --- Page 3: Shortcuts ---
-  pageShortcuts = createElement('div', { class: 'ytaf-settings-page', id: 'ytaf-page-shortcuts', style: { display: 'none' } });
+  pageShortcuts = createElement('div', {
+    class: 'ytaf-settings-page',
+    id: 'ytaf-page-shortcuts',
+    style: { display: 'none' }
+  });
   shortcutKeys.forEach(key => {
     pageShortcuts.appendChild(createShortcutControl(key));
   });
   elmContainer.appendChild(pageShortcuts);
 
   // --- Page 4: UI Tweaks ---
-  pageUITweaks = createElement('div', { class: 'ytaf-settings-page', id: 'ytaf-page-ui-tweaks', style: { display: 'none' } });
+  pageUITweaks = createElement('div', {
+    class: 'ytaf-settings-page',
+    id: 'ytaf-page-ui-tweaks',
+    style: { display: 'none' }
+  });
 
   const playerUITweaks = [
-    createCycleControl('uiTheme', 'UI Theme', ['blue-force-field', 'classic-red'], { 'blue-force-field': 'Blue Force Field', 'classic-red': 'Classic Red' }),
+    createCycleControl('uiTheme', 'UI Theme', ['blue-force-field', 'classic-red'], {
+      'blue-force-field': 'Blue Force Field',
+      'classic-red': 'Classic Red'
+    }),
     createOpacityControl('videoShelfOpacity'),
     createElement('div', {
       text: 'Adjusts opacity of black background underneath videos (Requires OLED-care mode)',
@@ -658,7 +813,7 @@ function createOptionsPanel() {
       style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
     }),
     createConfigCheckbox('fixMultilineTitles'),
-	  createConfigCheckbox('removeBlackBorders')
+    createConfigCheckbox('removeBlackBorders')
   ];
 
   if (getWebOSVersion() <= 4) {
@@ -683,7 +838,6 @@ function showOptionsPanel(visible) {
   if (visible === undefined || visible === null) visible = true;
 
   if (visible && !optionsPanelVisible) {
-
     // Lazy Initialization
     if (!optionsPanel) {
       // console.log('[UI] Initializing Options Panel (Lazy Load)...');
@@ -701,7 +855,7 @@ function showOptionsPanel(visible) {
 
     // console.info('Showing and focusing options panel!');
     optionsPanel.style.display = 'block';
-    if (optionsPanel.activePage === 1 && (isWatchPage())) sponsorBlockUI.togglePopup(true);
+    if (optionsPanel.activePage === 1 && isWatchPage()) sponsorBlockUI.togglePopup(true);
     else sponsorBlockUI.togglePopup(false);
 
     // Find best initial focus
@@ -725,22 +879,30 @@ function showOptionsPanel(visible) {
 }
 
 // Trap focus inside options panel when visible
-document.addEventListener('focus', (e) => {
-  if (!optionsPanelVisible || !optionsPanel) return;
-  const target = e.target;
-  const isSafeFocus = (optionsPanel && optionsPanel.contains(target)) || (target.closest && target.closest('.sb-segments-popup'));
-  if (isSafeFocus) lastSafeFocus = target;
-  else {
-    e.stopPropagation();
-    e.preventDefault();
-    if (lastSafeFocus && lastSafeFocus.isConnected) lastSafeFocus.focus();
+document.addEventListener(
+  'focus',
+  e => {
+    if (!optionsPanelVisible || !optionsPanel) return;
+    const target = e.target;
+    const isSafeFocus =
+      (optionsPanel && optionsPanel.contains(target)) ||
+      (target.closest && target.closest('.sb-segments-popup'));
+    if (isSafeFocus) lastSafeFocus = target;
     else {
-      const firstVisibleInput = Array.from(optionsPanel.querySelectorAll('input, .shortcut-control-row, .ytaf-tab-btn')).find(el => el.offsetParent !== null && !el.disabled);
-      if (firstVisibleInput) firstVisibleInput.focus();
-      else optionsPanel.focus();
+      e.stopPropagation();
+      e.preventDefault();
+      if (lastSafeFocus && lastSafeFocus.isConnected) lastSafeFocus.focus();
+      else {
+        const firstVisibleInput = Array.from(
+          optionsPanel.querySelectorAll('input, .shortcut-control-row, .ytaf-tab-btn')
+        ).find(el => el.offsetParent !== null && !el.disabled);
+        if (firstVisibleInput) firstVisibleInput.focus();
+        else optionsPanel.focus();
+      }
     }
-  }
-}, true);
+  },
+  true
+);
 
 window.ytaf_showOptionsPanel = showOptionsPanel;
 
@@ -763,7 +925,9 @@ async function skipChapter(direction = 'next') {
   }
 
   const getChapterEls = () => {
-    const bar = document.querySelector('ytlr-multi-markers-player-bar-renderer [idomkey="progress-bar"]');
+    const bar = document.querySelector(
+      'ytlr-multi-markers-player-bar-renderer [idomkey="progress-bar"]'
+    );
     if (!bar) return [];
     // Avoid creating an array copy if possible, but structure might require it.
     // Using bar.children directly in loop below.
@@ -883,7 +1047,8 @@ function performBurstSeek(seconds, video) {
 
   const SEEK_APPLY_DELAY = 300; // ms to wait before applying seek to video
   const SEEK_RESET_DELAY = 1000; // ms to wait before resetting UI (notification fade)
-  const isDirectionChange = (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
+  const isDirectionChange =
+    (seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0);
 
   // Reset on direction change
   if (isDirectionChange) {
@@ -895,7 +1060,7 @@ function performBurstSeek(seconds, video) {
   seekCount++;
 
   // Calculate new accumulator: first press, reinitialize, or double
-  seekAccumulator = (seekCount === 1 || seekAccumulator === 0) ? seconds : seekAccumulator * 2;
+  seekAccumulator = seekCount === 1 || seekAccumulator === 0 ? seconds : seekAccumulator * 2;
   pendingSeekOffset = seekAccumulator;
 
   updateSeekNotification(seekAccumulator);
@@ -931,9 +1096,13 @@ function triggerInternal(element, name) {
     // console.log(`[Shortcut] Also calling internal onSelect() for ${name}`);
     try {
       const mockEvent = {
-        type: 'click', stopPropagation: () => {
-        }, preventDefault: () => {
-        }, target: element, currentTarget: element, bubbles: true, cancelable: true
+        type: 'click',
+        stopPropagation: () => {},
+        preventDefault: () => {},
+        target: element,
+        currentTarget: element,
+        bubbles: true,
+        cancelable: true
       };
       instance.onSelect(mockEvent);
       success = true;
@@ -962,10 +1131,14 @@ function toggleSubtitlesLogic(player) {
         } else {
           const trackList = player.getOption('captions', 'tracklist');
           const videoData = player.getVideoData ? player.getVideoData() : null;
-          const targetTrack = (trackList && trackList[0]) || (videoData && videoData.captionTracks && videoData.captionTracks[0]);
+          const targetTrack =
+            (trackList && trackList[0]) ||
+            (videoData && videoData.captionTracks && videoData.captionTracks[0]);
           if (targetTrack) {
             player.setOption('captions', 'track', targetTrack);
-            showNotification(`Subtitles: ON (${targetTrack.languageName || targetTrack.name || targetTrack.languageCode})`);
+            showNotification(
+              `Subtitles: ON (${targetTrack.languageName || targetTrack.name || targetTrack.languageCode})`
+            );
             toggledViaApi = true;
           }
         }
@@ -977,7 +1150,9 @@ function toggleSubtitlesLogic(player) {
 
   // Fallback to UI clicking
   if (!toggledViaApi) {
-    const capsBtn = document.querySelector('ytlr-captions-button yt-button-container') || document.querySelector('ytlr-captions-button ytlr-button');
+    const capsBtn =
+      document.querySelector('ytlr-captions-button yt-button-container') ||
+      document.querySelector('ytlr-captions-button ytlr-button');
     if (capsBtn) {
       if (triggerInternal(capsBtn, 'Captions')) {
         setTimeout(() => {
@@ -1021,7 +1196,8 @@ function toggleCommentsLogic() {
   let isLiveChat = false;
 
   if (!commBtn) {
-    const chatTarget = document.querySelector('ytlr-live-chat-toggle-button yt-button-container') ||
+    const chatTarget =
+      document.querySelector('ytlr-live-chat-toggle-button yt-button-container') ||
       document.querySelector('yt-button-container[aria-label="Live chat"]');
     if (chatTarget) {
       commBtn = chatTarget;
@@ -1029,8 +1205,11 @@ function toggleCommentsLogic() {
     }
   }
 
-  const isBtnActive = commBtn && (commBtn.getAttribute('aria-pressed') === 'true' || commBtn.getAttribute('aria-selected') === 'true');
-    const isPanelVisible = isEngagementPanelVisible();
+  const isBtnActive =
+    commBtn &&
+    (commBtn.getAttribute('aria-pressed') === 'true' ||
+      commBtn.getAttribute('aria-selected') === 'true');
+  const isPanelVisible = isEngagementPanelVisible();
 
   if ((isBtnActive || isPanelVisible) && !isLiveChat) simulateBack();
   else if (triggerInternal(commBtn, isLiveChat ? 'Live Chat' : 'Comments')) {
@@ -1054,8 +1233,9 @@ function toggleDescriptionLogic() {
   }
 
   if (!target) {
-    let descText = Array.from(document.querySelectorAll('yt-formatted-string.XGffTd.OqGroe'))
-      .find(el => el.textContent.trim() === 'Description');
+    let descText = Array.from(document.querySelectorAll('yt-formatted-string.XGffTd.OqGroe')).find(
+      el => el.textContent.trim() === 'Description'
+    );
 
     if (descText) {
       target = descText.closest('yt-button-container');
@@ -1069,8 +1249,11 @@ function toggleDescriptionLogic() {
     }
   }
 
-  const isDescActive = target && (target.getAttribute('aria-pressed') === 'true' || target.getAttribute('aria-selected') === 'true');
-    const isPanelVisible = isEngagementPanelVisible();
+  const isDescActive =
+    target &&
+    (target.getAttribute('aria-pressed') === 'true' ||
+      target.getAttribute('aria-selected') === 'true');
+  const isPanelVisible = isEngagementPanelVisible();
 
   if (isDescActive || isPanelVisible) simulateBack();
   else if (triggerInternal(target, 'Description')) {
@@ -1094,10 +1277,7 @@ function saveToPlaylistLogic() {
   }
 
   if (!target) {
-    const queryList = [
-      'yt-button-container[aria-label="Save"]',
-      'yt-icon.p9sZp'
-    ];
+    const queryList = ['yt-button-container[aria-label="Save"]', 'yt-icon.p9sZp'];
 
     for (let i = 0; i < queryList.length; i++) {
       const el = document.querySelector(queryList[i]);
@@ -1141,18 +1321,20 @@ function refreshPageLogic() {
   const appRoot = document.querySelector('ytlr-app') || document.body;
   // console.log('[Shortcut] Triggering soft reload...');
 
-  appRoot.dispatchEvent(new CustomEvent('innertube-command', {
-    bubbles: true,
-    cancelable: false,
-    composed: true,
-    detail: commandPayload
-  }));
+  appRoot.dispatchEvent(
+    new CustomEvent('innertube-command', {
+      bubbles: true,
+      cancelable: false,
+      composed: true,
+      detail: commandPayload
+    })
+  );
 
   // showNotification('Refreshing Page...');
 }
 
 function playPauseLogic(video) {
-  const notify = (msg) => {
+  const notify = msg => {
     if (activePlayPauseNotification) {
       activePlayPauseNotification.update(msg);
     } else {
@@ -1172,7 +1354,7 @@ function playPauseLogic(video) {
   } else {
     const controls = document.querySelector('yt-focus-container[idomkey="controls"]');
     const isControlsVisible = controls && controls.classList.contains('MFDzfe--focused');
-        const isPanelVisible = isEngagementPanelVisible();
+    const isPanelVisible = isEngagementPanelVisible();
     const watchOverlay = document.querySelector('.webOs-watch');
     let needsHide = false;
 
@@ -1242,26 +1424,37 @@ function handleShortcutAction(action) {
 
       overlay = createElement('div', {
         id: 'oled-black-overlay',
-        style: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: '#000', zIndex: 9999 }
+        style: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: '#000',
+          zIndex: 9999
+        }
       });
 
       document.body.appendChild(overlay);
 
       // Keep TV awake by preventing system sleep
-      oledKeepAliveTimer = setInterval(() => {
-        // Method 1: Try webOS API if available
-        if (window.webOSDev?.connection?.setKeepAlive) {
-          try {
-            window.webOSDev.connection.setKeepAlive(true);
-          } catch (e) {
-            console.warn('[OLED] webOS setKeepAlive failed:', e);
+      oledKeepAliveTimer = setInterval(
+        () => {
+          // Method 1: Try webOS API if available
+          if (window.webOSDev?.connection?.setKeepAlive) {
+            try {
+              window.webOSDev.connection.setKeepAlive(true);
+            } catch (e) {
+              console.warn('[OLED] webOS setKeepAlive failed:', e);
+            }
           }
-        }
 
-        // Method 2: Simulate input
-        sendKey(REMOTE_KEYS.UP);
-        setTimeout(() => sendKey(REMOTE_KEYS.UP), 1000);
-      }, 2.5 * 60 * 1000);
+          // Method 2: Simulate input
+          sendKey(REMOTE_KEYS.UP);
+          setTimeout(() => sendKey(REMOTE_KEYS.UP), 1000);
+        },
+        2.5 * 60 * 1000
+      );
 
       showNotification('OLED Mode Activated');
     }
@@ -1305,7 +1498,8 @@ function handleShortcutAction(action) {
 
   // Player Actions - Require Video/Context
   const video = getVideo();
-  const player = document.getElementById(SELECTORS.PLAYER_ID) || document.querySelector('.html5-video-player');
+  const player =
+    document.getElementById(SELECTORS.PLAYER_ID) || document.querySelector('.html5-video-player');
   if (!video) return;
 
   // Check context for player actions (same check as used previously for keys 0-9)
@@ -1368,7 +1562,7 @@ function handleShortcutAction(action) {
 
 // --- Global Input Handler ---
 
-const eventHandler = (evt) => {
+const eventHandler = evt => {
   if (evt.repeat) return;
 
   // Ignore synthetic events that we create ourselves to prevent double inputs
@@ -1399,24 +1593,36 @@ const eventHandler = (evt) => {
 
   // If the user is typing in a native text box, let standard characters (like 0-9) pass through
   if (!keyColor && (evt.target.tagName === 'INPUT' || evt.target.tagName === 'TEXTAREA')) {
-      return true;
-    }
+    return true;
+  }
 
   // Release the key instantly if the action's required scope doesn't match the page
   if (actionScope === 'VIDEO' && !isVideoPage) return true;
 
   // --- Proceed to Debounce and Execution ---
 
-  const isBurstAction = action === 'seek_back' || action === 'seek_back_ex' || action === 'seek_fwd' || action === 'seek_fwd_ex';
+  const isBurstAction =
+    action === 'seek_back' ||
+    action === 'seek_back_ex' ||
+    action === 'seek_fwd' ||
+    action === 'seek_fwd_ex';
   const now = Date.now();
 
-  if (!isBurstAction && now - lastShortcutTime < shortcutDebounceTime && lastShortcutKey === keyName) {
+  if (
+    !isBurstAction &&
+    now - lastShortcutTime < shortcutDebounceTime &&
+    lastShortcutKey === keyName
+  ) {
     evt.preventDefault();
     evt.stopPropagation();
     return false;
   }
 
-  if (optionsPanelVisible && action !== 'config_menu') { evt.preventDefault(); evt.stopPropagation(); return false; }
+  if (optionsPanelVisible && action !== 'config_menu') {
+    evt.preventDefault();
+    evt.stopPropagation();
+    return false;
+  }
 
   shortcutDebounceTime = 100;
   lastShortcutTime = now;
@@ -1434,14 +1640,14 @@ document.addEventListener('keydown', eventHandler, true);
 // --- Initialization & CSS Injection ---
 
 function initGlobalStyles() {
-    // Static stylesheet — written once, never rebuilt. Toggling a class on the
-    // <html> element activates/deactivates each section. We use documentElement
-    // rather than body because YouTube's leanback app rewrites body.className
-    // on tab navigation (Home → Gaming, etc.) and would wipe our toggles.
-    // .ytaf-hide-controls stays on body because it's owned by play/pause logic,
-    // not config — YouTube never touches it.
+  // Static stylesheet — written once, never rebuilt. Toggling a class on the
+  // <html> element activates/deactivates each section. We use documentElement
+  // rather than body because YouTube's leanback app rewrites body.className
+  // on tab navigation (Home → Gaming, etc.) and would wipe our toggles.
+  // .ytaf-hide-controls stays on body because it's owned by play/pause logic,
+  // not config — YouTube never touches it.
   const style = createElement('style');
-    style.textContent = `
+  style.textContent = `
         :root { --ytaf-oled-opacity: 1; }
 
         html.ytaf-hide-logo ytlr-redux-connect-ytlr-logo-entity,
@@ -1539,24 +1745,30 @@ function initGlobalStyles() {
         }
         body .ytLrWatchDefault2025Shadow { background-color: rgba(11, 11, 11, 0.5) !important; }
     `;
-    document.head.appendChild(style);
+  document.head.appendChild(style);
 
-    const syncClass = (cls, key) => document.documentElement.classList.toggle(cls, !!configRead(key));
-    const apply = () => {
-        syncClass('ytaf-hide-logo', 'hideLogo');
-        syncClass('ytaf-fix-titles', 'fixMultilineTitles');
-        syncClass('ytaf-remove-borders', 'removeBlackBorders');
+  const syncClass = (cls, key) => document.documentElement.classList.toggle(cls, !!configRead(key));
+  const apply = () => {
+    syncClass('ytaf-hide-logo', 'hideLogo');
+    syncClass('ytaf-fix-titles', 'fixMultilineTitles');
+    syncClass('ytaf-remove-borders', 'removeBlackBorders');
   };
-    apply();
-    configAddChangeListener('hideLogo', () => syncClass('ytaf-hide-logo', 'hideLogo'));
-    configAddChangeListener('fixMultilineTitles', () => syncClass('ytaf-fix-titles', 'fixMultilineTitles'));
-    configAddChangeListener('removeBlackBorders', () => syncClass('ytaf-remove-borders', 'removeBlackBorders'));
+  apply();
+  configAddChangeListener('hideLogo', () => syncClass('ytaf-hide-logo', 'hideLogo'));
+  configAddChangeListener('fixMultilineTitles', () =>
+    syncClass('ytaf-fix-titles', 'fixMultilineTitles')
+  );
+  configAddChangeListener('removeBlackBorders', () =>
+    syncClass('ytaf-remove-borders', 'removeBlackBorders')
+  );
 }
 
 function updateLogoState() {
   const theme = configRead('uiTheme');
   const isOled = configRead('enableOledCareMode');
-  const [logoBlue, logoRed, logoDark] = ['.logo-blue', '.logo-red', '.logo-dark'].map(c => document.querySelector(`.ytaf-logo${c}`));
+  const [logoBlue, logoRed, logoDark] = ['.logo-blue', '.logo-red', '.logo-dark'].map(c =>
+    document.querySelector(`.ytaf-logo${c}`)
+  );
   if (!logoBlue || !logoRed || !logoDark) return;
 
   if (isOled) {
@@ -1586,7 +1798,7 @@ function applyOledMode(enabled) {
   // html.oled-theme-active. We toggle on documentElement (not body) because
   // YouTube rewrites body.className on navigation/panel transitions — a body
   // gate would silently drop OLED whenever YT touched the class string.
-    if (optionsPanel) optionsPanel.classList.toggle('oled-care', enabled);
+  if (optionsPanel) optionsPanel.classList.toggle('oled-care', enabled);
   setNotificationOled(enabled);
 
   document.documentElement.classList.toggle('oled-theme-active', !!enabled);
@@ -1598,7 +1810,7 @@ function applyOledMode(enabled) {
 
 function applyTheme(theme) {
   if (optionsPanel) {
-      optionsPanel.classList.toggle('theme-classic-red', theme === 'classic-red');
+    optionsPanel.classList.toggle('theme-classic-red', theme === 'classic-red');
   }
 
   setNotificationTheme(theme);
@@ -1619,12 +1831,12 @@ initVideoQuality();
 
 // Initial apply (will skip UI elements if they don't exist yet, but handle global styles)
 applyOledMode(configRead('enableOledCareMode'));
-configAddChangeListener('enableOledCareMode', (evt) => applyOledMode(evt.detail.newValue));
+configAddChangeListener('enableOledCareMode', evt => applyOledMode(evt.detail.newValue));
 
 applyTheme(configRead('uiTheme'));
-configAddChangeListener('uiTheme', (evt) => applyTheme(evt.detail.newValue));
+configAddChangeListener('uiTheme', evt => applyTheme(evt.detail.newValue));
 
-configAddChangeListener('enableAdBlock', (evt) => {
+configAddChangeListener('enableAdBlock', evt => {
   if (evt.detail.newValue) {
     initAdblock();
   } else {
@@ -1633,7 +1845,7 @@ configAddChangeListener('enableAdBlock', (evt) => {
 });
 
 // Add the listener for your new Tracking setting
-configAddChangeListener('enableTrackingBlock', (evt) => {
+configAddChangeListener('enableTrackingBlock', evt => {
   if (evt.detail.newValue) {
     initTrackingBlock();
   } else {
@@ -1651,4 +1863,7 @@ configAddChangeListener('videoShelfOpacity', () => {
 if (!configRead('enableAdBlock')) destroyAdblock();
 if (configRead('enableTrackingBlock')) initTrackingBlock();
 
-setTimeout(() => showNotification('Press GREEN to open SponsorBlock configuration'), notificationTimer);
+setTimeout(
+  () => showNotification('Press GREEN to open SponsorBlock configuration'),
+  notificationTimer
+);

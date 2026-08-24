@@ -52,10 +52,7 @@ const configs = [
       'prefer-object-has-own': 'error',
       'prefer-exponentiation-operator': 'error',
       'prefer-regex-literals': ['error', { disallowRedundantWrapping: true }],
-      'array-callback-return': [
-        'error',
-        { checkForEach: true, allowVoid: true }
-      ],
+      'array-callback-return': ['error', { checkForEach: true, allowVoid: true }],
       'no-constructor-return': 'error',
       'no-unmodified-loop-condition': 'error',
       'no-useless-assignment': 'error',

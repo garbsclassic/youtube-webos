@@ -10,7 +10,7 @@ const HAS_INTERSECTION_OBSERVER = typeof IntersectionObserver !== 'undefined';
 
 const SELECTORS = {
   panel: 'ytlr-structured-description-content-renderer',
-    mainContainer: 'zylon-provider-6',
+  mainContainer: 'zylon-provider-6',
   standardContainer: '.ytLrVideoDescriptionHeaderRendererFactoidContainer',
   compactContainer: '.rznqCe',
   stdFactoid: '.ytLrVideoDescriptionHeaderRendererFactoid',
@@ -24,7 +24,8 @@ const SELECTORS = {
   focusState: 'zylon-focus',
   legacyHighlight: 'bNqvrc',
   focusedModifier: '--focused',
-  parentWrappers: 'ytlr-video-owner-renderer, ytlr-expandable-video-description-body-renderer, ytlr-comments-entry-point-renderer, ytlr-chapter-renderer'
+  parentWrappers:
+    'ytlr-video-owner-renderer, ytlr-expandable-video-description-body-renderer, ytlr-comments-entry-point-renderer, ytlr-chapter-renderer'
 };
 
 class ReturnYouTubeDislike {
@@ -115,7 +116,7 @@ class ReturnYouTubeDislike {
     if (!this.videoID) return;
 
     const cached = dislikeCache.get(this.videoID);
-    if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       this.dislikesCount = cached.dislikes;
       return;
     }
@@ -127,7 +128,8 @@ class ReturnYouTubeDislike {
 
     try {
       const fetchOptions = {};
-      if (HAS_ABORT_CONTROLLER && this.abortController) fetchOptions.signal = this.abortController.signal;
+      if (HAS_ABORT_CONTROLLER && this.abortController)
+        fetchOptions.signal = this.abortController.signal;
 
       const response = await Promise.race([
         fetch(`https://returnyoutubedislikeapi.com/votes?videoId=${this.videoID}`, fetchOptions),
@@ -141,9 +143,9 @@ class ReturnYouTubeDislike {
 
       dislikeCache.set(this.videoID, { dislikes: this.dislikesCount, timestamp: Date.now() });
       if (dislikeCache.size > 50) dislikeCache.delete(dislikeCache.keys().next().value);
-
     } catch (error) {
-      if (!HAS_ABORT_CONTROLLER || error.name !== 'AbortError') this.log('error', 'Fetch error:', error);
+      if (!HAS_ABORT_CONTROLLER || error.name !== 'AbortError')
+        this.log('error', 'Fetch error:', error);
       this.dislikesCount = 0;
     } finally {
       if (HAS_ABORT_CONTROLLER) this.abortController = null;
@@ -153,15 +155,18 @@ class ReturnYouTubeDislike {
   // --- Observer Logic ---
   observeBodyForPanel() {
     if (!this.active) return;
-    
+
     // Clear existing interval or legacy observer if any
     if (this.bodyPollInterval) clearInterval(this.bodyPollInterval);
-    if (this.bodyObserver) { this.bodyObserver.disconnect(); this.bodyObserver = null; }
+    if (this.bodyObserver) {
+      this.bodyObserver.disconnect();
+      this.bodyObserver = null;
+    }
 
     this.bodyPollInterval = setInterval(() => {
       if (!this.active) {
-          clearInterval(this.bodyPollInterval);
-          return;
+        clearInterval(this.bodyPollInterval);
+        return;
       }
 
       if (this.panelElement) {
@@ -232,20 +237,23 @@ class ReturnYouTubeDislike {
       this.intersectionObserver.disconnect();
       this.observers.delete(this.intersectionObserver);
     }
-    this.intersectionObserver = new IntersectionObserver((entries) => {
-      if (!this.active) return;
-      if (entries[0].isIntersecting) {
-        this.checkAndInjectDislike(this.panelElement);
-        // Sync logic if focus is already inside
-        if (this.panelElement.contains(document.activeElement)) {
-          this.isPanelFocused = true;
-          this.updateVisualState(document.activeElement);
+    this.intersectionObserver = new IntersectionObserver(
+      entries => {
+        if (!this.active) return;
+        if (entries[0].isIntersecting) {
+          this.checkAndInjectDislike(this.panelElement);
+          // Sync logic if focus is already inside
+          if (this.panelElement.contains(document.activeElement)) {
+            this.isPanelFocused = true;
+            this.updateVisualState(document.activeElement);
+          }
+        } else {
+          this.isPanelFocused = false;
+          this.clearAllHighlights();
         }
-      } else {
-        this.isPanelFocused = false;
-        this.clearAllHighlights();
-      }
-    }, { threshold: 0.1 });
+      },
+      { threshold: 0.1 }
+    );
     this.intersectionObserver.observe(panelElement);
     this.observers.add(this.intersectionObserver);
   }
@@ -277,10 +285,14 @@ class ReturnYouTubeDislike {
     this.focusedIndex = -1;
     this.lastFocusedElement = null;
 
-    this.setTimeout(() => {
-      if (!this.active || !this.panelElement) return;
-      this.checkAndInjectDislike(this.panelElement);
-    }, 200, 'injectDebounce');
+    this.setTimeout(
+      () => {
+        if (!this.active || !this.panelElement) return;
+        this.checkAndInjectDislike(this.panelElement);
+      },
+      200,
+      'injectDebounce'
+    );
   }
 
   // --- Optimized Navigation Logic ---
@@ -297,32 +309,32 @@ class ReturnYouTubeDislike {
   }
 
   handleFocusIn(e) {
-      if (!this.active || this.isProgrammaticFocus) return;
+    if (!this.active || this.isProgrammaticFocus) return;
 
-      // Defensive: if our cached panel is somehow stale (the bodyObserver
-      // normally clears panelElement on disconnect, but timing races can
-      // leave it stranded), drop the reference so the focusin fallback
-      // below can rebind to whatever's actually in the DOM now.
-      if (this.panelElement && !this.panelElement.isConnected) {
-          this.panelElement = null;
-          this.isPanelFocused = false;
-          this.menuItemsCache = [];
-          this.menuItemsMap.clear();
-          this.lastFocusedElement = null;
-          this.focusedIndex = -1;
-          this.cachedMode = null;
-      }
+    // Defensive: if our cached panel is somehow stale (the bodyObserver
+    // normally clears panelElement on disconnect, but timing races can
+    // leave it stranded), drop the reference so the focusin fallback
+    // below can rebind to whatever's actually in the DOM now.
+    if (this.panelElement && !this.panelElement.isConnected) {
+      this.panelElement = null;
+      this.isPanelFocused = false;
+      this.menuItemsCache = [];
+      this.menuItemsMap.clear();
+      this.lastFocusedElement = null;
+      this.focusedIndex = -1;
+      this.cachedMode = null;
+    }
 
-      // Primary panel detection path: focus crossed into something matching
-      // the panel selector, so wire it up. The description dialog has
-      // role="dialog" and is appended to a sibling overlay container — focus
-      // is the only reliable signal we get for it on webOS.
-      if (!this.panelElement) {
-          const found = e.target.closest && e.target.closest(SELECTORS.panel);
-          if (!found) return;
-          this.setupPanel(found);
-          if (!this.panelElement) return; // setup bailed for some reason
-      }
+    // Primary panel detection path: focus crossed into something matching
+    // the panel selector, so wire it up. The description dialog has
+    // role="dialog" and is appended to a sibling overlay container — focus
+    // is the only reliable signal we get for it on webOS.
+    if (!this.panelElement) {
+      const found = e.target.closest && e.target.closest(SELECTORS.panel);
+      if (!found) return;
+      this.setupPanel(found);
+      if (!this.panelElement) return; // setup bailed for some reason
+    }
 
     // PERF: fast DOM check only on focus change
     if (this.panelElement.contains(e.target)) {
@@ -405,9 +417,16 @@ class ReturnYouTubeDislike {
     if (parentContainer) {
       const baseClass = parentContainer.classList[0];
       if (shouldFocus) {
-        parentContainer.classList.add(`${baseClass}${SELECTORS.focusedModifier}`, SELECTORS.focusState, 'zylon-ve');
+        parentContainer.classList.add(
+          `${baseClass}${SELECTORS.focusedModifier}`,
+          SELECTORS.focusState,
+          'zylon-ve'
+        );
       } else {
-        parentContainer.classList.remove(`${baseClass}${SELECTORS.focusedModifier}`, SELECTORS.focusState);
+        parentContainer.classList.remove(
+          `${baseClass}${SELECTORS.focusedModifier}`,
+          SELECTORS.focusState
+        );
       }
     }
   }
@@ -451,15 +470,15 @@ class ReturnYouTubeDislike {
 
     if (isEnter) {
       const current = this.menuItemsCache[this.focusedIndex];
-          // Only intercept Enter when the menuitem container is *itself* the
-          // active element. If focus is on a focusable descendant (e.g. the
-          // Description chip's inner <yt-button-container role="button">),
-          // the real Enter must reach YouTube's native handler — dispatching
-          // a synthetic keydown on the parent menuitem targets the wrong node
-          // and, being isTrusted=false, is rejected by YT's nav handlers
-          // anyway. Net effect of the old `contains` branch: real Enter was
-          // swallowed and the panel never opened.
-          if (current && current === document.activeElement) {
+      // Only intercept Enter when the menuitem container is *itself* the
+      // active element. If focus is on a focusable descendant (e.g. the
+      // Description chip's inner <yt-button-container role="button">),
+      // the real Enter must reach YouTube's native handler — dispatching
+      // a synthetic keydown on the parent menuitem targets the wrong node
+      // and, being isTrusted=false, is rejected by YT's nav handlers
+      // anyway. Net effect of the old `contains` branch: real Enter was
+      // swallowed and the panel never opened.
+      if (current && current === document.activeElement) {
         e.preventDefault();
         e.stopPropagation();
         this.dispatching = true;
@@ -481,7 +500,10 @@ class ReturnYouTubeDislike {
     e.stopPropagation();
 
     // Sync index if drift occurred
-    if (this.focusedIndex === -1 || (this.menuItemsCache[this.focusedIndex] !== this.lastFocusedElement)) {
+    if (
+      this.focusedIndex === -1 ||
+      this.menuItemsCache[this.focusedIndex] !== this.lastFocusedElement
+    ) {
       // Fallback to finding index if state drifted
       if (this.lastFocusedElement) {
         this.focusedIndex = this.menuItemsMap.get(this.lastFocusedElement) ?? -1;
@@ -508,7 +530,7 @@ class ReturnYouTubeDislike {
 
   triggerEnter(element) {
     if (!element) return;
-    const dispatchKey = (type) => {
+    const dispatchKey = type => {
       const evt = document.createEvent('Event');
       evt.initEvent(type, true, true);
       evt.keyCode = 13;
@@ -529,10 +551,17 @@ class ReturnYouTubeDislike {
       // Check if we already detected the mode. If so, skip the DOM queries.
       let mode = this.cachedMode;
       if (!mode) {
-        const standardContainer = panelElement.querySelector(this.modeConfigs.standard.containerSelector);
-        const compactContainer = panelElement.querySelector(this.modeConfigs.compact.containerSelector);
-        mode = standardContainer ? this.modeConfigs.standard :
-          compactContainer ? this.modeConfigs.compact : null;
+        const standardContainer = panelElement.querySelector(
+          this.modeConfigs.standard.containerSelector
+        );
+        const compactContainer = panelElement.querySelector(
+          this.modeConfigs.compact.containerSelector
+        );
+        mode = standardContainer
+          ? this.modeConfigs.standard
+          : compactContainer
+            ? this.modeConfigs.compact
+            : null;
         if (mode) this.cachedMode = mode;
       }
       if (!mode) return;
@@ -567,7 +596,6 @@ class ReturnYouTubeDislike {
       likesElement.insertAdjacentElement('afterend', dislikeElement);
       container.classList.add('ryd-ready');
       this.initialInjectionDone = true;
-
     } catch (error) {
       this.log('error', 'Injection error:', error);
     }
@@ -608,7 +636,7 @@ class ReturnYouTubeDislike {
     // Clean up the new interval
     if (this.bodyPollInterval) clearInterval(this.bodyPollInterval);
     if (this.bodyMutationRaf) cancelAnimationFrame(this.bodyMutationRaf);
-    
+
     if (this.navigationActive) {
       window.removeEventListener('keydown', this.handleNavigation, { capture: true });
       document.removeEventListener('focusin', this.handleFocusIn, { capture: true });
@@ -644,7 +672,9 @@ if (typeof window !== 'undefined') {
   };
 
   const handleHashChange = () => {
-    const urlStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+    const urlStr = window.location.hash.startsWith('#')
+      ? window.location.hash.slice(1)
+      : window.location.hash;
     if (!urlStr) {
       cleanup();
       return;
@@ -655,14 +685,16 @@ if (typeof window !== 'undefined') {
       return;
     }
 
-    if (!window.returnYouTubeDislike || window.returnYouTubeDislike.videoID !== url.searchParams.get('v')) {
+    if (
+      !window.returnYouTubeDislike ||
+      window.returnYouTubeDislike.videoID !== url.searchParams.get('v')
+    ) {
       cleanup();
       let enabled = true;
       if (typeof configRead === 'function') {
         try {
           enabled = configRead('enableReturnYouTubeDislike');
-        } catch (e) {
-        }
+        } catch (e) {}
       }
       window.returnYouTubeDislike = new ReturnYouTubeDislike(url.searchParams.get('v'), enabled);
       window.returnYouTubeDislike.init();
@@ -676,7 +708,7 @@ if (typeof window !== 'undefined') {
     setTimeout(handleHashChange, 500);
   }
   if (typeof configAddChangeListener === 'function') {
-    configAddChangeListener('enableReturnYouTubeDislike', (evt) => {
+    configAddChangeListener('enableReturnYouTubeDislike', evt => {
       cleanup();
       handleHashChange();
     });

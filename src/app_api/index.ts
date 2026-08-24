@@ -15,11 +15,7 @@ interface ResolveCommand {
 }
 
 export interface ResolveCommandHook {
-  (
-    originalFn: ResolveCommand,
-    payload: ResolveCommandPayload,
-    extra: unknown
-  ): unknown;
+  (originalFn: ResolveCommand, payload: ResolveCommandPayload, extra: unknown): unknown;
 }
 
 let registry: ResolveCommandRegistry | null = null;
@@ -28,10 +24,7 @@ export class ResolveCommandRegistry {
   #originalFn: ResolveCommand;
   #cmds = new Map<string, ResolveCommandHook>();
 
-  private resolveCommand = (
-    command: Record<string, unknown>,
-    extra?: unknown
-  ) => {
+  private resolveCommand = (command: Record<string, unknown>, extra?: unknown) => {
     console.group(`[${this.constructor.name}] Resolving`);
     console.debug(`Command:`);
     console.debug(command);
@@ -50,18 +43,14 @@ export class ResolveCommandRegistry {
 
   private constructor(hookTargetName: string) {
     if (!ResolveCommandRegistry.checkHookTarget(hookTargetName)) {
-      throw new Error(
-        `Hook target "${hookTargetName}" not found in window._yttv`
-      );
+      throw new Error(`Hook target "${hookTargetName}" not found in window._yttv`);
     }
 
     const hookTarget = window._yttv![hookTargetName] as {
       instance: { resolveCommand: ResolveCommand };
     };
 
-    this.#originalFn = hookTarget.instance.resolveCommand.bind(
-      hookTarget.instance
-    );
+    this.#originalFn = hookTarget.instance.resolveCommand.bind(hookTarget.instance);
 
     hookTarget.instance.resolveCommand = this.resolveCommand;
 
@@ -76,8 +65,7 @@ export class ResolveCommandRegistry {
       typeof target === 'function' &&
       'instance' in target &&
       typeof target.instance === 'object' &&
-      typeof (target.instance as Record<string, unknown>).resolveCommand ===
-        'function'
+      typeof (target.instance as Record<string, unknown>).resolveCommand === 'function'
     );
   }
 
@@ -98,7 +86,7 @@ export class ResolveCommandRegistry {
 
     if (hook) return hook;
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const poll = () => {
         hook = this.findHookTarget();
         if (hook) {

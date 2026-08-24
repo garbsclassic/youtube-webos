@@ -11,7 +11,13 @@ const IMG_ALT_RE = /<img([^>]+)alt="([^"]+)"([^>]*)>/g;
 
 // Only process text nodes inside elements where emojis actually render
 const ALLOWED_EMOJI_TAGS = new Set([
-  'YT-FORMATTED-STRING', 'YT-CORE-ATTRIBUTED-STRING', 'SPAN', 'DIV', 'H1', 'H2', 'H3'
+  'YT-FORMATTED-STRING',
+  'YT-CORE-ATTRIBUTED-STRING',
+  'SPAN',
+  'DIV',
+  'H1',
+  'H2',
+  'H3'
 ]);
 
 const parsedTextCache = new Map();
@@ -24,7 +30,7 @@ let frameId = null;
 let isParsing = false;
 
 const twemojiOptions = {
-  callback: function(icon) {
+  callback: function (icon) {
     return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/16.0.1/72x72/${icon}.png`;
   }
 };
@@ -34,7 +40,12 @@ function queueTextNode(node) {
   if (!val || !HAS_WRAPPED_EMOJI_RE.test(val)) return;
 
   const parent = node.parentElement;
-  if (!parent || parent.classList.contains('twemoji-injected') || !ALLOWED_EMOJI_TAGS.has(parent.tagName)) return;
+  if (
+    !parent ||
+    parent.classList.contains('twemoji-injected') ||
+    !ALLOWED_EMOJI_TAGS.has(parent.tagName)
+  )
+    return;
 
   textNodesToProcess.add(node);
 }
@@ -84,14 +95,14 @@ function processTextNode(textNode) {
 
         parsedTextCache.set(cleanEmoji, parsedHTML);
         if (parsedTextCache.size > MAX_CACHE_SIZE) {
-            // Trim oldest half rather than .clear() — Map iteration is insertion
-            // order, so dropping the first 250 keeps the most-recently-parsed
-            // emojis hot for the page the user is actually scrolling.
-            const keysIter = parsedTextCache.keys();
-            const trimCount = MAX_CACHE_SIZE >> 1;
-            for (let i = 0; i < trimCount; i++) {
-                parsedTextCache.delete(keysIter.next().value);
-            }
+          // Trim oldest half rather than .clear() — Map iteration is insertion
+          // order, so dropping the first 250 keeps the most-recently-parsed
+          // emojis hot for the page the user is actually scrolling.
+          const keysIter = parsedTextCache.keys();
+          const trimCount = MAX_CACHE_SIZE >> 1;
+          for (let i = 0; i < trimCount; i++) {
+            parsedTextCache.delete(keysIter.next().value);
+          }
         }
       } else {
         parsedHTML = cleanEmoji;
@@ -113,7 +124,8 @@ function processTextNode(textNode) {
 
         parent.insertBefore(existingSpan, currentNode.nextSibling);
         nodeToSpan.set(currentNode, existingSpan);
-        if (DEBUG_EMOJI_DOM) console.log('[Emoji-DOM-Debug] Injected new emoji-render span for:', cleanEmoji);
+        if (DEBUG_EMOJI_DOM)
+          console.log('[Emoji-DOM-Debug] Injected new emoji-render span for:', cleanEmoji);
       }
     }
 
@@ -127,7 +139,8 @@ function processTextNode(textNode) {
 }
 
 function scanElement(el) {
-  if (!ALLOWED_EMOJI_TAGS.has(el.tagName) && el.tagName !== 'BODY' && el.tagName !== 'YTLR-APP') return;
+  if (!ALLOWED_EMOJI_TAGS.has(el.tagName) && el.tagName !== 'BODY' && el.tagName !== 'YTLR-APP')
+    return;
 
   const textContent = el.textContent;
   if (!textContent || !HAS_WRAPPED_EMOJI_RE.test(textContent)) return;
@@ -140,14 +153,17 @@ function scanElement(el) {
       queuedCount++;
     }
     if (DEBUG_EMOJI_DOM && queuedCount > 0) {
-      console.log(`[Emoji-DOM-Debug] Found and queued ${queuedCount} text nodes in element:`, el.tagName);
+      console.log(
+        `[Emoji-DOM-Debug] Found and queued ${queuedCount} text nodes in element:`,
+        el.tagName
+      );
     }
   } catch (err) {
     if (DEBUG_EMOJI_DOM) console.error('[Emoji-DOM-Debug] TreeWalker error:', err);
   }
 }
 
-const emojiObs = new MutationObserver((mutations) => {
+const emojiObs = new MutationObserver(mutations => {
   if (isParsing) return;
 
   for (let i = 0; i < mutations.length; i++) {
@@ -213,7 +229,7 @@ if (document.characterSet === 'UTF-8' && getWebOSVersion() <= 4) {
   configAddChangeListener('enableLegacyEmojiFix', manageObserverState);
 
   // Pause scanning immediately on heavy nav states
-  window.addEventListener('ytaf-page-update', (e) => {
+  window.addEventListener('ytaf-page-update', e => {
     if (e.detail.isAccountSelector && isObserving) {
       textNodesToProcess.clear(); // Flush queue on big UI transitions
     }

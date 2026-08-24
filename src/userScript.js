@@ -3,9 +3,13 @@ import './domrect-polyfill';
 import './adblock.js';
 import './hooks/json-stringify';
 
-if (typeof window !== 'undefined' && typeof Node !== 'undefined' && !('isConnected' in Node.prototype)) {
+if (
+  typeof window !== 'undefined' &&
+  typeof Node !== 'undefined' &&
+  !('isConnected' in Node.prototype)
+) {
   Object.defineProperty(Node.prototype, 'isConnected', {
-    get: function() {
+    get: function () {
       return document.contains(this);
     },
     configurable: true,
@@ -38,7 +42,7 @@ import './lang-settings-fix';
 
 document.addEventListener(
   'webOSRelaunch',
-  (evt) => {
+  evt => {
     console.info('RELAUNCH:', evt, window.launchParams);
     resetActiveBypass();
     if (document.body && document.body.classList.contains(SELECTORS.ACCOUNT_SELECTOR)) {

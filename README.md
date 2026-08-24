@@ -3,6 +3,7 @@
 An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 
 ## Added Features
+
 - Full support for webOS 3, 4, 5, 6, 22, 23, 24, and 25 (2016 and newer LG TVs) (webOS 1 and 2 currently not supported)
 - Enhanced AdBlock Engine: New schema-based filtering system (cleaner Home, Search, and Shorts)
 - Filter out QR code + Shop button overlays during video playback
@@ -14,12 +15,12 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 - Guest Mode: Hides annoying "Sign in" prompts
 
 - SponsorBlock: Highlight feature added
--- All segment types added (Hook, Tangents, muted segments)
--- Color selector for all segments
--- Segment UI list replicating desktop segment list
--- Jump to highlight segment with blue button on LG remote
--- Per-segment options including auto skip, manual skip, show in progress bar, and disabled
--- Skip Segments Once option
+  -- All segment types added (Hook, Tangents, muted segments)
+  -- Color selector for all segments
+  -- Segment UI list replicating desktop segment list
+  -- Jump to highlight segment with blue button on LG remote
+  -- Per-segment options including auto skip, manual skip, show in progress bar, and disabled
+  -- Skip Segments Once option
 
 - Toggle display on/off with red button on LG remote for OLED TVs + persistent keepalive
 - Return YouTube Dislike - added to description tab in video
@@ -29,6 +30,7 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 - Bug fixes, UI fixes
 
 ## Improvements
+
 - Rewritten codebase optimized for performance and efficiency to support LG TV hardware
 
 Review changes made since 0.3.8 [here](https://github.com/garbsclassic/youtube-webos/blob/main/CHANGELOG.md)

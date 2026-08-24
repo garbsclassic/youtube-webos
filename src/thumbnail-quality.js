@@ -15,7 +15,13 @@ const PLACEHOLDER_MAX_BYTES = 5000;
 // observer will re-queue anything still on-screen if it gets evicted.
 const REQUEST_QUEUE_MAX = 50;
 
-const YT_TARGET_THUMBNAIL_NAMES = new Set(['maxresdefault', 'sddefault', 'hqdefault', 'mqdefault', 'default']);
+const YT_TARGET_THUMBNAIL_NAMES = new Set([
+  'maxresdefault',
+  'sddefault',
+  'hqdefault',
+  'mqdefault',
+  'default'
+]);
 
 // --- Pre-compiled Regular Expressions ---
 // Updated regex to properly match video IDs which can contain uppercase, dashes, and underscores.
@@ -31,72 +37,74 @@ const webpTestImgs = {
 };
 
 // --- Compatibility Fallbacks (WebOS 3 / Chrome 38) ---
-const VisibilityObserverClass = window.IntersectionObserver || class {
-  constructor(callback, options) {
-    this.callback = callback;
-    this.elements = new Set();
-    this.states = new WeakMap();
-    this.margin = options && options.rootMargin ? parseInt(options.rootMargin, 10) || 0 : 0;
-    this.interval = null;
-  }
-
-  observe(target) {
-    this.elements.add(target);
-    if (!this.interval) {
-      // Polled fallback (used on webOS 3 / Chrome 38). 600ms keeps perceived
-      // responsiveness while halving the per-tile getBoundingClientRect() reflow cost.
-      this.interval = setInterval(() => this._check(), 600);
-    }
-    setTimeout(() => this._check(), 0);
-  }
-
-  unobserve(target) {
-    this.elements.delete(target);
-    this.states.delete(target);
-    if (this.elements.size === 0 && this.interval) {
-      clearInterval(this.interval);
+const VisibilityObserverClass =
+  window.IntersectionObserver ||
+  class {
+    constructor(callback, options) {
+      this.callback = callback;
+      this.elements = new Set();
+      this.states = new WeakMap();
+      this.margin = options && options.rootMargin ? parseInt(options.rootMargin, 10) || 0 : 0;
       this.interval = null;
     }
-  }
 
-  disconnect() {
-    this.elements.clear();
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.interval = null;
-    }
-  }
-
-  _check() {
-    // Guard against document.hidden and forced reflows for empty lists
-    if (this.elements.size === 0 || document.hidden) return;
-
-    const vh = (window.innerHeight || document.documentElement.clientHeight) + this.margin;
-    const vw = (window.innerWidth || document.documentElement.clientWidth) + this.margin;
-    const entries = [];
-
-    this.elements.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      const isIntersecting = (
-        rect.width > 0 && rect.height > 0 &&
-        rect.top < vh &&
-        rect.bottom > -this.margin &&
-        rect.left < vw &&
-        rect.right > -this.margin
-      );
-
-      const previousState = this.states.get(el);
-      if (previousState !== isIntersecting) {
-        this.states.set(el, isIntersecting);
-        entries.push({ target: el, isIntersecting: isIntersecting });
+    observe(target) {
+      this.elements.add(target);
+      if (!this.interval) {
+        // Polled fallback (used on webOS 3 / Chrome 38). 600ms keeps perceived
+        // responsiveness while halving the per-tile getBoundingClientRect() reflow cost.
+        this.interval = setInterval(() => this._check(), 600);
       }
-    });
-
-    if (entries.length > 0) {
-      this.callback(entries);
+      setTimeout(() => this._check(), 0);
     }
-  }
-};
+
+    unobserve(target) {
+      this.elements.delete(target);
+      this.states.delete(target);
+      if (this.elements.size === 0 && this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
+      }
+    }
+
+    disconnect() {
+      this.elements.clear();
+      if (this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
+      }
+    }
+
+    _check() {
+      // Guard against document.hidden and forced reflows for empty lists
+      if (this.elements.size === 0 || document.hidden) return;
+
+      const vh = (window.innerHeight || document.documentElement.clientHeight) + this.margin;
+      const vw = (window.innerWidth || document.documentElement.clientWidth) + this.margin;
+      const entries = [];
+
+      this.elements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const isIntersecting =
+          rect.width > 0 &&
+          rect.height > 0 &&
+          rect.top < vh &&
+          rect.bottom > -this.margin &&
+          rect.left < vw &&
+          rect.right > -this.margin;
+
+        const previousState = this.states.get(el);
+        if (previousState !== isIntersecting) {
+          this.states.set(el, isIntersecting);
+          entries.push({ target: el, isIntersecting: isIntersecting });
+        }
+      });
+
+      if (entries.length > 0) {
+        this.callback(entries);
+      }
+    }
+  };
 
 // --- State Management ---
 let elementState = new WeakMap();
@@ -112,7 +120,7 @@ let webpSupported = false;
 function detectWebP() {
   return new Promise(resolve => {
     let img = new Image();
-    const done = (supported) => {
+    const done = supported => {
       webpSupported = supported;
       img.onload = null;
       img.onerror = null;
@@ -186,7 +194,7 @@ function parseCSSUrl(value) {
 // --- Image Loading ---
 // Use HEAD request to cut memory/bandwidth overhead
 async function testAndLoadImage(url) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const xhr = new XMLHttpRequest();
     xhr.open('HEAD', url, true);
     xhr.timeout = IMAGE_LOAD_TIMEOUT;
@@ -293,9 +301,7 @@ async function processUpgrade(element, generationId) {
   }
   if (candidates.length === 0) return;
 
-  const results = await Promise.all(
-    candidates.map(c => testAndLoadImage(c.url.href))
-  );
+  const results = await Promise.all(candidates.map(c => testAndLoadImage(c.url.href)));
 
   // Element may have been recycled while the probes were in flight.
   const currentState = elementState.get(element);
@@ -306,7 +312,8 @@ async function processUpgrade(element, generationId) {
   for (let i = 0; i < candidates.length; i++) {
     if (results[i]) {
       // Target FIFO deletion rather than full wipe
-      if (qualityCache.size >= CACHE_SIZE_LIMIT) qualityCache.delete(qualityCache.keys().next().value);
+      if (qualityCache.size >= CACHE_SIZE_LIMIT)
+        qualityCache.delete(qualityCache.keys().next().value);
       qualityCache.set(videoId, candidates[i].quality);
       applyUpgrade(candidates[i].url, candidates[i].quality);
       return;
@@ -346,24 +353,27 @@ const styleObserver = new MutationObserver(mutations => {
   }
 });
 
-const visibilityObserver = new VisibilityObserverClass((entries) => {
-  entries.forEach(entry => {
-    const node = entry.target;
+const visibilityObserver = new VisibilityObserverClass(
+  entries => {
+    entries.forEach(entry => {
+      const node = entry.target;
 
-    if (entry.isIntersecting) {
-      const s = elementState.get(node);
-      if (s && node.style.backgroundImage !== '') {
-        if (requestQueue.size >= REQUEST_QUEUE_MAX) {
-          requestQueue.delete(requestQueue.keys().next().value);
+      if (entry.isIntersecting) {
+        const s = elementState.get(node);
+        if (s && node.style.backgroundImage !== '') {
+          if (requestQueue.size >= REQUEST_QUEUE_MAX) {
+            requestQueue.delete(requestQueue.keys().next().value);
+          }
+          requestQueue.set(node, () => processUpgrade(node, s.generationId));
+          processRequestQueue();
         }
-        requestQueue.set(node, () => processUpgrade(node, s.generationId));
-        processRequestQueue();
+      } else {
+        requestQueue.delete(node);
       }
-    } else {
-      requestQueue.delete(node);
-    }
-  });
-}, { rootMargin: '100px' }); // Tightened rootMargin
+    });
+  },
+  { rootMargin: '100px' }
+); // Tightened rootMargin
 
 const domObserver = new MutationObserver(mutations => {
   for (let i = 0, len = mutations.length; i < len; i++) {
@@ -374,7 +384,11 @@ const domObserver = new MutationObserver(mutations => {
       for (let j = 0, jLen = mut.removedNodes.length; j < jLen; j++) {
         const node = mut.removedNodes[j];
         if (node.nodeType === Node.ELEMENT_NODE) {
-          const matchesFn = node.matches || node.webkitMatchesSelector || node.mozMatchesSelector || node.msMatchesSelector;
+          const matchesFn =
+            node.matches ||
+            node.webkitMatchesSelector ||
+            node.mozMatchesSelector ||
+            node.msMatchesSelector;
 
           if (matchesFn && matchesFn.call(node, YT_THUMBNAIL_SELECTOR)) {
             visibilityObserver.unobserve(node);
@@ -395,22 +409,25 @@ const domObserver = new MutationObserver(mutations => {
       for (let j = 0, jLen = addedNodes.length; j < jLen; j++) {
         const node = addedNodes[j];
         if (node.nodeType === Node.ELEMENT_NODE) {
-          const matchesFn = node.matches || node.webkitMatchesSelector || node.mozMatchesSelector || node.msMatchesSelector;
+          const matchesFn =
+            node.matches ||
+            node.webkitMatchesSelector ||
+            node.mozMatchesSelector ||
+            node.msMatchesSelector;
 
           if (matchesFn && matchesFn.call(node, YT_THUMBNAIL_SELECTOR)) {
             elementState.set(node, { generationId: 1 });
             styleObserver.observe(node, { attributes: true, attributeFilter: ['style'] });
             visibilityObserver.observe(node);
-
           } else if (node.firstElementChild) {
             const nested = node.querySelectorAll(YT_THUMBNAIL_SELECTOR);
-            for(let k = 0, kLen = nested.length; k < kLen; k++) {
-               const targetNode = nested[k];
+            for (let k = 0, kLen = nested.length; k < kLen; k++) {
+              const targetNode = nested[k];
               if (elementState.has(targetNode)) continue;
 
               elementState.set(targetNode, { generationId: 1 });
-               styleObserver.observe(targetNode, { attributes: true, attributeFilter: ['style'] });
-               visibilityObserver.observe(targetNode);
+              styleObserver.observe(targetNode, { attributes: true, attributeFilter: ['style'] });
+              visibilityObserver.observe(targetNode);
             }
           }
         }
