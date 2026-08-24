@@ -25,12 +25,14 @@ export class ResolveCommandRegistry {
   #cmds = new Map<string, ResolveCommandHook>();
 
   private resolveCommand = (command: Record<string, unknown>, extra?: unknown) => {
-    console.group(`[${this.constructor.name}] Resolving`);
-    console.debug(`Command:`);
-    console.debug(command);
-    console.debug(`Extra:`);
-    console.debug(extra);
-    console.groupEnd();
+    if (window.__ytaf_debug__) {
+      console.group(`[${this.constructor.name}] Resolving`);
+      console.debug(`Command:`);
+      console.debug(command);
+      console.debug(`Extra:`);
+      console.debug(extra);
+      console.groupEnd();
+    }
 
     for (const key of Object.keys(command)) {
       if (this.#cmds.has(key)) {
@@ -86,14 +88,28 @@ export class ResolveCommandRegistry {
 
     if (hook) return hook;
 
-    return new Promise(resolve => {
+    const BACKOFF_STEPS_MS = [0, 16, 32, 64, 128, 256, 500];
+    const TIMEOUT_MS = 30000;
+
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+      let attempt = 0;
+
       const poll = () => {
         hook = this.findHookTarget();
         if (hook) {
           resolve(hook);
-        } else {
-          setTimeout(poll, 0);
+          return;
         }
+
+        if (Date.now() - startTime >= TIMEOUT_MS) {
+          reject(new Error('Timed out waiting for a resolveCommand hook target on window._yttv'));
+          return;
+        }
+
+        const delay = BACKOFF_STEPS_MS[Math.min(attempt, BACKOFF_STEPS_MS.length - 1)];
+        attempt++;
+        setTimeout(poll, delay);
       };
       poll();
     });
@@ -121,4 +137,6 @@ export class ResolveCommandRegistry {
   }
 }
 
-ResolveCommandRegistry.getInstance();
+ResolveCommandRegistry.getInstance().catch(err => {
+  console.warn('[ResolveCommandRegistry] Failed to hook resolveCommand:', err);
+});

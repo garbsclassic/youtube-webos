@@ -50,5 +50,12 @@ const hook: ResolveCommandHook = function (resolveCommand, payload, extra) {
   return true;
 };
 
-const registry = await ResolveCommandRegistry.getInstance();
-registry.setHook('setClientSettingEndpoint', hook);
+try {
+  const registry = await ResolveCommandRegistry.getInstance();
+  registry.setHook('setClientSettingEndpoint', hook);
+} catch (err) {
+  console.warn(
+    "[lang-settings-fix] No resolveCommand hook target found; language switching will use YouTube's own path.",
+    err
+  );
+}
