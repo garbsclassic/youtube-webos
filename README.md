@@ -33,7 +33,7 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 
 - Rewritten codebase optimized for performance and efficiency to support LG TV hardware
 
-Review changes made since 0.3.8 [here](https://github.com/garbsclassic/youtube-webos/blob/main/CHANGELOG.md)
+Review the full [changelog](https://github.com/garbsclassic/youtube-webos/blob/main/CHANGELOG.md)
 
 <img width="537" height="652" alt="webOS_TV_25_Simulator_1 4 3_wUCf23ToCs" src="https://github.com/user-attachments/assets/dbf9fe00-6205-4a1c-ac13-f43271af3e23" />
 

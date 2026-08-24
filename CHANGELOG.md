@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [0.2.0] - 2026/08/23
+
+Versioning is unified from here on: this project has always been versioned and tagged as
+`0.1.x` (see git tags), but this file's own headers had drifted onto an independent `0.7.x`/
+`0.8.x` line that never matched `package.json`, `appinfo.json`, or any actual release tag.
+`0.2.0` is the first release where the changelog, the package version, and the release tag
+all agree -- no history below has been renumbered, it's simply where the old, unsynced
+numbering stops.
 
 ### Removed
 
@@ -12,6 +19,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   (Chrome 87+, webOS 22-25), removing the legacy webpack target, its polyfills
   (`core-js-pure`, `whatwg-fetch`, `regenerator-runtime`, the DOMRect and spatial-navigation
   polyfills), the legacy-webOS emoji/CJK font fix, and the `enableLegacyEmojiFix` setting.
+
+### Added
+
+- Bundled the settings-panel logos, the SponsorBlock icon, and the UI/emoji-fallback fonts
+  instead of fetching them from GitHub/Google Fonts at runtime -- the panel now opens
+  correctly with no internet connection.
+- First unit tests, using Node's built-in `node:test` (no new dependency): SponsorBlock's
+  segment binary search and chain-skip math, the adblock response-schema detector, webOS
+  version detection, and the launch-URL builder.
+- CI now runs `prettier --check`, `eslint`, `tsc -b`, and the test suite on every push/PR to
+  `dev`/`main`, and a `.husky/pre-commit` hook (previously configured but never wired up)
+  runs lint-staged locally.
+
+### Changed
+
+- `config.js` is now `config.ts`, with per-key types derived from a single schema object --
+  `configRead`/`configWrite` reject unknown or mistyped keys at compile time instead of only
+  throwing at runtime.
+- `dist/` is no longer tracked in git (it was already gitignored, but 9 build outputs had
+  been committed regardless), and `terser-webpack-plugin` is now an explicit dependency
+  instead of resolving only through webpack's own transitive copy.
+
+### Fixed
+
+- `.prettierrc.js` was two configs concatenated into one invalid file, which made Prettier
+  fail on every file and was the root cause of the codebase's mixed indentation.
+- 50 ESLint errors and 11 `tsc` errors, including a polynomial-backtracking regex in the
+  thumbnail URL matcher.
+- A console group logged on every single resolved player command, unconditionally, in
+  production builds. Now gated behind the existing debug flag.
+- An unbounded busy-poll (`setTimeout(fn, 0)`) waiting for YouTube's internal command hook,
+  which never gave up if the hook target was ever renamed. Now backs off and times out.
+- The SponsorBlock segment-list popup used its own hardcoded color/name maps instead of the
+  same config-backed source the progress-bar overlay uses, so a recolored category showed
+  two different colors in two different places.
+- `getWebOSVersion()` fell through to Chrome-version sniffing for any TV reporting a
+  `webOS.TV-YYYY` year newer than its hardcoded map, which also flips on `simulatorMode` as a
+  side effect -- a real, newer TV was being treated as a desktop simulator.
+- A voice launch whose `contentTarget` was missing `intent` (or any other malformed launch
+  shape) threw inside `handleLaunch`, leaving the app on a blank page instead of falling back
+  to the plain YouTube URL.
 
 ## [0.8.1] - 2026/07/20
 
