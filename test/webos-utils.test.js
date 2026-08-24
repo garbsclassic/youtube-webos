@@ -66,9 +66,12 @@ test('getWebOSVersion caches its result per module instance', async () => {
   assert.equal(mod.getWebOSVersion(), 22);
 });
 
-test('getWebOSVersion treats an unmapped platform year as unrecognized (documents current B-4 gap)', async () => {
-  // 2026 isn't in WEBOS_YEAR_MAP yet, so this falls through to the hardcoded
-  // default (6) rather than being treated as a newer-than-known TV.
+test('getWebOSVersion treats an unmapped future platform year as a floor, not a simulator', async () => {
+  // 2026 isn't in WEBOS_YEAR_MAP yet, but a real TV reporting it should
+  // degrade to "newest known" (year - 2000) rather than falling through to
+  // Chrome-version sniffing and being flagged as a simulator.
   const mod = await freshWebOSUtils('webOS.TV-2026');
-  assert.equal(mod.getWebOSVersion(), 6);
+  assert.equal(mod.getWebOSVersion(), 26);
+  assert.equal(mod.simulatorMode, false);
+  assert.equal(mod.isWebOS25(), true);
 });

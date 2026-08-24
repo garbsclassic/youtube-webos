@@ -65,8 +65,26 @@ test('handleLaunch removes the animation/speech/voice env params under the "k" t
   assert.equal(url.searchParams.has('env_enableVoice'), false);
 });
 
-test('handleLaunch throws when an object contentTarget has no intent (known gap, see B-5)', () => {
-  // intent.match(...) assumes intent is always a string; a voice launch that
-  // omits it currently throws instead of degrading to the plain YouTube URL.
-  assert.throws(() => launch({ contentTarget: { intentParam: 'cats' } }));
+test('handleLaunch degrades to the plain YouTube URL when an object contentTarget has no intent', () => {
+  const url = launch({ contentTarget: { intentParam: 'cats' } });
+  assert.equal(url.origin + url.pathname, 'https://www.youtube.com/tv');
+  assert.equal(url.searchParams.has('vq'), false);
+});
+
+test('handleLaunch degrades to the plain YouTube URL when contentTarget is null', () => {
+  const url = launch({ contentTarget: null });
+  assert.equal(url.origin + url.pathname, 'https://www.youtube.com/tv');
+});
+
+test('handleLaunch degrades to the plain YouTube URL instead of throwing when something unexpected blows up', () => {
+  // Any exception while building the URL -- not just the undefined-intent
+  // case -- should degrade gracefully rather than leaving the app on a
+  // blank page. A throwing getter is a deterministic way to force that path.
+  const poison = {
+    get intent() {
+      throw new Error('boom');
+    }
+  };
+  const url = launch({ contentTarget: poison });
+  assert.equal(url.origin + url.pathname, 'https://www.youtube.com/tv');
 });

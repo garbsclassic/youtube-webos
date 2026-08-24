@@ -30,6 +30,16 @@ export function getWebOSVersion() {
       console.info(`[WebOSUtils] Detected webOS ${cachedWebOSVersion} via platform year: ${year}`);
       return cachedWebOSVersion;
     }
+    // A real TV newer than our known map -- treat the year itself as a floor
+    // (year - 2000) instead of falling through to Chrome-version sniffing,
+    // which would otherwise misdetect genuine new hardware as a simulator.
+    if (year >= 2022) {
+      cachedWebOSVersion = year - 2000;
+      console.info(
+        `[WebOSUtils] Unmapped platform year ${year}; treating as webOS ${cachedWebOSVersion}`
+      );
+      return cachedWebOSVersion;
+    }
   }
 
   // 2. Check Firmware Version (Fallback for webOS 25+)
