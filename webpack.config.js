@@ -139,7 +139,7 @@ const makeConfig = env => {
                 drop_console: false,
                 drop_debugger: true,
                 passes: 4,
-                arrows: isModern,
+                arrows: !!isModern,
                 ecma: isModern ? 2020 : 5
               },
               mangle: isModern ? true : { safari10: true }

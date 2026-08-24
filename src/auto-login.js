@@ -1,12 +1,5 @@
 import { configRead, configAddChangeListener } from './config.js';
-import {
-  SELECTORS,
-  REMOTE_KEYS,
-  isGuestMode,
-  sendKey,
-  extractLaunchParams,
-  invalidateGuestModeCache
-} from './utils';
+import { SELECTORS, REMOTE_KEYS, isGuestMode, sendKey, invalidateGuestModeCache } from './utils';
 import './auto-login.css';
 
 const STORAGE_KEY = 'yt.leanback.default::recurring_actions';

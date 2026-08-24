@@ -356,7 +356,7 @@ export function initTrackingBlock() {
       return originalXHROpen.apply(this, arguments);
     };
 
-    window.XMLHttpRequest.prototype.send = function (body) {
+    window.XMLHttpRequest.prototype.send = function (_body) {
       const reqUrl = this.__adblockRequestUrl;
       if (reqUrl && TELEMETRY_REGEX.test(reqUrl)) {
         if (DEBUG) console.info('[AdBlock] Blocked telemetry XHR request:', reqUrl);
@@ -421,7 +421,7 @@ function logSchemaMiss(data, textLength) {
       info = `Top-Level Keys: [${Array.isArray(keys) ? keys.join(', ') : 'Array'}]`;
     }
     debugLog(`MISS (Fallback used) | Size: ${textLength} | ${info}`);
-  } catch (e) {
+  } catch {
     debugLog(`MISS (Fallback used) | Size: ${textLength} | Error analyzing structure`);
   }
 }
@@ -440,7 +440,7 @@ function hookedParse(text, reviver) {
     if (isShortsPage() && responseType && IGNORE_ON_SHORTS.has(responseType)) return data;
 
     if (FORCE_FALLBACK) {
-      if (DEBUG) debugLog(`FORCE_FALLBACK active. Using fallback filters.`);
+      if (DEBUG) debugLog('FORCE_FALLBACK active. Using fallback filters.');
       if (!Array.isArray(data)) applyFallbackFilters(data, cfgFlags, needsContentFiltering);
     } else if (responseType && SCHEMA_REGISTRY.paths[responseType]) {
       if (DEBUG) debugLog(`Schema Match: [${responseType}]`);

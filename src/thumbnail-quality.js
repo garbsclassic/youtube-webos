@@ -25,7 +25,7 @@ const YT_TARGET_THUMBNAIL_NAMES = new Set([
 
 // --- Pre-compiled Regular Expressions ---
 // Updated regex to properly match video IDs which can contain uppercase, dashes, and underscores.
-const YT_THUMBNAIL_PATHNAME_REGEX = /vi(?:_webp)?(\/.*?\/)([a-zA-Z0-9_-]+)(_\w*)?\.[a-zA-Z0-9]+$/;
+const YT_THUMBNAIL_PATHNAME_REGEX = /vi(?:_webp)?(\/.*?\/)([\w-]+)\.[a-zA-Z0-9]+$/;
 const CSS_URL_REGEX = /url\(['"]?([^'"]+?)['"]?\)/;
 const AMPERSAND_REGEX = /&amp;/g;
 const I_DOMAIN_REGEX = /^i\d/;
@@ -185,7 +185,7 @@ function parseCSSUrl(value) {
       urlCache.set(value, url);
       return url;
     }
-  } catch (e) {
+  } catch {
     // Invalid URL
   }
   return undefined;
@@ -249,7 +249,6 @@ async function processUpgrade(element, generationId) {
   const pathMatch = currentUrl.pathname.match(YT_THUMBNAIL_PATHNAME_REGEX);
   if (!pathMatch) return;
   const videoId = pathMatch[1].replace(/\//g, '');
-  const thumbName = pathMatch[2];
 
   // Cache dataset accesses to prevent garbage generation in Chrome 38
   const ds = element.dataset;
@@ -466,7 +465,7 @@ async function enableObserver() {
         null,
         2000
       );
-    } catch (e) {
+    } catch {
       appContainer = document.body;
       console.warn('[ThumbnailFix] Container not found, using body');
     }

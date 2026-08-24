@@ -92,7 +92,9 @@ class ReturnYouTubeDislike {
   }
 
   clearAllTimers() {
-    Object.keys(this.timers).forEach(key => clearTimeout(this.timers[key]));
+    Object.keys(this.timers).forEach(key => {
+      clearTimeout(this.timers[key]);
+    });
     this.timers = {};
   }
 
@@ -267,7 +269,9 @@ class ReturnYouTubeDislike {
 
     // Optimization: Build Map for O(1) lookup
     this.menuItemsMap.clear();
-    this.menuItemsCache.forEach((item, index) => this.menuItemsMap.set(item, index));
+    this.menuItemsCache.forEach((item, index) => {
+      this.menuItemsMap.set(item, index);
+    });
 
     // Reset index
     this.focusedIndex = -1;
@@ -349,7 +353,7 @@ class ReturnYouTubeDislike {
     }
   }
 
-  handleFocusOut(e) {
+  handleFocusOut(_e) {
     if (this.isProgrammaticFocus) return;
     // Delay to allow focus to land on new element
     setTimeout(() => {
@@ -513,7 +517,7 @@ class ReturnYouTubeDislike {
       if (this.focusedIndex === -1) this.focusedIndex = 0;
     }
 
-    let nextIndex = this.focusedIndex;
+    let nextIndex;
     if (isDown) {
       nextIndex = (this.focusedIndex + 1) % this.menuItemsCache.length;
     } else {
@@ -630,7 +634,9 @@ class ReturnYouTubeDislike {
     if (HAS_ABORT_CONTROLLER && this.abortController) this.abortController.abort();
 
     this.clearAllTimers();
-    this.observers.forEach(obs => obs.disconnect());
+    this.observers.forEach(obs => {
+      obs.disconnect();
+    });
     this.observers.clear();
 
     // Clean up the new interval
@@ -694,7 +700,9 @@ if (typeof window !== 'undefined') {
       if (typeof configRead === 'function') {
         try {
           enabled = configRead('enableReturnYouTubeDislike');
-        } catch (e) {}
+        } catch {
+          /* ignore */
+        }
       }
       window.returnYouTubeDislike = new ReturnYouTubeDislike(url.searchParams.get('v'), enabled);
       window.returnYouTubeDislike.init();
@@ -708,7 +716,7 @@ if (typeof window !== 'undefined') {
     setTimeout(handleHashChange, 500);
   }
   if (typeof configAddChangeListener === 'function') {
-    configAddChangeListener('enableReturnYouTubeDislike', evt => {
+    configAddChangeListener('enableReturnYouTubeDislike', _evt => {
       cleanup();
       handleHashChange();
     });

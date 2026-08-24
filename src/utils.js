@@ -171,7 +171,7 @@ export function isGuestMode() {
     }
 
     return (cachedGuestMode = false);
-  } catch (e) {
+  } catch {
     return (cachedGuestMode = false);
   }
 }
@@ -186,7 +186,7 @@ try {
   // Check if modern constructor works
   new KeyboardEvent('keydown');
   createEventStrategy = (type, opts) => new KeyboardEvent(type, opts);
-} catch (e) {
+} catch {
   // Fallback for webOS 3.0 / Legacy
   createEventStrategy = (type, opts) => {
     const evt = document.createEvent('KeyboardEvent');

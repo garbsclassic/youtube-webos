@@ -126,7 +126,7 @@ function isQualityAlreadyMax() {
   try {
     const currentQuality = player.getPlaybackQuality?.();
     return TARGET_QUALITIES.has(currentQuality);
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -150,7 +150,7 @@ function setLocalStorageQuality() {
           if (parsed && parsed.data) {
             cachedQualitySettings = JSON.parse(parsed.data);
           }
-        } catch (e) {
+        } catch {
           /* ignore */
         }
       }
@@ -227,7 +227,7 @@ function notifyIfUpgraded(result) {
           player.getPlaybackQualityLabel?.() || result.newQuality || 'high quality';
         showNotification(`Video quality upgraded to ${finalQuality}`);
         DEBUG && console.info('[VideoQuality] Notification shown:', finalQuality);
-      } catch (e) {
+      } catch {
         showNotification('Video quality upgraded to high quality');
       }
     }, 500);
@@ -252,7 +252,7 @@ function interceptAndUpgradeQuality(videoId) {
 
   try {
     if (wasPlaying) player.pauseVideo?.();
-  } catch (e) {
+  } catch {
     /* ignore */
   }
 
@@ -267,7 +267,7 @@ function interceptAndUpgradeQuality(videoId) {
       if (wasPlaying) {
         try {
           player.playVideo?.();
-        } catch (e) {
+        } catch {
           /* ignore */
         }
       }
@@ -368,7 +368,7 @@ function startStatePolling() {
         lastKnownState = state;
         handleStateChange(state);
       }
-    } catch (e) {
+    } catch {
       /* ignore */
     }
   }, 250);
@@ -396,7 +396,7 @@ export function destroyVideoQuality() {
   if (player) {
     try {
       player.removeEventListener?.('onStateChange', handleStateChange);
-    } catch (e) {
+    } catch {
       /* ignore */
     }
   }
@@ -404,7 +404,7 @@ export function destroyVideoQuality() {
   if (configCleanup) {
     try {
       configCleanup();
-    } catch (e) {
+    } catch {
       /* ignore */
     }
   }

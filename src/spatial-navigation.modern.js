@@ -135,7 +135,7 @@
   function navigate(dir) {
     const searchOrigin = findSearchOrigin();
     let eventTarget = searchOrigin;
-    let elementFromPosition = null;
+    let elementFromPosition;
 
     if (startingPoint) {
       elementFromPosition =
@@ -153,15 +153,14 @@
       eventTarget = document.body || document.documentElement;
     }
 
-    let container = null;
+    let container;
     if (
       (isContainer(eventTarget) || eventTarget.nodeName === 'BODY') &&
       eventTarget.nodeName !== 'INPUT'
     ) {
       if (eventTarget.nodeName === 'IFRAME')
         eventTarget = eventTarget.contentDocument.documentElement;
-      container = eventTarget;
-      let bestInsideCandidate = null;
+      let bestInsideCandidate;
 
       if (
         document.activeElement === searchOrigin ||
@@ -182,8 +181,6 @@
           if (focusingController(bestInsideCandidate, dir) || scrollingController(eventTarget, dir))
             return;
         }
-      } else {
-        container = container.getSpatialNavigationContainer();
       }
     }
 
@@ -197,7 +194,7 @@
     }
 
     const containerAction = getCSSSpatNavAction(container);
-    if (containerAction === 'scroll' && scrollingController(container, dir)) return;
+    if (containerAction === 'scroll') scrollingController(container, dir);
     else if (containerAction === 'focus')
       navigateChain(eventTarget, container, parentContainer, dir, 'all');
     else if (containerAction === 'auto')
@@ -997,19 +994,14 @@
         } else {
           points.exitPoint.y = points.entryPoint.y = Math.max(searchOrigin.top, candidateRect.top);
         }
+      } else if (isRightSide(searchOrigin, candidateRect)) {
+        points.exitPoint.x = searchOrigin.left;
+        points.entryPoint.x = Math.min(candidateRect.right, searchOrigin.left);
+      } else if (isRightSide(candidateRect, searchOrigin)) {
+        points.exitPoint.x = searchOrigin.right;
+        points.entryPoint.x = Math.max(candidateRect.left, searchOrigin.right);
       } else {
-        if (isRightSide(searchOrigin, candidateRect)) {
-          points.exitPoint.x = searchOrigin.left;
-          points.entryPoint.x = Math.min(candidateRect.right, searchOrigin.left);
-        } else if (isRightSide(candidateRect, searchOrigin)) {
-          points.exitPoint.x = searchOrigin.right;
-          points.entryPoint.x = Math.max(candidateRect.left, searchOrigin.right);
-        } else {
-          points.exitPoint.x = points.entryPoint.x = Math.max(
-            searchOrigin.left,
-            candidateRect.left
-          );
-        }
+        points.exitPoint.x = points.entryPoint.x = Math.max(searchOrigin.left, candidateRect.left);
       }
     }
     return points;

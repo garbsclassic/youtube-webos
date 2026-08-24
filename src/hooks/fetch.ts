@@ -1,10 +1,6 @@
-import { CustomEventTarget, TypedCustomEvent } from '../custom-event-target';
+import { CustomEventTarget, TypedCustomEvent, type EventListenerArg } from '../custom-event-target';
 
-export interface StringConvertible {
-  toString(): string;
-}
-
-export type FetchTarget = Request | StringConvertible;
+export type FetchTarget = string | URL | Request;
 
 let registry: FetchRegistry | null = null;
 
@@ -30,18 +26,25 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     response: 0
   };
 
-  override addEventListener(type: any, callback: any, options?: any): void {
+  override addEventListener<K extends keyof EventMap & string>(
+    type: K,
+    callback: EventListenerArg<FetchRegistry, EventMap, K>,
+    options?: boolean | AddEventListenerOptions
+  ): void {
     super.addEventListener(type, callback, options);
     if (callback && (type === 'request' || type === 'response')) {
-      this.#listenerCounts[type as 'request' | 'response']++;
+      this.#listenerCounts[type]++;
     }
   }
 
-  override removeEventListener(type: any, callback: any, options?: any): void {
+  override removeEventListener<K extends keyof EventMap & string>(
+    type: K,
+    callback: EventListenerArg<FetchRegistry, EventMap, K>,
+    options?: boolean | EventListenerOptions
+  ): void {
     super.removeEventListener(type, callback, options);
     if (callback && (type === 'request' || type === 'response')) {
-      const key = type as 'request' | 'response';
-      if (this.#listenerCounts[key] > 0) this.#listenerCounts[key]--;
+      if (this.#listenerCounts[type] > 0) this.#listenerCounts[type]--;
     }
   }
 
@@ -84,7 +87,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
       this.#listenerCounts.request === 0 &&
       this.#listenerCounts.response === 0
     ) {
-      return this.#originalFetch(resource as Parameters<typeof fetch>[0], init);
+      return this.#originalFetch(resource, init);
     }
 
     if (window.__ytaf_debug__) {

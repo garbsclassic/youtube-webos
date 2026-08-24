@@ -953,7 +953,7 @@ class SponsorBlockHandler {
     }
 
     // Check the predicted segment index first (O(1)) before Binary Search (O(log N))
-    let segmentIdx = -1;
+    let segmentIdx;
     const expectedSeg = this.skipSegments[this.nextSegmentIndex];
 
     if (expectedSeg && currentTime >= expectedSeg.start) {
@@ -1064,7 +1064,9 @@ class SponsorBlockHandler {
     this.lastSkipTime = currentTime;
     this.lastSkippedSegmentIndex = segmentIdx;
 
-    segmentsToMark.forEach(idx => this.skippedSegmentIndices.add(idx));
+    segmentsToMark.forEach(idx => {
+      this.skippedSegmentIndices.add(idx);
+    });
 
     if (this.isLegacyWebOSVer) {
       const duration = this.video.duration;
@@ -1265,7 +1267,9 @@ class SponsorBlockHandler {
       this.boundResize = null;
     }
 
-    this.rafIds.forEach(id => cancelAnimationFrame(id));
+    this.rafIds.forEach(id => {
+      cancelAnimationFrame(id);
+    });
     this.rafIds.clear();
     this.stopHighFreqLoop();
 
@@ -1297,11 +1301,15 @@ class SponsorBlockHandler {
     // remove. It only styles elements that exist while SB is active.
 
     this.listeners.forEach((events, elem) => {
-      events.forEach((handler, type) => elem.removeEventListener(type, handler));
+      events.forEach((handler, type) => {
+        elem.removeEventListener(type, handler);
+      });
     });
     this.listeners.clear();
 
-    this.observers.forEach(obs => obs.disconnect());
+    this.observers.forEach(obs => {
+      obs.disconnect();
+    });
     this.observers.clear();
 
     this.configListeners.forEach(({ key, callback }) => {
@@ -1353,7 +1361,7 @@ if (typeof window !== 'undefined') {
             }
           }
         }
-      } catch (e) {
+      } catch {
         /* ignore */
       }
 

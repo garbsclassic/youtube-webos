@@ -5,6 +5,11 @@ type TypedEventPartial<T extends EventTarget, U> = {
 
 type BaseTypedEvent<T extends EventTarget, E extends Event, U> = E & TypedEventPartial<T, U>;
 
+type TypedEvent<T, U> = {
+  readonly currentTarget: T | null;
+  readonly type: U;
+};
+
 type EventInstanceType<T, O> = T extends abstract new (type: string, options?: O) => infer R
   ? R
   : never;
@@ -32,27 +37,18 @@ type EventMapValue<T extends EmptyEventMap, K extends keyof T & string> = T[K] e
   ? T[K]
   : never;
 
-interface EventListener<
-  Self extends EventTarget,
-  T extends EmptyEventMap,
-  EventName extends keyof T
-> {
+interface EventListener<Self, T extends EmptyEventMap, EventName extends keyof T> {
   (this: Self, evt: T[EventName] & TypedEvent<Self, EventName>): void;
 }
 
-interface EventListenerObject<
-  Self extends EventTarget,
-  T extends EmptyEventMap,
-  EventName extends keyof T
-> {
+interface EventListenerObject<Self, T extends EmptyEventMap, EventName extends keyof T> {
   handleEvent: EventListener<Self, T, EventName>;
 }
 
-type EventListenerArg<
-  Self extends EventTarget,
-  T extends EmptyEventMap,
-  EventName extends keyof T
-> = EventListener<Self, T, EventName> | EventListenerObject<Self, T, EventName> | null;
+export type EventListenerArg<Self, T extends EmptyEventMap, EventName extends keyof T> =
+  | EventListener<Self, T, EventName>
+  | EventListenerObject<Self, T, EventName>
+  | null;
 
 interface CustomEventTarget<T extends EmptyEventMap> {
   addEventListener<K extends keyof T & string>(

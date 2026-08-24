@@ -89,7 +89,7 @@ class PerfMonitor {
         }
       });
       observer.observe({ type: 'longtask', buffered: true });
-    } catch (e) {
+    } catch {
       console.warn('[PerfMon] Long Task API not supported on this webOS version.');
     }
 
@@ -109,7 +109,9 @@ class PerfMonitor {
         }
       });
       resObserver.observe({ type: 'resource', buffered: true });
-    } catch (e) {}
+    } catch {
+      /* Resource timing API not supported */
+    }
   }
 
   // 4. Intercept and profile MutationObservers (Huge performance drainer)
@@ -139,9 +141,10 @@ class PerfMonitor {
   }
 
   getWorstMutations() {
-    const entries = Object.entries(this.mutationStats).map(([caller, stats]) => {
-      return { caller: caller, ...stats };
-    });
+    const entries = Object.entries(this.mutationStats).map(([caller, stats]) => ({
+      caller: caller,
+      ...stats
+    }));
     // Sort by total time hogged by the CPU
     entries.sort((a, b) => b.totalTime - a.totalTime);
     return entries.slice(0, 3);

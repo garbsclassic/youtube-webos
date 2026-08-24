@@ -175,18 +175,18 @@ const createElement = (tag, props = {}, ...children) => {
   const el = document.createElement(tag);
 
   for (const key in props) {
-    if (Object.prototype.hasOwnProperty.call(props, key)) {
+    if (Object.hasOwn(props, key)) {
       const val = props[key];
       if (key === 'style' && typeof val === 'object') {
         for (const styleKey in val) {
-          if (Object.prototype.hasOwnProperty.call(val, styleKey)) {
+          if (Object.hasOwn(val, styleKey)) {
             el.style[styleKey] = val[styleKey];
           }
         }
       } else if (key === 'class') el.className = val;
       else if (key === 'events' && typeof val === 'object') {
         for (const evt in val) {
-          if (Object.prototype.hasOwnProperty.call(val, evt)) {
+          if (Object.hasOwn(val, evt)) {
             el.addEventListener(evt, val[evt]);
           }
         }

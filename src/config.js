@@ -147,7 +147,7 @@ function flushPendingWrite() {
   pendingWriteTimer = null;
   try {
     window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
-  } catch (e) {
+  } catch {
     /* quota / SecurityError on private mode */
   }
 }
@@ -157,7 +157,7 @@ function scheduleWrite() {
     pendingWriteTimer = null;
     try {
       window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
-    } catch (e) {
+    } catch {
       /* ignore */
     }
   }, 200);
