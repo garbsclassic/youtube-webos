@@ -8,7 +8,7 @@ export const segmentTypes = {
   selfpromo: { color: '#ffff00', opacity: '0.7', name: 'self-promotion' },
   musicofftopic: { color: '#ff9900', opacity: '0.7', name: 'non-music segment' },
   preview: { color: '#008fd6', opacity: '0.7', name: 'recap or preview' },
-  poi_highlight: { color: '#ff1684', opacity: '0.8', name: 'poi_highlight' },
+  poi_highlight: { color: '#ff1684', opacity: '0.8', name: 'highlight' },
   filler: { color: '#7300ff', opacity: '0.7', name: 'tangents/jokes' },
   hook: { color: '#395699', opacity: '0.7', name: 'hook/greetings' }
 };

@@ -1,4 +1,5 @@
 import './sponsorblock-ui.css';
+import { configRead, segmentTypes } from './config.js';
 
 const sponsorBlockIcon =
   'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
@@ -18,35 +19,12 @@ class SponsorBlockUI {
   }
 
   getSegmentColor(category) {
-    const colors = {
-      sponsor: '#00d400',
-      intro: '#00ffff',
-      outro: '#0202ed',
-      interaction: '#cc00ff',
-      selfpromo: '#ffff00',
-      musicofftopic: '#ff9900',
-      preview: '#008fd6',
-      filler: '#7300FF',
-      poi_highlight: '#ff1684',
-      hook: '#395699'
-    };
-    return colors[category] || '#777';
+    return configRead(`${category}Color`) || segmentTypes[category]?.color || '#777';
   }
 
   getCategoryName(category) {
-    const names = {
-      sponsor: 'Sponsor',
-      intro: 'Intermission/Intro',
-      outro: 'Endcards/Credits',
-      interaction: 'Interaction',
-      selfpromo: 'Unpaid/Self Promotion',
-      musicofftopic: 'Non-Music Section',
-      preview: 'Preview/Recap',
-      poi_highlight: 'Highlight',
-      filler: 'Filler/Tangents',
-      hook: 'Hook/Greetings'
-    };
-    return names[category] || category.charAt(0).toUpperCase() + category.slice(1);
+    const name = segmentTypes[category]?.name || category;
+    return name.charAt(0).toUpperCase() + name.slice(1);
   }
 
   createPopup() {
