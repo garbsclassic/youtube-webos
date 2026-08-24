@@ -1,5 +1,5 @@
 /*global navigate*/
-import './spatial-navigation-polyfill.js';
+import './spatial-navigation.js';
 import {
   configAddChangeListener,
   configGetDefault,
@@ -31,7 +31,6 @@ import {
   getVideo
 } from './utils.js';
 import { initAdblock, destroyAdblock, initTrackingBlock, destroyTrackingBlock } from './adblock.js';
-import { getWebOSVersion } from './webos-utils.js';
 import {
   showNotification as _showNotification,
   setNotificationOled,
@@ -809,10 +808,6 @@ function createOptionsPanel() {
     createConfigCheckbox('fixMultilineTitles'),
     createConfigCheckbox('removeBlackBorders')
   ];
-
-  if (getWebOSVersion() <= 4) {
-    playerUITweaks.push(createConfigCheckbox('enableLegacyEmojiFix'));
-  }
 
   pageUITweaks.appendChild(createSection('Player UI Tweaks', playerUITweaks));
 

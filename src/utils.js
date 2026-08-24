@@ -179,26 +179,6 @@ export function isGuestMode() {
 // Define Property Descriptor factory to reduce object allocation
 const createDescriptor = val => ({ get: () => val });
 
-// Feature Detect once at startup
-let createEventStrategy;
-
-try {
-  // Check if modern constructor works
-  new KeyboardEvent('keydown');
-  createEventStrategy = (type, opts) => new KeyboardEvent(type, opts);
-} catch {
-  // Fallback for webOS 3.0 / Legacy
-  createEventStrategy = (type, opts) => {
-    const evt = document.createEvent('KeyboardEvent');
-    if (evt.initKeyboardEvent) {
-      evt.initKeyboardEvent(type, true, false, window, opts.key, 0, '', false);
-    } else {
-      evt.initEvent(type, true, true);
-    }
-    return evt;
-  };
-}
-
 export function sendKey(keyDef, target = document.body) {
   if (!keyDef?.code) {
     if (process.env.NODE_ENV !== 'production') console.warn('[Utils] Invalid key definition');
@@ -217,8 +197,8 @@ export function sendKey(keyDef, target = document.body) {
     charCode: keyDef.charCode || 0
   };
 
-  const keyDownEvt = createEventStrategy('keydown', eventOpts);
-  const keyUpEvt = createEventStrategy('keyup', eventOpts);
+  const keyDownEvt = new KeyboardEvent('keydown', eventOpts);
+  const keyUpEvt = new KeyboardEvent('keyup', eventOpts);
 
   const codeDesc = createDescriptor(keyDef.code);
   const charDesc = createDescriptor(keyDef.charCode || 0);

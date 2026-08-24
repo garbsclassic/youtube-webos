@@ -1,16 +1,13 @@
 import { configGetAll, configAddChangeListener } from './config';
 import { isShortsPage } from './utils';
-import { getWebOSVersion } from './webos-utils';
 import { FetchRegistry } from './hooks';
 
 const DEBUG = false;
-const EMOJI_DEBUG = false;
 const FORCE_FALLBACK = false;
 
 let isTelemetryHooked = false;
 let originalXHROpen = null;
 let originalXHRSend = null;
-const cachedWebOSVersion = getWebOSVersion();
 
 // --- CONSTANTS & CONFIGURATION ---
 
@@ -49,15 +46,8 @@ const CONFIG_KEYS = {
   LIVE_GAMES: 'removeTopLiveGames',
   MOST_RELEVANT: 'removeMostRelevant',
   GUEST_PROMPTS: 'hideGuestSignInPrompts',
-  EMOJI_FIX: 'enableLegacyEmojiFix',
   ENDCARDS: 'hideEndcards'
 };
-
-const EMOJI_RE =
-  /[\u00A9\u00AE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|[\uD83C-\uDBFF][\uDC00-\uDFFF]/;
-const EMOJI_RE_CAP = new RegExp(`(${EMOJI_RE.source})`, 'g');
-const EMOJI_RE_GLOBAL = new RegExp(EMOJI_RE.source, 'g');
-const CLEAN_TEXT_RE = /[\u2060\uFEFF]/g;
 
 const IGNORE_ON_SHORTS = new Set(['SEARCH', 'PLAYER', 'ACTION']);
 
@@ -70,7 +60,6 @@ const RESPONSE_NEEDLE_RE = /responseContext|playerResponse|continuationContents/
 const cfgSnapshot = configGetAll();
 let anyFilterEnabled = false;
 let cfgNeedsContentFiltering = false;
-let cfgEmojiFixEffective = false;
 
 // Singleton passed to filter functions — refreshed by recomputeFilterFlags()
 // rather than re-allocated on every JSON.parse.
@@ -81,16 +70,12 @@ const cfgFlags = {
   removeTopLiveGames: false,
   removeMostRelevant: false,
   hideGuestPrompts: false,
-  enableLegacyEmojiFix: false,
   hideEndcards: false
 };
 
 function recomputeFilterFlags() {
-  cfgEmojiFixEffective = !!cfgSnapshot[CONFIG_KEYS.EMOJI_FIX] && cachedWebOSVersion <= 4;
   cfgNeedsContentFiltering = !!(
-    cfgSnapshot[CONFIG_KEYS.ADBLOCK] ||
-    cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] ||
-    cfgEmojiFixEffective
+    cfgSnapshot[CONFIG_KEYS.ADBLOCK] || cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS]
   );
 
   cfgFlags.enableAdBlock = !!cfgSnapshot[CONFIG_KEYS.ADBLOCK];
@@ -99,7 +84,6 @@ function recomputeFilterFlags() {
   cfgFlags.removeTopLiveGames = !!cfgSnapshot[CONFIG_KEYS.LIVE_GAMES];
   cfgFlags.removeMostRelevant = !!cfgSnapshot[CONFIG_KEYS.MOST_RELEVANT];
   cfgFlags.hideGuestPrompts = !!cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS];
-  cfgFlags.enableLegacyEmojiFix = cfgEmojiFixEffective;
   cfgFlags.hideEndcards = !!cfgSnapshot[CONFIG_KEYS.ENDCARDS];
 
   anyFilterEnabled = !!(
@@ -109,7 +93,6 @@ function recomputeFilterFlags() {
     cfgFlags.removeTopLiveGames ||
     cfgFlags.removeMostRelevant ||
     cfgFlags.hideGuestPrompts ||
-    cfgFlags.enableLegacyEmojiFix ||
     cfgFlags.hideEndcards
   );
 }
@@ -206,117 +189,25 @@ function debugLog(msg, ...args) {
   if (DEBUG) console.log(`[AdBlock] ${msg}`, ...args);
 }
 
-function processEmojiString(str) {
-  if (typeof str !== 'string' || !str) return str;
-  let cleanedStr = str.replace(CLEAN_TEXT_RE, '');
-  if (cleanedStr.includes('\u200B') && cleanedStr.includes('\u200C')) return cleanedStr;
-
-  const replaced = cleanedStr.replace(EMOJI_RE_GLOBAL, '\u200B$&\u200C');
-  if (EMOJI_DEBUG && replaced !== str) {
-    console.log(`[AdBlock-Emoji] Wrapped emoji in string: "${str}"`);
-  }
-  return replaced;
-}
-
-function splitIntoRuns(text, originalRun = {}) {
-  if (text.includes('\u200B') || text.includes('\u200C')) return null;
-
-  const cleanText = text.replace(CLEAN_TEXT_RE, '');
-  if (!EMOJI_RE.test(cleanText)) return null;
-
-  const parts = cleanText.split(EMOJI_RE_CAP);
-  const newRuns = [];
-
-  for (let i = 0; i < parts.length; i++) {
-    if (!parts[i]) continue;
-    if (i % 2 === 1) {
-      newRuns.push(Object.assign({}, originalRun, { text: '\u200B' + parts[i] + '\u200C' }));
-    } else {
-      newRuns.push(Object.assign({}, originalRun, { text: parts[i] }));
-    }
-  }
-  return newRuns;
-}
-
-// Non-recursive: process the emoji/text fields of a single node in place.
-// Extracted from the old findAndProcessText so walkAndProcess can apply it
-// per node without a recursive walk of its own. Callers (walkAndProcess)
-// guarantee obj is a non-null object before invoking this.
-function processTextFieldsInPlace(obj) {
-  if (typeof obj.simpleText === 'string') {
-    const runs = splitIntoRuns(obj.simpleText);
-    if (runs) {
-      obj.runs = runs;
-      delete obj.simpleText;
-    } else {
-      obj.simpleText = obj.simpleText.replace(CLEAN_TEXT_RE, '');
-    }
-  }
-
-  if (typeof obj.sectionString === 'string') {
-    obj.sectionString = processEmojiString(obj.sectionString);
-  }
-
-  if (typeof obj.content === 'string' && EMOJI_RE.test(obj.content)) {
-    obj.content = processEmojiString(obj.content);
-  }
-
-  if (Array.isArray(obj.runs)) {
-    let newRuns = [];
-    let changed = false;
-    for (let i = 0; i < obj.runs.length; i++) {
-      let run = obj.runs[i];
-      if (run && typeof run.text === 'string') {
-        const split = splitIntoRuns(run.text, run);
-        if (split) {
-          newRuns.push(...split);
-          changed = true;
-        } else {
-          run.text = run.text.replace(CLEAN_TEXT_RE, '');
-          newRuns.push(run);
-        }
-      } else {
-        newRuns.push(run);
-      }
-    }
-    if (changed) obj.runs = newRuns;
-  }
-}
-
-// Combined depth-limited walk: emoji text processing (doEmoji) and/or
-// trackingParams stripping (doTracking) in a single traversal. Replaces the
-// two structurally identical recursive walkers (the old findAndProcessText
-// recursion and stripTrackingParams) so large JSON.parse responses are walked
-// once instead of twice.
-function walkAndProcess(obj, doEmoji, doTracking, maxDepth, currentDepth = 0) {
+// Depth-limited walk that strips trackingParams from every node.
+function walkAndProcess(obj, maxDepth, currentDepth = 0) {
   if (!obj || typeof obj !== 'object' || currentDepth > maxDepth) return;
 
-  if (doTracking && typeof obj.trackingParams === 'string') obj.trackingParams = '';
-  // NOTE: do NOT strip clickTrackingParams here — that breaks clicking endcards.
-
-  if (doEmoji) processTextFieldsInPlace(obj);
+  if (typeof obj.trackingParams === 'string') obj.trackingParams = '';
+  // NOTE: do NOT strip clickTrackingParams here -- that breaks clicking endcards.
 
   if (Array.isArray(obj)) {
     for (let i = 0; i < obj.length; i++) {
       const v = obj[i];
-      if (v && typeof v === 'object')
-        walkAndProcess(v, doEmoji, doTracking, maxDepth, currentDepth + 1);
+      if (v && typeof v === 'object') walkAndProcess(v, maxDepth, currentDepth + 1);
     }
   } else {
     const keys = Object.keys(obj);
     for (let i = 0; i < keys.length; i++) {
       const v = obj[keys[i]];
-      if (v && typeof v === 'object')
-        walkAndProcess(v, doEmoji, doTracking, maxDepth, currentDepth + 1);
+      if (v && typeof v === 'object') walkAndProcess(v, maxDepth, currentDepth + 1);
     }
   }
-}
-
-// Thin wrapper preserving the old signature so per-item call sites in
-// filterItemsOptimized / processSectionListOptimized / applySchemaFilters are
-// untouched.
-function findAndProcessText(obj, maxDepth = 20) {
-  walkAndProcess(obj, true, false, maxDepth);
 }
 
 const telemetryFetchHandler = evt => {
@@ -454,17 +345,8 @@ function hookedParse(text, reviver) {
     }
 
     if (cfgFlags.enableTrackingBlock) {
-      // Single combined pass: strip trackingParams across the whole tree,
-      // then (if enabled) wrap emoji on frameworkUpdates as a small targeted
-      // walk on top. Preserves the original depths (15 tracking / 20 emoji)
-      // and replaces the old separate stripTrackingParams + emoji traversals.
-      walkAndProcess(data, false, true, 15);
+      walkAndProcess(data, 15);
       if (DEBUG) debugLog('Stripped trackingParams globally');
-      if (cfgFlags.enableLegacyEmojiFix && data.frameworkUpdates) {
-        walkAndProcess(data.frameworkUpdates, true, false, 20);
-      }
-    } else if (cfgFlags.enableLegacyEmojiFix && data.frameworkUpdates) {
-      walkAndProcess(data.frameworkUpdates, true, false, 20);
     }
   } catch (e) {
     if (DEBUG) console.error('[AdBlock] Error during filtering:', e);
@@ -580,17 +462,11 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
             debugLog(`CONTINUATION (Horizontal): Removed ${oldLen - horizItems.length} items`);
         }
       }
-      if (config.enableLegacyEmojiFix && data.continuationContents) {
-        findAndProcessText(data.continuationContents, 20);
-      }
       break;
     case 'ACTION': {
       const actions = data.onResponseReceivedActions || data.onResponseReceivedEndpoints;
       if (Array.isArray(actions)) {
         processActions(actions, config, needsContentFiltering);
-        if (config.enableLegacyEmojiFix) {
-          findAndProcessText(actions, 20);
-        }
       }
       break;
     }
@@ -625,15 +501,6 @@ function applySchemaFilters(data, responseType, config, needsContentFiltering) {
             needsContentFiltering,
             `${responseType} (Pivot)`
           );
-      }
-      if (config.enableLegacyEmojiFix) {
-        if (responseType === 'NEXT') {
-          findAndProcessText(getByPath(data, ['contents', 'singleColumnWatchNextResults']));
-          findAndProcessText(getByPath(data, ['playerOverlays']));
-          findAndProcessText(getByPath(data, ['engagementPanels']), 20);
-        } else if (responseType === 'PLAYER') {
-          findAndProcessText(getByPath(data, ['videoDetails']));
-        }
       }
       break;
   }
@@ -760,8 +627,7 @@ function processSectionListOptimized(contents, config, needsContentFiltering, co
     removeGlobalShorts,
     removeTopLiveGames,
     removeMostRelevant,
-    hideGuestPrompts,
-    enableLegacyEmojiFix
+    hideGuestPrompts
   } = config;
   const initialCount = contents.length;
   let writeIdx = 0;
@@ -799,7 +665,6 @@ function processSectionListOptimized(contents, config, needsContentFiltering, co
     }
 
     if (keepItem) {
-      if (enableLegacyEmojiFix) findAndProcessText(item, 20);
       if (writeIdx !== i) contents[writeIdx] = item;
       writeIdx++;
     }
@@ -817,7 +682,7 @@ function processSectionListOptimized(contents, config, needsContentFiltering, co
 
 function filterItemsOptimized(items, config, needsContentFiltering) {
   if (!Array.isArray(items) || items.length === 0) return items;
-  const { enableAdBlock, removeGlobalShorts, hideGuestPrompts, enableLegacyEmojiFix } = config;
+  const { enableAdBlock, removeGlobalShorts, hideGuestPrompts } = config;
   if (!removeGlobalShorts && !needsContentFiltering) return items;
 
   let writeIdx = 0;
@@ -857,7 +722,6 @@ function filterItemsOptimized(items, config, needsContentFiltering) {
     }
 
     if (keep) {
-      if (enableLegacyEmojiFix) findAndProcessText(item, 20);
       if (writeIdx !== i) items[writeIdx] = item;
       writeIdx++;
     }

@@ -1,21 +1,5 @@
-import 'whatwg-fetch';
-import './domrect-polyfill';
 import './adblock.js';
 import './hooks/json-stringify';
-
-if (
-  typeof window !== 'undefined' &&
-  typeof Node !== 'undefined' &&
-  !('isConnected' in Node.prototype)
-) {
-  Object.defineProperty(Node.prototype, 'isConnected', {
-    get: function () {
-      return document.contains(this);
-    },
-    configurable: true,
-    enumerable: true
-  });
-}
 
 //import './perf_mon.js'; // Uncomment for testing
 
@@ -26,7 +10,6 @@ import { initBlockWebOSCast } from './block-webos-cast';
 import './app_api/index';
 import './ui.js'; // Registers the green-key handler, options panel, video-quality, global styles
 import './sponsorblock.js';
-import './emoji-font.js';
 import './thumbnail-quality.js';
 import './screensaver-fix.js';
 import './yt-fixes.css';

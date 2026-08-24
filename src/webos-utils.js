@@ -68,8 +68,3 @@ export function getWebOSVersion() {
 export function isWebOS25() {
   return getWebOSVersion() >= 25;
 }
-
-export function isLegacyWebOS() {
-  const version = getWebOSVersion();
-  return version >= 3 && version <= 6;
-}

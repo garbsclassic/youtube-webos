@@ -4,7 +4,7 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 
 ## Added Features
 
-- Full support for webOS 3, 4, 5, 6, 22, 23, 24, and 25 (2016 and newer LG TVs) (webOS 1 and 2 currently not supported)
+- Full support for webOS 22, 23, 24, and 25 (2022 and newer LG TVs)
 - Enhanced AdBlock Engine: New schema-based filtering system (cleaner Home, Search, and Shorts)
 - Filter out QR code + Shop button overlays during video playback
 - Enhanced Menu UI + Themes
@@ -61,7 +61,7 @@ Review changes made since 0.3.8 [here](https://github.com/garbsclassic/youtube-w
 
 - Use [webOS Homebrew Channel](https://github.com/webosbrew/webos-homebrew-channel) - app is available via repo link: https://raw.githubusercontent.com/garbsclassic/youtube-webos/main/repo.json
 - Use [Device Manager app](https://github.com/webosbrew/dev-manager-desktop) - see [Releases](https://github.com/garbsclassic/youtube-webos/releases) for a
-  prebuilt `.ipk` binary file. A webOS22+ .ipk is available for users on 2022+ TVs, supporting webOS22-25. These are lighter, more optimized builds for newer hardware, without translation layers needed for older TVs.
+  prebuilt `.ipk` binary file.
 - Use [webOS TV CLI tools](https://webostv.developer.lge.com/develop/tools/cli-installation) -
   `ares-install youtube...ipk` (For more information on configuring the webOS CLI tools, see [below](#development-tv-setup))
 

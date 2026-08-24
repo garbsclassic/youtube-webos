@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Removed
+
+- Dropped support for webOS 3-6 (Chrome 38 / ES5). The app now ships a single modern build
+  (Chrome 87+, webOS 22-25), removing the legacy webpack target, its polyfills
+  (`core-js-pure`, `whatwg-fetch`, `regenerator-runtime`, the DOMRect and spatial-navigation
+  polyfills), the legacy-webOS emoji/CJK font fix, and the `enableLegacyEmojiFix` setting.
+
 ## [0.8.1] - 2026/07/20
 
 ## Fixes

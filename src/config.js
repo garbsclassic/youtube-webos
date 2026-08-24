@@ -84,7 +84,6 @@ const configOptions = new Map([
   ['fixMultilineTitles', { default: true, desc: 'Fix Multiline Titles' }],
   ['removeBlackBorders', { default: false, desc: 'New Liquid Glass UI' }],
   ['forcePreviews', { default: 'disabled', desc: 'Force Previews' }],
-  ['enableLegacyEmojiFix', { default: true, desc: 'Emoji + Characters Fix' }],
   ['hideGuestSignInPrompts', { default: false, desc: 'Guest Mode: Hide Sign-in Buttons' }],
   ['forceHighResVideo', { default: false, desc: 'Force Max Quality' }],
   ['disableNotifications', { default: false, desc: 'Disable Notifications' }]
