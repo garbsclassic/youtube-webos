@@ -13,6 +13,9 @@ import {
   shortcutActions
 } from './config.js';
 import './ui.css';
+import logoBlue from './icons/NB Logo-gigapixel.png';
+import logoRed from './icons/NB Logo-gigapixel2.png';
+import logoDark from './icons/NB Logo-gigapixel4.png';
 import './auto-login.js';
 import './return-dislike.js';
 import { initVideoQuality } from './video-quality.js';
@@ -659,18 +662,9 @@ function createOptionsPanel() {
     'h1',
     {},
     createElement('span', { text: 'YouTube Extended' }),
-    createLogo(
-      'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel.png',
-      'logo-blue'
-    ),
-    createLogo(
-      'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel2.png',
-      'logo-red'
-    ),
-    createLogo(
-      'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/NB%20Logo-gigapixel4.png',
-      'logo-dark'
-    )
+    createLogo(logoBlue, 'logo-blue'),
+    createLogo(logoRed, 'logo-red'),
+    createLogo(logoDark, 'logo-dark')
   );
   elmContainer.appendChild(elmHeading);
   elmContainer.appendChild(tabMenu);

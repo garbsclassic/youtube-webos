@@ -1,8 +1,6 @@
 import './sponsorblock-ui.css';
 import { configRead, segmentTypes } from './config.js';
-
-const sponsorBlockIcon =
-  'https://raw.githubusercontent.com/garbsclassic/youtube-webos/refs/heads/main/src/icons/IconSponsorBlocker64px.png';
+import sponsorBlockIcon from './icons/IconSponsorBlocker64px.png';
 
 class SponsorBlockUI {
   constructor() {

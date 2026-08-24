@@ -87,6 +87,10 @@ const makeConfig = env => {
             }
           },
           {
+            test: /\.(png|jpe?g|svg|woff2?)$/i,
+            type: 'asset/inline'
+          },
+          {
             test: /\.css$/i,
             use: [
               { loader: 'style-loader' },
