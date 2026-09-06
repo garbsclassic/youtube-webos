@@ -401,9 +401,12 @@ function createAlignedCycleControl(configKey, displayMap) {
     label.style.alignItems = 'center';
     label.style.lineHeight = 'inherit';
 
+    // No padding of its own: the stylesheet already sizes every checkbox at 2vh with a
+    // 0.8vh side margin, so a hidden one reserves exactly the indent a real one would.
+    // Padding here inflated it past the real checkbox and pushed the label right.
     const dummyBox = createElement('input', {
       type: 'checkbox',
-      style: { visibility: 'hidden', paddingLeft: '2.2vh' }
+      style: { visibility: 'hidden' }
     });
 
     label.textContent = '';
@@ -922,7 +925,10 @@ function showOptionsPanel(visible) {
     }
 
     // console.info('Showing and focusing options panel!');
-    optionsPanel.style.display = 'block';
+    // 'flex', not 'block': .ytaf-ui-container is a flex column, and an inline 'block'
+    // overrode that, which left the settings page unable to size itself against the
+    // container and made its overflow-y: auto inert -- long pages were clipped instead.
+    optionsPanel.style.display = 'flex';
     if (optionsPanel.activePage === 1 && isWatchPage()) sponsorBlockUI.togglePopup(true);
     else sponsorBlockUI.togglePopup(false);
 

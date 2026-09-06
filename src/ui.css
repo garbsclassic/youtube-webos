@@ -456,6 +456,10 @@
 .shortcut-value-container {
   display: flex;
   align-items: center;
+  /* 2vh is the checkbox height. Without it the 2.7vh arrows inherit the row's unitless
+     0.95 line-height, giving them a 2.56vh box that made every cycle row taller than the
+     checkbox rows above and below it. */
+  line-height: 2vh;
 }
 
 .shortcut-value-container > * {
@@ -535,7 +539,10 @@
    into a scroll. Upstream used a flexbox hack because Chrome 38 has no CSS Grid; this fork
    targets Chrome 87 and can just say what it means. */
 
-#ytaf-page-main label {
+/* Both row types, not just labels: trimming only the checkbox rows left every cycle row
+   5.4px taller than its neighbours, which reads as uneven spacing down the page. */
+#ytaf-page-main label,
+#ytaf-page-main .shortcut-control-row {
   padding-top: 0.75vh;
   padding-bottom: 0.75vh;
   margin-bottom: 0.1vh;
@@ -566,4 +573,8 @@
 .ytaf-ui-container > div.ytaf-settings-page {
   overflow-y: auto;
   overflow-x: hidden;
+  /* Flex items default to min-height: auto, which refuses to shrink below their content --
+     so without this the page grows past the container and is clipped rather than scrolled. */
+  min-height: 0;
+  flex: 1 1 auto;
 }
