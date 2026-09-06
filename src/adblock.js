@@ -5,7 +5,10 @@ import { FetchRegistry } from './hooks';
 const DEBUG = false;
 const FORCE_FALLBACK = false;
 
-let isTelemetryHooked = false;
+// One flag per hook. A single flag meant a throwing fetch addEventListener still marked
+// everything hooked, and destroyTrackingBlock cleared it from the XHR branch's finally.
+let isFetchHooked = false;
+let isXHRHooked = false;
 let originalXHROpen = null;
 let originalXHRSend = null;
 
@@ -18,7 +21,8 @@ const BLOCKED_TELEMETRY_PATHS = [
   '/ptracking',
   '/api/stats/atr',
   '/api/stats/qoe',
-  '/pagead/viewthroughconversion'
+  '/pagead/',
+  '/eligibility_check'
 ];
 
 const TELEMETRY_REGEX = new RegExp(
@@ -50,9 +54,6 @@ const CONFIG_KEYS = {
 };
 
 const IGNORE_ON_SHORTS = new Set(['SEARCH', 'PLAYER', 'ACTION']);
-
-// Combined needle regex — one pass instead of three string scans per JSON.parse
-const RESPONSE_NEEDLE_RE = /responseContext|playerResponse|continuationContents/;
 
 // Snapshot of config — configGetAll() returns the live reference, so this only
 // needs to be re-bound when the module loads. Flags below are recomputed on
@@ -202,9 +203,8 @@ function walkAndProcess(obj, maxDepth, currentDepth = 0) {
       if (v && typeof v === 'object') walkAndProcess(v, maxDepth, currentDepth + 1);
     }
   } else {
-    const keys = Object.keys(obj);
-    for (let i = 0; i < keys.length; i++) {
-      const v = obj[keys[i]];
+    for (const k in obj) {
+      const v = obj[k];
       if (v && typeof v === 'object') walkAndProcess(v, maxDepth, currentDepth + 1);
     }
   }
@@ -221,12 +221,13 @@ const telemetryFetchHandler = evt => {
 };
 
 export function initTrackingBlock() {
-  if (isTelemetryHooked) return;
+  if (isFetchHooked || isXHRHooked) return;
 
   // 1. Hook Fetch (Wrapped separately so webOS 3 EventTarget failures don't break XHR)
   try {
     if (typeof FetchRegistry !== 'undefined' && FetchRegistry.getInstance) {
       FetchRegistry.getInstance().addEventListener('request', telemetryFetchHandler);
+      isFetchHooked = true; // set here -- nothing between this and add() can throw
     }
   } catch (e) {
     console.warn('[AdBlock] Fetch hook failed (expected behavior on webOS 3):', e.message);
@@ -237,37 +238,32 @@ export function initTrackingBlock() {
     originalXHROpen = window.XMLHttpRequest.prototype.open;
     originalXHRSend = window.XMLHttpRequest.prototype.send;
 
+    // The block decision belongs in open(): by send() the request is already configured,
+    // and the old path could only abort it after the fact.
     window.XMLHttpRequest.prototype.open = function (method, url) {
-      // Store the URL on the instance so we can read it during send()
-      // Fallback for older engines that might not support optional chaining properly
-      this.__adblockRequestUrl =
-        typeof url === 'string' ? url : url && url.toString ? url.toString() : '';
+      const urlStr = typeof url === 'string' ? url : url && url.toString ? url.toString() : '';
+      this.__adblockBlocked = !!urlStr && TELEMETRY_REGEX.test(urlStr);
 
-      // Use standard 'arguments' instead of spread syntax (...args) for webOS 3 compatibility
+      if (this.__adblockBlocked) {
+        if (DEBUG) console.info('[AdBlock] Blocked telemetry XHR request:', urlStr);
+        // Re-point at an empty data: URL rather than aborting. The request resolves
+        // normally with an empty 200 body, so YouTube's telemetry queue settles instead
+        // of treating the abort as a failure worth retrying.
+        const isAsync = arguments.length > 2 ? arguments[2] : true;
+        return originalXHROpen.call(this, 'GET', 'data:text/plain,', isAsync);
+      }
+
       return originalXHROpen.apply(this, arguments);
     };
 
     window.XMLHttpRequest.prototype.send = function (_body) {
-      const reqUrl = this.__adblockRequestUrl;
-      if (reqUrl && TELEMETRY_REGEX.test(reqUrl)) {
-        if (DEBUG) console.info('[AdBlock] Blocked telemetry XHR request:', reqUrl);
-        // Abort asynchronously so readystatechange/abort/loadend fire and the
-        // caller's request queue settles, instead of leaving the XHR pending
-        // forever (which can cause YT's telemetry queue to grow/retry).
-        const xhr = this;
-        setTimeout(function () {
-          try {
-            xhr.abort();
-          } catch {
-            /* already done/aborted */
-          }
-        }, 0);
-        return;
+      if (this.__adblockBlocked) {
+        return originalXHRSend.call(this); // drop the telemetry body
       }
       return originalXHRSend.apply(this, arguments);
     };
 
-    isTelemetryHooked = true;
+    isXHRHooked = true;
     console.info('[AdBlock] Telemetry network hooks enabled (XHR)');
   } catch (e) {
     console.error('[AdBlock] Failed to initialize XHR telemetry blockers:', e);
@@ -275,30 +271,36 @@ export function initTrackingBlock() {
 }
 
 export function destroyTrackingBlock() {
-  if (!isTelemetryHooked) return;
+  if (!isFetchHooked && !isXHRHooked) return;
 
   // 1. Unhook Fetch
-  try {
-    if (typeof FetchRegistry !== 'undefined' && FetchRegistry.getInstance) {
-      FetchRegistry.getInstance().removeEventListener('request', telemetryFetchHandler);
+  if (isFetchHooked) {
+    try {
+      if (typeof FetchRegistry !== 'undefined' && FetchRegistry.getInstance) {
+        FetchRegistry.getInstance().removeEventListener('request', telemetryFetchHandler);
+      }
+    } catch (e) {
+      console.warn('[AdBlock] Fetch unhook failed (expected on older engines):', e.message);
+    } finally {
+      isFetchHooked = false;
     }
-  } catch (e) {
-    console.warn('[AdBlock] Fetch unhook failed (expected on older engines):', e.message);
   }
 
   // 2. Unhook XMLHttpRequest
-  try {
-    if (originalXHROpen && originalXHRSend) {
-      window.XMLHttpRequest.prototype.open = originalXHROpen;
-      window.XMLHttpRequest.prototype.send = originalXHRSend;
-      originalXHROpen = null;
-      originalXHRSend = null;
+  if (isXHRHooked) {
+    try {
+      if (originalXHROpen && originalXHRSend) {
+        window.XMLHttpRequest.prototype.open = originalXHROpen;
+        window.XMLHttpRequest.prototype.send = originalXHRSend;
+        originalXHROpen = null;
+        originalXHRSend = null;
+      }
+    } catch (e) {
+      console.error('[AdBlock] Failed to remove XHR network blockers:', e);
+    } finally {
+      isXHRHooked = false;
+      if (DEBUG) console.info('[AdBlock] Telemetry network hooks disabled');
     }
-  } catch (e) {
-    console.error('[AdBlock] Failed to remove XHR network blockers:', e);
-  } finally {
-    isTelemetryHooked = false;
-    if (DEBUG) console.info('[AdBlock] Telemetry network hooks disabled');
   }
 }
 
@@ -318,10 +320,25 @@ function logSchemaMiss(data, textLength) {
 }
 
 function hookedParse(text, reviver) {
+  // Guards ordered cheapest-first. YouTube parses thousands of small blobs (localStorage
+  // reads, config, per-tile metadata) and none of them can be a filterable response, so
+  // those calls must cost as close to nothing as possible on top of the native parse.
+  if (!anyFilterEnabled || !text || text.length < 500) {
+    return origParse.call(this, text, reviver);
+  }
+
   const data = origParse.call(this, text, reviver);
-  if (!text || text.length < 500 || !data || typeof data !== 'object') return data;
-  if (!anyFilterEnabled) return data;
-  if (!RESPONSE_NEEDLE_RE.test(text)) return data;
+  if (!data || typeof data !== 'object') return data;
+  // Three root-property checks in place of a regex over the whole payload string. This
+  // deliberately narrows the match: a needle buried deep in an unrelated blob no longer
+  // drags it through the filters.
+  if (
+    data.responseContext === undefined &&
+    data.playerResponse === undefined &&
+    data.continuationContents === undefined
+  ) {
+    return data;
+  }
   if (data.botguardData) return data;
 
   try {
@@ -647,14 +664,24 @@ function processSectionListOptimized(contents, config, needsContentFiltering, co
         else if (removeMostRelevant && title === UI_STRINGS.MOST_RELEVANT_TITLE) keepItem = false;
       }
       if (keepItem && shelf.content) {
-        if (shelf.content.horizontalListRenderer?.items)
-          filterItemsOptimized(
-            shelf.content.horizontalListRenderer.items,
-            config,
-            needsContentFiltering
-          );
-        if (shelf.content.gridRenderer?.items)
-          filterItemsOptimized(shelf.content.gridRenderer.items, config, needsContentFiltering);
+        const horizItems = shelf.content.horizontalListRenderer?.items;
+        const gridItems = shelf.content.gridRenderer?.items;
+        if (horizItems) filterItemsOptimized(horizItems, config, needsContentFiltering);
+        if (gridItems) filterItemsOptimized(gridItems, config, needsContentFiltering);
+
+        // A shelf we emptied has to go with its items. Left in place it still has a title
+        // and a content box, so the app renders the header plus a <ytlr-ghost-surface> of
+        // skeleton tiles and waits forever for content that was already removed.
+        // Guarded on the lists having existed: a shelf whose content uses some other
+        // renderer was never filtered here and must not be judged empty.
+        if ((horizItems || gridItems) && !horizItems?.length && !gridItems?.length) {
+          keepItem = false;
+          if (DEBUG)
+            debugLog(
+              `${contextName ? contextName + ': ' : ''}Dropped emptied shelf ` +
+                `"${getShelfTitleOptimized(shelf)}"`
+            );
+        }
       }
     } else if (
       hasAdRenderer(item, enableAdBlock) ||
@@ -810,9 +837,8 @@ export function findObjects(haystack, needlesArray, maxDepth = 10) {
     }
     if (foundCount === targetCount) break;
 
-    const keys = Object.keys(currentObj);
-    for (let i = 0; i < keys.length; i++) {
-      const val = currentObj[keys[i]];
+    for (const k in currentObj) {
+      const val = currentObj[k];
       if (val && typeof val === 'object') {
         queue.push(val, currentDepth + 1);
       }
@@ -821,14 +847,34 @@ export function findObjects(haystack, needlesArray, maxDepth = 10) {
   return results;
 }
 
+/**
+ * The JSON.parse hook does more than ad filtering: it also drives guest-prompt hiding,
+ * endcard hiding and trackingParams stripping, each of which has its own setting. Gating
+ * the hook on enableAdBlock alone silently disabled all of them whenever Ad Blocking was
+ * turned off.
+ */
+export function parseHookRequired() {
+  return !!(
+    cfgSnapshot[CONFIG_KEYS.ADBLOCK] ||
+    cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] ||
+    cfgSnapshot[CONFIG_KEYS.ENDCARDS]
+  );
+}
+
+/** Install or remove the JSON.parse hook to match the current settings. */
+export function syncAdblockHook() {
+  if (parseHookRequired()) initAdblock();
+  else destroyAdblock();
+}
+
 export function initAdblock() {
   if (isHooked) return;
   if (DEBUG) console.info('[AdBlock] Initializing hybrid hook (Debug Mode: ' + DEBUG + ')');
 
   origParse = JSON.parse;
-  JSON.parse = function (text, reviver) {
-    return hookedParse.call(this, text, reviver);
-  };
+  // Assigned directly rather than wrapped in a forwarding closure: that wrapper added a
+  // call frame to every JSON.parse in the app.
+  JSON.parse = hookedParse;
   isHooked = true;
 }
 

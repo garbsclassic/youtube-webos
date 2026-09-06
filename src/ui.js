@@ -30,7 +30,7 @@ import {
   SELECTORS,
   getVideo
 } from './utils.js';
-import { initAdblock, destroyAdblock, initTrackingBlock, destroyTrackingBlock } from './adblock.js';
+import { syncAdblockHook, initTrackingBlock, destroyTrackingBlock } from './adblock.js';
 import {
   showNotification as _showNotification,
   setNotificationOled,
@@ -1825,13 +1825,11 @@ configAddChangeListener('enableOledCareMode', evt => applyOledMode(evt.detail.ne
 applyTheme(configRead('uiTheme'));
 configAddChangeListener('uiTheme', evt => applyTheme(evt.detail.newValue));
 
-configAddChangeListener('enableAdBlock', evt => {
-  if (evt.detail.newValue) {
-    initAdblock();
-  } else {
-    destroyAdblock();
-  }
-});
+// The parse hook also drives guest-prompt and endcard hiding, so every setting that needs
+// it has to re-evaluate whether it stays installed.
+configAddChangeListener('enableAdBlock', () => syncAdblockHook());
+configAddChangeListener('hideGuestSignInPrompts', () => syncAdblockHook());
+configAddChangeListener('hideEndcards', () => syncAdblockHook());
 
 // Add the listener for your new Tracking setting
 configAddChangeListener('enableTrackingBlock', evt => {
@@ -1849,7 +1847,7 @@ configAddChangeListener('videoShelfOpacity', () => {
 });
 
 // Apply initial states on boot
-if (!configRead('enableAdBlock')) destroyAdblock();
+syncAdblockHook();
 if (configRead('enableTrackingBlock')) initTrackingBlock();
 
 setTimeout(
