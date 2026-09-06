@@ -72,9 +72,9 @@ Four things that bite silently if ported naively.
 
 ### 1. Unblockers
 
-- [ ] `video-quality.js` `handleStateChange()`: dispatch `yt-player-state-change` _before_ the `_shouldForce` early return. With Force Max Quality off, `watch.js`'s clock and all of `sponsorblock.js`'s state handling are dead today; steps 4 and 6 are inert without this. Also collapse the `STATE_UNSTARTED` / `STATE_BUFFERING` cases, simplify `p.isConnected ?? document.contains(p)` to `p.isConnected`, and pass `handleNavigation` directly to the `ytaf-page-update` listener.
-- [ ] `notifications.js`: replace the `querySelectorAll('.message')` dedup scan with the module-level `liveMessages` Map. `showNotification` returns the existing message's real handle instead of `NOOP_HANDLE`, and `remove` removes `elm` rather than `existing.parentElement`. Fixes both the seek-burst notification text not updating and SponsorBlock's manual-skip notification buildup — `activeManualNotification.remove()` was a silent no-op.
-- [ ] `ui.js:399`: `window.sponsorblock?.buildOverlay()` → `drawOverlay()`. Live fork bug — recoloring a segment never redraws the overlay.
+- [x] `video-quality.js` `handleStateChange()`: dispatch `yt-player-state-change` _before_ the `_shouldForce` early return. With Force Max Quality off, `watch.js`'s clock and all of `sponsorblock.js`'s state handling are dead today; steps 4 and 6 are inert without this. Also collapse the `STATE_UNSTARTED` / `STATE_BUFFERING` cases, simplify `p.isConnected ?? document.contains(p)` to `p.isConnected`, and pass `handleNavigation` directly to the `ytaf-page-update` listener.
+- [x] `notifications.js`: replace the `querySelectorAll('.message')` dedup scan with the module-level `liveMessages` Map. `showNotification` returns the existing message's real handle instead of `NOOP_HANDLE`, and `remove` removes `elm` rather than `existing.parentElement`. Fixes both the seek-burst notification text not updating and SponsorBlock's manual-skip notification buildup — `activeManualNotification.remove()` was a silent no-op.
+- [x] `ui.js:399`: `window.sponsorblock?.buildOverlay()` → `drawOverlay()`. Live fork bug — recoloring a segment never redraws the overlay.
 
 ### 2. Security
 

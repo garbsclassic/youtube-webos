@@ -23,25 +23,25 @@ function ensureContainer() {
 
 const NOOP_HANDLE = { remove: () => {}, update: () => {} };
 
+// Live messages, keyed by text. Replaces an Array.from(querySelectorAll('.message')).find(...)
+// scan that allocated an array of every on-screen message on each call.
+const liveMessages = new Map();
+
 export function showNotification(text, time = 3000) {
   if (configRead('disableNotifications')) return NOOP_HANDLE;
 
   const container = ensureContainer();
 
-  // Reuse an existing visible message with the same text instead of stacking duplicates.
-  const existing = Array.from(container.querySelectorAll('.message')).find(
-    el => el.textContent === text && !el.classList.contains('message-hidden')
-  );
-
-  if (existing) {
-    if (existing._removeTimer) clearTimeout(existing._removeTimer);
-    if (time > 0) {
-      existing._removeTimer = setTimeout(() => {
-        existing.classList.add('message-hidden');
-        setTimeout(() => existing.parentElement && existing.parentElement.remove(), 1000);
-      }, time);
-    }
-    return NOOP_HANDLE;
+  // Reuse an existing visible message with the same text instead of stacking duplicates —
+  // just extend its timer, and hand back its real handle so callers can still remove it.
+  const existing = liveMessages.get(text);
+  if (
+    existing &&
+    existing.elmInner.isConnected &&
+    !existing.elmInner.classList.contains('message-hidden')
+  ) {
+    if (time > 0) existing.handle.update(text, time);
+    return existing.handle;
   }
 
   const elmInner = makeEl('div', 'message message-hidden', text);
@@ -57,6 +57,11 @@ export function showNotification(text, time = 3000) {
     if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
     elmInner._removeTimer = null;
     elmInner.classList.add('message-hidden');
+    if (liveMessages.get(elmInner.textContent)?.elmInner === elmInner) {
+      liveMessages.delete(elmInner.textContent);
+    }
+    // Always the same wrapper node: the old duplicate path removed `existing.parentElement`
+    // while this removed `elm` — two different nodes for the same "dismiss this".
     setTimeout(() => elm.remove(), 1000);
   };
 
@@ -70,13 +75,19 @@ export function showNotification(text, time = 3000) {
       }
       return;
     }
+    if (liveMessages.get(elmInner.textContent)?.elmInner === elmInner) {
+      liveMessages.delete(elmInner.textContent);
+    }
     elmInner.textContent = newText;
     elmInner.classList.remove('message-hidden');
     if (elmInner._removeTimer) clearTimeout(elmInner._removeTimer);
     if (newTime > 0) elmInner._removeTimer = setTimeout(remove, newTime);
+    liveMessages.set(newText, { elmInner, handle });
   };
 
-  return { remove, update };
+  const handle = { remove, update };
+  liveMessages.set(text, { elmInner, handle });
+  return handle;
 }
 
 export function setNotificationOled(enabled) {

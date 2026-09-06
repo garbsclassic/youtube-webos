@@ -396,7 +396,7 @@ function createSegmentControl(key) {
 
     configAddChangeListener(colorKey, evt => {
       colorInput.value = evt.detail.newValue;
-      window.sponsorblock?.buildOverlay();
+      window.sponsorblock?.drawOverlay();
     });
 
     extraElements = createElement(
