@@ -89,7 +89,9 @@ export function handleLaunch(params) {
       if (voiceContentIntent) search.set('va', voiceContentIntent);
       search.append('launch', 'voice');
       if (voiceContentIntent === 'search') search.append('launch', 'search');
-      search.set('vq', intentParam);
+      // Only when there is one: an unconditional set() wrote the string "undefined" as the
+      // spoken query, so an intentParam-less voice launch searched for that literally.
+      if (intentParam !== undefined && intentParam !== null) search.set('vq', intentParam);
     }
 
     if (ytURL.searchParams.get('theme') === 'k') {

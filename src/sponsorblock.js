@@ -121,6 +121,7 @@ export class SponsorBlockHandler {
     this._lastSyncSig = null;
 
     this._observedRoot = null;
+    this._finderObserver = null;
     this._barRetryTimer = null;
 
     // Cached _getProgressBarAnchor() result, keyed on progressBar identity.
@@ -713,6 +714,15 @@ export class SponsorBlockHandler {
       this.observers.delete(this._attrObserver);
       this._attrObserver = null;
     }
+    if (this._finderObserver) {
+      // The finder is document-wide. _scheduleBarRetry() re-enters here twice per 250ms
+      // tick while the bar is missing, so leaving it attached stacked up to ~80 subtree
+      // observers on <ytlr-app> over one 10s retry window -- and every one of them then
+      // fired on the same mutation and re-ran startOptimizedObserver.
+      this._finderObserver.disconnect();
+      this.observers.delete(this._finderObserver);
+      this._finderObserver = null;
+    }
 
     const OPTIMAL_SELECTOR = 'ytlr-progress-bar';
 
@@ -720,6 +730,7 @@ export class SponsorBlockHandler {
       // Observe parent to catch if the bar itself is destroyed/recreated by the framework
       const observeTarget = targetNode.parentNode || targetNode;
       this._observedRoot = observeTarget;
+      this._finderObserver = null;
       this.log('info', 'Attaching optimized observer to:', observeTarget.tagName);
 
       const scheduleCheck = () => {
@@ -769,6 +780,10 @@ export class SponsorBlockHandler {
 
       finderObserver.observe(root, { childList: true, subtree: true });
       this.observers.add(finderObserver);
+      this._finderObserver = finderObserver;
+      // The finder is the live observer until the bar turns up, so _ensureObserverAlive()
+      // has to see a connected root here or it re-enters this function on every call.
+      this._observedRoot = root;
     }
   }
 
@@ -1474,6 +1489,7 @@ export class SponsorBlockHandler {
       this._barRetryTimer = null;
     }
     this._observedRoot = null;
+    this._finderObserver = null;
     this._videoWait = null;
 
     sponsorBlockUI.togglePopup(false);

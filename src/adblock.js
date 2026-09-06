@@ -826,6 +826,9 @@ export function processSectionListOptimized(
       if (keepItem && shelf.content) {
         const horizItems = shelf.content.horizontalListRenderer?.items;
         const gridItems = shelf.content.gridRenderer?.items;
+        // Lengths before filtering: a shelf YouTube itself shipped empty -- one whose
+        // contents arrive by continuation -- must not be mistaken for one we emptied.
+        const hadItems = (horizItems?.length ?? 0) + (gridItems?.length ?? 0) > 0;
         if (horizItems) filterItemsOptimized(horizItems, config, needsContentFiltering);
         if (gridItems) filterItemsOptimized(gridItems, config, needsContentFiltering);
 
@@ -834,7 +837,7 @@ export function processSectionListOptimized(
         // skeleton tiles and waits forever for content that was already removed.
         // Guarded on the lists having existed: a shelf whose content uses some other
         // renderer was never filtered here and must not be judged empty.
-        if ((horizItems || gridItems) && !horizItems?.length && !gridItems?.length) {
+        if (hadItems && !horizItems?.length && !gridItems?.length) {
           keepItem = false;
           if (DEBUG)
             debugLog(
@@ -1020,6 +1023,7 @@ export function parseHookRequired() {
     cfgSnapshot[CONFIG_KEYS.ADBLOCK] ||
     cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] ||
     cfgSnapshot[CONFIG_KEYS.ENDCARDS] ||
+    cfgSnapshot[CONFIG_KEYS.TRACKING] ||
     cfgSnapshot[CONFIG_KEYS.CODEC] !== 'auto' ||
     thumbnailHookRequired()
   );

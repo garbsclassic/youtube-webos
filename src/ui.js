@@ -1886,6 +1886,7 @@ configAddChangeListener('uiTheme', evt => applyTheme(evt.detail.newValue));
 configAddChangeListener('enableAdBlock', () => syncAdblockHook());
 configAddChangeListener('hideGuestSignInPrompts', () => syncAdblockHook());
 configAddChangeListener('hideEndcards', () => syncAdblockHook());
+configAddChangeListener('enableTrackingBlock', () => syncAdblockHook());
 configAddChangeListener('forceVideoCodec', () => syncAdblockHook());
 configAddChangeListener('upgradeThumbnails', () => syncAdblockHook());
 
