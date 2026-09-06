@@ -9,3 +9,4 @@ Append-only, newest at the bottom. One line per completed item: date, linked pla
 - 2026-09-06 — [upstream-sync-0.8.3](plan-upstream-sync-0.8.3.md): step 4 SponsorBlock — overlay survives a replay from the endscreen, isSkipping only latches on a real seek, observers split into childList and attribute halves
 - 2026-09-06 — [upstream-sync-0.8.3](plan-upstream-sync-0.8.3.md): step 5 RYD — dislike count decoupled from injection with an em-dash placeholder and retry backoff, 2Hz lifetime poll bounded to ~10s per arm
 - 2026-09-06 — [upstream-sync-0.8.3](plan-upstream-sync-0.8.3.md): step 6 — screensaver keep-alive stops leaking a DOM ref per 30s tick, watch.js clock drops its redundant focusout listener
+- 2026-09-06 — [upstream-sync-0.8.3](plan-upstream-sync-0.8.3.md): step 7 ui.js — stale zylon-focus class fixed, per-keypress full-page searches removed, three hand-rolled selector caches collapsed into resolveCached(); PR #171 deferred to land with step 8's CSS

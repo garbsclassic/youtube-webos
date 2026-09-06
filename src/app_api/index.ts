@@ -34,9 +34,11 @@ export class ResolveCommandRegistry {
       console.groupEnd();
     }
 
-    for (const key of Object.keys(command)) {
-      if (this.#cmds.has(key)) {
-        return this.#cmds.get(key)!(this.#originalFn, command, extra);
+    // Iterate the (small) hook map rather than allocating an Object.keys() array of the
+    // command's own properties on every single resolveCommand call.
+    for (const [key, handler] of this.#cmds) {
+      if (key in command) {
+        return handler(this.#originalFn, command, extra);
       }
     }
 

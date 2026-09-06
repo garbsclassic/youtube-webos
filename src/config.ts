@@ -244,7 +244,13 @@ export function configWrite<K extends ConfigKey>(key: K, value: ConfigValue<K>):
   if (listeners) {
     const syntheticEvent: ConfigChangeEvent<K> = { detail: { key, newValue: value, oldValue } };
     for (const callback of listeners) {
-      callback(syntheticEvent);
+      // One throwing listener must not abort the rest -- a settings toggle wires up half a
+      // dozen unrelated subsystems, and losing the tail of the list leaves them desynced.
+      try {
+        callback(syntheticEvent);
+      } catch (e) {
+        console.error('config change listener for', key, 'threw:', e);
+      }
     }
   }
 }

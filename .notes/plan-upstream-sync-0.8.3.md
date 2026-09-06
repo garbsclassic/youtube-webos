@@ -118,15 +118,15 @@ The fork's delta here is Prettier reformatting and legacy removal only — none 
 
 All trivial, none need config changes.
 
-- [ ] `playPauseLogic` (`:1345`): `MFDzfe--focused` → `zylon-focus`. Keep the fork's `isAtTopLevel` and 600 ms structure — only the class name is stale.
-- [ ] `handleShortcutAction` (`:1490-1491`): move the eager `document.querySelector('.html5-video-player')` into the `toggle_subs` case — it runs a full-page search on every keypress today.
-- [ ] `eventHandler` (`:1584`): move the input/textarea fast-fail above the scope computation.
-- [ ] Focus-trap fallback (`:885-887`): `Array.from(querySelectorAll(...)).find(offsetParent)` → a single `querySelector`.
-- [ ] `skipChapter()` (`:900`): collect chapter widths in one pass instead of two.
-- [ ] `resolveCached()` helper shared by `toggleCommentsLogic` (`:1158`), `toggleDescriptionLogic` (`:1216`), and `saveToPlaylistLogic` (`:1258`), with module-scope `COMMENT_SELECTORS`, `SAVE_SELECTORS`, and `DESCRIPTION_FALLBACK_SELECTOR`; comments becomes one comma-joined `querySelector` instead of two DOM passes.
-- [ ] `tabBtns[activePage]` instead of `querySelector('.ytaf-tab-btn.active')` (3 sites).
-- [ ] `config.ts` `configWrite` (`:242-245`): wrap `callback(syntheticEvent)` in try/catch so one throwing listener does not abort the rest.
-- [ ] `app_api/index.ts` (`:36`): `resolveCommand` iterates `this.#cmds` with `key in command` instead of allocating via `Object.keys(command)` per call.
+- [x] `playPauseLogic` (`:1345`): `MFDzfe--focused` → `zylon-focus`. Keep the fork's `isAtTopLevel` and 600 ms structure — only the class name is stale.
+- [x] `handleShortcutAction` (`:1490-1491`): move the eager `document.querySelector('.html5-video-player')` into the `toggle_subs` case — it runs a full-page search on every keypress today.
+- [x] `eventHandler` (`:1584`): move the input/textarea fast-fail above the scope computation.
+- [x] Focus-trap fallback (`:885-887`): `Array.from(querySelectorAll(...)).find(offsetParent)` → a single `querySelector`.
+- [x] `skipChapter()` (`:900`): collect chapter widths in one pass instead of two.
+- [x] `resolveCached()` helper shared by `toggleCommentsLogic` (`:1158`), `toggleDescriptionLogic` (`:1216`), and `saveToPlaylistLogic` (`:1258`), with module-scope `COMMENT_SELECTORS`, `SAVE_SELECTORS`, and `DESCRIPTION_FALLBACK_SELECTOR`; comments becomes one comma-joined `querySelector` instead of two DOM passes.
+- [x] `tabBtns[activePage]` instead of `querySelector('.ytaf-tab-btn.active')` (3 sites).
+- [x] `config.ts` `configWrite` (`:242-245`): wrap `callback(syntheticEvent)` in try/catch so one throwing listener does not abort the rest.
+- [x] `app_api/index.ts` (`:36`): `resolveCommand` iterates `this.#cmds` with `key in command` instead of allocating via `Object.keys(command)` per call.
 - [ ] PR #171 (`90f5cc9`): delete the `focus` / `blur` → `classList.add/remove('focused')` listeners in `createConfigCheckbox` (`:226-227`), which desynchronize the panel focus state. Land with step 8's CSS, which replaces `.focused` with `:focus-within`.
 
 ### 8. New features
