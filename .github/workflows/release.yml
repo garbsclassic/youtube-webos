@@ -49,5 +49,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'update-repo.yml',
-              ref: 'dev'
+              ref: 'main'
             })
