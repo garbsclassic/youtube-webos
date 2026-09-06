@@ -111,8 +111,8 @@ The fork's delta here is Prettier reformatting and legacy removal only — none 
 
 ### 6. Screensaver, watch
 
-- [ ] `screensaver-fix.js` — gate logging behind `DEBUG` and delete the per-tick `console.log(msg, node)` retaining a strong ref to a possibly-removed node (the Shorts keep-alive leak). Collapse the target pick to `document.activeElement || document.body`, add the early `if (!isPlaying) return`, merge the two `playerCtrlObs` warn-and-disconnect branches, use `getVideo()` in `updateState()`, and delete `requireElement()` after confirming no importer.
-- [ ] `watch.js` — drop the `focusout` listener in `setupGlobalListeners()` (focusin only).
+- [x] `screensaver-fix.js` — gate logging behind `DEBUG` and delete the per-tick `console.log(msg, node)` retaining a strong ref to a possibly-removed node (the Shorts keep-alive leak). Collapse the target pick to `document.activeElement || document.body`, add the early `if (!isPlaying) return`, merge the two `playerCtrlObs` warn-and-disconnect branches, use `getVideo()` in `updateState()`, and delete `requireElement()` after confirming no importer.
+- [x] `watch.js` — drop the `focusout` listener in `setupGlobalListeners()` (focusin only).
 
 ### 7. ui.js cheap wins
 
