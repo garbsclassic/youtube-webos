@@ -259,33 +259,24 @@ function createConfigCheckbox(key) {
   );
   const elmLabel = createElement('label', {}, labelContent);
 
-  elmInput.addEventListener('focus', () => elmLabel.classList.add('focused'));
-  elmInput.addEventListener('blur', () => elmLabel.classList.remove('focused'));
   configAddChangeListener(key, evt => (elmInput.checked = evt.detail.newValue));
 
   return elmLabel;
 }
 
-function createSection(title, elements) {
-  const legend = createElement('div', {
-    text: title,
-    style: {
-      color: '#888',
-      fontSize: '2.5vh',
-      marginBottom: '0.4vh',
-      fontWeight: 'bold',
-      textTransform: 'uppercase'
-    }
-  });
+/**
+ * @param {string} variant '2col' lays the rows out in two columns on the Main page. The
+ *   Main page is the tallest tab and gained rows in 0.3.0, so halving the height of its
+ *   longest section is what keeps it inside 95vh.
+ */
+function createSection(title, elements, variant = '') {
+  // Styling lives in ui.css so the whole panel retunes from one place.
+  const legend = createElement('div', { text: title, class: 'section-title' });
 
-  return createElement(
-    'div',
-    {
-      class: 'ytaf-settings-section'
-    },
-    legend,
-    ...elements
-  );
+  const cls =
+    variant === '2col' ? 'ytaf-settings-section ytaf-section-2col' : 'ytaf-settings-section';
+
+  return createElement('div', { class: cls }, legend, ...elements);
 }
 
 // --- Generic UI Components Factory ---
@@ -777,7 +768,7 @@ function createOptionsPanel() {
     cosmeticGroup.push(elGuestPrompts);
   }
 
-  pageMain.appendChild(createSection('Cosmetic Filtering', cosmeticGroup));
+  pageMain.appendChild(createSection('Cosmetic Filtering', cosmeticGroup, '2col'));
 
   // Dependency Management
   const setState = (el, enabled) => {

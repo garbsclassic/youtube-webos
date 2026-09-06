@@ -187,25 +187,58 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 2.3vh;
+  font-size: 2.5vh;
   font-weight: 400;
-  line-height: 0.85;
   cursor: pointer;
   border-radius: 0.4rem;
-  margin: 0 -0.75vh 0.4vh;
-  padding: 1vh;
   box-shadow: 0 0 0 2px transparent;
-  transition:
-    box-shadow 0.1s ease-out,
-    background 0.1s ease-out;
+}
+
+/* Every row in the settings body is measured by one rule. They had drifted apart three
+   ways and the seams showed: checkbox rows padded 1vh and cycle rows 0.4vh; only checkbox
+   rows set a line-height, so a cycle row resolved against the browser default of roughly
+   1.2 and sat taller than its neighbours; and `.ytaf-settings-section label` cancelled the
+   bleed margin while nothing cancelled it for `.shortcut-control-row`, so cycle rows hung
+   further left than the checkboxes above them. */
+.ytaf-ui-container label,
+.ytaf-ui-container .shortcut-control-row {
+  box-sizing: border-box;
+  padding: 1vh 0.75vh;
+  margin: 0 -0.75vh 0.2vh;
+  line-height: 0.95;
+  /* One line of 2.5vh text. Pins the row against children that bring their own box -- the
+     cycle arrows and the hidden alignment checkbox both do -- so a row cannot grow just
+     because of what happens to sit inside it. */
+  min-height: 2.375vh;
+}
+
+/* Inside a section the bleed margin is unwanted: the section already supplies the
+   horizontal padding, and bleeding past it is what misaligned the columns. */
+.ytaf-settings-section label,
+.ytaf-settings-section .shortcut-control-row {
+  margin: 0 0 0.2vh;
 }
 
 .ytaf-settings-section {
-  margin: 0.8vh 0 0.4vh;
+  margin: 1vh 0 0.5vh;
+  padding: 0 1vh 0.5vh;
+  border: 0.19vh solid #444;
+  border-radius: 0.6vh;
 }
 
-.ytaf-settings-section label {
-  margin-bottom: 0.2vh;
+/* Section chrome lives here rather than in inline styles on createSection(), so the whole
+   panel retunes from one place. */
+.ytaf-settings-section > .section-title {
+  color: #aaa;
+  font-size: 2.6vh;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05vh;
+  margin: 0.6vh 0 0.5vh;
+}
+
+.ytaf-ui-container.theme-classic-red .ytaf-settings-section > .section-title {
+  color: #bbb;
 }
 
 .ytaf-ui-container label .label-content {
@@ -226,13 +259,7 @@
   outline: none;
 }
 
-.ytaf-ui-container label.focused {
-  background: rgba(0, 180, 180, 0.2);
-  box-shadow: 0 0 0 0.2vh #00ebeb;
-}
-
-.ytaf-ui-container.theme-classic-red .shortcut-control-row:focus,
-.ytaf-ui-container.theme-classic-red label.focused {
+.ytaf-ui-container.theme-classic-red .shortcut-control-row:focus {
   background: rgba(255, 77, 0, 0.1);
   box-shadow: 0 0 0 0.2vh rgba(255, 154, 0, 0.6);
   outline: none;
@@ -418,16 +445,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0.2vh 0;
   box-shadow: 0 0 0 2px transparent;
-  transition:
-    box-shadow 0.1s ease-out,
-    background 0.1s ease-out;
   border-radius: 0.4rem;
-  padding: 0.4vh 0.8vh;
   cursor: pointer;
   color: #f0f0f0;
-  font-size: 2.3vh;
+  font-size: 2.5vh;
   font-weight: 500;
 }
 
@@ -499,4 +521,49 @@
 
 .ytaf-ui-container.theme-classic-red input[type='color'] {
   border-color: rgba(255, 116, 0, 0.4);
+}
+
+/* --- Main page layout -----------------------------------------------------
+
+   The Main page gained two rows (Remove Live Videos, Thumbnail Strategy) plus two cycle
+   controls, and is the tallest of the four tabs -- the only one at risk of overflowing
+   95vh on a 1080p panel. These trims apply to that page alone; the other tabs have space
+   to spare and keep the roomier spacing.
+
+   The two-column Cosmetic Filtering variant and the larger type are a pair: halving the
+   height of that section is what buys the room to grow the text without pushing the page
+   into a scroll. Upstream used a flexbox hack because Chrome 38 has no CSS Grid; this fork
+   targets Chrome 87 and can just say what it means. */
+
+#ytaf-page-main label {
+  padding-top: 0.75vh;
+  padding-bottom: 0.75vh;
+  margin-bottom: 0.1vh;
+}
+
+#ytaf-page-main .ytaf-settings-section {
+  margin-bottom: 0.6vh;
+}
+
+#ytaf-page-main .ytaf-settings-section > .section-title {
+  margin-top: 0.9vh;
+  margin-bottom: 0.35vh;
+}
+
+#ytaf-page-main .ytaf-section-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1vh;
+  align-items: stretch;
+}
+
+#ytaf-page-main .ytaf-section-2col > .section-title {
+  grid-column: 1 / -1;
+}
+
+/* Last-resort safety net: if a future row still overflows, scroll rather than clip. The
+   container hides overflow, so without this a row would simply be unreachable. */
+.ytaf-ui-container > div.ytaf-settings-page {
+  overflow-y: auto;
+  overflow-x: hidden;
 }

@@ -7,7 +7,9 @@ import {
   getByPath,
   findObjects,
   parseHookRequired,
-  processSectionListOptimized
+  processSectionListOptimized,
+  isLiveItem,
+  isNavEntryBlocked
 } from '../src/adblock.js';
 import { configRead, configWrite } from '../src/config';
 
@@ -300,5 +302,238 @@ describe('processSectionListOptimized (dropping shelves emptied by filtering)', 
     const contents = [{ shelfRenderer: { content: { richGridRenderer: { contents: [] } } } }];
     processSectionListOptimized(contents, filteringConfig, true);
     assert.equal(contents.length, 1);
+  });
+});
+
+describe('isLiveItem', () => {
+  // The bug this shape guards against: the live badge used to be read via overlays[0] and
+  // badges[0], which only worked when the badge happened to be first. A thumbnail carries
+  // several overlays (duration, progress, badges) in no guaranteed order, so a duration
+  // overlay ahead of the badge overlay, and a non-live badge ahead of the live one, must
+  // still be found.
+  test('finds the live badge when it sits at a non-zero index in both overlays and badges', () => {
+    const item = {
+      lockupViewModel: {
+        contentImage: {
+          thumbnailViewModel: {
+            overlays: [
+              { thumbnailOverlayTimeStatusRenderer: { text: '12:34' } },
+              {
+                thumbnailBottomOverlayViewModel: {
+                  badges: [
+                    {
+                      thumbnailBadgeViewModel: {
+                        badgeStyle: 'THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT'
+                      }
+                    },
+                    {
+                      thumbnailBadgeViewModel: { badgeStyle: 'THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE' }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    };
+    assert.equal(isLiveItem(item, true), true);
+  });
+
+  // Fallback 1: the older tileRenderer shape, matched by either the short or the fully
+  // qualified style string.
+  test('falls back to tileRenderer thumbnailOverlays style "LIVE"', () => {
+    const item = {
+      tileRenderer: {
+        header: {
+          tileHeaderRenderer: {
+            thumbnailOverlays: [{ thumbnailOverlayTimeStatusRenderer: { style: 'LIVE' } }]
+          }
+        }
+      }
+    };
+    assert.equal(isLiveItem(item, true), true);
+  });
+
+  test('falls back to tileRenderer thumbnailOverlays style THUMBNAIL_OVERLAY_TIME_STATUS_RENDERER_STYLE_LIVE', () => {
+    const item = {
+      tileRenderer: {
+        header: {
+          tileHeaderRenderer: {
+            thumbnailOverlays: [
+              {
+                thumbnailOverlayTimeStatusRenderer: {
+                  style: 'THUMBNAIL_OVERLAY_TIME_STATUS_RENDERER_STYLE_LIVE'
+                }
+              }
+            ]
+          }
+        }
+      }
+    };
+    assert.equal(isLiveItem(item, true), true);
+  });
+
+  // Fallback 2: an explicit content type, with no overlay data present at all.
+  test('falls back to tileRenderer.contentType TILE_CONTENT_TYPE_LIVE', () => {
+    const item = { tileRenderer: { contentType: 'TILE_CONTENT_TYPE_LIVE' } };
+    assert.equal(isLiveItem(item, true), true);
+  });
+
+  test('returns false for a plain, non-live video item', () => {
+    const item = {
+      lockupViewModel: {
+        contentImage: {
+          thumbnailViewModel: {
+            overlays: [
+              {
+                thumbnailBottomOverlayViewModel: {
+                  badges: [
+                    {
+                      thumbnailBadgeViewModel: {
+                        badgeStyle: 'THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT'
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      tileRenderer: { contentType: 'TILE_CONTENT_TYPE_VIDEO' }
+    };
+    assert.equal(isLiveItem(item, true), false);
+  });
+
+  // removeLiveVideos gates the whole function -- even a genuinely live item must not match
+  // when the setting is off.
+  test('returns false when removeLiveVideos is off, even for a genuinely live item', () => {
+    const item = { tileRenderer: { contentType: 'TILE_CONTENT_TYPE_LIVE' } };
+    assert.equal(isLiveItem(item, false), false);
+  });
+});
+
+describe('isNavEntryBlocked', () => {
+  test('blocks a reelWatchEndpoint regardless of title', () => {
+    const entry = { title: { simpleText: 'Home' }, navigationEndpoint: { reelWatchEndpoint: {} } };
+    assert.equal(isNavEntryBlocked(entry, true, false), true);
+  });
+
+  test('blocks browseId FEshorts and FEshorts_tv for Shorts', () => {
+    const desktop = { navigationEndpoint: { browseEndpoint: { browseId: 'FEshorts' } } };
+    const tv = { navigationEndpoint: { browseEndpoint: { browseId: 'FEshorts_tv' } } };
+    assert.equal(isNavEntryBlocked(desktop, true, false), true);
+    assert.equal(isNavEntryBlocked(tv, true, false), true);
+  });
+
+  test('blocks browseId FEtopics_live for Live', () => {
+    const entry = { navigationEndpoint: { browseEndpoint: { browseId: 'FEtopics_live' } } };
+    assert.equal(isNavEntryBlocked(entry, false, true), true);
+  });
+
+  // Endpoint matching takes priority over the title: a browseId survives a UI language
+  // change, a title does not.
+  test('endpoint match wins even when the title looks unrelated', () => {
+    const entry = {
+      title: { simpleText: 'Something else entirely' },
+      navigationEndpoint: { browseEndpoint: { browseId: 'FEshorts' } }
+    };
+    assert.equal(isNavEntryBlocked(entry, true, false), true);
+  });
+
+  test('unwraps guideEntryRenderer before reading the endpoint', () => {
+    const entry = {
+      guideEntryRenderer: { navigationEndpoint: { browseEndpoint: { browseId: 'FEshorts' } } }
+    };
+    assert.equal(isNavEntryBlocked(entry, true, false), true);
+  });
+
+  test('unwraps tabRenderer before reading the title', () => {
+    const entry = { tabRenderer: { title: { simpleText: 'Shorts' } } };
+    assert.equal(isNavEntryBlocked(entry, true, false), true);
+  });
+
+  test('is used bare when no known wrapper is present', () => {
+    const entry = { title: { simpleText: 'Shorts' } };
+    assert.equal(isNavEntryBlocked(entry, true, false), true);
+  });
+
+  test('matches Shorts via title.simpleText', () => {
+    assert.equal(isNavEntryBlocked({ title: { simpleText: 'Shorts' } }, true, false), true);
+  });
+
+  test('matches Shorts via title.runs[0].text', () => {
+    assert.equal(isNavEntryBlocked({ title: { runs: [{ text: 'Shorts' }] } }, true, false), true);
+  });
+
+  test('matches Shorts via tabIdentifier (pivotBarItemRenderer has no title object)', () => {
+    const entry = { pivotBarItemRenderer: { tabIdentifier: 'Shorts' } };
+    assert.equal(isNavEntryBlocked(entry, true, false), true);
+  });
+
+  // Negatives: each setting only ever blocks its own section.
+  test('does not block Live (FEtopics_live) when only removeGlobalShorts is on', () => {
+    const entry = { navigationEndpoint: { browseEndpoint: { browseId: 'FEtopics_live' } } };
+    assert.equal(isNavEntryBlocked(entry, true, false), false);
+  });
+
+  test('does not block Shorts (FEshorts) when only removeLiveVideos is on', () => {
+    const entry = { navigationEndpoint: { browseEndpoint: { browseId: 'FEshorts' } } };
+    assert.equal(isNavEntryBlocked(entry, false, true), false);
+  });
+
+  test('never blocks an ordinary entry like Home', () => {
+    const entry = {
+      title: { simpleText: 'Home' },
+      navigationEndpoint: { browseEndpoint: { browseId: 'FEwhat_to_watch' } }
+    };
+    assert.equal(isNavEntryBlocked(entry, true, true), false);
+  });
+});
+
+describe('removeBlockedNavEntries (via hookedParse on a BROWSE_TABS response)', () => {
+  // The two-level prune: a section wraps its own tab list, so that inner list has to be
+  // pruned before the section list itself is examined. Getting the order backwards, or
+  // pruning only one level, would leave the Shorts tab in place.
+  test('prunes a blocked tab out of its section without dropping the section', () => {
+    withConfigOverrides({ removeGlobalShorts: true, removeLiveVideos: false }, () => {
+      initAdblock();
+      try {
+        const payload = {
+          responseContext: {},
+          contents: {
+            tvBrowseRenderer: {
+              content: {
+                tvSecondaryNavRenderer: {
+                  sections: [
+                    {
+                      tvSecondaryNavSectionRenderer: {
+                        tabs: [
+                          { tabRenderer: { title: { simpleText: 'Home' } } },
+                          { tabRenderer: { title: { simpleText: 'Shorts' } } }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          padding: 'x'.repeat(500)
+        };
+        const result = JSON.parse(JSON.stringify(payload));
+        const sections = result.contents.tvBrowseRenderer.content.tvSecondaryNavRenderer.sections;
+        // The section itself has no title/endpoint of its own, so the outer prune is a no-op.
+        assert.equal(sections.length, 1);
+        const tabs = sections[0].tvSecondaryNavSectionRenderer.tabs;
+        assert.deepEqual(
+          tabs.map(t => t.tabRenderer.title.simpleText),
+          ['Home']
+        );
+      } finally {
+        destroyAdblock();
+      }
+    });
   });
 });
