@@ -4,6 +4,10 @@ export type FetchTarget = string | URL | Request;
 
 let registry: FetchRegistry | null = null;
 
+type HookedType = 'request' | 'response';
+
+const isHookedType = (t: unknown): t is HookedType => t === 'request' || t === 'response';
+
 export interface RequestInfo {
   url: URL;
   resource: FetchTarget;
@@ -18,12 +22,14 @@ interface EventMap {
 export class FetchRegistry extends CustomEventTarget<EventMap> {
   #originalFetch: typeof fetch;
   #fetchCount = 0;
-  // Per-type listener counts so #customFetch can skip URL construction and
-  // CustomEvent dispatch when nobody is listening (e.g. tracking block off).
-  // Native EventTarget exposes no listener count, so we maintain our own.
-  #listenerCounts: { request: number; response: number } = {
-    request: 0,
-    response: 0
+  // Per-type listener sets so #customFetch can skip URL construction and CustomEvent
+  // dispatch when nobody is listening (e.g. tracking block off). Native EventTarget exposes
+  // no listener count, so we maintain our own -- as Sets rather than counters, because
+  // EventTarget itself deduplicates: adding the same callback twice, or removing one that
+  // was never added, would drift a counter and strand the fast path permanently.
+  #listeners: Record<HookedType, Set<unknown>> = {
+    request: new Set(),
+    response: new Set()
   };
 
   override addEventListener<K extends keyof EventMap & string>(
@@ -32,9 +38,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     options?: boolean | AddEventListenerOptions
   ): void {
     super.addEventListener(type, callback, options);
-    if (callback && (type === 'request' || type === 'response')) {
-      this.#listenerCounts[type]++;
-    }
+    if (callback && isHookedType(type)) this.#listeners[type].add(callback);
   }
 
   override removeEventListener<K extends keyof EventMap & string>(
@@ -43,9 +47,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     options?: boolean | EventListenerOptions
   ): void {
     super.removeEventListener(type, callback, options);
-    if (callback && (type === 'request' || type === 'response')) {
-      if (this.#listenerCounts[type] > 0) this.#listenerCounts[type]--;
-    }
+    if (callback && isHookedType(type)) this.#listeners[type].delete(callback);
   }
 
   private constructor() {
@@ -84,8 +86,8 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     // block off is the common case for most sessions.
     if (
       !window.__ytaf_debug__ &&
-      this.#listenerCounts.request === 0 &&
-      this.#listenerCounts.response === 0
+      this.#listeners.request.size === 0 &&
+      this.#listeners.response.size === 0
     ) {
       return this.#originalFetch(resource, init);
     }
@@ -101,7 +103,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     }
 
     let reqAllowed = true;
-    if (this.#listenerCounts.request > 0) {
+    if (this.#listeners.request.size > 0) {
       const url =
         resource instanceof Request
           ? new URL(resource.url)
@@ -130,7 +132,7 @@ export class FetchRegistry extends CustomEventTarget<EventMap> {
     }
 
     let resAllowed = true;
-    if (this.#listenerCounts.response > 0) {
+    if (this.#listeners.response.size > 0) {
       resAllowed = this.dispatchEvent(
         new TypedCustomEvent('response', { detail: res, cancelable: true })
       );
