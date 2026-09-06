@@ -153,6 +153,9 @@ const configSchema = {
   shortcut_key_red: opt<ShortcutAction>('seek_back', 'Red Button Action'),
   shortcut_key_green: opt<ShortcutAction>('config_menu', 'Green Button Action'),
   shortcut_key_blue: opt<ShortcutAction>('seek_fwd', 'Blue Button Action'),
+  // Defaults to 'none' so the TV's own yellow binding (search) keeps working until the
+  // user deliberately claims the key.
+  shortcut_key_yellow: opt<ShortcutAction>('none', 'Yellow Button Action'),
 
   // Per-category SponsorBlock segment colors
   sponsorColor: opt<string>(segmentTypes.sponsor.color, `Color for ${segmentTypes.sponsor.name}`),

@@ -50,6 +50,14 @@ let oledKeepAliveTimer = null;
 let lastShortcutTime = 0;
 let lastShortcutKey = -1;
 let shortcutDebounceTime = 100;
+// Burst actions opt out of the debounce so seeks can be repeated quickly, but they still
+// have to swallow the duplicate that one physical press can produce: the colour buttons
+// emit two codes that both map to the same name (red 403/166, green 404/172, yellow
+// 405/170, blue 406/167/191), arriving in the same tick. Without this a seek bound to a
+// colour button jumped twice, while pause or menu bound to the same button did not --
+// they were covered by the 100ms debounce. No remote repeats inside 50ms, and held-key
+// repeat is already dropped by the evt.repeat check.
+const BURST_DUPLICATE_MS = 50;
 
 // Seek Burst Variables
 let seekCount = 0;
@@ -69,10 +77,25 @@ let optionsPanelVisible = false;
 let panelInitBlock = false;
 
 // Define keys including colors
-const shortcutKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'red', 'green', 'blue'];
+const shortcutKeys = [
+  '0',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  'red',
+  'green',
+  'yellow',
+  'blue'
+];
 const shortcutCache = {};
 
-const COLOR_KEYS = new Set(['red', 'green', 'blue']);
+const COLOR_KEYS = new Set(['red', 'green', 'yellow', 'blue']);
 
 const cachedSelectors = {
   comments: null,
@@ -1652,11 +1675,9 @@ const eventHandler = evt => {
     action === 'seek_fwd_ex';
   const now = Date.now();
 
-  if (
-    !isBurstAction &&
-    now - lastShortcutTime < shortcutDebounceTime &&
-    lastShortcutKey === keyName
-  ) {
+  const dedupeWindow = isBurstAction ? BURST_DUPLICATE_MS : shortcutDebounceTime;
+
+  if (now - lastShortcutTime < dedupeWindow && lastShortcutKey === keyName) {
     evt.preventDefault();
     evt.stopPropagation();
     return false;
@@ -1679,7 +1700,13 @@ const eventHandler = evt => {
   return false;
 };
 
-document.addEventListener('keydown', eventHandler, true);
+// window, not document, and in the capture phase. YouTube's own key handler sits on window
+// capture and calls stopPropagation for the colour keys it claims -- yellow routes to
+// search -- so a document-capture listener never sees a trusted yellow keydown at all, and
+// binding that button silently did nothing. The userScript runs before YouTube's app code,
+// so registering here first means our handler resolves the binding before theirs. Keys we
+// have no binding for still return without preventDefault, so they propagate as before.
+window.addEventListener('keydown', eventHandler, true);
 
 // --- Initialization & CSS Injection ---
 
