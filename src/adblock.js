@@ -637,7 +637,12 @@ function hasGuestPromptRenderer(item, hideGuestPrompts) {
   return hideGuestPrompts && (item.feedNudgeRenderer || item.alertWithActionsRenderer);
 }
 
-function processSectionListOptimized(contents, config, needsContentFiltering, contextName = '') {
+export function processSectionListOptimized(
+  contents,
+  config,
+  needsContentFiltering,
+  contextName = ''
+) {
   if (!Array.isArray(contents) || contents.length === 0) return;
   const {
     enableAdBlock,
