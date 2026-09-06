@@ -293,7 +293,9 @@
 }
 
 .ytaf-notification-container {
-  z-index: 1200;
+  /* Above the OLED blackout (10000) so its own toasts stay readable; the blackout in turn
+     has to clear SponsorBlock's popup at 9999. */
+  z-index: 10001;
   position: fixed;
   right: 0;
   top: 0;
@@ -305,6 +307,9 @@
 }
 
 .ytaf-notification-container .message {
+  /* Notification text is set via textContent, so a \n in the message only renders as a
+     line break with this. Leading/trailing whitespace is still collapsed. */
+  white-space: pre-line;
   transition:
     opacity 0.3s ease,
     transform 0.15s ease,

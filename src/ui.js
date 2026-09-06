@@ -50,9 +50,10 @@ let oledKeepAliveTimer = null;
 // mechanism available from inside the page, so OLED mode leans on it rather than trying to
 // fake input. Set when the mode was entered with playback running.
 let oledKeepPlaying = false;
-// Below .ytaf-notification-container (1200) so the mode's own toasts stay readable, above
-// .ytaf-ui-container (1000) so the settings panel is still covered.
-const OLED_OVERLAY_Z = 1100;
+// Above everything the app paints -- the clock (1199), SponsorBlock's markers (2000/2001)
+// and its popup (9999) -- so the blackout is actually black. Only
+// .ytaf-notification-container sits higher, so the mode's own toasts stay readable.
+const OLED_OVERLAY_Z = 10000;
 
 let lastShortcutTime = 0;
 let lastShortcutKey = -1;
@@ -1462,6 +1463,17 @@ function playPauseLogic(video) {
   }
 }
 
+/** Tear down the blackout. Shared by the shortcut and by the Back button. */
+function deactivateOledBlackout(overlay) {
+  overlay.remove();
+  if (oledKeepAliveTimer) {
+    clearInterval(oledKeepAliveTimer);
+    oledKeepAliveTimer = null;
+  }
+  oledKeepPlaying = false;
+  showNotification('OLED Mode Deactivated');
+}
+
 function handleShortcutAction(action) {
   // Global Actions - Do not require Video
   if (action === 'config_menu') {
@@ -1473,14 +1485,7 @@ function handleShortcutAction(action) {
     let overlay = document.getElementById('oled-black-overlay');
 
     if (overlay) {
-      overlay.remove();
-      if (oledKeepAliveTimer) {
-        clearInterval(oledKeepAliveTimer);
-        oledKeepAliveTimer = null;
-      }
-      oledKeepPlaying = false;
-
-      showNotification('OLED Mode Deactivated');
+      deactivateOledBlackout(overlay);
     } else {
       if (optionsPanelVisible) showOptionsPanel(false);
 
@@ -1516,10 +1521,7 @@ function handleShortcutAction(action) {
         }, 30000);
         showNotification('OLED Mode Activated');
       } else {
-        showNotification(
-          'OLED Mode Activated — no video playing, so the TV screensaver may still turn the screen off',
-          8000
-        );
+        showNotification('OLED Mode Activated\nWarning: not playing video', 8000);
       }
     }
 
@@ -1635,9 +1637,23 @@ const eventHandler = evt => {
   // Ignore synthetic events that we create ourselves to prevent double inputs
   if (!evt.isTrusted) return;
 
+  const code = evt.keyCode || evt.charCode;
+
+  // While the blackout is up, Back only dismisses it. Swallowed so it does not also walk
+  // the app's own history -- the screen is black, so the user cannot see where Back would
+  // otherwise take them. 27 is Escape, which webOS also sends for Back.
+  if (code === REMOTE_KEYS.BACK.code || code === 27) {
+    const blackout = document.getElementById('oled-black-overlay');
+    if (blackout) {
+      deactivateOledBlackout(blackout);
+      evt.preventDefault();
+      evt.stopPropagation();
+      return false;
+    }
+  }
+
   // Identify Key (Name or Color)
   let keyName = null;
-  const code = evt.keyCode || evt.charCode;
   const keyColor = getKeyColor(code);
   const isNumberKey = evt.type === 'keydown' && evt.keyCode >= 48 && evt.keyCode <= 57;
 
