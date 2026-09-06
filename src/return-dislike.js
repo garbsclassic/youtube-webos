@@ -8,9 +8,34 @@ const CACHE_DURATION = 300000; // 5 minutes
 const HAS_ABORT_CONTROLLER = typeof AbortController !== 'undefined';
 const HAS_INTERSECTION_OBSERVER = typeof IntersectionObserver !== 'undefined';
 
+// closest() runs the selector engine at every level of the ancestor chain, and
+// handleFocusIn calls it on every focus change anywhere in the app while a watch page is
+// open. Both selectors are trivial -- one tag name, one attribute -- so a hand-rolled walk
+// gives the identical answer without touching the engine.
+const PANEL_TAG = 'YTLR-STRUCTURED-DESCRIPTION-CONTENT-RENDERER';
+
+function closestPanel(el) {
+  for (let n = el; n && n.nodeType === 1; n = n.parentNode) {
+    if (n.tagName === PANEL_TAG) return n;
+  }
+  return null;
+}
+
+function closestMenuItem(el) {
+  for (let n = el; n && n.nodeType === 1; n = n.parentNode) {
+    if (n.getAttribute('role') === 'menuitem') return n;
+  }
+  return null;
+}
+
+// Shown while the count is still unknown, so the factoid can be laid out immediately
+// instead of appearing late.
+const DISLIKE_PLACEHOLDER = '\u2014'; // em dash
+const FETCH_MAX_RETRIES = 3;
+const FETCH_RETRY_BASE_MS = 1200;
+
 const SELECTORS = {
   panel: 'ytlr-structured-description-content-renderer',
-  mainContainer: 'zylon-provider-6',
   standardContainer: '.ytLrVideoDescriptionHeaderRendererFactoidContainer',
   compactContainer: '.rznqCe',
   stdFactoid: '.ytLrVideoDescriptionHeaderRendererFactoid',
@@ -33,7 +58,13 @@ class ReturnYouTubeDislike {
     this.videoID = videoID;
     this.enableDislikes = enableDislikes;
     this.active = true;
-    this.dislikesCount = 0;
+    // null until a fetch actually succeeds. The old code could not tell "the API said
+    // zero" from "the request failed", so a failure rendered a permanent 0 with no retry
+    // and no later correction.
+    this.dislikesValue = null;
+    this.dislikeValueElement = null;
+    this.dislikeFactoidElement = null;
+    this.fetchAttempts = 0;
 
     this.timers = {};
     this.observers = new Set();
@@ -103,12 +134,20 @@ class ReturnYouTubeDislike {
     this.log('info', 'Initializing...');
     try {
       this.injectPersistentStyles();
+      this.setupNavigation();
+
+      // Panel detection must not sit behind the network. A cold first request to the RYD
+      // API can take seconds -- up to the 8s race timeout -- which used to burn the whole
+      // poll window on the first video of the session.
+      this.observeBodyForPanel();
+
       if (this.enableDislikes) {
         await this.fetchVideoData();
+        if (!this.active) return;
+        // The panel may already have been set up while the fetch was in flight; inject
+        // now that we actually have a number.
+        if (this.panelElement) this.checkAndInjectDislike(this.panelElement);
       }
-
-      if (!this.active) return;
-      this.observeBodyForPanel();
     } catch (error) {
       this.log('error', 'Init error:', error);
     }
@@ -119,7 +158,8 @@ class ReturnYouTubeDislike {
 
     const cached = dislikeCache.get(this.videoID);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-      this.dislikesCount = cached.dislikes;
+      this.dislikesValue = cached.dislikes;
+      this.updateDislikeDisplay();
       return;
     }
 
@@ -141,57 +181,121 @@ class ReturnYouTubeDislike {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data = await response.json();
-      this.dislikesCount = data?.dislikes || 0;
+      this.dislikesValue = data?.dislikes || 0;
+      this.fetchAttempts = 0;
 
-      dislikeCache.set(this.videoID, { dislikes: this.dislikesCount, timestamp: Date.now() });
+      dislikeCache.set(this.videoID, { dislikes: this.dislikesValue, timestamp: Date.now() });
       if (dislikeCache.size > 50) dislikeCache.delete(dislikeCache.keys().next().value);
+
+      // The panel may already be on screen showing the placeholder.
+      this.updateDislikeDisplay();
     } catch (error) {
       if (!HAS_ABORT_CONTROLLER || error.name !== 'AbortError')
         this.log('error', 'Fetch error:', error);
-      this.dislikesCount = 0;
+      this.dislikesValue = null; // unknown, NOT zero -- and never cached
+
+      // A cold DNS + TLS handshake to the RYD API on real TV hardware is far slower than
+      // on the simulator, and a transient failure used to be permanent for that video.
+      if (this.active && error.name !== 'AbortError' && ++this.fetchAttempts <= FETCH_MAX_RETRIES) {
+        const delay = FETCH_RETRY_BASE_MS * this.fetchAttempts;
+        this.log('info', `Retrying dislike fetch in ${delay}ms (attempt ${this.fetchAttempts})`);
+        this.setTimeout(
+          () => {
+            if (this.active) this.fetchVideoData();
+          },
+          delay,
+          'rydRetry'
+        );
+      }
     } finally {
       if (HAS_ABORT_CONTROLLER) this.abortController = null;
     }
   }
 
+  /**
+   * Rewrite the already-injected factoid in place. Injection no longer waits for the
+   * network, so this is what turns the placeholder into the real number whenever the fetch
+   * lands -- first try or third.
+   */
+  updateDislikeDisplay() {
+    const valueElement = this.dislikeValueElement;
+    if (!valueElement || !valueElement.isConnected) return;
+
+    const text =
+      this.dislikesValue === null ? DISLIKE_PLACEHOLDER : this.formatNumber(this.dislikesValue);
+    if (valueElement.textContent === text) return;
+
+    valueElement.textContent = text;
+    if (this.dislikeFactoidElement) {
+      this.dislikeFactoidElement.setAttribute('aria-label', `${text} Dislikes`);
+    }
+  }
+
   // --- Observer Logic ---
+
+  // Shared reset for a panel that has gone away. Was duplicated verbatim between the poll
+  // body and handleFocusIn.
+  resetPanelState() {
+    this.dislikeValueElement = null;
+    this.dislikeFactoidElement = null;
+    this.panelElement = null;
+    this.isPanelFocused = false;
+    this.menuItemsCache = [];
+    this.menuItemsMap.clear();
+    this.lastFocusedElement = null;
+    this.focusedIndex = -1;
+    this.cachedMode = null;
+  }
+
+  stopBodyPoll() {
+    if (this.bodyPollInterval) {
+      clearInterval(this.bodyPollInterval);
+      this.bodyPollInterval = null;
+    }
+  }
+
+  // Bounded poll. This used to run at 2Hz for the entire lifetime of every watch page,
+  // doing a compound querySelector on each tick -- the single largest idle cost.
+  //
+  // It is only a safety net: the panel is also detected by handleFocusIn (focus is the
+  // only reliable signal for the role="dialog" description panel) and by ui.js calling
+  // observeBodyForPanel() after the description shortcut fires. So it gets ~10s per arm
+  // and then goes idle until something re-arms it.
   observeBodyForPanel() {
     if (!this.active) return;
 
-    // Clear existing interval or legacy observer if any
-    if (this.bodyPollInterval) clearInterval(this.bodyPollInterval);
+    this.stopBodyPoll();
     if (this.bodyObserver) {
       this.bodyObserver.disconnect();
       this.bodyObserver = null;
     }
 
+    // Immediate check first -- usually resolves without ever arming the timer.
+    const existingPanel = document.querySelector(SELECTORS.panel);
+    if (existingPanel) {
+      this.setupPanel(existingPanel);
+      return;
+    }
+
+    let attempts = 0;
     this.bodyPollInterval = setInterval(() => {
-      if (!this.active) {
-        clearInterval(this.bodyPollInterval);
+      if (!this.active || ++attempts > 20) {
+        // ~10s ceiling
+        this.stopBodyPoll();
         return;
       }
 
       if (this.panelElement) {
-        if (!this.panelElement.isConnected) {
-          this.panelElement = null;
-          this.isPanelFocused = false;
-          this.menuItemsCache = [];
-          this.menuItemsMap.clear();
-          this.lastFocusedElement = null;
-          this.focusedIndex = -1;
-          this.cachedMode = null;
-        } else {
-          return; // Panel is active and connected
-        }
+        if (this.panelElement.isConnected) return; // Panel is active and connected
+        this.resetPanelState();
       }
 
       const panel = document.querySelector(SELECTORS.panel);
-      if (panel) this.setupPanel(panel);
+      if (panel) {
+        this.setupPanel(panel);
+        this.stopBodyPoll();
+      }
     }, 500);
-
-    // Immediate check on load
-    const existingPanel = document.querySelector(SELECTORS.panel);
-    if (existingPanel) this.setupPanel(existingPanel);
   }
 
   setupPanel(panel) {
@@ -320,13 +424,10 @@ class ReturnYouTubeDislike {
     // leave it stranded), drop the reference so the focusin fallback
     // below can rebind to whatever's actually in the DOM now.
     if (this.panelElement && !this.panelElement.isConnected) {
-      this.panelElement = null;
-      this.isPanelFocused = false;
-      this.menuItemsCache = [];
-      this.menuItemsMap.clear();
-      this.lastFocusedElement = null;
-      this.focusedIndex = -1;
-      this.cachedMode = null;
+      this.resetPanelState();
+      // Re-arm the bounded poll: the panel we were tracking is gone, so a replacement may
+      // be mounting right now.
+      this.observeBodyForPanel();
     }
 
     // Primary panel detection path: focus crossed into something matching
@@ -334,7 +435,7 @@ class ReturnYouTubeDislike {
     // role="dialog" and is appended to a sibling overlay container — focus
     // is the only reliable signal we get for it on webOS.
     if (!this.panelElement) {
-      const found = e.target.closest && e.target.closest(SELECTORS.panel);
+      const found = closestPanel(e.target);
       if (!found) return;
       this.setupPanel(found);
       if (!this.panelElement) return; // setup bailed for some reason
@@ -344,7 +445,7 @@ class ReturnYouTubeDislike {
     if (this.panelElement.contains(e.target)) {
       this.isPanelFocused = true;
 
-      const targetItem = e.target.closest(SELECTORS.menuItem);
+      const targetItem = closestMenuItem(e.target);
       if (targetItem && !targetItem.querySelector(SELECTORS.menuItem)) {
         this.updateVisualState(targetItem);
       }
@@ -549,6 +650,10 @@ class ReturnYouTubeDislike {
 
   checkAndInjectDislike(panelElement) {
     if (!this.active || !this.enableDislikes) return;
+    // Deliberately not gated on the fetch. Waiting for the network meant that on a slow
+    // first request the panel finished rendering with no dislike factoid at all, and it
+    // only appeared later when some unrelated mutation or focus change happened to re-run
+    // this. Inject now, fill in the number when it arrives.
     if (document.getElementById('ryd-dislike-factoid')) return;
 
     try {
@@ -591,10 +696,14 @@ class ReturnYouTubeDislike {
       const labelElement = dislikeElement.querySelector(mode.labelSelector);
 
       if (valueElement && labelElement) {
-        const dislikeText = this.formatNumber(this.dislikesCount);
+        const dislikeText =
+          this.dislikesValue === null ? DISLIKE_PLACEHOLDER : this.formatNumber(this.dislikesValue);
         valueElement.textContent = dislikeText;
         labelElement.textContent = 'Dislikes';
         dislikeElement.setAttribute('aria-label', `${dislikeText} Dislikes`);
+        // Keep handles so updateDislikeDisplay() can fill this in later.
+        this.dislikeValueElement = valueElement;
+        this.dislikeFactoidElement = dislikeElement;
       }
 
       likesElement.insertAdjacentElement('afterend', dislikeElement);
@@ -606,8 +715,8 @@ class ReturnYouTubeDislike {
   }
 
   formatNumber(num) {
-    if (num >= 1e6) return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+    if (num >= 1e6) return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'm';
+    if (num >= 1e3) return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
     return num.toString();
   }
 
@@ -639,8 +748,7 @@ class ReturnYouTubeDislike {
     });
     this.observers.clear();
 
-    // Clean up the new interval
-    if (this.bodyPollInterval) clearInterval(this.bodyPollInterval);
+    this.stopBodyPoll();
     if (this.bodyMutationRaf) cancelAnimationFrame(this.bodyMutationRaf);
 
     if (this.navigationActive) {
@@ -685,7 +793,7 @@ if (typeof window !== 'undefined') {
       cleanup();
       return;
     }
-    const url = new URL(urlStr, 'http://dummy.com');
+    const url = new URL(urlStr, location.href);
     if (url.pathname !== '/watch' || !url.searchParams.get('v')) {
       cleanup();
       return;

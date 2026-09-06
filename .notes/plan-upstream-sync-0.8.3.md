@@ -104,10 +104,10 @@ The fork's delta here is Prettier reformatting and legacy removal only — none 
 
 ### 5. Return YouTube Dislike
 
-- [ ] Extract `resetPanelState()` (currently duplicated between the poll body and `handleFocusIn`).
-- [ ] Bounded panel poll — immediate `querySelector` first, then a 20-attempt (~10 s) ceiling with a `stopBodyPoll()` helper, re-armed from `handleFocusIn` when the tracked panel dies. Replaces the unbounded 2 Hz poll that ran for the whole video.
-- [ ] Fix the "0 dislikes" display — `dislikesValue` with `null` meaning unknown (distinct from 0), a `DISLIKE_PLACEHOLDER` em dash, `updateDislikeDisplay()`, cached `dislikeValueElement` and `dislikeFactoidElement`, injection decoupled from the fetch, `FETCH_MAX_RETRIES = 3` backoff, a `dataReady` flag, and `init()` reordered so `observeBodyForPanel()` runs before the await.
-- [ ] `formatNumber`: `'M'` / `'K'` → `'m'` / `'k'`; `new URL(urlStr, 'http://dummy.com')` → `new URL(urlStr, location.href)`; drop the dead `SELECTORS.mainContainer: 'zylon-provider-6'`; replace `closest()` in `handleFocusIn` with the `closestPanel()` and `closestMenuItem()` walks.
+- [x] Extract `resetPanelState()` (currently duplicated between the poll body and `handleFocusIn`).
+- [x] Bounded panel poll — immediate `querySelector` first, then a 20-attempt (~10 s) ceiling with a `stopBodyPoll()` helper, re-armed from `handleFocusIn` when the tracked panel dies. Replaces the unbounded 2 Hz poll that ran for the whole video.
+- [x] Fix the "0 dislikes" display — `dislikesValue` with `null` meaning unknown (distinct from 0), a `DISLIKE_PLACEHOLDER` em dash, `updateDislikeDisplay()`, cached `dislikeValueElement` and `dislikeFactoidElement`, injection decoupled from the fetch, `FETCH_MAX_RETRIES = 3` backoff, a `dataReady` flag, and `init()` reordered so `observeBodyForPanel()` runs before the await.
+- [x] `formatNumber`: `'M'` / `'K'` → `'m'` / `'k'`; `new URL(urlStr, 'http://dummy.com')` → `new URL(urlStr, location.href)`; drop the dead `SELECTORS.mainContainer: 'zylon-provider-6'`; replace `closest()` in `handleFocusIn` with the `closestPanel()` and `closestMenuItem()` walks.
 
 ### 6. Screensaver, watch
 
