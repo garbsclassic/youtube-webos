@@ -66,7 +66,7 @@ Four things that bite silently if ported naively.
 1. **`force-codec.js` installs its own `JSON.parse` wrapper** (`upstream:src/force-codec.js:286-295`) on top of adblock's (`src/adblock.js:828-829`). `destroyAdblock` does `JSON.parse = origParse` (`:839`), restoring the value captured _before_ force-codec wrapped it — so toggling Ad Blocking off silently uninstalls Force Video Codec, and `syncAdblockHook()` (step 3.6) makes that toggle routine. Upstream carries the same latent bug. Fold force-codec's `streamingData` rewrite into adblock's existing hook the way upstream folded in thumbnails, and leave only the `isTypeSupported` / `canPlayType` narrowing in `force-codec.js`.
 2. **`handleTimeUpdate` `segmentIdx`.** Upstream deletes the outer `else { findSegmentAtTime() }` and relies on `let segmentIdx = -1`. The fork has `let segmentIdx;` uninitialized — port the deletion without restoring the `-1` and the `=== -1` guard fails, indexing `skipSegments[undefined]`.
 3. **`isSkipping` hunk context.** The surrounding lines include the `isLegacyWebOSVer` jumpTarget clamp the fork deleted. Resolve by hand rather than taking the hunk.
-4. **`npm run package` output path.** Upstream added `-o dist`. The fork's CI uploads `${{github.workspace}}/youtube.leanback.v4_*_all.ipk` from the repo root — adopting `-o dist` requires updating `.github/workflows/test.yml` and `release.yml` in the same commit.
+4. **`npm run package` output path.** Upstream added `-o dist`. Three things read the `.ipk` from the repo root today: `tools/gen-manifest.cjs` (which hashes `<id>_<version>_all.ipk` by bare filename), the CI artifact upload in `.github/workflows/test.yml`, and the release artifact glob in `release.yml`. Adopting `-o dist` requires updating all three in the same commit.
 
 ## Steps
 
@@ -152,7 +152,8 @@ Land as one batch — the new rows are what force the CSS relayout.
 
 - [ ] Drop the dead `@twemoji/api` dependency — nothing under `src/` imports it since the emoji fix was deleted.
 - [ ] Delete the unused `EventInstanceType` and `EventOptionsType` from `custom-event-target.ts` (`:13`, `:17`) — the one thing worth taking from upstream's version of that file.
-- [ ] Optionally adopt `ares-package -n dist -o dist` plus the matching `tools/deploy.js` path, which fits the fork's untracked-`dist/` convention. See landmine 4 — both workflows need updating in the same commit.
+- [ ] Optionally adopt `ares-package -n dist -o dist` plus the matching `tools/deploy.js` path, which fits the fork's untracked-`dist/` convention. See landmine 4 — `gen-manifest.cjs` and both workflows need updating in the same commit.
+- [ ] Run `npm version patch` on `main` once the changeset is merged and committed, per the `fork-sync` skill — the `v*.*` tag is what drives `release.yml` and, through it, the regenerated `repo.json`.
 - [ ] Update `CHANGELOG.md` under a new `0.3.0` heading in the fork's Keep-a-Changelog style, crediting upstream 0.8.2 and 0.8.3, and noting the two behavior changes: telemetry requests resolve empty rather than aborting, and `hideLogo` is gone so the logo resets to the default wordmark.
 
 ## Config schema changes
