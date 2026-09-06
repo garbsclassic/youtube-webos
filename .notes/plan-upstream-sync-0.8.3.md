@@ -184,6 +184,40 @@ npm run prettier-check && npm run lint && npm run type-check && npm test && npm 
 - **Regression sweep.** Turn Ad Blocking off: Hide Endcards, Guest-Mode prompt hiding, and Force Video Codec must all still work (landmine 1 plus step 3's `syncAdblockHook`). Turn Force Max Quality off: the clock and SponsorBlock must still update (step 1).
 - **Branch review.** Run the `reviewer` subagent over `main..feat/upstream-sync-0.8.3` before reporting done.
 
+### What was actually verified on hardware — 2026-09-06
+
+Deployed to the B4 (webOS 25, 1080p) and measured over CDP rather than eyeballed. `ares-install`
+fails on this host with `isDate is not a function` inside its bundled ssh2, so the build was pushed
+with `scp` and the renderer restarted by PID; `closeByAppId` does not actually stop it, and until the
+renderer is killed the app keeps running the previous userScript.
+
+Confirmed:
+
+- All five new rows present; `enableAutoLogin` reads 'Bypass Nag Screens'.
+- Parse-hook gate: with ad block, endcards and thumbnails all off the hook uninstalls, and it
+  re-arms from endcards alone or thumbnails alone. Ad block off with endcards on keeps it
+  installed — the live bug, fixed.
+- With Force Max Quality off, `yt-player-state-change` fired 3x across a pause/play cycle
+  (2, 3, 1). Previously none of these fired.
+- SponsorBlock overlay matches the progress bar to `dx=dy=dw=dh=0.00` with one marker per
+  segment, and survives an in-place replay (no hashchange): `lastOverlayHash` is cleared on
+  ENDED and the overlay is rebuilt with the same 0.00 delta.
+- Logo tri-state: default `left=1593px w=243px`, premium `left=1578px w=258px` (both move
+  together, which is the point), hidden sets `ytaf-hide-logo` and `visibility: hidden`.
+- Thumbnails: `maxresdefault` present in the DOM, 52 entries in the `ytaf-thumb-quality` cache.
+- Nav filtering: the Live tab disappears with Remove Live Videos on (`News | Live | Music` →
+  `News | Music`); Shorts was already absent with its own setting on.
+- Panel layout in both themes: every single-column row 41.83px, all label text at one x per
+  column, page bottom 1030px inside a 1080px viewport with the scroll fallback engaged.
+
+Three defects were found *by* this pass and fixed in `311925e` — see that commit. None were
+visible to the test suite.
+
+Not verified on device: the RYD em-dash placeholder (needs a video whose RYD request is slow or
+failing), Force Video Codec actually changing the negotiated stream (needs a panel that stalls on
+AV1), and live *tile* filtering as opposed to the nav tab (no live tiles were on the home shelf
+during the pass).
+
 ## Open questions
 
 - `src/perf_mon.js` is a 4600-line dev-only profiler that upstream heavily extended and the fork trimmed; it is commented out at `userScript.js:4` and its function list is already stale relative to the thumbnail rewrite. Left untouched here — worth deleting outright in a separate change if it is not being used.
