@@ -2,8 +2,6 @@ name: Build & Release
 
 on:
   push:
-    branches:
-      - '!*'
     tags:
       - 'v*.*'
 
@@ -23,10 +21,22 @@ jobs:
           node-version: lts/*
           cache: npm
 
+      # The tag is what names the release, but the .ipk is named from
+      # assets/appinfo.json, which only tracks package.json when `npm version`
+      # bumps it. Hand-tagging skips that, and every downstream step still
+      # succeeds -- publishing a v0.2.1 release holding a 0.2.0 package, with
+      # repo.json advertising 0.2.0. Fail loudly here instead.
+      - name: Check tag matches package version
+        run: |
+          pkg="v$(node -p 'require("./package.json").version')"
+          if [ "$pkg" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json ($pkg). Use 'npm version' rather than tagging by hand."
+            exit 1
+          fi
+
       - run: npm ci
       - run: npm run build
       - run: npm run package
-      - run: npm run manifest
 
       - name: Create release
         uses: ncipollo/release-action@v1
@@ -41,6 +51,10 @@ jobs:
           omitPrereleaseDuringUpdate: true
           artifacts: '*.ipk'
 
+      # Load-bearing despite update-repo.yml also listening for `release:
+      # published`: that trigger never fires, because releases created with the
+      # default GITHUB_TOKEN do not start new workflow runs. Hence `actions:
+      # write` above.
       - name: Trigger update-repo workflow
         uses: actions/github-script@v8
         with:

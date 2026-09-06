@@ -1,6 +1,10 @@
 name: Update Homebrew Repository
 
 on:
+  # `release: published` is inert -- release.yml creates the release with the
+  # default GITHUB_TOKEN, and GITHUB_TOKEN-created events do not start new
+  # workflow runs. It is kept for a release published by hand. The dispatch
+  # from release.yml is what actually runs this job; do not remove it.
   release:
     types: [published]
   workflow_dispatch:
