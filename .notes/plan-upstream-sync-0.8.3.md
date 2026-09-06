@@ -210,12 +210,12 @@ Confirmed:
 - Panel layout in both themes: every single-column row 41.83px, all label text at one x per
   column, page bottom 1030px inside a 1080px viewport with the scroll fallback engaged.
 
-Three defects were found *by* this pass and fixed in `311925e` — see that commit. None were
+Three defects were found _by_ this pass and fixed in `311925e` — see that commit. None were
 visible to the test suite.
 
 Not verified on device: the RYD em-dash placeholder (needs a video whose RYD request is slow or
 failing), Force Video Codec actually changing the negotiated stream (needs a panel that stalls on
-AV1), and live *tile* filtering as opposed to the nav tab (no live tiles were on the home shelf
+AV1), and live _tile_ filtering as opposed to the nav tab (no live tiles were on the home shelf
 during the pass).
 
 ## Open questions
