@@ -4,7 +4,9 @@ import TerserPlugin from 'terser-webpack-plugin';
 /** @type {() => (import('webpack').Configuration)[]} */
 const makeConfig = () => [
   {
-    target: 'browserslist:chrome 87',
+    // Plain 'browserslist' reads .browserslistrc, which is now the single
+    // source of truth for both this and preset-env below.
+    target: 'browserslist',
     devtool: false,
     entry: {
       index: './src/index.js',
@@ -30,7 +32,8 @@ const makeConfig = () => [
               [
                 '@babel/preset-env',
                 {
-                  targets: 'chrome 87',
+                  // targets omitted on purpose: preset-env falls back to
+                  // .browserslistrc, so the support floor lives in one file.
                   bugfixes: true,
                   modules: false,
                   useBuiltIns: false
