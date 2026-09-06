@@ -1890,6 +1890,7 @@ configAddChangeListener('enableAdBlock', () => syncAdblockHook());
 configAddChangeListener('hideGuestSignInPrompts', () => syncAdblockHook());
 configAddChangeListener('hideEndcards', () => syncAdblockHook());
 configAddChangeListener('forceVideoCodec', () => syncAdblockHook());
+configAddChangeListener('upgradeThumbnails', () => syncAdblockHook());
 
 // Add the listener for your new Tracking setting
 configAddChangeListener('enableTrackingBlock', evt => {

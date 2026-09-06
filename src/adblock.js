@@ -2,6 +2,7 @@ import { configGetAll, configAddChangeListener } from './config';
 import { isShortsPage } from './utils';
 import { FetchRegistry } from './hooks';
 import { rewriteStreamingData } from './force-codec.js';
+import { upgradeResponseThumbnails, thumbnailHookRequired } from './thumbnail-quality.js';
 
 const DEBUG = false;
 const FORCE_FALLBACK = false;
@@ -54,7 +55,8 @@ const CONFIG_KEYS = {
   MOST_RELEVANT: 'removeMostRelevant',
   GUEST_PROMPTS: 'hideGuestSignInPrompts',
   ENDCARDS: 'hideEndcards',
-  CODEC: 'forceVideoCodec'
+  CODEC: 'forceVideoCodec',
+  THUMBNAILS: 'upgradeThumbnails'
 };
 
 const IGNORE_ON_SHORTS = new Set(['SEARCH', 'PLAYER', 'ACTION']);
@@ -77,7 +79,8 @@ const cfgFlags = {
   removeMostRelevant: false,
   hideGuestPrompts: false,
   hideEndcards: false,
-  forceVideoCodec: false
+  forceVideoCodec: false,
+  upgradeThumbnails: false
 };
 
 function recomputeFilterFlags() {
@@ -94,6 +97,7 @@ function recomputeFilterFlags() {
   cfgFlags.hideGuestPrompts = !!cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS];
   cfgFlags.hideEndcards = !!cfgSnapshot[CONFIG_KEYS.ENDCARDS];
   cfgFlags.forceVideoCodec = cfgSnapshot[CONFIG_KEYS.CODEC] !== 'auto';
+  cfgFlags.upgradeThumbnails = !!cfgSnapshot[CONFIG_KEYS.THUMBNAILS];
 
   anyFilterEnabled = !!(
     cfgFlags.enableAdBlock ||
@@ -104,7 +108,8 @@ function recomputeFilterFlags() {
     cfgFlags.removeMostRelevant ||
     cfgFlags.hideGuestPrompts ||
     cfgFlags.hideEndcards ||
-    cfgFlags.forceVideoCodec
+    cfgFlags.forceVideoCodec ||
+    cfgFlags.upgradeThumbnails
   );
 }
 
@@ -385,6 +390,11 @@ function hookedParse(text, reviver) {
       removeBlockedNavEntries(data, cfgFlags.removeGlobalShorts, cfgFlags.removeLiveVideos);
     }
 
+    // After filtering, so shelves and ad slots that were just removed are never rewritten,
+    // and reusing the responseType already resolved above instead of detecting the shape a
+    // second time.
+    if (cfgFlags.upgradeThumbnails) upgradeResponseThumbnails(data, responseType);
+
     if (cfgFlags.enableTrackingBlock) {
       walkAndProcess(data, 15);
       if (DEBUG) debugLog('Stripped trackingParams globally');
@@ -660,7 +670,7 @@ function getShelfTitleOptimized(shelf) {
  * The older tileRenderer shape and a plain content-type check are kept as fallbacks so
  * this keeps working if the viewModel schema is swapped out again.
  */
-function isLiveItem(item, removeLiveVideos) {
+export function isLiveItem(item, removeLiveVideos) {
   if (!removeLiveVideos || !item) return false;
 
   const overlays = item.lockupViewModel?.contentImage?.thumbnailViewModel?.overlays;
@@ -694,7 +704,7 @@ function isLiveItem(item, removeLiveVideos) {
 }
 
 /** Does this left-nav entry point at a section the user has filtered out? */
-function isNavEntryBlocked(entry, removeGlobalShorts, removeLiveVideos) {
+export function isNavEntryBlocked(entry, removeGlobalShorts, removeLiveVideos) {
   if (!entry || typeof entry !== 'object') return false;
 
   const renderer =
@@ -1010,7 +1020,8 @@ export function parseHookRequired() {
     cfgSnapshot[CONFIG_KEYS.ADBLOCK] ||
     cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] ||
     cfgSnapshot[CONFIG_KEYS.ENDCARDS] ||
-    cfgSnapshot[CONFIG_KEYS.CODEC] !== 'auto'
+    cfgSnapshot[CONFIG_KEYS.CODEC] !== 'auto' ||
+    thumbnailHookRequired()
   );
 }
 
