@@ -43,7 +43,9 @@
   position: fixed;
   top: 5%;
   left: 4%;
-  width: 42vw;
+  /* 52vw is the measured point at which every two-column Cosmetic Filtering label fits on
+     one line at 1080p; 54vw leaves margin for a longer label without crowding the page. */
+  width: 54vw;
   max-height: 90vh;
   color: #f0f0f0;
   font-family: 'Noto Sans', 'YouTube Noto', Roboto, sans-serif;
