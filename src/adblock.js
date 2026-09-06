@@ -1,6 +1,7 @@
 import { configGetAll, configAddChangeListener } from './config';
 import { isShortsPage } from './utils';
 import { FetchRegistry } from './hooks';
+import { rewriteStreamingData } from './force-codec.js';
 
 const DEBUG = false;
 const FORCE_FALLBACK = false;
@@ -50,7 +51,8 @@ const CONFIG_KEYS = {
   LIVE_GAMES: 'removeTopLiveGames',
   MOST_RELEVANT: 'removeMostRelevant',
   GUEST_PROMPTS: 'hideGuestSignInPrompts',
-  ENDCARDS: 'hideEndcards'
+  ENDCARDS: 'hideEndcards',
+  CODEC: 'forceVideoCodec'
 };
 
 const IGNORE_ON_SHORTS = new Set(['SEARCH', 'PLAYER', 'ACTION']);
@@ -71,7 +73,8 @@ const cfgFlags = {
   removeTopLiveGames: false,
   removeMostRelevant: false,
   hideGuestPrompts: false,
-  hideEndcards: false
+  hideEndcards: false,
+  forceVideoCodec: false
 };
 
 function recomputeFilterFlags() {
@@ -86,6 +89,7 @@ function recomputeFilterFlags() {
   cfgFlags.removeMostRelevant = !!cfgSnapshot[CONFIG_KEYS.MOST_RELEVANT];
   cfgFlags.hideGuestPrompts = !!cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS];
   cfgFlags.hideEndcards = !!cfgSnapshot[CONFIG_KEYS.ENDCARDS];
+  cfgFlags.forceVideoCodec = cfgSnapshot[CONFIG_KEYS.CODEC] !== 'auto';
 
   anyFilterEnabled = !!(
     cfgFlags.enableAdBlock ||
@@ -94,7 +98,8 @@ function recomputeFilterFlags() {
     cfgFlags.removeTopLiveGames ||
     cfgFlags.removeMostRelevant ||
     cfgFlags.hideGuestPrompts ||
-    cfgFlags.hideEndcards
+    cfgFlags.hideEndcards ||
+    cfgFlags.forceVideoCodec
   );
 }
 
@@ -329,6 +334,14 @@ function hookedParse(text, reviver) {
 
   const data = origParse.call(this, text, reviver);
   if (!data || typeof data !== 'object') return data;
+
+  // Force Video Codec rides in this hook rather than installing one of its own. A second
+  // JSON.parse wrapper stacked on top of this one would be silently uninstalled the moment
+  // destroyAdblock() restored the parse function it captured before that wrapper went in.
+  // Runs before the response-shape gate below: a player response is not filtered here but
+  // is exactly what carries streamingData.
+  if (cfgFlags.forceVideoCodec) rewriteStreamingData(data);
+
   // Three root-property checks in place of a regex over the whole payload string. This
   // deliberately narrows the match: a needle buried deep in an unrelated blob no longer
   // drags it through the filters.
@@ -854,15 +867,16 @@ export function findObjects(haystack, needlesArray, maxDepth = 10) {
 
 /**
  * The JSON.parse hook does more than ad filtering: it also drives guest-prompt hiding,
- * endcard hiding and trackingParams stripping, each of which has its own setting. Gating
- * the hook on enableAdBlock alone silently disabled all of them whenever Ad Blocking was
- * turned off.
+ * endcard hiding, trackingParams stripping and the Force Video Codec rewrite, each of
+ * which has its own setting. Gating the hook on enableAdBlock alone silently disabled all
+ * of them whenever Ad Blocking was turned off.
  */
 export function parseHookRequired() {
   return !!(
     cfgSnapshot[CONFIG_KEYS.ADBLOCK] ||
     cfgSnapshot[CONFIG_KEYS.GUEST_PROMPTS] ||
-    cfgSnapshot[CONFIG_KEYS.ENDCARDS]
+    cfgSnapshot[CONFIG_KEYS.ENDCARDS] ||
+    cfgSnapshot[CONFIG_KEYS.CODEC] !== 'auto'
   );
 }
 

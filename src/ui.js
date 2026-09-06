@@ -7,10 +7,13 @@ import {
   configRead,
   configWrite,
   forcePreviewModes,
+  logoStyles,
   sbModes,
   sbModesHighlight,
   segmentTypes,
-  shortcutActions
+  shortcutActions,
+  thumbnailQualityModes,
+  videoCodecModes
 } from './config';
 import './ui.css';
 import logoBlue from './icons/NB Logo-gigapixel.png';
@@ -19,6 +22,7 @@ import logoDark from './icons/NB Logo-gigapixel4.png';
 import './auto-login.js';
 import './return-dislike.js';
 import { initVideoQuality } from './video-quality.js';
+import { initLogoStyle } from './logo-style.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
 import {
   sendKey,
@@ -386,6 +390,57 @@ function createCycleControl(
   return container;
 }
 
+/**
+ * A cycle control laid out to line up with the checkbox rows around it. The checkbox is
+ * hidden but still present, so it reserves exactly the same label indent -- matching the
+ * indent with padding would drift the moment the checkbox size changes.
+ */
+function createAlignedCycleControl(configKey, displayMap) {
+  const control = createCycleControl(
+    configKey,
+    configGetDesc(configKey),
+    Object.keys(displayMap),
+    displayMap
+  );
+
+  const label = control.querySelector('.shortcut-label');
+  if (label) {
+    label.style.color = 'inherit';
+    label.style.display = 'flex';
+    label.style.alignItems = 'center';
+    label.style.lineHeight = 'inherit';
+
+    const dummyBox = createElement('input', {
+      type: 'checkbox',
+      style: { visibility: 'hidden', paddingLeft: '2.2vh' }
+    });
+
+    label.textContent = '';
+    label.appendChild(dummyBox);
+    label.appendChild(document.createTextNode('\u00A0' + configGetDesc(configKey)));
+  }
+
+  return control;
+}
+
+const createLogoControl = () => createAlignedCycleControl('logoStyle', logoStyles);
+const createVideoCodecControl = () => createAlignedCycleControl('forceVideoCodec', videoCodecModes);
+
+function createThumbnailQualityControl() {
+  const control = createAlignedCycleControl('thumbnailQualityMode', thumbnailQualityModes);
+  // The strategy only means anything while the feature it tunes is on. Greyed out and
+  // dropped from the focus order rather than hidden, so the rows below it do not jump
+  // every time the checkbox above is toggled.
+  const sync = () => {
+    const on = configRead('upgradeThumbnails');
+    control.style.opacity = on ? '1' : '0.5';
+    control.tabIndex = on ? 0 : -1;
+  };
+  configAddChangeListener('upgradeThumbnails', sync);
+  sync();
+  return control;
+}
+
 function createSegmentControl(key) {
   const isHighlight = key === 'sbMode_highlight';
   const modesMap = isHighlight ? sbModesHighlight : sbModes;
@@ -706,15 +761,17 @@ function createOptionsPanel() {
   const elAdBlock = createConfigCheckbox('enableAdBlock');
   const elTrackingBlock = createConfigCheckbox('enableTrackingBlock');
   const cosmeticGroup = [elAdBlock, elTrackingBlock];
-  let elRemoveGlobalShorts = null,
-    elRemoveTopLiveGames = null,
-    elRemoveMostRelevant = null,
-    elGuestPrompts = null;
-
-  elRemoveGlobalShorts = createConfigCheckbox('removeGlobalShorts');
-  elRemoveTopLiveGames = createConfigCheckbox('removeTopLiveGames');
-  elRemoveMostRelevant = createConfigCheckbox('removeMostRelevant');
-  cosmeticGroup.push(elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant);
+  const elRemoveGlobalShorts = createConfigCheckbox('removeGlobalShorts');
+  const elRemoveLiveVideos = createConfigCheckbox('removeLiveVideos');
+  const elRemoveTopLiveGames = createConfigCheckbox('removeTopLiveGames');
+  const elRemoveMostRelevant = createConfigCheckbox('removeMostRelevant');
+  let elGuestPrompts = null;
+  cosmeticGroup.push(
+    elRemoveGlobalShorts,
+    elRemoveLiveVideos,
+    elRemoveTopLiveGames,
+    elRemoveMostRelevant
+  );
   if (isGuestMode()) {
     elGuestPrompts = createConfigCheckbox('hideGuestSignInPrompts');
     cosmeticGroup.push(elGuestPrompts);
@@ -731,21 +788,18 @@ function createOptionsPanel() {
       el.style.opacity = enabled ? '1' : '0.5';
     }
   };
+  const adBlockDependents = [
+    elRemoveGlobalShorts,
+    elRemoveLiveVideos,
+    elRemoveTopLiveGames,
+    elRemoveMostRelevant,
+    elGuestPrompts
+  ];
   const updateDependencyState = () => {
     const isAdBlockOn = configRead('enableAdBlock');
-    if (!isAdBlockOn) {
-      [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(
-        el => {
-          setState(el, false);
-        }
-      );
-      return;
-    }
-    [elRemoveGlobalShorts, elRemoveTopLiveGames, elRemoveMostRelevant, elGuestPrompts].forEach(
-      el => {
-        setState(el, true);
-      }
-    );
+    adBlockDependents.forEach(el => {
+      setState(el, isAdBlockOn);
+    });
   };
 
   elAdBlock.querySelector('input').addEventListener('change', updateDependencyState);
@@ -759,6 +813,7 @@ function createOptionsPanel() {
   pageMain.appendChild(
     createSection('Video Player', [
       createConfigCheckbox('forceHighResVideo'),
+      createVideoCodecControl(),
       createConfigCheckbox('hideEndcards'),
       createConfigCheckbox('enableReturnYouTubeDislike')
     ])
@@ -767,7 +822,8 @@ function createOptionsPanel() {
     createSection('Interface', [
       createConfigCheckbox('enableAutoLogin'),
       createConfigCheckbox('upgradeThumbnails'),
-      createConfigCheckbox('hideLogo'),
+      createThumbnailQualityControl(),
+      createLogoControl(),
       createConfigCheckbox('showWatch'),
       createConfigCheckbox('enableOledCareMode'),
       createConfigCheckbox('disableNotifications')
@@ -1740,12 +1796,12 @@ function initGlobalStyles() {
 
   const syncClass = (cls, key) => document.documentElement.classList.toggle(cls, !!configRead(key));
   const apply = () => {
-    syncClass('ytaf-hide-logo', 'hideLogo');
+    // ytaf-hide-logo is owned by logo-style.js now -- it is one of three logoStyle values,
+    // not a boolean of its own.
     syncClass('ytaf-fix-titles', 'fixMultilineTitles');
     syncClass('ytaf-remove-borders', 'removeBlackBorders');
   };
   apply();
-  configAddChangeListener('hideLogo', () => syncClass('ytaf-hide-logo', 'hideLogo'));
   configAddChangeListener('fixMultilineTitles', () =>
     syncClass('ytaf-fix-titles', 'fixMultilineTitles')
   );
@@ -1819,6 +1875,7 @@ if (!menuKeyExists) {
 // --- Start-up ---
 initGlobalStyles();
 initVideoQuality();
+initLogoStyle();
 
 // Initial apply (will skip UI elements if they don't exist yet, but handle global styles)
 applyOledMode(configRead('enableOledCareMode'));
@@ -1832,6 +1889,7 @@ configAddChangeListener('uiTheme', evt => applyTheme(evt.detail.newValue));
 configAddChangeListener('enableAdBlock', () => syncAdblockHook());
 configAddChangeListener('hideGuestSignInPrompts', () => syncAdblockHook());
 configAddChangeListener('hideEndcards', () => syncAdblockHook());
+configAddChangeListener('forceVideoCodec', () => syncAdblockHook());
 
 // Add the listener for your new Tracking setting
 configAddChangeListener('enableTrackingBlock', evt => {

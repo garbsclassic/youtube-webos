@@ -53,11 +53,42 @@ export const forcePreviewModes = {
   force_off: 'Force Off'
 } as const;
 
+export const logoStyles = {
+  default: 'Default',
+  premium: 'Premium',
+  hidden: 'Hidden'
+} as const;
+
+/**
+ * Max Thumbnail Quality strategy.
+ *
+ * 'safe'  -- only ever emit a derivative already known to exist, so a tile can never land
+ *            on a 404. Upgrades past that arrive once background verification confirms them.
+ * 'eager' -- emit the best plausible derivative immediately and let verification demote it
+ *            if it turns out not to exist.
+ */
+export const thumbnailQualityModes = {
+  safe: 'Original',
+  eager: 'Fast'
+} as const;
+
+export const videoCodecModes = {
+  auto: 'Auto',
+  av1: 'AV1',
+  vp9: 'VP9',
+  avc: 'AVC (H.264)',
+  hevc: 'HEVC (H.265)',
+  no_av1: 'Avoid AV1'
+} as const;
+
 type UITheme = 'blue-force-field' | 'classic-red';
 type ShortcutAction = keyof typeof shortcutActions;
 type SBMode = keyof typeof sbModes;
 type SBModeHighlight = keyof typeof sbModesHighlight;
 type ForcePreviewMode = keyof typeof forcePreviewModes;
+type LogoStyle = keyof typeof logoStyles;
+type ThumbnailQualityMode = keyof typeof thumbnailQualityModes;
+type VideoCodecMode = keyof typeof videoCodecModes;
 
 interface ConfigOptionDef<T> {
   readonly default: T;
@@ -74,7 +105,9 @@ const configSchema = {
   enableTrackingBlock: opt(false, 'Reduce Telemetry & Tracking'),
   enableReturnYouTubeDislike: opt(true, 'Return YouTube Dislike'),
   upgradeThumbnails: opt(false, 'Max Thumbnail Quality'),
+  thumbnailQualityMode: opt<ThumbnailQualityMode>('safe', 'Thumbnail Strategy'),
   removeGlobalShorts: opt(false, 'Remove Shorts (Global)'),
+  removeLiveVideos: opt(false, 'Remove Live Videos (Global)'),
   removeTopLiveGames: opt(false, 'Remove Top Live Games'),
   removeMostRelevant: opt(false, 'Remove "Most Relevant" Shelf'),
   enableSponsorBlock: opt(true, 'SponsorBlock'),
@@ -91,8 +124,8 @@ const configSchema = {
   sbMode_hook: opt<SBMode>('seek_bar', 'Hook/Greetings'),
   sbMode_highlight: opt<SBModeHighlight>('seek_bar', 'Highlight'),
   hideEndcards: opt(false, 'Hide Endcards'),
-  enableAutoLogin: opt(true, 'Auto Login'),
-  hideLogo: opt(false, 'Hide YouTube Logo'),
+  enableAutoLogin: opt(true, 'Bypass Nag Screens'),
+  logoStyle: opt<LogoStyle>('default', 'YouTube Logo'),
   showWatch: opt(false, 'Display Time in UI'),
   enableOledCareMode: opt(false, 'OLED-Care Mode (True Black UI)'),
   videoShelfOpacity: opt(100, 'Video shelf opacity'),
@@ -101,6 +134,7 @@ const configSchema = {
   forcePreviews: opt<ForcePreviewMode>('disabled', 'Force Previews'),
   hideGuestSignInPrompts: opt(false, 'Guest Mode: Hide Sign-in Buttons'),
   forceHighResVideo: opt(false, 'Force Max Quality'),
+  forceVideoCodec: opt<VideoCodecMode>('auto', 'Force Video Codec'),
   disableNotifications: opt(false, 'Disable Notifications'),
 
   // Shortcut keys 0-9 (5 defaults to the chapter-skip action)
