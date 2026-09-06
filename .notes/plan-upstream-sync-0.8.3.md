@@ -150,11 +150,11 @@ Land as one batch — the new rows are what force the CSS relayout.
 
 ### 9. Cleanup
 
-- [ ] Drop the dead `@twemoji/api` dependency — nothing under `src/` imports it since the emoji fix was deleted.
-- [ ] Delete the unused `EventInstanceType` and `EventOptionsType` from `custom-event-target.ts` (`:13`, `:17`) — the one thing worth taking from upstream's version of that file.
-- [ ] Optionally adopt `ares-package -n dist -o dist` plus the matching `tools/deploy.js` path, which fits the fork's untracked-`dist/` convention. See landmine 4 — `gen-manifest.cjs` and both workflows need updating in the same commit.
+- [x] Drop the dead `@twemoji/api` dependency — nothing under `src/` imports it since the emoji fix was deleted.
+- [x] Delete the unused `EventInstanceType` and `EventOptionsType` from `custom-event-target.ts` (`:13`, `:17`) — the one thing worth taking from upstream's version of that file.
+- [x] Optionally adopt `ares-package -n dist -o dist` plus the matching `tools/deploy.js` path, which fits the fork's untracked-`dist/` convention. See landmine 4 — `gen-manifest.cjs` and both workflows need updating in the same commit.
 - [ ] Run `npm version patch` on `main` once the changeset is merged and committed, per the `fork-sync` skill — the `v*.*` tag is what drives `release.yml` and, through it, the regenerated `repo.json`.
-- [ ] Update `CHANGELOG.md` under a new `0.3.0` heading in the fork's Keep-a-Changelog style, crediting upstream 0.8.2 and 0.8.3, and noting the two behavior changes: telemetry requests resolve empty rather than aborting, and `hideLogo` is gone so the logo resets to the default wordmark.
+- [x] Update `CHANGELOG.md` under a new `0.3.0` heading in the fork's Keep-a-Changelog style, crediting upstream 0.8.2 and 0.8.3, and noting the two behavior changes: telemetry requests resolve empty rather than aborting, and `hideLogo` is gone so the logo resets to the default wordmark.
 
 ## Config schema changes
 

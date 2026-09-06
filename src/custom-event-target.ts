@@ -10,12 +10,6 @@ type TypedEvent<T, U> = {
   readonly type: U;
 };
 
-type EventInstanceType<T, O> = T extends abstract new (type: string, options?: O) => infer R
-  ? R
-  : never;
-
-type EventOptionsType<T> = T extends new (type: string, options?: infer O) => Event ? O : never;
-
 export type TypedCustomEvent<D, T extends EventTarget, U = string> = BaseTypedEvent<
   T,
   CustomEvent<D>,

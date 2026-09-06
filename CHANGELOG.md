@@ -4,6 +4,76 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.0] - 2026/09/06
+
+Ports everything upstream shipped in 0.8.2 and 0.8.3 that still applies to this fork, plus
+the bugs found while porting it. Credit to the upstream project for the original work.
+
+Two behavior changes worth calling out: blocked telemetry requests now resolve as an empty
+200 instead of being aborted, and the `hideLogo` setting is gone -- the logo resets to the
+default wordmark until you pick Premium or Hidden under the new YouTube Logo setting.
+
+### Added
+
+- **Force Video Codec** -- pin playback to AV1, VP9, AVC, HEVC, or "Avoid AV1" instead of
+  accepting whatever the player and server negotiate. Some panels advertise AV1 through MSE
+  and then stall on it; some decode VP9 in hardware and AV1 in software. Narrowing only: a
+  codec the platform denies is refused with a message rather than a black screen, audio is
+  never touched, and a video with no rendition in the chosen codec plays as it always did.
+  Takes effect on reload, since the player probes codecs once at startup.
+- **YouTube Logo** -- Default, Premium, or Hidden. Replaces the `hideLogo` checkbox.
+- **Remove Live Videos (Global)** -- filters live streams out of every shelf, and removes
+  the Live tab from the left nav. The Shorts tab is now removed too when Remove Shorts is
+  on.
+- **Thumbnail Strategy** -- Original or Fast, tuning Max Thumbnail Quality. Original never
+  shows a grey placeholder; Fast upgrades immediately and corrects itself in the background.
+- **Bypass Nag Screens** -- the Auto Login setting now also suppresses the Premium upsell
+  interstitial. Same setting, renamed.
+
+### Changed
+
+- Max Thumbnail Quality rewrites thumbnail URLs in the InnerTube response instead of
+  swapping them in the DOM. The app never requests the low-quality image, so upgraded tiles
+  cost one fetch instead of two and no longer pop in; off-screen tiles are upgraded too, and
+  search results are covered for the first time. Three permanent observers and a probe queue
+  are gone.
+- Blocked telemetry requests are re-pointed at an empty `data:` URL rather than aborted, so
+  YouTube's queue settles instead of retrying. More telemetry paths are blocked
+  (`/pagead/*`, `/eligibility_check`).
+- The settings panel is relaid out: larger body text, Cosmetic Filtering in two columns, and
+  a scroll fallback so a row can never become unreachable.
+- Return YouTube Dislike shows an em dash until the count arrives, rather than a
+  placeholder 0.
+
+### Fixed
+
+- A launch URL whose origin only _looked_ like youtube.com (e.g.
+  `https://www.youtube.com.attacker.example/x`) passed the origin check and was navigated
+  to.
+- Turning Ad Blocking off silently disabled Hide Endcards and Guest-Mode prompt hiding: they
+  share a hook that was gated on Ad Blocking alone.
+- Turning Force Max Quality off silently disabled the on-screen clock and all SponsorBlock
+  state handling.
+- The SponsorBlock overlay disappeared after replaying a video from the endscreen and never
+  came back, and recoloring a segment never redrew it.
+- A SponsorBlock skip that overshot its target from a dropped frame wedged the skip pipeline
+  for the rest of the video, and the frame-drop tolerance fired the manual-skip prompt for
+  segments already watched past.
+- SponsorBlock's manual-skip notifications piled up instead of being dismissed, and
+  seek-burst notification text never updated.
+- Return YouTube Dislike showed a permanent 0 when its request failed, with no retry, and
+  the dislike count appeared seconds after the panel rendered.
+- A filtered shelf with no items left behind a ghost header and a row of grey skeleton
+  tiles.
+- Pausing always took the hide-controls path, because the check looked for a CSS class the
+  TV UI had renamed.
+- The settings panel's focus highlight could desynchronise from the actual selection.
+- The Shorts screensaver keep-alive leaked a DOM reference on every 30-second tick.
+
+### Removed
+
+- `hideLogo` (replaced by `logoStyle`) and the unused `@twemoji/api` dependency.
+
 ## [0.2.0] - 2026/08/23
 
 Versioning is unified from here on: this project has always been versioned and tagged as

@@ -49,7 +49,7 @@ jobs:
           omitBodyDuringUpdate: true
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
-          artifacts: '*.ipk'
+          artifacts: 'dist/*.ipk'
 
       # Load-bearing despite update-repo.yml also listening for `release:
       # published`: that trigger never fires, because releases created with the
