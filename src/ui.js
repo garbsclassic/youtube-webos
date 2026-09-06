@@ -46,6 +46,13 @@ export const showNotification = _showNotification;
 
 let lastSafeFocus = null;
 let oledKeepAliveTimer = null;
+// webOS suppresses its screensaver while a video is actually playing -- that is the only
+// mechanism available from inside the page, so OLED mode leans on it rather than trying to
+// fake input. Set when the mode was entered with playback running.
+let oledKeepPlaying = false;
+// Below .ytaf-notification-container (1200) so the mode's own toasts stay readable, above
+// .ytaf-ui-container (1000) so the settings panel is still covered.
+const OLED_OVERLAY_Z = 1100;
 
 let lastShortcutTime = 0;
 let lastShortcutKey = -1;
@@ -1470,16 +1477,8 @@ function handleShortcutAction(action) {
       if (oledKeepAliveTimer) {
         clearInterval(oledKeepAliveTimer);
         oledKeepAliveTimer = null;
-
-        // Reset webOS keepAlive to allow normal sleep
-        if (window.webOSDev?.connection?.setKeepAlive) {
-          try {
-            window.webOSDev.connection.setKeepAlive(false);
-          } catch (e) {
-            console.warn('[OLED] webOS setKeepAlive reset failed:', e);
-          }
-        }
       }
+      oledKeepPlaying = false;
 
       showNotification('OLED Mode Deactivated');
     } else {
@@ -1494,32 +1493,34 @@ function handleShortcutAction(action) {
           width: '100%',
           height: '100%',
           background: '#000',
-          zIndex: 9999
+          zIndex: OLED_OVERLAY_Z
         }
       });
 
       document.body.appendChild(overlay);
 
-      // Keep TV awake by preventing system sleep
-      oledKeepAliveTimer = setInterval(
-        () => {
-          // Method 1: Try webOS API if available
-          if (window.webOSDev?.connection?.setKeepAlive) {
-            try {
-              window.webOSDev.connection.setKeepAlive(true);
-            } catch (e) {
-              console.warn('[OLED] webOS setKeepAlive failed:', e);
-            }
-          }
+      // The old keep-alive called window.webOSDev.connection.setKeepAlive() and sent
+      // synthetic UP presses. Neither did anything: webOSDev and webOS are both undefined
+      // in this page, so that branch was dead, and sendKey() builds untrusted DOM events,
+      // which cannot reset a platform idle timer driven by real HID input.
+      const video = getVideo();
+      oledKeepPlaying = !!video && !video.paused && !video.ended;
 
-          // Method 2: Simulate input
-          sendKey(REMOTE_KEYS.UP);
-          setTimeout(() => sendKey(REMOTE_KEYS.UP), 1000);
-        },
-        2.5 * 60 * 1000
-      );
-
-      showNotification('OLED Mode Activated');
+      if (oledKeepPlaying) {
+        // Playback is what holds the screensaver off, so the only job here is to notice if
+        // something stopped it -- not to re-start a video the user deliberately paused
+        // before entering the mode.
+        oledKeepAliveTimer = setInterval(() => {
+          const v = getVideo();
+          if (v && v.paused && !v.ended) v.play().catch(() => {});
+        }, 30000);
+        showNotification('OLED Mode Activated');
+      } else {
+        showNotification(
+          'OLED Mode Activated — no video playing, so the TV screensaver may still turn the screen off',
+          8000
+        );
+      }
     }
 
     return;
