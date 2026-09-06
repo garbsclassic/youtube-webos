@@ -78,8 +78,8 @@ Four things that bite silently if ported naively.
 
 ### 2. Security
 
-- [ ] `utils.js` `handleLaunch`: replace `contentTarget.startsWith(ytURL.origin)` (`src/utils.js:255`) with upstream's `sameOriginURL(candidate, expectedOrigin)` — `new URL(candidate).origin === expectedOrigin`, returning `null` on parse failure. Today `https://www.youtube.com.attacker.example/x` passes and is assigned to `window.location.href`. Keep the fork's `try/catch` wrapper (a strict superset of upstream's `params ?? {}`), but take upstream's shape for the voice branch: it still handles an `intentParam`-only `contentTarget`, where the fork's B-5 fix skips the branch entirely unless `intent` is a string. Add a `test/utils.test.js` case for the spoofed origin — the existing 12 tests miss it.
-- [ ] Split launch handling into `src/launch.js`, with `utils.js` re-exporting so `userScript.js` import sites are unchanged and `src/index.js` imports from `launch.js`. The bootstrap page is a bare redirect that currently drags in all of `utils.js`'s module-level side effects. Drop upstream's `import './polyfills.js'`.
+- [x] `utils.js` `handleLaunch`: replace `contentTarget.startsWith(ytURL.origin)` (`src/utils.js:255`) with upstream's `sameOriginURL(candidate, expectedOrigin)` — `new URL(candidate).origin === expectedOrigin`, returning `null` on parse failure. Today `https://www.youtube.com.attacker.example/x` passes and is assigned to `window.location.href`. Keep the fork's `try/catch` wrapper (a strict superset of upstream's `params ?? {}`), but take upstream's shape for the voice branch: it still handles an `intentParam`-only `contentTarget`, where the fork's B-5 fix skips the branch entirely unless `intent` is a string. Add a `test/utils.test.js` case for the spoofed origin — the existing 12 tests miss it.
+- [x] Split launch handling into `src/launch.js`, with `utils.js` re-exporting so `userScript.js` import sites are unchanged and `src/index.js` imports from `launch.js`. The bootstrap page is a bare redirect that currently drags in all of `utils.js`'s module-level side effects. Drop upstream's `import './polyfills.js'`.
 
 ### 3. Hooks and adblock engine
 

@@ -1,4 +1,6 @@
-const CONTENT_INTENT_REGEX = /^.+(?=Content)/g;
+// Launch handling lives in launch.js so the index.js bootstrap page can import it without
+// dragging in this module's page-state side effects.
+export { extractLaunchParams, handleLaunch } from './launch.js';
 
 export const SELECTORS = {
   PLAYER_ID: 'ytlr-player__player-container-player',
@@ -208,85 +210,6 @@ export function sendKey(keyDef, target = document.body) {
 
   target.dispatchEvent(keyDownEvt);
   target.dispatchEvent(keyUpEvt);
-}
-
-let cachedLaunchParams = null;
-
-export function extractLaunchParams() {
-  if (cachedLaunchParams) return cachedLaunchParams;
-
-  if (window.launchParams) {
-    try {
-      cachedLaunchParams = JSON.parse(window.launchParams);
-      return cachedLaunchParams;
-    } catch (e) {
-      console.warn('Failed to parse launchParams', e);
-    }
-  }
-  return (cachedLaunchParams = {});
-}
-
-function getYTURL() {
-  const ytURL = new URL('https://www.youtube.com/tv#/');
-  ytURL.searchParams.set('env_forceFullAnimation', '1');
-  ytURL.searchParams.set('env_enableWebSpeech', '1');
-  ytURL.searchParams.set('env_enableVoice', '1');
-  return ytURL;
-}
-
-function concatSearchParams(a, b) {
-  b.forEach((value, key) => {
-    a.append(key, value);
-  });
-  return a;
-}
-
-export function handleLaunch(params) {
-  console.info('handleLaunch', params);
-  let ytURL = getYTURL();
-
-  // Launch params come from the TV's voice/launcher stack -- treat them as
-  // untrusted input. Any malformed shape falls back to the plain YouTube URL
-  // instead of leaving the app on a blank page.
-  try {
-    let { target, contentTarget = target } = params;
-
-    if (typeof contentTarget === 'string') {
-      if (contentTarget.startsWith(ytURL.origin)) {
-        ytURL = new URL(contentTarget);
-      } else {
-        if (contentTarget.startsWith('v=v=')) contentTarget = contentTarget.substring(2);
-
-        concatSearchParams(ytURL.searchParams, new URLSearchParams(contentTarget));
-      }
-    } else if (
-      contentTarget &&
-      typeof contentTarget === 'object' &&
-      typeof contentTarget.intent === 'string'
-    ) {
-      const { intent, intentParam } = contentTarget;
-      const search = ytURL.searchParams;
-      const voiceContentIntent = intent.match(CONTENT_INTENT_REGEX)?.[0]?.toLowerCase();
-
-      search.set('inApp', true);
-      search.set('vs', 9);
-      if (voiceContentIntent) search.set('va', voiceContentIntent);
-      search.append('launch', 'voice');
-      if (voiceContentIntent === 'search') search.append('launch', 'search');
-      search.set('vq', intentParam);
-    }
-
-    if (ytURL.searchParams.get('theme') === 'k') {
-      ytURL.searchParams.delete('env_forceFullAnimation');
-      ytURL.searchParams.delete('env_enableWebSpeech');
-      ytURL.searchParams.delete('env_enableVoice');
-    }
-  } catch (err) {
-    console.error('[Utils] handleLaunch failed to parse launch params:', err);
-    ytURL = getYTURL();
-  }
-
-  window.location.href = ytURL.toString();
 }
 
 export async function waitForChildAdd(

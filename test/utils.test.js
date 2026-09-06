@@ -65,10 +65,26 @@ test('handleLaunch removes the animation/speech/voice env params under the "k" t
   assert.equal(url.searchParams.has('env_enableVoice'), false);
 });
 
-test('handleLaunch degrades to the plain YouTube URL when an object contentTarget has no intent', () => {
+test('handleLaunch still builds a voice search when an object contentTarget has no intent', () => {
+  // An intent-less launch is malformed but not useless -- the intentParam is the spoken
+  // query, so it still searches, just without the `va` intent hint.
   const url = launch({ contentTarget: { intentParam: 'cats' } });
-  assert.equal(url.origin + url.pathname, 'https://www.youtube.com/tv');
-  assert.equal(url.searchParams.has('vq'), false);
+  assert.equal(url.searchParams.get('vq'), 'cats');
+  assert.equal(url.searchParams.has('va'), false);
+  assert.deepEqual(url.searchParams.getAll('launch'), ['voice']);
+});
+
+test('handleLaunch rejects a contentTarget whose origin only looks like youtube.com', () => {
+  // A prefix match on the origin let https://www.youtube.com.attacker.example/x through and
+  // assigned it straight to location.href.
+  const url = launch({ contentTarget: 'https://www.youtube.com.attacker.example/x' });
+  assert.equal(url.origin, 'https://www.youtube.com');
+  assert.notEqual(url.hostname, 'www.youtube.com.attacker.example');
+});
+
+test('handleLaunch rejects a cross-origin contentTarget URL outright', () => {
+  const url = launch({ contentTarget: 'https://attacker.example/tv#/watch?v=abc123' });
+  assert.equal(url.origin, 'https://www.youtube.com');
 });
 
 test('handleLaunch degrades to the plain YouTube URL when contentTarget is null', () => {

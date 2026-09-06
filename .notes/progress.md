@@ -4,3 +4,4 @@ Append-only, newest at the bottom. One line per completed item: date, linked pla
 
 - 2026-09-05 — [upstream-sync-0.8.3](plan-upstream-sync-0.8.3.md): branch cut from main, upstream 0.8.2/0.8.3 triaged into a port plan
 - 2026-09-06 — [upstream-sync-0.8.3](plan-upstream-sync-0.8.3.md): step 1 unblockers — player state events now publish regardless of Force Max Quality, notifications dedup via a liveMessages Map returning real handles, `ui.js` recolor redraws the overlay
+- 2026-09-06 — [upstream-sync-0.8.3](plan-upstream-sync-0.8.3.md): step 2 security — launch handling split into src/launch.js and the origin prefix match replaced with a real origin comparison; an intent-less voice launch now searches on its intentParam instead of degrading
