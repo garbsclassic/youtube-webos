@@ -3,7 +3,6 @@ import assert from 'node:assert';
 import eslintJs from '@eslint/js';
 import type { ESLint, Linter } from 'eslint';
 import stylistic from '@stylistic/eslint-plugin';
-import prettierConfig from 'eslint-config-prettier';
 import * as regexpPlugin from 'eslint-plugin-regexp';
 import globals from 'globals';
 import pkgJson from './package.json' with { type: 'json' };
@@ -13,7 +12,6 @@ assert(pkgJson.type === defaultSourceType);
 
 const configs = [
   eslintJs.configs.recommended,
-  prettierConfig,
   regexpPlugin.configs['flat/recommended'],
 
   {
@@ -57,7 +55,7 @@ const configs = [
       'no-unmodified-loop-condition': 'error',
       'no-useless-assignment': 'error',
 
-      // @stylistic rules - needed as prettier doesn't handle these
+      // @stylistic rules
       '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],
 
       /* eslint-plugin-regexp */
