@@ -1,0 +1,16 @@
+{
+  "description": "Fork of NicholasBly/youtube-webos (ad-free YouTube for LG webOS TVs), branched at upstream 0.8.1.",
+  "divergence": [
+    "Dropped the entire legacy webOS 3-6 / Chrome 38 / ES5 build; only the modern Chrome 87 target ships",
+    "Removed babel.config.js, legacy browserslist targets, core-js-pure, @babel/runtime-corejs3, regenerator-runtime, babel-plugin-polyfill-*, whatwg-fetch, and all polyfills",
+    "Deleted the twemoji emoji-fix code path entirely",
+    "Converted config.js to typed config.ts with a 200 ms debounced localStorage write flushed on pagehide",
+    "Bundles all icons, logos and fonts locally already",
+    "Added a node:test suite and CI; does not use ad-hoc .cjs bench harnesses",
+    "app_api already gates debug logs behind a flag with poll backoff and timeout",
+    "Fixed the back-button issue #159 independently with an isAtTopLevel guard",
+    "Already fixed the options-panel ReferenceError and shortcut debounce",
+    "Has its own README, repo.json and version numbering; nothing is distributed, so no migration shims are needed"
+  ],
+  "known_live_bugs": []
+}
