@@ -6,8 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.3.0] - 2026/09/06
 
-Ports everything upstream shipped in 0.8.2 and 0.8.3 that still applies to this fork, plus
-the bugs found while porting it. Credit to the upstream project for the original work.
+Ports everything upstream shipped in 0.8.2, 0.8.3 and 0.8.4 that still applies to this fork,
+plus the bugs found while porting it. Credit to the upstream project for the original work.
 
 Two behavior changes worth calling out: blocked telemetry requests now resolve as an empty
 200 instead of being aborted, and the `hideLogo` setting is gone -- the logo resets to the
@@ -29,6 +29,11 @@ default wordmark until you pick Premium or Hidden under the new YouTube Logo set
   shows a grey placeholder; Fast upgrades immediately and corrects itself in the background.
 - **Bypass Nag Screens** -- the Auto Login setting now also suppresses the Premium upsell
   interstitial. Same setting, renamed.
+- **Show an icon when a video is entirely an advertisement** -- a SponsorBlock badge before
+  the video title when the whole video is labelled Sponsor, Self Promo or Exclusive Access,
+  as the desktop extension shows it. Watch page only.
+- **Show time with skips removed** -- the duration under the seek bar gains a bracketed
+  running time that subtracts every segment that will be skipped, counting overlaps once.
 
 ### Changed
 
@@ -44,9 +49,15 @@ default wordmark until you pick Premium or Hidden under the new YouTube Logo set
   a scroll fallback so a row can never become unreachable.
 - Return YouTube Dislike shows an em dash until the count arrives, rather than a
   placeholder 0.
+- The "Toggle OLED Care Mode" shortcut is now "Toggle OLED Black Overlay", so it no longer
+  reads as the OLED-Care Mode setting.
 
 ### Fixed
 
+- Reopening the comments or description panel after closing it stacked every row at the top
+  with zero height and trapped arrow navigation (a YouTube-side regression,
+  NicholasBly/youtube-webos#188). Scrolling some description panels was broken by the same
+  workaround Return YouTube Dislike used for it (#154).
 - A launch URL whose origin only _looked_ like youtube.com (e.g.
   `https://www.youtube.com.attacker.example/x`) passed the origin check and was navigated
   to.
