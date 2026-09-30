@@ -2,7 +2,8 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { SponsorBlockHandler } from '../src/sponsorblock.js';
 
-const { findSegmentAtTime, findNextSegmentIndex, buildSkipChain } = SponsorBlockHandler.prototype;
+const { findSegmentAtTime, findNextSegmentIndex, buildSkipChain, rebuildSkipSegments } =
+  SponsorBlockHandler.prototype;
 
 describe('findSegmentAtTime (binary search)', () => {
   const skipSegments = [
@@ -123,5 +124,55 @@ describe('buildSkipChain', () => {
       endTime: 8,
       chainDescription: 'sponsor[0.0s-10.0s]'
     });
+  });
+});
+
+describe('rebuildSkipSegments', () => {
+  function rebuild(segments, activeCategories = ['sponsor', 'selfpromo']) {
+    const handler = {
+      segments,
+      activeCategories: new Set(activeCategories),
+      skipSegments: [],
+      stopHighFreqLoop() {},
+      resetSegmentTracking() {},
+      getCategoryName: category => `name:${category}`
+    };
+    rebuildSkipSegments.call(handler);
+    return handler.skipSegments;
+  }
+
+  test('keeps an auto-skip sponsor segment', () => {
+    const segments = [{ category: 'sponsor', actionType: 'skip', segment: [10, 20] }];
+    assert.deepEqual(rebuild(segments), [
+      {
+        start: 10,
+        end: 20,
+        category: 'sponsor',
+        categoryName: 'name:sponsor',
+        mode: 'auto_skip',
+        originalIndex: 0
+      }
+    ]);
+  });
+
+  test('leaves a full-video sponsor label out of the skip list but keeps the real segment', () => {
+    const segments = [
+      { category: 'sponsor', actionType: 'full', segment: [0, 0] },
+      { category: 'sponsor', actionType: 'skip', segment: [10, 20] }
+    ];
+    const result = rebuild(segments);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].start, 10);
+    assert.equal(result[0].originalIndex, 1);
+  });
+
+  test('leaves muted segments out of the skip list', () => {
+    const segments = [{ category: 'sponsor', actionType: 'mute', segment: [10, 20] }];
+    assert.deepEqual(rebuild(segments), []);
+  });
+
+  test('produces an empty list when no category is active', () => {
+    const segments = [{ category: 'sponsor', actionType: 'skip', segment: [10, 20] }];
+    assert.deepEqual(rebuild(segments, []), []);
   });
 });
