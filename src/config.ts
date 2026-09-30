@@ -16,7 +16,7 @@ export const segmentTypes = {
 export const shortcutActions = {
   none: 'None',
   config_menu: 'Open/Close Settings',
-  oled_toggle: 'Toggle OLED Care Mode',
+  oled_toggle: 'Toggle OLED Black Overlay',
   refresh_page: 'Refresh Page',
   play_pause: 'Play / Pause',
   seek_back: 'Rewind (Burst)',
