@@ -1,5 +1,5 @@
 {
-  "description": "Fork of NicholasBly/youtube-webos (ad-free YouTube for LG webOS TVs), branched at upstream 0.8.1.",
+  "description": "Fork of NicholasBly/youtube-webos (ad-free YouTube for LG webOS TVs), branched at upstream 0.8.1; upstream 0.8.2-0.8.4 ported on feat/upstream-sync-0.8.3 and feat/upstream-sync-0.8.4.",
   "divergence": [
     "Dropped the entire legacy webOS 3-6 / Chrome 38 / ES5 build; only the modern Chrome 87 target ships",
     "Removed babel.config.js, legacy browserslist targets, core-js-pure, @babel/runtime-corejs3, regenerator-runtime, babel-plugin-polyfill-*, whatwg-fetch, and all polyfills",
@@ -10,7 +10,13 @@
     "app_api already gates debug logs behind a flag with poll backoff and timeout",
     "Fixed the back-button issue #159 independently with an isAtTopLevel guard",
     "Already fixed the options-panel ReferenceError and shortcut debounce",
-    "Has its own README, repo.json and version numbering; nothing is distributed, so no migration shims are needed"
+    "Has its own README, repo.json and version numbering; nothing is distributed, so no migration shims are needed",
+    "config.ts configRead/configWrite throw on unknown keys, where upstream's config.js returns undefined; any upstream code reading a computed key (e.g. `${category}Color`) must check the key exists first",
+    "Ported upstream 0.8.4's comments-fix.js (#188) and RYD header shift; the RYD .TXB27d virtual-list override is gone",
+    "Ported SponsorBlock full-video labels and time-with-skips, plus exclusive_access in FETCH_CATEGORIES, which upstream omits so its Exclusive Access badge never shows",
+    "Keeps its own spatial-navigation.js; upstream's spatial-navigation-polyfill.js is legacy-build only",
+    "Upstream converted every file to CRLF in 0.8.4; diff with --ignore-cr-at-eol -w",
+    "Comments carry no history of earlier approaches; upstream's comment-trim passes apply where the fork carries the same text"
   ],
   "known_live_bugs": []
 }
