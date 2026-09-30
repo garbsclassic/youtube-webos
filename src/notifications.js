@@ -60,8 +60,6 @@ export function showNotification(text, time = 3000) {
     if (liveMessages.get(elmInner.textContent)?.elmInner === elmInner) {
       liveMessages.delete(elmInner.textContent);
     }
-    // Always the same wrapper node: the old duplicate path removed `existing.parentElement`
-    // while this removed `elm` — two different nodes for the same "dismiss this".
     setTimeout(() => elm.remove(), 1000);
   };
 

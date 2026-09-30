@@ -47,8 +47,7 @@ function setShortsKeepAlive(enable) {
       // the buffer.
       DEBUG && console.log('[ScreensaverFix] keep-alive tick');
 
-      // activeElement is already document.body when nothing else has focus, and null only
-      // pre-load, so this is equivalent to the old eight-line pick.
+      // activeElement is document.body when nothing else has focus, null only pre-load.
       const target = document.activeElement || document.body;
 
       sendKey(REMOTE_KEYS.YELLOW, target);

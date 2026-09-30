@@ -1568,7 +1568,6 @@ function handleShortcutAction(action) {
   const video = getVideo();
   if (!video) return;
 
-  // Check context for player actions (same check as used previously for keys 0-9)
   switch (action) {
     case 'play_pause':
       playPauseLogic(video);
@@ -1759,10 +1758,9 @@ function initGlobalStyles() {
            Same reason ytaf-hide-logo / ytaf-fix-titles / ytaf-remove-borders
            already live on documentElement.
 
-           Previously this whole block was rebuilt as an inline <style> on every
-           videoShelfOpacity slider tick. Opacity now flows through the CSS
-           custom property --ytaf-oled-opacity; the conditional shelf-transparent
-           rules sit under html.oled-transparent-shelf. */
+           Opacity flows through the --ytaf-oled-opacity custom property, so a
+           videoShelfOpacity slider tick never rebuilds this block; the
+           conditional rules sit under html.oled-transparent-shelf. */
         html.oled-theme-active #container,
         html.oled-theme-active .ytLrGuideResponseMask,
         html.oled-theme-active .geClSe,

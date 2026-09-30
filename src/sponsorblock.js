@@ -212,11 +212,10 @@ export class SponsorBlockHandler {
     // Fall back to ytPB itself only if progressBar is the same node or unset.
     const trackEl = this.progressBar && this.progressBar !== ytPB ? this.progressBar : ytPB;
 
-    // Reads first, in one batch. The old order was read -> write top/left -> read
-    // offsetWidth -> write -> read offsetHeight -> write, forcing up to three synchronous
-    // reflows per sync. classList.contains and the inline-style read are recalc-free,
-    // unlike the earlier getComputedStyle(ytPB).opacity poll; the inline check still
-    // catches UI builds that hide via inline opacity without the zylon-hidden class.
+    // All reads first, in one batch: interleaving them with writes forced up to three
+    // synchronous reflows per sync on webOS. classList and the inline-style read are
+    // recalc-free, and the inline check still catches UI builds that hide via opacity
+    // without the zylon-hidden class.
     const isHidden = ytPB.classList.contains('zylon-hidden') || ytPB.style.opacity === '0';
     const width = trackEl.offsetWidth;
     const height = trackEl.offsetHeight;
@@ -752,19 +751,16 @@ export class SponsorBlockHandler {
         });
       };
 
-      // Two narrow observers rather than one broad one. The single observer used
-      // attributes + subtree, so YouTube's per-frame style writes on playhead and
-      // buffered-range descendants generated a mutation record and a callback invocation
-      // every animation frame purely to be filtered out again in JS. Semantics are
-      // unchanged.
+      // Two narrow observers rather than one attributes+subtree observer, which woke a
+      // callback every animation frame on YouTube's playhead style writes just to filter
+      // them out in JS.
       //
       // 1) childList-only subtree observer -- catches the bar being destroyed or recreated.
       this.domObserver = new MutationObserver(scheduleCheck);
       this.domObserver.observe(observeTarget, { childList: true, subtree: true });
       this.observers.add(this.domObserver);
 
-      // 2) attribute observer pinned to the tracked bar itself, no subtree -- matches the
-      //    old `m.target === this.progressBar` filter exactly. Re-targeted in
+      // 2) attribute observer pinned to the tracked bar itself, no subtree; re-targeted in
       //    checkForProgressBar whenever the bar is (re)acquired.
       this._attrObserver = new MutationObserver(scheduleCheck);
       this.observers.add(this._attrObserver);
@@ -830,10 +826,8 @@ export class SponsorBlockHandler {
     this.observePlayerUI();
   }
 
-  // Bounded poll for the progress bar. checkForProgressBar() used to give up silently
-  // when the bar was missing (an `if (target)` with no else), relying entirely on the
-  // observer to call it back -- exactly what fails on replay, since the chrome is rebuilt
-  // asynchronously after playback starts.
+  // Bounded poll for the progress bar. The observer alone is not enough on replay: the
+  // chrome is rebuilt asynchronously after playback starts.
   _scheduleBarRetry() {
     if (this._barRetryTimer || this.isDestroyed) return;
     let attempts = 0;
