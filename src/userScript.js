@@ -12,6 +12,7 @@ import './ui.js'; // Registers the green-key handler, options panel, video-quali
 import './sponsorblock.js';
 import './screensaver-fix.js';
 import './yt-fixes.css';
+import './comments-fix.js';
 import './watch.js';
 import './lang-settings-fix';
 
