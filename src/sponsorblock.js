@@ -7,6 +7,7 @@ import {
 } from './config';
 import { showNotification } from './notifications.js';
 import sponsorBlockUI from './Sponsorblock-UI.js';
+import sponsorBlockLabels, { isFullVideoSegment } from './sponsorblock-labels.js';
 import { getVideo, waitForChildAdd } from './utils.js';
 import './sponsorblock.css';
 
@@ -30,10 +31,13 @@ const FETCH_CATEGORIES = encodeURIComponent(
     'chapter',
     'poi_highlight',
     'filler',
-    'hook'
+    'hook',
+    'exclusive_access'
   ])
 );
-const FETCH_ACTION_TYPES = encodeURIComponent(JSON.stringify(['skip', 'mute']));
+// 'full' is requested whether or not the badge is on, so switching it on mid-video has a label
+// to show without a refetch.
+const FETCH_ACTION_TYPES = encodeURIComponent(JSON.stringify(['skip', 'mute', 'full']));
 
 const CONFIG_MAPPING = {
   sponsor: 'sbMode_sponsor',
@@ -51,6 +55,8 @@ const EXTRA_CONFIG_KEYS = [
   'enableMutedSegments',
   'sbMode_highlight',
   'skipSegmentsOnce',
+  'sbFullVideoLabel',
+  'sbShowTimeWithSkips',
   // Color keys so the overlay redraws when the user changes a segment color
   ...Object.keys(segmentTypes).map(k => `${k}Color`)
 ];
@@ -388,6 +394,7 @@ export class SponsorBlockHandler {
       }
       this.rebuildSkipSegments();
       this.drawOverlay();
+      this.updateLabels();
     };
 
     const configKeys = [...Object.values(CONFIG_MAPPING), ...EXTRA_CONFIG_KEYS];
@@ -559,12 +566,14 @@ export class SponsorBlockHandler {
         this.executeChainSkip(video);
       }
 
-      // UI was already started, so now we just update the data
-      sponsorBlockUI.updateSegments(this.segments);
+      // Full-video labels are [0, 0] markers meaning "this whole video is X", not segments; listed,
+      // one would show a 0:00-to-0:00 row.
+      sponsorBlockUI.updateSegments(this.segments.filter(s => !isFullVideoSegment(s)));
 
       // Explicitly draw overlay now that data is ready
       // (checkForProgressBar might have run when segments were empty)
       this.drawOverlay();
+      this.updateLabels();
 
       if (this.highlightSegment) {
         const config = configGetAll();
@@ -683,6 +692,7 @@ export class SponsorBlockHandler {
       if (this.video?.duration) {
         this.processSegments(this.video.duration);
         this.drawOverlay();
+        this.updateLabels();
       }
     });
 
@@ -979,6 +989,8 @@ export class SponsorBlockHandler {
     const len = this.segments.length;
     for (let i = 0; i < len; i++) {
       const segment = this.segments[i];
+      // A full-video label spans [0, 0] and would draw a zero-width marker.
+      if (isFullVideoSegment(segment)) continue;
       const isHighlight = segment.category === 'poi_highlight';
 
       if (isHighlight) {
@@ -1014,6 +1026,12 @@ export class SponsorBlockHandler {
       fragment.appendChild(div);
     }
 
+    // Everything was filtered out, e.g. the only entry was a full-video label.
+    if (!fragment.childNodes.length) {
+      this.overlay = null;
+      return;
+    }
+
     this.overlay = document.createElement('div');
     this.overlay.id = 'previewbar';
     this._lastSyncSig = null; // fresh element -- force the next geometry sync
@@ -1039,6 +1057,14 @@ export class SponsorBlockHandler {
       this.lastOverlayHash = null;
       this._scheduleBarRetry();
     }
+  }
+
+  // Cheap and idempotent, so it runs wherever an input can move: after the fetch, on
+  // durationchange, and on any SponsorBlock setting change.
+  updateLabels() {
+    if (this.isDestroyed) return;
+    const video = this.video || getVideo();
+    sponsorBlockLabels.update(this.segments, video && !isNaN(video.duration) ? video.duration : 0);
   }
 
   processSegments(duration) {
@@ -1494,6 +1520,7 @@ export class SponsorBlockHandler {
 
     sponsorBlockUI.togglePopup(false);
     sponsorBlockUI.updateSegments([]);
+    sponsorBlockLabels.clear();
     if (this.overlay) {
       this.overlay.remove();
       this.overlay = null;

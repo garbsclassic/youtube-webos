@@ -113,6 +113,8 @@ const configSchema = {
   enableSponsorBlock: opt(true, 'SponsorBlock'),
   enableMutedSegments: opt(false, 'Allow segments that mute audio'),
   skipSegmentsOnce: opt(false, 'Skip Segments Once'),
+  sbFullVideoLabel: opt(false, 'Show an icon when a video is entirely an advertisement'),
+  sbShowTimeWithSkips: opt(false, 'Show time with skips removed'),
   sbMode_sponsor: opt<SBMode>('auto_skip', 'Sponsor'),
   sbMode_intro: opt<SBMode>('auto_skip', 'Intermission/Intro'),
   sbMode_outro: opt<SBMode>('auto_skip', 'Endcards/Credits'),

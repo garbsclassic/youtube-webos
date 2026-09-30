@@ -1,0 +1,34 @@
+/* Full-video badge and the skips-removed duration, as pseudo-elements on YouTube's own elements.
+   Neither rule sets `content`, so neither renders until sponsorblock-labels.js supplies one;
+   adding a `content` here would put an empty pill on every video. */
+
+ytlr-watch-metadata [idomkey='title-text']::before,
+ytlr-video-title-tray [idomkey='title-text']::before {
+  display: inline-block;
+  vertical-align: middle;
+
+  /* The title's own size sits on an inner element, so an em font-size here would inherit
+     whatever the container has. Fixed to the viewport instead; the rest scales in em. */
+  font-size: 1.4vw;
+  font-family: inherit;
+  font-weight: 700;
+  line-height: 1.65;
+  white-space: nowrap;
+
+  margin-right: 0.5em;
+  /* Left padding leaves room for the icon, carried as a background so one pseudo-element holds
+     both icon and text. */
+  padding: 0.1em 0.7em 0.1em 1.9em;
+  border-radius: 1em;
+
+  background-image: url('./icons/IconSponsorBlocker64px.png');
+  background-repeat: no-repeat;
+  background-position: 0.55em center;
+  background-size: 1em 1em;
+}
+
+[idomkey='time-label'] [idomkey='duration']::after {
+  margin-left: 0.4em;
+  opacity: 0.75;
+  white-space: nowrap;
+}

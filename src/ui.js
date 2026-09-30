@@ -880,7 +880,9 @@ function createOptionsPanel() {
     ].map(s => createSegmentControl(`sbMode_${s.toLowerCase()}`)),
     createSegmentControl('sbMode_highlight'),
     createConfigCheckbox('enableMutedSegments'),
-    createConfigCheckbox('skipSegmentsOnce')
+    createConfigCheckbox('skipSegmentsOnce'),
+    createConfigCheckbox('sbFullVideoLabel'),
+    createConfigCheckbox('sbShowTimeWithSkips')
   );
   pageSponsor.appendChild(elmBlock);
   elmContainer.appendChild(pageSponsor);
