@@ -101,15 +101,18 @@ describe('contrastColor', () => {
   test('chooses black text on a light background', () => {
     assert.equal(contrastColor('#ffff00'), '#000');
     assert.equal(contrastColor('#ffffff'), '#000');
+    assert.equal(contrastColor('#ff0'), '#000');
   });
 
   test('chooses white text on a dark background', () => {
     assert.equal(contrastColor('#0202ed'), '#fff');
     assert.equal(contrastColor('#000000'), '#fff');
+    assert.equal(contrastColor('#00f'), '#fff');
   });
 
   test('chooses white text for invalid input', () => {
     assert.equal(contrastColor('red'), '#fff');
+    assert.equal(contrastColor('#12345'), '#fff');
     assert.equal(contrastColor(''), '#fff');
     assert.equal(contrastColor(undefined), '#fff');
   });

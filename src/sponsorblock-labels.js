@@ -89,9 +89,10 @@ export function safeColor(value, fallback) {
 
 /** Black or white text for a user-chosen background -- selfpromo defaults to pure yellow. */
 export function contrastColor(hex) {
-  const m = /^#?([\da-f]{6})$/i.exec(String(hex).trim());
+  const m = /^#?([\da-f]{3}|[\da-f]{6})$/i.exec(String(hex).trim());
   if (!m) return '#fff';
-  const n = parseInt(m[1], 16);
+  const digits = m[1].length === 3 ? m[1].replace(/./g, '$&$&') : m[1];
+  const n = parseInt(digits, 16);
   // Rec. 709 luma, close enough for a two-way choice.
   const luma =
     (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
@@ -99,7 +100,8 @@ export function contrastColor(hex) {
 }
 
 export function categoryColor(category) {
-  if (Object.hasOwn(segmentTypes, category)) {
+  // Not Object.hasOwn: that needs Chrome 93, and webOS 22 ships Chrome 87.
+  if (Object.keys(segmentTypes).includes(category)) {
     return safeColor(configRead(`${category}Color`) || segmentTypes[category].color, FALLBACK_COLOR);
   }
   return EXTRA_FULL_COLORS[category] || FALLBACK_COLOR;

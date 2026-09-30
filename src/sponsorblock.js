@@ -1020,12 +1020,6 @@ export class SponsorBlockHandler {
       fragment.appendChild(div);
     }
 
-    // Everything was filtered out, e.g. the only entry was a full-video label.
-    if (!fragment.childNodes.length) {
-      this.overlay = null;
-      return;
-    }
-
     this.overlay = document.createElement('div');
     this.overlay.id = 'previewbar';
     this._lastSyncSig = null; // fresh element -- force the next geometry sync
