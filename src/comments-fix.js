@@ -22,9 +22,9 @@
  * `frHKed`, `xmQAdc` and `AmQJbe` are YouTube's obfuscated class names and may change.
  */
 
-const CLOSE_CLASSES = ['frHKed', 'xmQAdc'];
+const CLOSE_CLASS_RE = /\.(?:frHKed|xmQAdc)(?![\w-])/;
 const FALLBACK_CSS =
-  'ytlr-animated-overlay.frHKed .AmQJbe, ytlr-animated-overlay.frHKed .AmQJbe * { display: revert !important; }';
+  'ytlr-animated-overlay.frHKed .AmQJbe { display: block !important; visibility: hidden !important; }';
 const MAX_FOCUS_SCANS = 3;
 const STARTUP_RETRY_MS = 1000;
 const STARTUP_MAX_TRIES = 30;
@@ -56,24 +56,69 @@ function collectRules(sheets) {
   return rules;
 }
 
+/** Split a selector list on its top-level commas, leaving those inside :is(), [attr] etc. */
+export function splitSelectorList(selectorText) {
+  const parts = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < selectorText.length; i++) {
+    const ch = selectorText[i];
+    if (ch === '(' || ch === '[') depth++;
+    else if (ch === ')' || ch === ']') depth--;
+    else if (ch === ',' && depth === 0) {
+      parts.push(selectorText.slice(start, i).trim());
+      start = i + 1;
+    }
+  }
+  parts.push(selectorText.slice(start).trim());
+  return parts.filter(Boolean);
+}
+
 function isZero(value) {
   return value === '0' || value === '0px' || value === '0rem';
 }
 
-export function findCollapsingSelectors(
+// Only the properties the rule collapses are overridden, so the element keeps every other
+// value it has outside the closing state -- .AmQJbe carries an inline width, for one. Its
+// normal display is block (measured on the TV).
+function collapsedOverrides(style) {
+  const overrides = [];
+  if (style.display === 'none') overrides.push('display: block');
+  if (isZero(style.height)) overrides.push('height: auto');
+  if (isZero(style.width)) overrides.push('width: auto');
+  if (isZero(style.maxHeight)) overrides.push('max-height: none');
+  return overrides;
+}
+
+/**
+ * Rules on a closing class that hide or zero-size something, as { selector, overrides }. A
+ * minified sheet merges rules with identical bodies, so only the selectors in a list that
+ * name a closing class are kept.
+ */
+export function findCollapsingRules(
   sheets = [...document.styleSheets, ...(document.adoptedStyleSheets || [])]
 ) {
-  const selectors = [];
+  const found = [];
   for (const rule of collectRules(sheets)) {
-    const sel = rule.selectorText;
-    if (!CLOSE_CLASSES.some(cls => sel.includes(`.${cls}`))) continue;
+    if (!CLOSE_CLASS_RE.test(rule.selectorText)) continue;
 
-    const s = rule.style;
-    if (s.display === 'none' || isZero(s.height) || isZero(s.width) || isZero(s.maxHeight)) {
-      selectors.push(sel);
+    const overrides = collapsedOverrides(rule.style);
+    if (!overrides.length) continue;
+
+    for (const selector of splitSelectorList(rule.selectorText)) {
+      if (CLOSE_CLASS_RE.test(selector)) found.push({ selector, overrides });
     }
   }
-  return selectors;
+  return found;
+}
+
+export function buildOverrideCss(rules) {
+  return rules
+    .map(({ selector, overrides }) => {
+      const body = [...overrides, 'visibility: hidden'].map(d => `${d} !important;`).join(' ');
+      return `${selector} { ${body} }`;
+    })
+    .join('\n');
 }
 
 export function applyCommentsCloseFix(fromStartup = false) {
@@ -83,23 +128,19 @@ export function applyCommentsCloseFix(fromStartup = false) {
     focusScans++;
   }
 
-  const selectors = findCollapsingSelectors();
+  const rules = findCollapsingRules();
   if (!styleEl) {
     styleEl = document.createElement('style');
     styleEl.id = 'ytaf-comments-close-fix';
     (document.head || document.documentElement).appendChild(styleEl);
   }
 
-  if (selectors.length) {
+  if (rules.length) {
     foundRules = true;
-    styleEl.textContent = selectors
-      .map(
-        sel =>
-          `${sel} { display: block !important; height: auto !important; width: auto !important;` +
-          ' max-height: none !important; visibility: hidden !important; }'
-      )
-      .join('\n');
-    console.info(`[CommentsFix] Close-collapse override applied to: ${selectors.join(' , ')}`);
+    styleEl.textContent = buildOverrideCss(rules);
+    console.info(
+      `[CommentsFix] Close-collapse override applied to: ${rules.map(r => r.selector).join(' , ')}`
+    );
   } else {
     styleEl.textContent = FALLBACK_CSS;
     if (!fromStartup) {
