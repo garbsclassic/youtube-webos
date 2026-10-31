@@ -145,9 +145,9 @@ let enabled = !!configRead('upgradeThumbnails');
 
 /** videoId -> verified rank. Survives navigation and restarts. */
 const qualityCache = new Map();
-/** Insertion-ordered probe backlog: videoId -> true. */
+/** Insertion-ordered probe backlog: videoId -> owned verification proof. */
 const probeQueue = new Map();
-const inFlight = new Set();
+const inFlight = new Map();
 /** Every videoId ever enqueued this session. Nothing is probed twice. */
 const probeAttempted = new Set();
 const pendingPromotions = new Map();
@@ -327,8 +327,9 @@ function upgradeEntry(entry, proven) {
   // Above the guarantee we are relying on proof, and that proof is per-family:
   // a probe verifies the exact URL it fetched. At or below it we are relying on
   // hqdefault always existing, which is a `/vi/` guarantee only.
+  // An entry outside the reference budget must remain safe without a later write-back.
+  if (unresolved && !trackPending(videoId, entry, ceilingBeforeMode)) target = ceilingBeforeMode;
   const next = buildUrl(videoId, QUALITY_NAMES[target], target <= GUARANTEED_RANK);
-  if (unresolved) trackPending(videoId, entry, ceilingBeforeMode);
   if (next === url) return 0;
   entry.url = next;
   return 1;
@@ -336,16 +337,17 @@ function upgradeEntry(entry, proven) {
 
 /**
  * Remember an entry we gambled on, capped so a long session cannot grow it
- * without bound. Eviction is safe: it only costs that entry the write-back, and
- * the DOM sweep still covers it.
+ * without bound. Restore a proven URL before releasing an evicted model entry;
+ * the eventual DOM sweep still covers tiles that rendered the speculative URL.
  */
 function trackPending(videoId, entry, floor) {
+  const proof = probeQueue.get(videoId) || inFlight.get(videoId);
+  if (!proof) return false;
   let entries = pendingEntries.get(videoId);
   if (!entries) {
     if (pendingEntries.size >= PENDING_LIMIT) {
       const oldest = pendingEntries.keys().next().value;
-      pendingEntries.delete(oldest);
-      provenFloor.delete(oldest);
+      applyCorrection(oldest, settledRank(oldest, qualityCache.get(oldest) ?? FLOOR_RANK));
     }
     entries = [];
     pendingEntries.set(videoId, entries);
@@ -355,7 +357,11 @@ function trackPending(videoId, entry, floor) {
   // an hq720 rung YouTube itself shipped down to hqdefault.
   const known = provenFloor.get(videoId);
   if (known === undefined || floor > known) provenFloor.set(videoId, floor);
-  if (entries.length < 8) entries.push(entry);
+  if (floor > proof.floor) proof.floor = floor;
+  if (entries.indexOf(entry) !== -1) return true;
+  if (entries.length >= 8) return false;
+  entries.push(entry);
+  return true;
 }
 
 /**
@@ -842,7 +848,7 @@ function scheduleProbe(videoId) {
   if (probeAttempted.has(videoId)) return;
   if (probeAttempted.size >= PROBE_ATTEMPT_LIMIT) return;
   probeAttempted.add(videoId);
-  probeQueue.set(videoId, true);
+  probeQueue.set(videoId, { floor: FLOOR_RANK });
 }
 
 /** Walk the ladder high-to-low, stopping at the first rung that exists. */
@@ -881,7 +887,7 @@ function settledRank(videoId, resolved) {
   return floor !== undefined && floor > resolved ? floor : resolved;
 }
 
-function onProbeDone(videoId, rank, owner) {
+function onProbeDone(videoId, rank, owner, proof) {
   if (!enabled || owner !== session) return;
   inFlight.delete(videoId);
   // Correcting a tile changes what is on screen, so the cached sample is stale.
@@ -892,13 +898,13 @@ function onProbeDone(videoId, rank, owner) {
   // video is re-scheduled by the next parse that mentions it, and on a surface
   // where the same tiles scroll past repeatedly that is an endless retry loop.
   const resolved = typeof rank === 'number' ? rank : FLOOR_RANK;
-  capSet(qualityCache, videoId, resolved, CACHE_LIMIT);
-  scheduleSave();
 
   // 1. Write the truth back into the response objects the app still holds. A
   //    tile that has not scrolled into view yet reads `.url` at render time, so
   //    this corrects it before it is ever drawn - no grey frame at all.
-  const settled = settledRank(videoId, resolved);
+  const settled = settledRank(videoId, Math.max(resolved, proof.floor));
+  capSet(qualityCache, videoId, settled, CACHE_LIMIT);
+  scheduleSave();
   const entries = pendingEntries.get(videoId);
   const next = buildUrl(videoId, QUALITY_NAMES[settled], settled <= GUARANTEED_RANK);
   // Eviction drops model references, not the rendered tile's need for correction.
@@ -979,13 +985,13 @@ function sameIds(a, b) {
   return true;
 }
 
-/** First queued id that is on screen, else the head of the queue. */
+/** First queued id in rendered DOM order, else the FIFO head of the queue. */
 function nextProbeId(rendered) {
   if (rendered && rendered.size > 0) {
-    const iterator = probeQueue.keys();
+    const iterator = rendered.values();
     let step = iterator.next();
     while (!step.done) {
-      if (rendered.has(step.value)) return step.value;
+      if (probeQueue.has(step.value)) return step.value;
       step = iterator.next();
     }
   }
@@ -1027,14 +1033,15 @@ function drainProbes() {
         break;
       }
 
+      const proof = probeQueue.get(videoId);
       probeQueue.delete(videoId);
       if (qualityCache.has(videoId)) continue;
 
-      inFlight.add(videoId);
+      inFlight.set(videoId, proof);
       activeProbes++;
       resolveQuality(videoId, onScreen, owner).then(
-        rank => onProbeDone(videoId, rank, owner),
-        () => onProbeDone(videoId, null, owner)
+        rank => onProbeDone(videoId, rank, owner, proof),
+        () => onProbeDone(videoId, null, owner, proof)
       );
     }
 
