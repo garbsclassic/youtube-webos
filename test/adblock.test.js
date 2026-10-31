@@ -79,6 +79,43 @@ describe('findObjects', () => {
     assert.deepEqual(findObjects(haystack, ['target'], 3), { target: 'deep' });
   });
 
+  test('includes properties exactly at maxDepth without enumerating that frontier', () => {
+    let frontierEnumeration = 0;
+    const atBoundary = { target: 'found' };
+    Object.defineProperty(atBoundary, 'deeper', {
+      enumerable: true,
+      get() { frontierEnumeration++; return { missed: true }; }
+    });
+
+    assert.deepEqual(findObjects({ a: { b: atBoundary } }, ['target', 'absent'], 2), { target: 'found' });
+    assert.equal(frontierEnumeration, 0);
+  });
+
+  test('wide trees retain a target on the inclusive depth boundary', () => {
+    const haystack = {};
+    for (let i = 0; i < 2048; i++) {
+      haystack[`branch${i}`] = { boundary: {} };
+    }
+    haystack.branch2047.boundary.target = 'last branch';
+
+    assert.deepEqual(findObjects(haystack, ['target'], 2), { target: 'last branch' });
+  });
+
+  test('keeps the first falsy match and continues to find other needles', () => {
+    let duplicateReads = 0;
+    const second = {};
+    Object.defineProperty(second, 'target', {
+      enumerable: true,
+      get() { duplicateReads++; return 'later'; }
+    });
+    second.other = 'found';
+
+    const result = findObjects({ first: { target: false }, second }, ['target', 'other']);
+
+    assert.deepEqual(result, { target: false, other: 'found' });
+    assert.equal(duplicateReads, 0);
+  });
+
   test('keeps the first match when a key appears more than once', () => {
     const haystack = { first: { target: 'a' }, second: { target: 'b' } };
     const result = findObjects(haystack, ['target']);

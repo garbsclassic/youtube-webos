@@ -995,12 +995,16 @@ export function findObjects(haystack, needlesArray, maxDepth = 10) {
 
     for (let i = 0; i < targetCount; i++) {
       const needle = needlesArray[i];
-      if (!results[needle] && currentObj[needle] !== undefined) {
-        results[needle] = currentObj[needle];
-        foundCount++;
+      if (!Object.hasOwn(results, needle)) {
+        const value = currentObj[needle];
+        if (value !== undefined) {
+          results[needle] = value;
+          foundCount++;
+        }
       }
     }
     if (foundCount === targetCount) break;
+    if (currentDepth >= maxDepth) continue;
 
     for (const k in currentObj) {
       const val = currentObj[k];
