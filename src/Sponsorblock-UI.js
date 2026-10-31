@@ -7,6 +7,8 @@ class SponsorBlockUI {
     this.popup = null;
     this.visible = false;
     this.hasSegments = false;
+    this.segments = [];
+    this.dirty = false;
   }
 
   formatTime(seconds) {
@@ -62,7 +64,16 @@ class SponsorBlockUI {
   }
 
   updateSegments(segments) {
+    this.segments = segments || [];
+    this.hasSegments = this.segments.length > 0;
+    this.dirty = true;
+    if (this.visible) this.renderSegments();
+  }
+
+  renderSegments() {
     if (!this.popup) this.createPopup();
+    const segments = this.segments;
+    this.dirty = false;
     const container = this.popup.querySelector('.sb-list-container');
     container.textContent = '';
 
@@ -122,8 +133,9 @@ class SponsorBlockUI {
   }
 
   togglePopup(visible) {
-    if (!this.popup) this.createPopup();
     this.visible = visible;
+    if (visible && this.dirty) this.renderSegments();
+    if (!this.popup) return;
 
     if (this.visible && this.hasSegments) {
       this.popup.classList.add('visible');

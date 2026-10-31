@@ -123,6 +123,7 @@ export class SponsorBlockHandler {
 
     this._skipWatchdogTimer = null;
     this._videoWait = null;
+    this._videoWaitController = null;
     this._attrObserver = null;
     this._lastSyncSig = null;
 
@@ -201,6 +202,16 @@ export class SponsorBlockHandler {
       top: rectEl.top - rectAncestor.top,
       left: rectEl.left - rectAncestor.left
     };
+  }
+
+  scheduleOverlaySync() {
+    if (this.isDestroyed || this._geometryRaf) return;
+    this._geometryRaf = this.requestAF(() => {
+      this._geometryRaf = null;
+      if (!this.overlay || !this.progressBar?.isConnected) return;
+      const { container, asSibling } = this._getProgressBarAnchor();
+      if (asSibling && container) this._syncOverlayPosition(container);
+    });
   }
 
   _syncOverlayPosition(ytPB) {
@@ -599,11 +610,12 @@ export class SponsorBlockHandler {
     this.video = getVideo();
     if (!this.video) {
       if (!this._videoWait) {
+        this._videoWaitController = HAS_ABORT_CONTROLLER ? new AbortController() : null;
         this._videoWait = waitForChildAdd(
           document.body,
           n => n instanceof HTMLVideoElement,
           false,
-          null,
+          this._videoWaitController?.signal,
           10000
         )
           .then(() => {
@@ -649,8 +661,8 @@ export class SponsorBlockHandler {
         this.resetSegmentTracking();
         this.hasPerformedChainSkip = false;
         this.executeChainSkip(this.video);
-      } else if (state === 2) {
-        // PAUSED
+      } else if (state === 2 || state === 3) {
+        // PAUSED or BUFFERING
         this.stopHighFreqLoop();
         this.toggleTimeListener(false);
       }
@@ -658,16 +670,18 @@ export class SponsorBlockHandler {
 
     window.addEventListener('yt-player-state-change', this.boundStateChange);
 
-    // Resize forces an immediate overlay re-sync (bypassing the timeupdate throttle).
     if (this.boundResize) window.removeEventListener('resize', this.boundResize);
-    this.boundResize = () => {
-      this._lastSyncTime = 0;
-      if (this.overlay && this.progressBar && !this.isDestroyed) {
-        const { container, asSibling } = this._getProgressBarAnchor();
-        if (asSibling && container) this._syncOverlayPosition(container);
+    this.boundResize = () => this.scheduleOverlaySync();
+    window.addEventListener('resize', this.boundResize);
+    if (this.boundVisibility) document.removeEventListener('visibilitychange', this.boundVisibility);
+    this.boundVisibility = () => {
+      if (document.hidden) this.stopHighFreqLoop();
+      else {
+        this.scheduleOverlaySync();
+        if (!this.video?.paused) this.resetSegmentTracking();
       }
     };
-    window.addEventListener('resize', this.boundResize);
+    document.addEventListener('visibilitychange', this.boundVisibility);
 
     this.addEvent(this.video, 'seeked', () => {
       if (this.isDestroyed) return;
@@ -697,8 +711,14 @@ export class SponsorBlockHandler {
 
     this.addEvent(this.video, 'playing', () => {
       if (this.isDestroyed) return;
+      this._buffering = false;
       this.resetSegmentTracking();
     });
+    this.addEvent(this.video, 'waiting', () => {
+      this._buffering = true;
+      this.stopHighFreqLoop();
+    });
+    this.addEvent(this.video, 'ended', () => this.stopHighFreqLoop());
 
     this.addEvent(this.video, 'pause', () => {
       this.stopHighFreqLoop();
@@ -868,7 +888,7 @@ export class SponsorBlockHandler {
       // Ensure the sibling overlay syncs visibility when attributes mutate
       const { container, asSibling } = this._getProgressBarAnchor();
       if (asSibling && container) {
-        this._syncOverlayPosition(container);
+        this.scheduleOverlaySync();
       }
       return;
     }
@@ -915,10 +935,19 @@ export class SponsorBlockHandler {
 
       if (this._attrObserver) {
         this._attrObserver.disconnect();
-        this._attrObserver.observe(target, {
-          attributes: true,
-          attributeFilter: ['class', 'style', 'hidden']
-        });
+        // Observe only the ancestor chain, excluding per-frame playhead style writes.
+        for (let node = target; node && node !== document.body; node = node.parentElement) {
+          this._attrObserver.observe(node, {
+            attributes: true,
+            attributeFilter: ['class', 'style', 'hidden']
+          });
+        }
+      }
+      if (this._resizeObserver) this._resizeObserver.disconnect();
+      if (typeof ResizeObserver !== 'undefined') {
+        this._resizeObserver = new ResizeObserver(() => this.scheduleOverlaySync());
+        this._resizeObserver.observe(target);
+        if (target.parentElement) this._resizeObserver.observe(target.parentElement);
       }
 
       const style = window.getComputedStyle(target);
@@ -1033,7 +1062,7 @@ export class SponsorBlockHandler {
       } else {
         container.parentNode.appendChild(this.overlay);
       }
-      this._syncOverlayPosition(container);
+      this.scheduleOverlaySync();
     } else {
       container.appendChild(this.overlay);
     }
@@ -1094,7 +1123,10 @@ export class SponsorBlockHandler {
   }
 
   startHighFreqLoop() {
-    if (!this.pollingRafId && this.nextSegmentStart !== Infinity && !this.isDestroyed) {
+    if (!this.pollingRafId && this.nextSegmentStart !== Infinity && !this.isDestroyed &&
+        !document.hidden && !this._buffering && !this.video?.paused && this.video?.readyState >= 3) {
+      this._pollMediaTime = this.video.currentTime;
+      this._pollProgressAt = performance.now();
       this.pollingRafId = requestAnimationFrame(this.boundHighFreqLoop);
     }
   }
@@ -1107,7 +1139,17 @@ export class SponsorBlockHandler {
   }
 
   highFreqLoop() {
-    if (this.isDestroyed || !this.video || this.video.paused || this.isSkipping) {
+    if (this.isDestroyed || !this.video || this.video.paused || this.isSkipping ||
+        document.hidden || this._buffering || this.video.readyState < 3) {
+      this.stopHighFreqLoop();
+      return;
+    }
+
+    const now = performance.now();
+    if (this.video.currentTime !== this._pollMediaTime) {
+      this._pollMediaTime = this.video.currentTime;
+      this._pollProgressAt = now;
+    } else if (now - this._pollProgressAt >= 250) {
       this.stopHighFreqLoop();
       return;
     }
@@ -1123,21 +1165,6 @@ export class SponsorBlockHandler {
 
   handleTimeUpdate() {
     if (this.isSkipping) return;
-
-    // Sync overlay layout at most every 500ms — timeupdate fires ~4Hz and the
-    // viewport rarely changes, so the previous unconditional sync wasted two
-    // getBoundingClientRect() calls + DOM writes per frame on webOS 3.
-    if (this.overlay && this.progressBar) {
-      const now =
-        typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
-      if (!this._lastSyncTime || now - this._lastSyncTime > 500) {
-        const { container, asSibling } = this._getProgressBarAnchor();
-        if (asSibling && container) {
-          this._syncOverlayPosition(container);
-        }
-        this._lastSyncTime = now;
-      }
-    }
 
     if (this.skipSegments.length === 0) {
       this.toggleTimeListener(false);
@@ -1417,28 +1444,30 @@ export class SponsorBlockHandler {
           `${url}/skipSegments/${hashPrefix}` +
           `?categories=${FETCH_CATEGORIES}&actionTypes=${FETCH_ACTION_TYPES}`;
 
-        let res;
-        if (HAS_ABORT_CONTROLLER) {
-          this.abortController = new AbortController();
-          const timeoutId = setTimeout(
-            () => this.abortController.abort(),
-            SPONSORBLOCK_CONFIG.timeout
-          );
-          try {
-            res = await fetch(fetchURL, { signal: this.abortController.signal });
-          } finally {
-            clearTimeout(timeoutId);
-          }
-        } else {
-          res = await Promise.race([
-            fetch(fetchURL),
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('timeout')), SPONSORBLOCK_CONFIG.timeout)
-            )
+        const controller = HAS_ABORT_CONTROLLER ? new AbortController() : null;
+        this.abortController = controller;
+        let timedOut = false;
+        let timeoutId;
+        try {
+          const request = async () => {
+            const res = await fetch(fetchURL, controller ? { signal: controller.signal } : {});
+            const data = res.ok ? await res.json() : null;
+            return this.isDestroyed || timedOut || this.abortController !== controller ? null : data;
+          };
+          return await Promise.race([
+            request(),
+            new Promise((_, reject) => {
+              timeoutId = setTimeout(() => {
+                timedOut = true;
+                controller?.abort();
+                reject(new Error('timeout'));
+              }, SPONSORBLOCK_CONFIG.timeout);
+            })
           ]);
+        } finally {
+          clearTimeout(timeoutId);
+          if (this.abortController === controller) this.abortController = null;
         }
-
-        return res.ok ? await res.json() : null;
       } catch (e) {
         if (!this.isDestroyed && e.name !== 'AbortError') {
           this.log('warn', 'Fetch attempt failed:', e.message);
@@ -1504,7 +1533,13 @@ export class SponsorBlockHandler {
     }
     this._observedRoot = null;
     this._finderObserver = null;
+    this._videoWaitController?.abort();
+    this._videoWaitController = null;
     this._videoWait = null;
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = null;
+    this._geometryRaf = null;
+    if (this.boundVisibility) document.removeEventListener('visibilitychange', this.boundVisibility);
 
     sponsorBlockUI.togglePopup(false);
     sponsorBlockUI.updateSegments([]);
@@ -1595,6 +1630,7 @@ if (typeof window !== 'undefined') {
 
   window.__ytaf_sb_init = initSB;
   window.addEventListener('hashchange', initSB);
+  configAddChangeListener('enableSponsorBlock', initSB);
 
   if (document.readyState !== 'loading') {
     setTimeout(initSB, 500);
