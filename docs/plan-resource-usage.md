@@ -16,14 +16,14 @@ Keep diagnostics opt-in. The continuous overlay in [perf_mon.js](../src/perf_mon
 
 ## Profile required response filtering before changing it
 
-The optional thumbnail fallback distinguishes recognized no-op structures and has a shared enqueue budget. Excess optional thumbnail URLs remain unchanged. Required ad filtering must never be silently dropped by such a cap.
+The optional thumbnail fallback distinguishes recognized no-op structures and has a shared enqueue budget. Excess optional thumbnail URLs remain unchanged. Required ad filtering must never be silently dropped by such a cap. Keep lookup depth inclusive while avoiding expansion of unsearched children beyond that boundary; count each matched key only once, including falsy values.
 
 Enable bounded fallback counters with `window.__ytaf_thumbnailDiagnostics(true)` and disable them with `false`. These counters retain no payloads. Use representative responses to identify frequent schema misses and duplicated walks in [adblock.js](../src/adblock.js). Add known paths first; only consolidate passes or bound required-filter traversal after large/changed-schema fixtures establish the fallback policy. Preserve native parse, caller revivers, stringify semantics, codec behavior, and in-place filtering.
 
 ## Keep quality and cache changes evidence-gated
 
 - Compare a balanced, slot-appropriate thumbnail policy with the explicit maximum-quality choice only when native image/decode costs can be measured. Use response dimensions and proven variants rather than parse-time per-tile layout reads. Adopt it only with a measured benefit and acceptable image quality.
-- Keep existing cache and concurrency limits unless hit rate, retained size, and visible-correction latency justify changing them. Keep safe/eager gray-tile recovery, custom crops, current-surface priority, single-layer promotions, and bounded idle work.
+- Keep existing cache and concurrency limits unless hit rate, retained size, and visible-correction latency justify changing them. Keep safe/eager gray-tile recovery, custom crops, current-surface priority, single-layer promotions, and bounded idle work. Select current-surface probes from the rendered set and keep offscreen work FIFO. Entries without write-back/probe capacity must stay on proven URLs; restore proven URLs before evicting references and preserve newer proof through in-flight completion.
 - Defer dislike API loading to first description use only if traces justify the first-open latency tradeoff. Preserve placeholders, cheap panel detection, and navigation repair when counts are off.
 - Retain launch animation behavior unless matched navigation CPU/input measurements and focus checks establish a benefit from changing it. Keep speech/voice flags outside that experiment.
 - Keep resolution and codec forcing opt-in. Measure the actual decoder before recommending a codec or changing maximum-quality policy. Preserve the [playback-speed decoder constraint](intent.md).
