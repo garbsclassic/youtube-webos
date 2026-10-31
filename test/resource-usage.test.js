@@ -176,7 +176,10 @@ test('Return YouTube Dislike aborts a timed-out response body and releases its o
   const oldSetTimeout = globalThis.setTimeout;
   const oldDocument = globalThis.document;
   const oldWindow = globalThis.window;
-  globalThis.document = { getElementById() { return null; } };
+  globalThis.document = {
+    getElementById() { return null; },
+    querySelectorAll() { return []; }
+  };
   globalThis.window = { removeEventListener() {} };
   let signal;
   globalThis.fetch = async (_url, options) => {
