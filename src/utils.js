@@ -138,11 +138,19 @@ if (typeof window !== 'undefined') {
 
 export function debounce(func, wait) {
   let timeout;
-  return function (...args) {
+  const debounced = function (...args) {
     const context = this;
     clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), wait);
+    timeout = setTimeout(() => {
+      timeout = null;
+      func.apply(context, args);
+    }, wait);
   };
+  debounced.cancel = () => {
+    clearTimeout(timeout);
+    timeout = null;
+  };
+  return debounced;
 }
 
 let cachedGuestMode = null;
@@ -220,6 +228,10 @@ export async function waitForChildAdd(
   timeoutMs = 30000
 ) {
   return new Promise((resolve, reject) => {
+    if (abortSignal?.aborted) {
+      reject(new Error('aborted'));
+      return;
+    }
     let timer = null;
 
     const obs = new MutationObserver(mutations => {

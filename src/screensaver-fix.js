@@ -71,7 +71,7 @@ function setShortsKeepAlive(enable) {
   }
 }
 
-let rafPending = false;
+let rafId = null;
 let rafTargetVideo = null;
 
 const playerCtrlObs = new MutationObserver(mutations => {
@@ -93,14 +93,13 @@ const playerCtrlObs = new MutationObserver(mutations => {
   // pays a heavy reflow cost per write, so we read window dimensions and
   // diff against current style.* only once per frame.
   rafTargetVideo = video;
-  if (rafPending) return;
-  rafPending = true;
+  if (rafId !== null) return;
 
-  requestAnimationFrame(() => {
-    rafPending = false;
+  rafId = requestAnimationFrame(() => {
+    rafId = null;
     const v = rafTargetVideo;
     rafTargetVideo = null;
-    if (!v || !v.isConnected || lastPageType !== 'WATCH') return;
+    if (!v || v !== currentVideoElement || !v.isConnected || lastPageType !== 'WATCH') return;
     if (isPlayerHidden(v)) return;
 
     const style = v.style;
@@ -121,6 +120,17 @@ const playerCtrlObs = new MutationObserver(mutations => {
 });
 
 let currentVideoElement = null;
+let videoWaitController = null;
+
+function releaseWatch() {
+  videoWaitController?.abort();
+  videoWaitController = null;
+  playerCtrlObs.disconnect();
+  currentVideoElement = null;
+  if (rafId !== null) cancelAnimationFrame(rafId);
+  rafId = null;
+  rafTargetVideo = null;
+}
 
 const updateState = async () => {
   const isWatch = isWatchPage();
@@ -128,17 +138,14 @@ const updateState = async () => {
 
   const newPageType = isWatch ? 'WATCH' : isShorts ? 'SHORTS' : 'OTHER';
 
-  // Optimization: If the page type hasn't changed, ignore
-  if (newPageType === lastPageType) return;
+  if (newPageType === lastPageType &&
+      (newPageType !== 'WATCH' || (currentVideoElement?.isConnected &&
+       currentVideoElement === document.querySelector('video')))) return;
+  releaseWatch();
   lastPageType = newPageType;
 
   // 1. Handle Shorts Mode
   if (newPageType === 'SHORTS') {
-    // Ensure Watch logic is disabled
-    if (currentVideoElement) {
-      playerCtrlObs.disconnect();
-      currentVideoElement = null;
-    }
     setShortsKeepAlive(true);
     return;
   }
@@ -148,14 +155,13 @@ const updateState = async () => {
 
   // 3. Handle Watch Mode
   if (newPageType !== 'WATCH') {
-    // If we are here, it's 'OTHER'. Ensure watchers are off.
-    playerCtrlObs.disconnect();
-    currentVideoElement = null;
     return;
   }
 
   // -- Watch Page Logic Below --
 
+  const controller = new AbortController();
+  videoWaitController = controller;
   try {
     const playerContainer = document.getElementById(SELECTORS.PLAYER_CONTAINER);
 
@@ -167,11 +173,13 @@ const updateState = async () => {
 
     // If not found immediately, use the waiter (scoped to root)
     if (!video) {
-      video = await waitForChildAdd(searchRoot, node => node instanceof HTMLVideoElement, false);
+      video = await waitForChildAdd(
+        searchRoot, node => node instanceof HTMLVideoElement, false, controller.signal
+      );
     }
 
     // Double check we are still on Watch page after await
-    if (lastPageType !== 'WATCH') return;
+    if (controller.signal.aborted || lastPageType !== 'WATCH') return;
 
     if (video && video !== currentVideoElement) {
       if (currentVideoElement) {
@@ -188,19 +196,25 @@ const updateState = async () => {
       }
     }
   } catch (e) {
-    console.warn('[ScreensaverFix] Error attaching to video element:', e);
+    if (!controller.signal.aborted)
+      console.warn('[ScreensaverFix] Error attaching to video element:', e);
+  } finally {
+    if (videoWaitController === controller) videoWaitController = null;
   }
 };
 
 window.addEventListener('ytaf-page-update', updateState);
+window.addEventListener('hashchange', updateState);
+window.addEventListener('yt-player-state-change', updateState);
 
 // Initial Check
 if (document.body) updateState();
 else document.addEventListener('DOMContentLoaded', updateState);
 
 window.addEventListener('beforeunload', () => {
-  playerCtrlObs.disconnect();
+  releaseWatch();
   window.removeEventListener('ytaf-page-update', updateState);
-  currentVideoElement = null;
+  window.removeEventListener('hashchange', updateState);
+  window.removeEventListener('yt-player-state-change', updateState);
   setShortsKeepAlive(false);
 });

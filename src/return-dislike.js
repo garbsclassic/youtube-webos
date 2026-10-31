@@ -69,6 +69,7 @@ class ReturnYouTubeDislike {
     this.timers = {};
     this.observers = new Set();
     this.abortController = null;
+    this.fetchRequest = null;
     this.panelElement = null;
 
     this.menuItemsCache = [];
@@ -153,7 +154,7 @@ class ReturnYouTubeDislike {
   }
 
   async fetchVideoData() {
-    if (!this.videoID) return;
+    if (!this.active || !this.videoID) return;
 
     const cached = dislikeCache.get(this.videoID);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -162,25 +163,34 @@ class ReturnYouTubeDislike {
       return;
     }
 
-    if (HAS_ABORT_CONTROLLER) {
-      if (this.abortController) this.abortController.abort();
-      this.abortController = new AbortController();
-    }
+    this.abortController?.abort();
+    const controller = HAS_ABORT_CONTROLLER ? new AbortController() : null;
+    this.abortController = controller;
+    const request = {};
+    this.fetchRequest = request;
+    let timeoutId;
 
     try {
-      const fetchOptions = {};
-      if (HAS_ABORT_CONTROLLER && this.abortController)
-        fetchOptions.signal = this.abortController.signal;
-
-      const response = await Promise.race([
-        fetch(`https://returnyoutubedislikeapi.com/votes?videoId=${this.videoID}`, fetchOptions),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 8000))
+      const data = await Promise.race([
+        (async () => {
+          const response = await fetch(
+            `https://returnyoutubedislikeapi.com/votes?videoId=${this.videoID}`,
+            controller ? { signal: controller.signal } : {}
+          );
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        })(),
+        new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error('Timeout'));
+            controller?.abort();
+          }, 8000);
+        })
       ]);
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
-      this.dislikesValue = data?.dislikes || 0;
+      if (!this.active || this.fetchRequest !== request) return;
+      if (!Number.isFinite(data?.dislikes) || data.dislikes < 0)
+        throw new Error('Invalid dislike count');
+      this.dislikesValue = data.dislikes;
       this.fetchAttempts = 0;
 
       dislikeCache.set(this.videoID, { dislikes: this.dislikesValue, timestamp: Date.now() });
@@ -189,6 +199,7 @@ class ReturnYouTubeDislike {
       // The panel may already be on screen showing the placeholder.
       this.updateDislikeDisplay();
     } catch (error) {
+      if (!this.active || this.fetchRequest !== request) return;
       if (!HAS_ABORT_CONTROLLER || error.name !== 'AbortError')
         this.log('error', 'Fetch error:', error);
       this.dislikesValue = null; // unknown, NOT zero -- and never cached
@@ -207,7 +218,11 @@ class ReturnYouTubeDislike {
         );
       }
     } finally {
-      if (HAS_ABORT_CONTROLLER) this.abortController = null;
+      clearTimeout(timeoutId);
+      if (this.fetchRequest === request) {
+        this.fetchRequest = null;
+        this.abortController = null;
+      }
     }
   }
 
@@ -520,7 +535,7 @@ class ReturnYouTubeDislike {
   handleFocusOut(_e) {
     if (this.isProgrammaticFocus) return;
     // Delay to allow focus to land on new element
-    setTimeout(() => {
+    this.setTimeout(() => {
       if (!this.panelElement) return;
 
       const active = document.activeElement;
@@ -532,7 +547,7 @@ class ReturnYouTubeDislike {
         this.clearAllHighlights();
         this.isPanelFocused = false;
       }
-    }, 50);
+    }, 50, 'focusOut');
   }
 
   updateVisualState(targetItem) {
@@ -653,9 +668,9 @@ class ReturnYouTubeDislike {
         }
 
         // Cleanup visuals after click
-        setTimeout(() => {
-          this.clearAllHighlights(); // Use optimized clear
-        }, 100);
+        this.setTimeout(() => {
+          this.clearAllHighlights();
+        }, 100, 'enterHighlight');
       }
       return;
     }
@@ -805,6 +820,8 @@ class ReturnYouTubeDislike {
     this.log('info', 'Destroying...');
     this.active = false;
     if (HAS_ABORT_CONTROLLER && this.abortController) this.abortController.abort();
+    this.fetchRequest = null;
+    this.abortController = null;
 
     this.clearAllTimers();
     this.observers.forEach(obs => {

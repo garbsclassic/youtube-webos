@@ -7,6 +7,7 @@ class Watch {
     // Standard properties
     this._watch = null;
     this._timer = null;
+    this._alignmentTimer = null;
     this._globalListeners = [];
 
     // Constants
@@ -72,7 +73,9 @@ class Watch {
     };
 
     setTime();
-    setTimeout(() => {
+    this._alignmentTimer = setTimeout(() => {
+      this._alignmentTimer = null;
+      if (!this._watch) return;
       setTime();
       this._timer = setInterval(setTime, 60000);
     }, nextSeg);
@@ -136,11 +139,11 @@ class Watch {
       this._timer = null;
     }
 
-    // Note: Debounce internal timer is managed by closure in shared helper,
-    // so strictly speaking we can't cancel it externally easily unless debounce returns a cancel method.
-    // For this use case (UI visibility), letting a pending check run once after destroy is harmless,
-    // but the shared debounce usually doesn't expose cancel.
-    // If strict cleanup is needed, update the shared debounce to return { run, cancel }.
+    clearTimeout(this._alignmentTimer);
+    this._alignmentTimer = null;
+    this.debouncedUpdate.cancel();
+    this._cachedPlayer = null;
+    this._cachedOverlay = null;
 
     configRemoveChangeListener('enableOledCareMode', this.onOledChange);
 
