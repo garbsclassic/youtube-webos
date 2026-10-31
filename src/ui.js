@@ -81,6 +81,12 @@ let activePlayPauseNotification = null;
 
 // Lazy load variable
 let optionsPanel = null;
+// YouTube resets native scroll offsets; the injected settings own their scrollers.
+window.addEventListener('scroll', evt => {
+  if (optionsPanel && evt.target instanceof Node && optionsPanel.contains(evt.target)) {
+    evt.stopImmediatePropagation();
+  }
+}, true);
 let optionsPanelVisible = false;
 let panelInitBlock = false;
 
@@ -585,7 +591,15 @@ function createOptionsPanel() {
 
   let activePage = 0;
   elmContainer.activePage = 0;
-  let pageMain, pageSponsor, pageShortcuts, pageUITweaks;
+  const pages = [];
+  const pageBuilders = [];
+  const ensurePage = index => {
+    if (!pages[index]) {
+      pages[index] = pageBuilders[index]();
+      elmContainer.appendChild(pages[index]);
+    }
+    return pages[index];
+  };
 
   const tabMenu = createElement('div', {
     class: 'ytaf-tab-menu',
@@ -608,7 +622,8 @@ function createOptionsPanel() {
 
   const setActivePage = pageIndex => {
     if (pageIndex === activePage) return; // Don't do work if we are already on this tab
-    const pagesArray = [pageMain, pageSponsor, pageShortcuts, pageUITweaks];
+    const pagesArray = pages;
+    ensurePage(pageIndex);
     const focusSelectors = [
       'input',
       '.shortcut-control-row, input',
@@ -663,12 +678,18 @@ function createOptionsPanel() {
       if (evt.keyCode in ARROW_KEY_CODE) {
         const dir = ARROW_KEY_CODE[evt.keyCode];
         const preFocus = document.activeElement;
+        const navigationOptions = {
+          container: elmContainer,
+          candidates: [...tabBtns, ...pages[activePage].querySelectorAll(
+            'input:not([disabled]), .shortcut-control-row, button:not([disabled])'
+          )].filter(el => el.tabIndex !== -1)
+        };
 
         if (dir === 'left' || dir === 'right') {
           // Prevent modifying row from navigating away
           if (preFocus.classList.contains('shortcut-control-row')) return;
 
-          navigate(dir);
+          navigate(dir, navigationOptions);
 
           // Tab menu wrap-around logic
           if (preFocus === document.activeElement && preFocus.classList.contains('ytaf-tab-btn')) {
@@ -681,7 +702,7 @@ function createOptionsPanel() {
           evt.stopPropagation();
           return;
         } else if (dir === 'up' || dir === 'down') {
-          navigate(dir);
+          navigate(dir, navigationOptions);
           const postFocus = document.activeElement;
 
           if (dir === 'up' && preFocus !== postFocus) {
@@ -696,7 +717,7 @@ function createOptionsPanel() {
 
           if (preFocus === postFocus) {
             const activeTabBtn = tabBtns[activePage];
-            const pagesList = [pageMain, pageSponsor, pageShortcuts, pageUITweaks];
+            const pagesList = pages;
             const visiblePage = pagesList[activePage];
             let pageFocusables = [];
 
@@ -781,153 +802,162 @@ function createOptionsPanel() {
   elmContainer.appendChild(tabMenu);
 
   // --- Page 1: Main ---
-  pageMain = createElement('div', { class: 'ytaf-settings-page', id: 'ytaf-page-main' });
+  pageBuilders[0] = () => {
+    const pageMain = createElement('div', { class: 'ytaf-settings-page', id: 'ytaf-page-main' });
 
-  const elAdBlock = createConfigCheckbox('enableAdBlock');
-  const elTrackingBlock = createConfigCheckbox('enableTrackingBlock');
-  const cosmeticGroup = [elAdBlock, elTrackingBlock];
-  const elRemoveGlobalShorts = createConfigCheckbox('removeGlobalShorts');
-  const elRemoveLiveVideos = createConfigCheckbox('removeLiveVideos');
-  const elRemoveTopLiveGames = createConfigCheckbox('removeTopLiveGames');
-  const elRemoveMostRelevant = createConfigCheckbox('removeMostRelevant');
-  let elGuestPrompts = null;
-  cosmeticGroup.push(
-    elRemoveGlobalShorts,
-    elRemoveLiveVideos,
-    elRemoveTopLiveGames,
-    elRemoveMostRelevant
-  );
-  if (isGuestMode()) {
-    elGuestPrompts = createConfigCheckbox('hideGuestSignInPrompts');
-    cosmeticGroup.push(elGuestPrompts);
-  }
-
-  pageMain.appendChild(createSection('Cosmetic Filtering', cosmeticGroup, '2col'));
-
-  // Dependency Management
-  const setState = (el, enabled) => {
-    if (!el) return;
-    const input = el.querySelector('input');
-    if (input) {
-      input.disabled = !enabled;
-      el.style.opacity = enabled ? '1' : '0.5';
+    const elAdBlock = createConfigCheckbox('enableAdBlock');
+    const elTrackingBlock = createConfigCheckbox('enableTrackingBlock');
+    const cosmeticGroup = [elAdBlock, elTrackingBlock];
+    const elRemoveGlobalShorts = createConfigCheckbox('removeGlobalShorts');
+    const elRemoveLiveVideos = createConfigCheckbox('removeLiveVideos');
+    const elRemoveTopLiveGames = createConfigCheckbox('removeTopLiveGames');
+    const elRemoveMostRelevant = createConfigCheckbox('removeMostRelevant');
+    let elGuestPrompts = null;
+    cosmeticGroup.push(
+      elRemoveGlobalShorts,
+      elRemoveLiveVideos,
+      elRemoveTopLiveGames,
+      elRemoveMostRelevant
+    );
+    if (isGuestMode()) {
+      elGuestPrompts = createConfigCheckbox('hideGuestSignInPrompts');
+      cosmeticGroup.push(elGuestPrompts);
     }
-  };
-  const adBlockDependents = [
-    elRemoveGlobalShorts,
-    elRemoveLiveVideos,
-    elRemoveTopLiveGames,
-    elRemoveMostRelevant,
-    elGuestPrompts
-  ];
-  const updateDependencyState = () => {
-    const isAdBlockOn = configRead('enableAdBlock');
-    adBlockDependents.forEach(el => {
-      setState(el, isAdBlockOn);
-    });
-  };
 
-  elAdBlock.querySelector('input').addEventListener('change', updateDependencyState);
-  if (elRemoveGlobalShorts) {
-    elRemoveGlobalShorts.querySelector('input').addEventListener('change', updateDependencyState);
-    configAddChangeListener('removeGlobalShorts', updateDependencyState);
-  }
-  configAddChangeListener('enableAdBlock', updateDependencyState);
-  updateDependencyState();
+    pageMain.appendChild(createSection('Cosmetic Filtering', cosmeticGroup, '2col'));
 
-  pageMain.appendChild(
-    createSection('Video Player', [
-      createConfigCheckbox('forceHighResVideo'),
-      createVideoCodecControl(),
-      createConfigCheckbox('hideEndcards'),
-      createConfigCheckbox('enableReturnYouTubeDislike')
-    ])
-  );
-  pageMain.appendChild(
-    createSection('Interface', [
-      createConfigCheckbox('enableAutoLogin'),
-      createConfigCheckbox('upgradeThumbnails'),
-      createThumbnailQualityControl(),
-      createLogoControl(),
-      createConfigCheckbox('showWatch'),
-      createConfigCheckbox('enableOledCareMode'),
-      createConfigCheckbox('disableNotifications')
-    ])
-  );
-  elmContainer.appendChild(pageMain);
+    // Dependency Management
+    const setState = (el, enabled) => {
+      if (!el) return;
+      const input = el.querySelector('input');
+      if (input) {
+        input.disabled = !enabled;
+        el.style.opacity = enabled ? '1' : '0.5';
+      }
+    };
+    const adBlockDependents = [
+      elRemoveGlobalShorts,
+      elRemoveLiveVideos,
+      elRemoveTopLiveGames,
+      elRemoveMostRelevant,
+      elGuestPrompts
+    ];
+    const updateDependencyState = () => {
+      const isAdBlockOn = configRead('enableAdBlock');
+      adBlockDependents.forEach(el => {
+        setState(el, isAdBlockOn);
+      });
+    };
+
+    elAdBlock.querySelector('input').addEventListener('change', updateDependencyState);
+    if (elRemoveGlobalShorts) {
+      elRemoveGlobalShorts.querySelector('input').addEventListener('change', updateDependencyState);
+      configAddChangeListener('removeGlobalShorts', updateDependencyState);
+    }
+    configAddChangeListener('enableAdBlock', updateDependencyState);
+    updateDependencyState();
+
+    pageMain.appendChild(
+      createSection('Video Player', [
+        createConfigCheckbox('forceHighResVideo'),
+        createVideoCodecControl(),
+        createConfigCheckbox('hideEndcards'),
+        createConfigCheckbox('enableReturnYouTubeDislike')
+      ])
+    );
+    pageMain.appendChild(
+      createSection('Interface', [
+        createConfigCheckbox('enableAutoLogin'),
+        createConfigCheckbox('upgradeThumbnails'),
+        createThumbnailQualityControl(),
+        createLogoControl(),
+        createConfigCheckbox('showWatch'),
+        createConfigCheckbox('enableOledCareMode'),
+        createConfigCheckbox('disableNotifications')
+      ])
+    );
+    return pageMain;
+  };
 
   // --- Page 2: SponsorBlock ---
-  pageSponsor = createElement('div', {
-    class: 'ytaf-settings-page',
-    id: 'ytaf-page-sponsor',
-    style: { display: 'none' }
-  });
-  pageSponsor.appendChild(createConfigCheckbox('enableSponsorBlock'));
+  pageBuilders[1] = () => {
+    const pageSponsor = createElement('div', {
+      class: 'ytaf-settings-page',
+      id: 'ytaf-page-sponsor',
+      style: { display: 'none' }
+    });
+    pageSponsor.appendChild(createConfigCheckbox('enableSponsorBlock'));
 
-  const elmBlock = createElement(
-    'blockquote',
-    {},
-    ...[
-      'Sponsor',
-      'Intro',
-      'Outro',
-      'Interaction',
-      'SelfPromo',
-      'MusicOfftopic',
-      'Filler',
-      'Hook',
-      'Preview'
-    ].map(s => createSegmentControl(`sbMode_${s.toLowerCase()}`)),
-    createSegmentControl('sbMode_highlight'),
-    createConfigCheckbox('enableMutedSegments'),
-    createConfigCheckbox('skipSegmentsOnce'),
-    createConfigCheckbox('sbFullVideoLabel'),
-    createConfigCheckbox('sbShowTimeWithSkips')
-  );
-  pageSponsor.appendChild(elmBlock);
-  elmContainer.appendChild(pageSponsor);
+    const elmBlock = createElement(
+      'blockquote',
+      {},
+      ...[
+        'Sponsor',
+        'Intro',
+        'Outro',
+        'Interaction',
+        'SelfPromo',
+        'MusicOfftopic',
+        'Filler',
+        'Hook',
+        'Preview'
+      ].map(s => createSegmentControl(`sbMode_${s.toLowerCase()}`)),
+      createSegmentControl('sbMode_highlight'),
+      createConfigCheckbox('enableMutedSegments'),
+      createConfigCheckbox('skipSegmentsOnce'),
+      createConfigCheckbox('sbFullVideoLabel'),
+      createConfigCheckbox('sbShowTimeWithSkips')
+    );
+    pageSponsor.appendChild(elmBlock);
+    return pageSponsor;
+  };
 
   // --- Page 3: Shortcuts ---
-  pageShortcuts = createElement('div', {
-    class: 'ytaf-settings-page',
-    id: 'ytaf-page-shortcuts',
-    style: { display: 'none' }
-  });
-  shortcutKeys.forEach(key => {
-    pageShortcuts.appendChild(createShortcutControl(key));
-  });
-  elmContainer.appendChild(pageShortcuts);
+  pageBuilders[2] = () => {
+    const pageShortcuts = createElement('div', {
+      class: 'ytaf-settings-page',
+      id: 'ytaf-page-shortcuts',
+      style: { display: 'none' }
+    });
+    shortcutKeys.forEach(key => {
+      pageShortcuts.appendChild(createShortcutControl(key));
+    });
+    return pageShortcuts;
+  };
 
   // --- Page 4: UI Tweaks ---
-  pageUITweaks = createElement('div', {
-    class: 'ytaf-settings-page',
-    id: 'ytaf-page-ui-tweaks',
-    style: { display: 'none' }
-  });
+  pageBuilders[3] = () => {
+    const pageUITweaks = createElement('div', {
+      class: 'ytaf-settings-page',
+      id: 'ytaf-page-ui-tweaks',
+      style: { display: 'none' }
+    });
 
-  const playerUITweaks = [
-    createCycleControl('uiTheme', 'UI Theme', ['blue-force-field', 'classic-red'], {
-      'blue-force-field': 'Blue Force Field',
-      'classic-red': 'Classic Red'
-    }),
-    createOpacityControl('videoShelfOpacity'),
-    createElement('div', {
-      text: 'Adjusts opacity of black background underneath videos (Requires OLED-care mode)',
-      style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
-    }),
-    createPreviewControl('forcePreviews'),
-    createElement('div', {
-      text: 'Forces the video thumbnail preview on/off on app load',
-      style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
-    }),
-    createConfigCheckbox('fixMultilineTitles'),
-    createConfigCheckbox('removeBlackBorders')
-  ];
+    const playerUITweaks = [
+      createCycleControl('uiTheme', 'UI Theme', ['blue-force-field', 'classic-red'], {
+        'blue-force-field': 'Blue Force Field',
+        'classic-red': 'Classic Red'
+      }),
+      createOpacityControl('videoShelfOpacity'),
+      createElement('div', {
+        text: 'Adjusts opacity of black background underneath videos (Requires OLED-care mode)',
+        style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
+      }),
+      createPreviewControl('forcePreviews'),
+      createElement('div', {
+        text: 'Forces the video thumbnail preview on/off on app load',
+        style: { color: '#888', fontSize: '20px', padding: '4px 12px 12px' }
+      }),
+      createConfigCheckbox('fixMultilineTitles'),
+      createConfigCheckbox('removeBlackBorders')
+    ];
 
-  pageUITweaks.appendChild(createSection('Player UI Tweaks', playerUITweaks));
+    pageUITweaks.appendChild(createSection('Player UI Tweaks', playerUITweaks));
 
-  elmContainer.appendChild(pageUITweaks);
+    return pageUITweaks;
+  };
 
+  ensurePage(0);
   return elmContainer;
 }
 
@@ -1742,13 +1772,13 @@ function initGlobalStyles() {
         html.ytaf-hide-logo ytlr-redux-connect-ytlr-logo-entity,
         html.ytaf-hide-logo ytlr-logo-entity { visibility: hidden !important; }
 
-        
+
             body.ytaf-hide-controls .GLc3cc,
             body.ytaf-hide-controls .webOs-watch,
             body.ytaf-hide-controls .ytLrWatchDefaultShadow,
             body.ytaf-hide-controls [idomkey='shadow'],
-            body.ytaf-hide-controls .ytLrWatchDefault2025Shadow { 
-                opacity: 0 !important; 
+            body.ytaf-hide-controls .ytLrWatchDefault2025Shadow {
+                opacity: 0 !important;
             }
 
         /* OLED-care mode — written once, toggled by html.oled-theme-active.

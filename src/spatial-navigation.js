@@ -91,16 +91,7 @@
         if (focusNavigableArrowKey[dir]) {
           e.preventDefault();
 
-          // Use standard Map for fastest possible single-frame read/write speeds
-          mapOfBoundRect = new Map();
-          mapOfComputedStyle = new Map();
-
           navigate(dir);
-
-          // Free memory instantly
-          mapOfBoundRect = null;
-          mapOfComputedStyle = null;
-          startingPoint = null;
         }
       }
     });
@@ -116,7 +107,7 @@
     window.addEventListener('focusin', e => {
       if (e.target !== window) {
         savedSearchOrigin.element = e.target;
-        savedSearchOrigin.rect = e.target.getBoundingClientRect(); // Uncached, rare event
+        savedSearchOrigin.rect = mapOfBoundRect ? getBoundingClientRect(e.target) : null;
       }
     });
   }
@@ -131,7 +122,32 @@
     return style;
   }
 
-  function navigate(dir) {
+  function navigate(dir, options) {
+    const previousRects = mapOfBoundRect;
+    const previousStyles = mapOfComputedStyle;
+    mapOfBoundRect = new Map();
+    mapOfComputedStyle = new Map();
+    searchOriginRect = null;
+    try {
+      if (options) {
+        startingPoint = null;
+        const origin = document.activeElement;
+        const candidate = origin.spatialNavigationSearch(dir, options);
+        focusingController(candidate, dir, true);
+        return;
+      }
+      navigateWithinDocument(dir);
+    } finally {
+      startingPoint = null;
+      // A nested navigation may have focused or scrolled while the outer call was paused.
+      previousRects?.clear();
+      previousStyles?.clear();
+      mapOfBoundRect = previousRects;
+      mapOfComputedStyle = previousStyles;
+    }
+  }
+
+  function navigateWithinDocument(dir) {
     const searchOrigin = findSearchOrigin();
     let eventTarget = searchOrigin;
     let elementFromPosition;
@@ -200,13 +216,20 @@
       navigateChain(eventTarget, container, parentContainer, dir, 'visible');
   }
 
-  function focusingController(bestCandidate, dir) {
+  function focusingController(bestCandidate, dir, scroll = false) {
     if (bestCandidate) {
       if (!createSpatNavEvents('beforefocus', bestCandidate, null, dir)) return true;
       const container = bestCandidate.getSpatialNavigationContainer();
+      mapOfBoundRect?.clear();
+      mapOfComputedStyle?.clear();
       bestCandidate.focus({
-        preventScroll: container === window || getCSSSpatNavAction(container) !== 'focus'
+        preventScroll: !scroll && (container === window || getCSSSpatNavAction(container) !== 'focus')
       });
+      if (scroll) {
+        bestCandidate.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        mapOfBoundRect?.clear();
+        mapOfComputedStyle?.clear();
+      }
       startingPoint = null;
       return true;
     }
@@ -254,6 +277,7 @@
 
       for (let i = 0; i < children.length; i++) {
         const elem = children[i];
+        if (getCachedComputedStyle(elem).display === 'none') continue;
         if (isDelegableContainer(elem)) {
           acc.push(elem);
         } else if (isFocusable(elem)) {
@@ -291,20 +315,14 @@
     const defaultContainer = targetElement.getSpatialNavigationContainer();
     const container = args.container || defaultContainer;
 
-    let defaultCandidates = getSpatialNavigationCandidates(defaultContainer);
-    if (args.container && defaultContainer.contains(args.container)) {
-      const additional = getSpatialNavigationCandidates(container);
-      for (let i = 0; i < additional.length; i++) defaultCandidates.push(additional[i]);
-    }
-
-    const rawCandidates = args.candidates?.length ? args.candidates : defaultCandidates;
+    const isDefault = !Object.hasOwn(args, 'candidates');
+    const rawCandidates = isDefault ? getSpatialNavigationCandidates(container) : args.candidates;
     const candidates = [];
-
-    const isDefault = rawCandidates === defaultCandidates;
 
     for (let i = 0; i < rawCandidates.length; i++) {
       const c = rawCandidates[i];
-      if (container.contains(c) && (!isDefault || container !== c)) candidates.push(c);
+      if (container.contains(c) && (isDefault ? container !== c : isFocusable(c)))
+        candidates.push(c);
     }
 
     if (!candidates.length) return null;
@@ -320,7 +338,7 @@
     }
 
     const internalSet = new Set(internalCandidates);
-    let insideOverlappedCandidates = getOverlappedCandidates(targetElement);
+    let insideOverlappedCandidates = isDefault ? getOverlappedCandidates(targetElement) : [];
 
     for (let i = 0; i < insideOverlappedCandidates.length; i++) {
       const c = insideOverlappedCandidates[i];
@@ -1049,16 +1067,7 @@
 
     let rect = mapOfBoundRect.get(element);
     if (!rect) {
-      const r = element.getBoundingClientRect();
-
-      rect = {
-        top: Number(r.top.toFixed(2)),
-        right: Number(r.right.toFixed(2)),
-        bottom: Number(r.bottom.toFixed(2)),
-        left: Number(r.left.toFixed(2)),
-        width: Number(r.width.toFixed(2)),
-        height: Number(r.height.toFixed(2))
-      };
+      rect = element.getBoundingClientRect();
       mapOfBoundRect.set(element, rect);
     }
     return rect;
