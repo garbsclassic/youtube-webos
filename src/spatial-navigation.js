@@ -1083,125 +1083,8 @@
     return result;
   }
 
-  function getExperimentalAPI() {
-    function canScroll(container, dir) {
-      return (
-        (isScrollable(container, dir) && !isScrollBoundary(container, dir)) ||
-        (!container.parentElement && !isHTMLScrollBoundary(container, dir))
-      );
-    }
-
-    function findTarget(findCandidate, element, dir, option) {
-      let eventTarget = element;
-      if (eventTarget === document || eventTarget === document.documentElement) {
-        eventTarget = document.body || document.documentElement;
-      }
-
-      if (
-        (isContainer(eventTarget) || eventTarget.nodeName === 'BODY') &&
-        eventTarget.nodeName !== 'INPUT'
-      ) {
-        if (eventTarget.nodeName === 'IFRAME') eventTarget = eventTarget.contentDocument.body;
-        const candidates = getSpatialNavigationCandidates(eventTarget, option);
-        if (candidates?.length > 0) {
-          return findCandidate
-            ? getFilteredSpatialNavigationCandidates(eventTarget, dir, candidates)
-            : eventTarget.spatialNavigationSearch(dir, { candidates });
-        }
-        if (canScroll(eventTarget, dir)) return findCandidate ? [] : eventTarget;
-      }
-
-      let container = eventTarget.getSpatialNavigationContainer();
-      let parentContainer = container.parentElement
-        ? container.getSpatialNavigationContainer()
-        : null;
-      if (!parentContainer && window.location !== window.parent.location) {
-        parentContainer = window.parent.document.documentElement;
-      }
-
-      while (parentContainer) {
-        const candidates = filteredCandidates(
-          eventTarget,
-          getSpatialNavigationCandidates(container, option),
-          dir,
-          container
-        );
-        if (candidates?.length > 0) {
-          const bestNextTarget = eventTarget.spatialNavigationSearch(dir, {
-            candidates,
-            container
-          });
-          if (bestNextTarget) return findCandidate ? candidates : bestNextTarget;
-        } else if (canScroll(container, dir)) {
-          return findCandidate ? [] : eventTarget;
-        } else if (container === document || container === document.documentElement) {
-          container = window.document.documentElement;
-          if (window.location !== window.parent.location) {
-            eventTarget = window.frameElement;
-            container = window.parent.document.documentElement;
-            parentContainer = container.parentElement
-              ? container.getSpatialNavigationContainer()
-              : null;
-            if (!parentContainer) break;
-          }
-        } else {
-          if (isFocusable(container)) eventTarget = container;
-          container = parentContainer;
-          parentContainer = container.parentElement
-            ? container.getSpatialNavigationContainer()
-            : null;
-          if (!parentContainer) break;
-        }
-      }
-
-      if (!parentContainer && container) {
-        const candidates = filteredCandidates(
-          eventTarget,
-          getSpatialNavigationCandidates(container, option),
-          dir,
-          container
-        );
-        if (candidates?.length > 0) {
-          const bestNextTarget = eventTarget.spatialNavigationSearch(dir, {
-            candidates,
-            container
-          });
-          if (bestNextTarget) return findCandidate ? candidates : bestNextTarget;
-        }
-      }
-
-      if (canScroll(container, dir)) return eventTarget;
-    }
-
-    return {
-      isContainer,
-      isScrollContainer,
-      isVisibleInScroller,
-      findCandidates: (element, dir, option) => findTarget(true, element, dir, option),
-      findNextTarget: (element, dir, option) => findTarget(false, element, dir, option),
-      getDistanceFromTarget: (element, candidateElement, dir) => {
-        if ((isContainer(element) || element.nodeName === 'BODY') && element.nodeName !== 'INPUT') {
-          const candidates = getSpatialNavigationCandidates(element);
-          if (candidates.indexOf(candidateElement) !== -1) {
-            return getInnerDistance(
-              getBoundingClientRect(element),
-              getBoundingClientRect(candidateElement),
-              dir
-            );
-          }
-        }
-        return getDistance(
-          getBoundingClientRect(element),
-          getBoundingClientRect(candidateElement),
-          dir
-        );
-      }
-    };
-  }
-
   function getInitialAPIs() {
     return {
-      enableExperimentalAPIs,
       get keyMode() {
         return this._keymode ? this._keymode : 'ARROW';
       },
@@ -1214,16 +1097,11 @@
     };
   }
 
-  function enableExperimentalAPIs(option) {
-    const currentKeyMode = window.__spatialNavigation__?.keyMode;
-    window.__spatialNavigation__ =
-      option === false ? getInitialAPIs() : Object.assign(getInitialAPIs(), getExperimentalAPI());
-    window.__spatialNavigation__.keyMode = currentKeyMode;
-    Object.seal(window.__spatialNavigation__);
-  }
-
   initiateSpatialNavigation();
-  enableExperimentalAPIs(false);
+  const currentKeyMode = window.__spatialNavigation__?.keyMode;
+  window.__spatialNavigation__ = getInitialAPIs();
+  window.__spatialNavigation__.keyMode = currentKeyMode;
+  Object.seal(window.__spatialNavigation__);
 
   window.addEventListener('load', spatialNavigationHandler);
 })();

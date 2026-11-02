@@ -3,6 +3,7 @@ import {
   configAddChangeListener,
   configRemoveChangeListener,
   segmentTypes,
+  segmentModeKeys,
   configGetAll
 } from './config';
 import { showNotification } from './notifications.js';
@@ -38,18 +39,6 @@ const FETCH_CATEGORIES = encodeURIComponent(
 // 'full' is requested whether or not the badge is on, so switching it on mid-video has a label
 // to show without a refetch.
 const FETCH_ACTION_TYPES = encodeURIComponent(JSON.stringify(['skip', 'mute', 'full']));
-
-const CONFIG_MAPPING = {
-  sponsor: 'sbMode_sponsor',
-  intro: 'sbMode_intro',
-  outro: 'sbMode_outro',
-  interaction: 'sbMode_interaction',
-  selfpromo: 'sbMode_selfpromo',
-  musicofftopic: 'sbMode_musicofftopic',
-  preview: 'sbMode_preview',
-  filler: 'sbMode_filler',
-  hook: 'sbMode_hook'
-};
 
 const EXTRA_CONFIG_KEYS = [
   'enableMutedSegments',
@@ -283,7 +272,7 @@ export class SponsorBlockHandler {
 
       if (seg.category === 'poi_highlight') continue;
 
-      const mode = config[CONFIG_MAPPING[seg.category]];
+      const mode = config[segmentModeKeys[seg.category]];
       if (!mode || mode === 'disable' || mode === 'seek_bar') continue;
       if (seg.actionType && seg.actionType !== 'skip') continue;
 
@@ -399,7 +388,7 @@ export class SponsorBlockHandler {
     this.boundConfigUpdate = () => {
       this.activeCategories.clear();
       const config = configGetAll();
-      for (const [cat, configKey] of Object.entries(CONFIG_MAPPING)) {
+      for (const [cat, configKey] of Object.entries(segmentModeKeys)) {
         if (config[configKey] !== 'disable') this.activeCategories.add(cat);
       }
       this.rebuildSkipSegments();
@@ -407,7 +396,7 @@ export class SponsorBlockHandler {
       this.updateLabels();
     };
 
-    const configKeys = [...Object.values(CONFIG_MAPPING), ...EXTRA_CONFIG_KEYS];
+    const configKeys = [...Object.values(segmentModeKeys), ...EXTRA_CONFIG_KEYS];
 
     for (const key of configKeys) {
       configAddChangeListener(key, this.boundConfigUpdate);
@@ -1019,7 +1008,7 @@ export class SponsorBlockHandler {
       if (isHighlight) {
         if (!highlightMode || highlightMode === 'disable') continue;
       } else {
-        const mode = config[CONFIG_MAPPING[segment.category]];
+        const mode = config[segmentModeKeys[segment.category]];
         if (!mode || mode === 'disable') continue;
       }
 

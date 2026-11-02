@@ -381,15 +381,9 @@ class ReturnYouTubeDislike {
 
       if (!likesElement) return;
 
-      const dislikeElement = likesElement.cloneNode(false);
+      const dislikeElement = likesElement.cloneNode(true);
       dislikeElement.id = 'ryd-dislike-factoid';
       dislikeElement.setAttribute('idomkey', 'factoid-ryd');
-      while (dislikeElement.firstChild) {
-        dislikeElement.removeChild(dislikeElement.firstChild);
-      }
-      Array.from(likesElement.childNodes).forEach(child => {
-        dislikeElement.appendChild(child.cloneNode(true));
-      });
 
       const valueElement = dislikeElement.querySelector(mode.valueSelector);
       const labelElement = dislikeElement.querySelector(mode.labelSelector);

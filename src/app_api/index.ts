@@ -130,13 +130,6 @@ export class ResolveCommandRegistry {
     this.#cmds.set(command, fn);
   }
 
-  removeHook(command: string) {
-    this.#cmds.delete(command);
-  }
-
-  dispatchCommand(payload: ResolveCommandPayload, extra?: unknown) {
-    return this.#originalFn(payload, extra);
-  }
 }
 
 ResolveCommandRegistry.getInstance().catch(err => {

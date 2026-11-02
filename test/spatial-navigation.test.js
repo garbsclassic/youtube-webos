@@ -120,6 +120,9 @@ function addInput(set, x) {
 
 test('direct navigation caches each candidate rect and style for one call only', () => {
   const set = setup();
+  assert.equal(set.window.__spatialNavigation__.keyMode, 'ARROW');
+  set.window.__spatialNavigation__.keyMode = 'NONE';
+  assert.equal(set.window.__spatialNavigation__.keyMode, 'NONE');
   const origin = addInput(set, 100);
   const next = addInput(set, 200);
   set.document.activeElement = origin;

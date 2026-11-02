@@ -13,6 +13,18 @@ export const segmentTypes = {
   hook: { color: '#395699', opacity: '0.7', name: 'hook/greetings' }
 } as const;
 
+export const segmentModeKeys = {
+  sponsor: 'sbMode_sponsor',
+  intro: 'sbMode_intro',
+  outro: 'sbMode_outro',
+  interaction: 'sbMode_interaction',
+  selfpromo: 'sbMode_selfpromo',
+  musicofftopic: 'sbMode_musicofftopic',
+  preview: 'sbMode_preview',
+  filler: 'sbMode_filler',
+  hook: 'sbMode_hook'
+} as const satisfies Partial<Record<keyof typeof segmentTypes, ConfigKey>>;
+
 export const shortcutActions = {
   none: 'None',
   config_menu: 'Open/Close Settings',
@@ -237,14 +249,7 @@ function flushPendingWrite() {
 }
 function scheduleWrite() {
   if (pendingWriteTimer !== null) return;
-  pendingWriteTimer = setTimeout(() => {
-    pendingWriteTimer = null;
-    try {
-      window.localStorage[CONFIG_KEY as keyof Storage] = JSON.stringify(localConfig);
-    } catch {
-      /* ignore */
-    }
-  }, 200);
+  pendingWriteTimer = setTimeout(flushPendingWrite, 200);
 }
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', flushPendingWrite);

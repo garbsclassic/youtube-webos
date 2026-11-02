@@ -1,4 +1,4 @@
-import { configRead, segmentTypes } from './config';
+import { configRead, segmentTypes, segmentModeKeys } from './config';
 import './sponsorblock-labels.css';
 
 /**
@@ -45,21 +45,8 @@ const FULL_LABELS = {
 // strongest claim and the one the badge exists to warn about.
 const FULL_PRIORITY = ['sponsor', 'selfpromo', 'exclusive_access'];
 
-// Category -> skip-mode config key. Mirrors CONFIG_MAPPING in sponsorblock.js.
-const SEGMENT_MODE_KEYS = {
-  sponsor: 'sbMode_sponsor',
-  intro: 'sbMode_intro',
-  outro: 'sbMode_outro',
-  interaction: 'sbMode_interaction',
-  selfpromo: 'sbMode_selfpromo',
-  musicofftopic: 'sbMode_musicofftopic',
-  preview: 'sbMode_preview',
-  filler: 'sbMode_filler',
-  hook: 'sbMode_hook'
-};
-
 function isCategoryDisabled(category) {
-  const modeKey = SEGMENT_MODE_KEYS[category];
+  const modeKey = segmentModeKeys[category];
   return !!modeKey && configRead(modeKey) === 'disable';
 }
 

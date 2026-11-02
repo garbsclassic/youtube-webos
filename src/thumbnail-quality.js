@@ -29,16 +29,6 @@ const DEBUG = false;
  */
 let eagerMode = configRead('thumbnailQualityMode') === 'eager';
 
-/**
- * Emit WebP derivatives (~25-30% smaller) when the runtime can decode them.
- *
- * Off by default: `vi_webp` coverage is per-video and all-or-nothing, nothing
- * in the response says which videos have it, and the no-webp population is
- * larger than the no-maxres one - so a miss costs a grey tile until the probe
- * lands. Worth it only if bandwidth matters more than first paint.
- */
-const USE_WEBP = false;
-
 /** Patch already-rendered tiles when verification finds something better. */
 const ENABLE_LIVE_PROMOTION = true;
 
@@ -107,14 +97,6 @@ const FLOOR_RANK = RANK.hqdefault;
 /** Rungs generated for every video ever uploaded. Above this needs proof. */
 const GUARANTEED_RANK = RANK.hqdefault;
 
-/**
- * A single rung, deliberately. maxresdefault and hq720 are both 1280x720 for
- * the overwhelming majority of uploads, so probing the second rung doubled
- * verification traffic to distinguish two files of identical size. A miss now
- * falls straight to the guaranteed floor.
- */
-const PROBE_LADDER = [RANK.maxresdefault];
-
 // Anchored so it cannot match mid-string, and `\w+` on the basename so
 // A/B-test variants (hqdefault_custom_2) are captured and then rejected by the
 // RANK lookup rather than being rewritten to a name that has no custom-variant
@@ -124,21 +106,6 @@ const THUMB_URL_RE =
 const THUMB_IN_CSS_RE = /i\.ytimg\.com\/vi(?:_webp)?\/([\w-]+)\//;
 
 const DOM_SELECTOR = 'ytlr-thumbnail-details, ytlr-surface-page, thumbnail image';
-
-// --- Runtime capability ---------------------------------------------------
-// Must be synchronous: the first browse response can arrive before an async
-// detection settles, and a mid-session flip would emit two URL families for the
-// same video and halve the HTTP cache hit rate.
-const webpSupported = (() => {
-  if (!USE_WEBP || typeof document === 'undefined') return false;
-  try {
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 1;
-    return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-  } catch {
-    return false;
-  }
-})();
 
 // --- State ----------------------------------------------------------------
 let enabled = !!configRead('upgradeThumbnails');
@@ -254,20 +221,9 @@ function scheduleSave() {
 
 // --- URL rewriting --------------------------------------------------------
 
-/**
- * Build a thumbnail URL.
- *
- * `forceJpeg` exists because the floor is only a floor in the `/vi/` family.
- * `hqdefault.jpg` is generated for every video ever uploaded; `vi_webp`
- * coverage is not universal, and a video with no webp derivatives at all 404s
- * on `hqdefault.webp` just as it does on `maxresdefault.webp`. Emitting a webp
- * fallback for a webp miss is a fallback to the same failure, which is why
- * those tiles stayed grey permanently instead of recovering.
- */
-function buildUrl(videoId, name, forceJpeg) {
-  return webpSupported && !forceJpeg
-    ? 'https://i.ytimg.com/vi_webp/' + videoId + '/' + name + '.webp'
-    : 'https://i.ytimg.com/vi/' + videoId + '/' + name + '.jpg';
+// JPEG derivatives have universal coverage at the guaranteed floor; WebP does not.
+function buildUrl(videoId, name) {
+  return 'https://i.ytimg.com/vi/' + videoId + '/' + name + '.jpg';
 }
 
 /**
@@ -329,7 +285,7 @@ function upgradeEntry(entry, proven) {
   // hqdefault always existing, which is a `/vi/` guarantee only.
   // An entry outside the reference budget must remain safe without a later write-back.
   if (unresolved && !trackPending(videoId, entry, ceilingBeforeMode)) target = ceilingBeforeMode;
-  const next = buildUrl(videoId, QUALITY_NAMES[target], target <= GUARANTEED_RANK);
+  const next = buildUrl(videoId, QUALITY_NAMES[target]);
   if (next === url) return 0;
   entry.url = next;
   return 1;
@@ -851,22 +807,11 @@ function scheduleProbe(videoId) {
   probeQueue.set(videoId, { floor: FLOOR_RANK });
 }
 
-/** Walk the ladder high-to-low, stopping at the first rung that exists. */
-async function resolveQuality(videoId, onScreen, owner) {
-  // On screen: the browser already holds the answer, so ask it. Off screen: a
-  // HEAD, because an <img> there would pull down a full image nobody is looking
-  // at - the correction path only has to be exact for tiles that are visible.
+/** Probe maxres once; a miss falls straight to the guaranteed floor. */
+async function resolveQuality(videoId, onScreen) {
+  // Use the decoded image for visible tiles and a HEAD request for offscreen work.
   const check = onScreen ? imageExists : headExists;
-  for (let i = 0; i < PROBE_LADDER.length; i++) {
-    const rank = PROBE_LADDER[i];
-    // Sequential on purpose: this walks the ladder high-to-low and stops at the first rung
-    // that exists, so probing the rest in parallel would spend requests on answers we are
-    // about to throw away.
-    // eslint-disable-next-line no-await-in-loop
-    if (await check(buildUrl(videoId, QUALITY_NAMES[rank]))) return rank;
-    if (!enabled || owner !== session) break;
-  }
-  return FLOOR_RANK;
+  return await check(buildUrl(videoId, 'maxresdefault')) ? RANK.maxresdefault : FLOOR_RANK;
 }
 
 /** Rewrite the entries we gambled on now that the answer is known. */
@@ -874,7 +819,7 @@ function applyCorrection(videoId, rank) {
   const entries = pendingEntries.get(videoId);
   if (!entries) return;
   pendingEntries.delete(videoId);
-  const url = buildUrl(videoId, QUALITY_NAMES[rank], rank <= GUARANTEED_RANK);
+  const url = buildUrl(videoId, QUALITY_NAMES[rank]);
   for (let i = 0; i < entries.length; i++) {
     if (entries[i] && entries[i].url !== url) entries[i].url = url;
   }
@@ -906,7 +851,7 @@ function onProbeDone(videoId, rank, owner, proof) {
   capSet(qualityCache, videoId, settled, CACHE_LIMIT);
   scheduleSave();
   const entries = pendingEntries.get(videoId);
-  const next = buildUrl(videoId, QUALITY_NAMES[settled], settled <= GUARANTEED_RANK);
+  const next = buildUrl(videoId, QUALITY_NAMES[settled]);
   // Eviction drops model references, not the rendered tile's need for correction.
   const needsPromotion = !entries || entries.some(entry => entry.url !== next);
   applyCorrection(videoId, settled);
@@ -1039,7 +984,7 @@ function drainProbes() {
 
       inFlight.set(videoId, proof);
       activeProbes++;
-      resolveQuality(videoId, onScreen, owner).then(
+      resolveQuality(videoId, onScreen).then(
         rank => onProbeDone(videoId, rank, owner, proof),
         () => onProbeDone(videoId, null, owner, proof)
       );
@@ -1085,7 +1030,7 @@ function runPromotionSweep() {
     const rank = pendingPromotions.get(match[1]);
     if (rank === undefined) continue;
 
-    const next = buildUrl(match[1], QUALITY_NAMES[rank], rank === FLOOR_RANK);
+    const next = buildUrl(match[1], QUALITY_NAMES[rank]);
     if (background.indexOf(next) !== -1) {
       applied.add(match[1]);
       continue;
