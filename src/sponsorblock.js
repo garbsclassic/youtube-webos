@@ -58,6 +58,54 @@ const CHAIN_SKIP_CONSTANTS = {
 
 const HAS_ABORT_CONTROLLER = typeof AbortController !== 'undefined';
 
+function chapterBarRanges(track, start, end, duration) {
+  const chapters = [...track.children]
+    .filter(el => /^chapter-\d+$/.test(el.getAttribute('idomkey') || ''))
+    .map(el => {
+      const style = window.getComputedStyle(el);
+      return {
+        width: Number.parseFloat(el.style.width) || el.offsetWidth,
+        marginLeft: Number.parseFloat(style.marginLeft) || 0,
+        marginRight: Number.parseFloat(style.marginRight) || 0
+      };
+    })
+    .filter(chapter => chapter.width > 0);
+  const contentWidth = chapters.reduce((sum, chapter) => sum + chapter.width, 0);
+  const layoutWidth = chapters.reduce(
+    (sum, chapter) => sum + chapter.marginLeft + chapter.width + chapter.marginRight,
+    0
+  );
+  if (!contentWidth || !layoutWidth) return null;
+
+  const ranges = [];
+  let timeOffset = 0;
+  let xOffset = 0;
+
+  for (const chapter of chapters) {
+    const timeStart = (timeOffset / contentWidth) * duration;
+    const timeEnd = ((timeOffset + chapter.width) / contentWidth) * duration;
+    const clippedStart = Math.max(start, timeStart);
+    const clippedEnd = Math.min(end, timeEnd);
+
+    if (clippedStart < clippedEnd) {
+      const chapterLeft = xOffset + chapter.marginLeft;
+      const left =
+        chapterLeft + ((clippedStart - timeStart) / (timeEnd - timeStart)) * chapter.width;
+      const right =
+        chapterLeft + ((clippedEnd - timeStart) / (timeEnd - timeStart)) * chapter.width;
+      ranges.push({
+        left: (left * 100) / layoutWidth,
+        width: ((right - left) * 100) / layoutWidth
+      });
+    }
+
+    timeOffset += chapter.width;
+    xOffset += chapter.marginLeft + chapter.width + chapter.marginRight;
+  }
+
+  return ranges;
+}
+
 export class SponsorBlockHandler {
   constructor(videoID) {
     this.videoID = videoID;
@@ -120,77 +168,9 @@ export class SponsorBlockHandler {
     this._finderObserver = null;
     this._barRetryTimer = null;
 
-    // Cached _getProgressBarAnchor() result, keyed on progressBar identity.
-    this._anchorCache = null;
-    this._anchorCacheBar = null;
-
     this.setupConfigListeners();
 
     this.log('info', `Created handler for ${this.videoID}`);
-  }
-
-  // Returns where/how to inject the overlay. YouTube's virtual DOM destroys foreign
-  // children of the standard ytlr-progress-bar slider, so the overlay always goes in as a
-  // sibling, positioned absolutely over the same visual area.
-  _getProgressBarAnchor() {
-    if (!this.progressBar) return { container: null, asSibling: false };
-
-    // Cached per progress-bar identity. handleTimeUpdate calls this every 500ms; the
-    // answer only changes when the bar element is replaced, which checkForProgressBar
-    // handles by clearing the cache. The container is validated too, not just the bar
-    // identity: the TV UI can reuse the same progress-bar node while rebuilding the
-    // wrapper around it, which left us holding a detached ancestor and inserting the
-    // overlay into an orphaned subtree -- built, inserted, invisible.
-    if (
-      this._anchorCache &&
-      this._anchorCacheBar === this.progressBar &&
-      (!this._anchorCache.container || this._anchorCache.container.isConnected)
-    ) {
-      return this._anchorCache;
-    }
-
-    // These must stay two chained closest() calls. closest('a, b') returns the NEAREST
-    // ancestor matching either selector, and ytlr-progress-bar sits inside
-    // ytlr-multi-markers-player-bar-renderer, so a union selector would silently invert
-    // the priority order and anchor the overlay to the wrong element.
-    const ytPB =
-      this.progressBar.closest('ytlr-multi-markers-player-bar-renderer') ||
-      this.progressBar.closest('ytlr-progress-bar') ||
-      this.progressBar;
-
-    const parent = ytPB.parentNode;
-    let result;
-
-    if (!parent) {
-      result = { container: this.progressBar, asSibling: false };
-    } else {
-      // The parent becomes our positioning context. The computed-style read happens once
-      // per bar instead of on every 500ms sync.
-      const ps = window.getComputedStyle(parent);
-      if (ps.position === 'static') parent.style.setProperty('position', 'relative', 'important');
-      if (ps.display === 'inline' || ps.display === '') {
-        parent.style.setProperty('display', 'block', 'important');
-      }
-      result = { container: ytPB, asSibling: true };
-    }
-
-    this._anchorCache = result;
-    this._anchorCacheBar = this.progressBar;
-    return result;
-  }
-
-  // Copies ytlr-progress-bar's offset rect onto the sibling overlay so they
-  // occupy exactly the same visual space.
-  // Positions the sibling overlay to exactly cover the inner progress track element
-  _offsetRelativeTo(el, ancestor) {
-    if (!el || !ancestor) return { top: 0, left: 0 };
-    // getBoundingClientRect gives the exact pixel coordinates relative to the viewport
-    const rectEl = el.getBoundingClientRect();
-    const rectAncestor = ancestor.getBoundingClientRect();
-    return {
-      top: rectEl.top - rectAncestor.top,
-      left: rectEl.left - rectAncestor.left
-    };
   }
 
   scheduleOverlaySync() {
@@ -198,39 +178,36 @@ export class SponsorBlockHandler {
     this._geometryRaf = this.requestAF(() => {
       this._geometryRaf = null;
       if (!this.overlay || !this.progressBar?.isConnected) return;
-      const { container, asSibling } = this._getProgressBarAnchor();
-      if (asSibling && container) this._syncOverlayPosition(container);
+      this._syncOverlayPosition();
     });
   }
 
-  _syncOverlayPosition(ytPB) {
-    if (!this.overlay || !ytPB) return;
-    const parent = ytPB.parentNode;
-    if (!parent) return;
+  _syncOverlayPosition() {
+    if (!this.overlay || !this.progressBar?.isConnected) return;
+    const trackEl = this.progressBar;
+    const bar = trackEl.closest('ytlr-progress-bar');
+    const rect = trackEl.getBoundingClientRect();
 
-    // Use the inner slider element for precise height/position.
-    // Fall back to ytPB itself only if progressBar is the same node or unset.
-    const trackEl = this.progressBar && this.progressBar !== ytPB ? this.progressBar : ytPB;
-
-    // All reads first, in one batch: interleaving them with writes forced up to three
-    // synchronous reflows per sync on webOS. classList and the inline-style read are
-    // recalc-free, and the inline check still catches UI builds that hide via opacity
-    // without the zylon-hidden class.
-    const isHidden = ytPB.classList.contains('zylon-hidden') || ytPB.style.opacity === '0';
-    const width = trackEl.offsetWidth;
-    const height = trackEl.offsetHeight;
-    const pos = this._offsetRelativeTo(trackEl, parent);
+    // Read visibility and geometry before writing styles; the overlay lives on body so
+    // YouTube's focus-driven virtual-DOM updates cannot reset its size.
+    const isHidden =
+      trackEl.classList.contains('zylon-hidden') ||
+      trackEl.style.opacity === '0' ||
+      bar?.classList.contains('zylon-hidden') ||
+      bar?.style.opacity === '0';
+    const { top, left, width, height } = rect;
 
     // Skip the writes entirely when nothing changed -- the common case for the 500ms
     // timeupdate sync and for mutation-driven syncs.
-    const sig = `${isHidden ? 'h' : 'v'}_${pos.top}_${pos.left}_${width}_${height}`;
+    const sig = `${isHidden ? 'h' : 'v'}_${top}_${left}_${width}_${height}`;
     if (sig === this._lastSyncSig) return;
     this._lastSyncSig = sig;
 
     const st = this.overlay.style;
     st.setProperty('opacity', isHidden ? '0' : '1', 'important');
-    st.setProperty('top', pos.top + 'px', 'important');
-    st.setProperty('left', pos.left + 'px', 'important');
+    st.setProperty('position', 'fixed', 'important');
+    st.setProperty('top', top + 'px', 'important');
+    st.setProperty('left', left + 'px', 'important');
     st.setProperty('width', width + 'px', 'important');
     st.setProperty('height', height + 'px', 'important');
   }
@@ -638,8 +615,6 @@ export class SponsorBlockHandler {
         // drawing context so a replay rebuilds from scratch: on replay every input to the
         // overlay hash is identical, so a stale hash would suppress the redraw.
         this.lastOverlayHash = null;
-        this._anchorCache = null;
-        this._anchorCacheBar = null;
         this._lastSyncSig = null;
       } else if (state === 1) {
         // PLAYING
@@ -874,11 +849,7 @@ export class SponsorBlockHandler {
       this.progressBar &&
       this.progressBar.isConnected
     ) {
-      // Ensure the sibling overlay syncs visibility when attributes mutate
-      const { container, asSibling } = this._getProgressBarAnchor();
-      if (asSibling && container) {
-        this.scheduleOverlaySync();
-      }
+      this.scheduleOverlaySync();
       return;
     }
 
@@ -898,8 +869,8 @@ export class SponsorBlockHandler {
     // Iterate list only if cache missed
     if (!target) {
       const selectors = [
-        'ytlr-multi-markers-player-bar-renderer [idomkey="segment"]',
         'ytlr-multi-markers-player-bar-renderer [idomkey="progress-bar"]',
+        'ytlr-multi-markers-player-bar-renderer [idomkey="segment"]',
         'ytlr-multi-markers-player-bar-renderer',
         'ytlr-progress-bar [idomkey="slider"]',
         '.ytLrProgressBarSliderBase',
@@ -917,11 +888,6 @@ export class SponsorBlockHandler {
 
     if (target) {
       this.progressBar = target;
-      // Bar (re)acquired — drop the cached anchor so _getProgressBarAnchor
-      // recomputes the positioning context for the new element.
-      this._anchorCache = null;
-      this._anchorCacheBar = null;
-
       if (this._attrObserver) {
         this._attrObserver.disconnect();
         // Observe only the ancestor chain, excluding per-frame playhead style writes.
@@ -940,10 +906,7 @@ export class SponsorBlockHandler {
       }
 
       const style = window.getComputedStyle(target);
-      // For multi-markers bars these tweaks ensure segments are visible inside.
-      // For ytlr-progress-bar sliders the overlay is injected as a sibling
-      // (see _getProgressBarAnchor), so the position tweak here is a no-op for
-      // that case — but keep overflow:visible so storyboard/playhead are unclipped.
+      // Keep native markers and the playhead unclipped; SponsorBlock draws on body.
       if (style.position === 'static') target.style.position = 'relative';
       if (style.overflow !== 'visible')
         target.style.setProperty('overflow', 'visible', 'important');
@@ -958,8 +921,6 @@ export class SponsorBlockHandler {
       // Bar not in the DOM yet -- keep looking instead of giving up silently and waiting
       // for an observer callback that may never come.
       this.progressBar = null;
-      this._anchorCache = null;
-      this._anchorCacheBar = null;
       this._scheduleBarRetry();
     }
   }
@@ -972,8 +933,6 @@ export class SponsorBlockHandler {
     // briefly when a seek touched the stale node.
     if (!this.progressBar || !this.progressBar.isConnected) {
       this.progressBar = null;
-      this._anchorCache = null;
-      this._anchorCacheBar = null;
       this.lastOverlayHash = null;
       this._scheduleBarRetry();
       return;
@@ -1013,29 +972,34 @@ export class SponsorBlockHandler {
       }
 
       const [start, end] = segment.segment;
-      const div = document.createElement('div');
-
       const colorKey = isHighlight ? 'poi_highlightColor' : `${segment.category}Color`;
       const color = config[colorKey] || segmentTypes[segment.category]?.color || '#00d400';
       const left = (start / duration) * 100;
       const zIndex = isHighlight ? '2001' : '2000';
 
-      div.className = isHighlight ? 'previewbar highlight' : 'previewbar';
-
-      // One cssText write per marker instead of five to seven property sets.
       if (isHighlight) {
+        const div = document.createElement('div');
+        div.className = 'previewbar highlight';
         div.style.cssText =
           `background-color: ${color}; position: absolute; height: 100%; ` +
           `top: 0; left: ${left}%; z-index: ${zIndex};`;
+        fragment.appendChild(div);
       } else {
-        const width = ((end - start) / duration) * 100;
         const opacity = segmentTypes[segment.category]?.opacity || '0.7';
-        div.style.cssText =
-          `background-color: ${color}; position: absolute; height: 100%; ` +
-          `top: 0; left: ${left}%; width: ${width}%; opacity: ${opacity}; z-index: ${zIndex};`;
-      }
+        const ranges = chapterBarRanges(this.progressBar, start, end, duration) || [
+          { left, width: ((end - start) / duration) * 100 }
+        ];
 
-      fragment.appendChild(div);
+        for (const range of ranges) {
+          const div = document.createElement('div');
+          div.className = 'previewbar';
+          div.style.cssText =
+            `background-color: ${color}; position: absolute; height: 100%; ` +
+            `top: 0; left: ${range.left}%; width: ${range.width}%; ` +
+            `opacity: ${opacity}; z-index: ${zIndex};`;
+          fragment.appendChild(div);
+        }
+      }
     }
 
     this.overlay = document.createElement('div');
@@ -1043,18 +1007,8 @@ export class SponsorBlockHandler {
     this._lastSyncSig = null; // fresh element -- force the next geometry sync
     this.overlay.appendChild(fragment);
 
-    const { container, asSibling } = this._getProgressBarAnchor();
-    if (asSibling) {
-      const nextSib = container.nextSibling;
-      if (nextSib) {
-        container.parentNode.insertBefore(this.overlay, nextSib);
-      } else {
-        container.parentNode.appendChild(this.overlay);
-      }
-      this.scheduleOverlaySync();
-    } else {
-      container.appendChild(this.overlay);
-    }
+    document.body.appendChild(this.overlay);
+    this._syncOverlayPosition();
 
     // If the insert landed in an orphaned subtree, drop the hash so the next pass rebuilds
     // rather than early-returning on an unchanged one -- an identical video means an

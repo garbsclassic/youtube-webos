@@ -28,8 +28,3 @@
   top: 0 !important;
   background-color: #ff0000;
 }
-
-ytlr-progress-bar.zylon-hidden ~ #previewbar {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
