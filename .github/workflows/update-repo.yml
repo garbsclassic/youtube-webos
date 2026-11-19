@@ -1,5 +1,10 @@
 name: Update Homebrew Repository
+
 on:
+  # `release: published` is inert -- release.yml creates the release with the
+  # default GITHUB_TOKEN, and GITHUB_TOKEN-created events do not start new
+  # workflow runs. It is kept for a release published by hand. The dispatch
+  # from release.yml is what actually runs this job; do not remove it.
   release:
     types: [published]
   workflow_dispatch:
@@ -7,16 +12,19 @@ permissions:
   contents: write
   pages: write
   id-token: write
+
 jobs:
   update-repo:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: '3.x'
+
       - name: Generate repo.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -27,52 +35,49 @@ jobs:
           import sys
           import urllib.request
           import hashlib
-          
+
           # --- CONFIGURATION ---
           APP_INFO_PATH = 'assets/appinfo.json' 
           ICON_PATH_IN_REPO = 'assets/icon.png'
           # ---------------------
-          
+
           if not os.path.exists(APP_INFO_PATH):
               print(f"Error: {APP_INFO_PATH} not found.")
               sys.exit(1)
               
           with open(APP_INFO_PATH, 'r') as f:
               app_info = json.load(f)
-          
+
           repo_name = os.environ['REPO_NAME']
           api_url = f"https://api.github.com/repos/{repo_name}/releases/latest"
-          
+
           req = urllib.request.Request(api_url)
           req.add_header('Authorization', f"Bearer {os.environ['GITHUB_TOKEN']}")
-          
+
           try:
               with urllib.request.urlopen(req) as response:
                   release_data = json.load(response)
           except Exception as e:
               print(f"Failed to fetch release: {e}")
               sys.exit(1)
-          
-          standard_asset = None
-          modern_asset = None
+
+          ipk_asset = None
 
           for asset in release_data['assets']:
               if asset['name'].endswith('.ipk'):
-                  if 'webOS22+' in asset['name']:
-                      modern_asset = asset
-                  else:
-                      standard_asset = asset
-          
-          if not standard_asset and not modern_asset:
+                  ipk_asset = asset
+                  break
+
+          if not ipk_asset:
               print("No .ipk files found in the latest release")
               sys.exit(1)
-              
+
           packages = []
-          
-          def create_package(asset, is_modern=False):
+
+          def create_package(asset):
               ipk_url = asset['browser_download_url']
               print(f"Downloading IPK from {ipk_url}")
-              
+
               try:
                   req = urllib.request.Request(ipk_url)
                   with urllib.request.urlopen(req) as response:
@@ -81,20 +86,13 @@ jobs:
               except Exception as e:
                   print(f"Failed to download asset: {e}")
                   return None
-              
+
               print(f"SHA256: {sha256_hash}")
-              
-              # Default values
+
               pkg_id = app_info.get('id')
               title = app_info.get('title')
               description = app_info.get('description', title)
-              
-              # Overrides for modern build
-              if is_modern:
-                  pkg_id = f"{pkg_id}.webos22"
-                  title = f"{title} (webOS 22+)"
-                  description = "YouTube AdFree for webOS 22 and newer. Lighter optimized build supporting newer hardware."
-              
+
               manifest = {
                   "id": pkg_id,
                   "version": app_info.get('version'),
@@ -118,16 +116,9 @@ jobs:
                   "manifest": manifest
               }
 
-          if standard_asset:
-              print("Processing Standard Asset...")
-              pkg = create_package(standard_asset)
-              if pkg: packages.append(pkg)
-              
-          if modern_asset:
-              print("Processing Modern (webOS 22+) Asset...")
-              pkg = create_package(modern_asset, is_modern=True)
-              if pkg: packages.append(pkg)
-          
+          pkg = create_package(ipk_asset)
+          if pkg: packages.append(pkg)
+
           repo_data = {
               "paging": {
                   "page": 1,
@@ -137,25 +128,25 @@ jobs:
               },
               "packages": packages
           }
-          
+
           with open('repo.json', 'w') as f:
               json.dump(repo_data, f, indent=2)
-          
+
           print("repo.json generated successfully!")
         shell: python
-        
+
       - name: Commit and Push repo.json
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          
+
           # Checkout the main branch explicitly
           git fetch origin main
           git checkout main
-          
+
           # Add and commit changes
           git add repo.json
-          
+
           # Only commit if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit"

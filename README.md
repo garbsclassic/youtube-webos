@@ -3,7 +3,8 @@
 An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 
 ## Added Features
-- Full support for webOS 3, 4, 5, 6, 22, 23, 24, and 25 (2016 and newer LG TVs) (webOS 1 and 2 currently not supported)
+
+- Full support for webOS 22, 23, 24, and 25 (2022 and newer LG TVs)
 - Enhanced AdBlock Engine: New schema-based filtering system (cleaner Home, Search, and Shorts)
 - Filter out QR code + Shop button overlays during video playback
 - Enhanced Menu UI + Themes
@@ -14,12 +15,12 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 - Guest Mode: Hides annoying "Sign in" prompts
 
 - SponsorBlock: Highlight feature added
--- All segment types added (Hook, Tangents, muted segments)
--- Color selector for all segments
--- Segment UI list replicating desktop segment list
--- Jump to highlight segment with blue button on LG remote
--- Per-segment options including auto skip, manual skip, show in progress bar, and disabled
--- Skip Segments Once option
+  -- All segment types added (Hook, Tangents, muted segments)
+  -- Color selector for all segments
+  -- Segment UI list replicating desktop segment list
+  -- Jump to highlight segment with blue button on LG remote
+  -- Per-segment options including auto skip, manual skip, show in progress bar, and disabled
+  -- Skip Segments Once option
 
 - Toggle display on/off with red button on LG remote for OLED TVs + persistent keepalive
 - Return YouTube Dislike - added to description tab in video
@@ -29,20 +30,20 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 - Bug fixes, UI fixes
 
 ## Improvements
+
 - Rewritten codebase optimized for performance and efficiency to support LG TV hardware
 
-Review changes made since 0.3.8 [here](https://github.com/NicholasBly/youtube-webos/blob/main/CHANGELOG.md)
+Review the full [changelog](https://github.com/garbsclassic/youtube-webos/blob/main/CHANGELOG.md)
 
-<img width="642" height="752" alt="webOS_TV_26_Simulator_1 5 0_x16zOsWFaw" src="https://github.com/user-attachments/assets/046b0361-0648-4750-ab97-0b64b553ec17" />
+<img width="537" height="652" alt="webOS_TV_25_Simulator_1 4 3_wUCf23ToCs" src="https://github.com/user-attachments/assets/dbf9fe00-6205-4a1c-ac13-f43271af3e23" />
 
-<img width="642" height="631" alt="webOS_TV_25_Simulator_1 4 3_UaFvPZ67yL" src="https://github.com/user-attachments/assets/61963e1b-8211-439a-9f66-50b669940233" />
+<img width="537" height="569" alt="webOS_TV_25_Simulator_1 4 3_g0uM4TjeIc" src="https://github.com/user-attachments/assets/857a939f-80d6-4cc4-9ecd-d07ecd02b552" />
 
-<img width="642" height="576" alt="webOS_TV_25_Simulator_1 4 3_uW1aZQeVle" src="https://github.com/user-attachments/assets/877a22b6-6814-457b-926c-cac50ed36077" />
+<img width="537" height="507" alt="webOS_TV_25_Simulator_1 4 3_OMUQXUo48c" src="https://github.com/user-attachments/assets/60ab37ee-0322-438b-91b5-09dee100b4bf" />
 
 <img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/84c8b6b3-4c82-4a63-9100-b236f2dd3225" />
 
-<!--![Configuration Screen](https://github.com/NicholasBly/youtube-webos/blob/main/screenshots/webOS_TV_24_Simulator_mKe8Gv7zXq.png?raw=true)-->
-![Segment Skipped](https://github.com/NicholasBly/youtube-webos/blob/main/screenshots/2_sm_new.png?raw=true)
+![Segment Skipped](https://github.com/garbsclassic/youtube-webos/blob/main/screenshots/2_sm_new.png?raw=true)
 
 ## Features
 
@@ -58,9 +59,9 @@ Review changes made since 0.3.8 [here](https://github.com/NicholasBly/youtube-we
 
 ## Installation
 
-- Use [webOS Homebrew Channel](https://github.com/webosbrew/webos-homebrew-channel) - app is available via repo link: https://raw.githubusercontent.com/NicholasBly/youtube-webos/main/repo.json
-- Use [Device Manager app](https://github.com/webosbrew/dev-manager-desktop) - see [Releases](https://github.com/NicholasBly/youtube-webos/releases) for a
-  prebuilt `.ipk` binary file. A webOS22+ .ipk is available for users on 2022+ TVs, supporting webOS22-25. These are lighter, more optimized builds for newer hardware, without translation layers needed for older TVs.
+- Use [webOS Homebrew Channel](https://github.com/webosbrew/webos-homebrew-channel) - app is available via repo link: https://raw.githubusercontent.com/garbsclassic/youtube-webos/main/repo.json
+- Use [Device Manager app](https://github.com/webosbrew/dev-manager-desktop) - see [Releases](https://github.com/garbsclassic/youtube-webos/releases) for a
+  prebuilt `.ipk` binary file.
 - Use [webOS TV CLI tools](https://webostv.developer.lge.com/develop/tools/cli-installation) -
   `ares-install youtube...ipk` (For more information on configuring the webOS CLI tools, see [below](#development-tv-setup))
 
@@ -97,7 +98,7 @@ luna-send-pub -n 1 'luna://com.webos.service.eim/deleteDevice' '{"appId":"youtub
 - Clone the repository
 
 ```sh
-git clone https://github.com/NicholasBly/youtube-webos.git
+git clone https://github.com/garbsclassic/youtube-webos.git
 ```
 
 - Enter the folder and build the App, this will generate a `*.ipk` file.

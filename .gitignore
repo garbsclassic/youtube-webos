@@ -1,10 +1,9 @@
 # Dependencies
 node_modules/
 
-# Build output (webpack). The packaged .ipk files in dist/ are committed for
-# each release, everything else in it is rebuilt.
-dist/*
-!dist/*.ipk
+# Build output (webpack and ares-package). Releases carry the .ipk, not the repo.
+dist/
+*.ipk
 
 # Release manifest written by `npm run manifest`
 *.manifest.json
@@ -29,3 +28,6 @@ _ipk_stash/
 
 # npm run bundle:snapshot (tools/bundle-snapshot.mjs)
 .bundle-snapshot/
+
+# Local agent config (symlinked from the owner's machine)
+/.claude/

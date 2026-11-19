@@ -2,8 +2,6 @@ name: Build & Release
 
 on:
   push:
-    branches:
-      - '!*'
     tags:
       - 'v*.*'
 
@@ -12,30 +10,58 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: npm
 
+      # The tag is what names the release, but the .ipk is named from
+      # assets/appinfo.json, which only tracks package.json when `npm version`
+      # bumps it. Hand-tagging skips that, and every downstream step still
+      # succeeds -- publishing a v0.2.1 release holding a 0.2.0 package, with
+      # repo.json advertising 0.2.0. Fail loudly here instead.
+      - name: Check tag matches package version
+        run: |
+          pkg="v$(node -p 'require("./package.json").version')"
+          if [ "$pkg" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json ($pkg). Use 'npm version' rather than tagging by hand."
+            exit 1
+          fi
+
       - run: npm ci
       - run: npm run build
       - run: npm run package
-      - run: npm run manifest
 
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          name: 'Release ${{ github.ref }}'
-          prerelease: true
+          name: ${{ github.ref_name }}
+          prerelease: false
           draft: false
           allowUpdates: true
           omitNameDuringUpdate: true
           omitBodyDuringUpdate: true
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
-          artifacts: '*.ipk,*.manifest.json'
+          artifacts: 'dist/*.ipk'
+
+      # Load-bearing despite update-repo.yml also listening for `release:
+      # published`: that trigger never fires, because releases created with the
+      # default GITHUB_TOKEN do not start new workflow runs. Hence `actions:
+      # write` above.
+      - name: Trigger update-repo workflow
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'update-repo.yml',
+              ref: 'main'
+            })
