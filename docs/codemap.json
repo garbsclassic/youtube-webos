@@ -518,7 +518,7 @@
   },
   {
    "path": "core/selectors.js",
-   "lines": 94,
+   "lines": 91,
    "header": "Class names, ids and tag names YouTube's leanback app puts on the page. Everything that has to recognise a page, the player or a control goes through this one table, so a YouTube markup change is fixed here and nowhere else. Six-letter tokens are YouTube's obfuscated class names and change the most; the comment says what each was observed to be. The app's own ids and classes (ytaf-*) stay with the feature that creates them, and a feature keeps its panel-internal selectors in its own table.\n\nRead an entry as SELECTORS.NAME, pass it on, iterate it or put it in a template string, but do not call a method on it directly (SELECTORS.NAME.map(...), SELECTORS.NAME.toUpperCase()): the minifier then keeps the whole table in the bundle instead of inlining the entries used.",
    "imports": [],
    "importedBy": [
@@ -932,7 +932,7 @@
   {
    "path": "features/adblock/emoji-wrap.js",
    "lines": 11,
-   "header": "shortcut: the legacy emoji fix only ran on webOS 3 and 4, which this fork does not build for, so these are no-ops. The callers in the adblock filters stay as upstream wrote them to keep its commits cherry-picking cleanly; remove them together if upstream drops the fix.",
+   "header": "The legacy emoji fix only runs on webOS 3 and 4, which this fork does not build for, so these are no-ops. The callers in the adblock filters stay as upstream wrote them to keep its commits cherry-picking cleanly; remove them together if upstream drops the fix.",
    "imports": [],
    "importedBy": [
     "features/adblock/item-filters.js",
@@ -3193,7 +3193,7 @@
   },
   {
    "path": "features/sponsorblock/overlay.js",
-   "lines": 300,
+   "lines": 304,
    "header": "The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. Finding the bar is bar.js's job.",
    "imports": [
     {
@@ -5811,7 +5811,7 @@
   },
   {
    "path": "ui/shortcuts/router.js",
-   "lines": 111,
+   "lines": 137,
    "header": "The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.",
    "imports": [
     {
@@ -5870,11 +5870,13 @@
    "exports": [],
    "atLoad": {
     "calls": [
-     "ui/shortcuts/router.js#onKeyDown"
+     "ui/shortcuts/router.js#onKeyDown",
+     "ui/shortcuts/router.js#onKeyUp"
     ],
     "events": {
      "listen": [
-      "keydown"
+      "keydown",
+      "keyup"
      ]
     }
    },
@@ -5882,7 +5884,8 @@
     "ui/shortcuts/router.js#isTextBox",
     "ui/shortcuts/router.js#keyNameOf",
     "ui/shortcuts/router.js#inScope",
-    "ui/shortcuts/router.js#onKeyDown"
+    "ui/shortcuts/router.js#onKeyDown",
+    "ui/shortcuts/router.js#onKeyUp"
    ]
   },
   {
@@ -7549,7 +7552,8 @@
    "description": "The code of a key press. webOS 3 reports the alternate colour-key codes (REMOTE_KEYS.*.alt) in charCode with keyCode 0, so charCode wins when set.",
    "calledBy": [
     "ui/shortcuts/router.js#keyNameOf",
-    "ui/shortcuts/router.js#onKeyDown"
+    "ui/shortcuts/router.js#onKeyDown",
+    "ui/shortcuts/router.js#onKeyUp"
    ]
   },
   {
@@ -11939,7 +11943,7 @@
     78,
     93
    ],
-   "description": "A selector list split on its top-level commas, leaving those inside `:is()`, `[attr]` and such.",
+   "description": "A selector list split on its top-level commas, leaving those inside `:is()` or `[attr]`.",
    "calledBy": [
     "features/comments-fix.js#findCollapsingRules.consider"
    ]
@@ -14776,7 +14780,7 @@
    "exported": true,
    "lines": [
     189,
-    283
+    287
    ],
    "description": "Draws (or keeps) the overlay for the current segments and settings beside the tracked bar. False when the bar is gone from the document: the caller then looks for it again. True otherwise, including when nothing needs drawing.",
    "calls": [
@@ -14810,8 +14814,8 @@
    "params": "sb",
    "exported": true,
    "lines": [
-    290,
-    300
+    294,
+    304
    ],
    "description": "Gives every mark its category's colour as the settings have it now: a colour picked in the panel (one change per step of a drag) repaints the marks rather than rebuilding the overlay.",
    "calls": [
@@ -19805,8 +19809,8 @@
    "params": "action",
    "exported": false,
    "lines": [
-    35,
-    37
+    39,
+    41
    ],
    "description": "Whether the action may run on the current page.",
    "calls": [
@@ -19824,8 +19828,8 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    44,
-    106
+    48,
+    122
    ],
    "description": "The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).",
    "calls": [
@@ -19836,6 +19840,27 @@
     "ui/shortcuts/oled.js#toggleOledOverlay",
     "ui/shortcuts/router.js#inScope",
     "ui/shortcuts/router.js#keyNameOf"
+   ],
+   "browser": [
+    "setTimeout"
+   ],
+   "calledBy": [
+    "ui/shortcuts/router.js#(top level)"
+   ]
+  },
+  {
+   "id": "ui/shortcuts/router.js#onKeyUp",
+   "name": "onKeyUp",
+   "kind": "function",
+   "params": "evt",
+   "exported": false,
+   "lines": [
+    130,
+    135
+   ],
+   "description": "Ends a swallowed Back hold; its keyup does not reach YouTube either.",
+   "calls": [
+    "core/remote.js#keyCodeOf"
    ],
    "calledBy": [
     "ui/shortcuts/router.js#(top level)"
@@ -22401,7 +22426,8 @@
   "keyup": {
    "listen": [
     "ui/panel/keyboard.js#createPanelKeyboard.attach",
-    "ui/panel/keyboard.js#swallowUntilReleased"
+    "ui/panel/keyboard.js#swallowUntilReleased",
+    "ui/shortcuts/router.js#(top level)"
    ]
   },
   "loadedmetadata": {
@@ -22597,22 +22623,12 @@
     "ui/shortcuts/actions.js#ACTIONS.toggle_subs.run"
    ]
   },
-  "THUMBNAIL_TILE": {
-   "value": "ytlr-thumbnail-details",
-   "note": "",
-   "usedBy": []
-  },
   "THUMBNAIL_NODES": {
    "value": "ytlr-thumbnail-details, ytlr-surface-page, thumbnail image",
    "note": "Everything that can carry a thumbnail image; thumbnail-quality rescans these.",
    "usedBy": [
     "features/thumbnail-quality/rendered.js#renderedThumbnails"
    ]
-  },
-  "TEXT_HOST_TAGS": {
-   "value": "['yt-formatted-string', 'yt-core-attributed-string']",
-   "note": "The elements whose text can hold emoji, as localName values (emoji-font).",
-   "usedBy": []
   },
   "CONTROLS": {
    "value": "yt-focus-container[idomkey=\"controls\"]",

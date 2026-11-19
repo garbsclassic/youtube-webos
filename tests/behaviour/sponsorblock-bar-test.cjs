@@ -6,7 +6,8 @@
  * only that touches neither the bar nor the <video>, and the overlay's geometry
  * following the bar (hidden with it, no layout read while hidden, re-synced on
  * resize and on the bar's attributes), and the marks on a bar split into
- * chapters following the chapters, with the track's segment element tracked too. The popup and the labels are
+ * chapters following the chapters, with the track's segment element tracked too
+ * and with chapters that render after the first draw. The popup and the labels are
  * sponsorblock-ui-test.cjs.
  *
  * Run: node tests/behaviour/sponsorblock-bar-test.cjs [bundle]
@@ -434,6 +435,50 @@ const finderWaiting = (p) => {
       "and the segment inside chapter 2 is shifted right by chapter 1's margin",
       marks().length === 3 && close(c.left, pct(204)) && close(c.width, pct(50)),
       JSON.stringify(c)
+    );
+  }
+
+  // ---- chapters that render after the first draw ---------------------------------------
+  {
+    const p = boot([seg('sponsor', 80, 130), seg('selfpromo', 200, 250)], {}, 0, {
+      duration: 400
+    });
+    const d = p.win.document;
+    await p.ready();
+    const marks = () =>
+      [...d.querySelectorAll('#previewbar .previewbar')].map((m) => ({
+        left: parseFloat(m.style.left),
+        width: parseFloat(m.style.width)
+      }));
+    t(
+      'setup: drawn without chapters, one plain mark per segment',
+      marks().length === 2,
+      JSON.stringify(marks())
+    );
+    for (const [key, css] of [
+      ['chapter-0', 'width: 100px; margin-right: 4px;'],
+      ['chapter-1', 'width: 300px;']
+    ]) {
+      const el = d.createElement('div');
+      el.setAttribute('idomkey', key);
+      el.style.cssText = css;
+      p.track().appendChild(el);
+    }
+    // The next draw: a durationchange redraws the overlay with nothing else changed.
+    d.querySelector('video').dispatchEvent(new p.win.Event('durationchange'));
+    await waitFor(() => marks().length === 3);
+    const pct = (px) => (px * 100) / 404;
+    const close = (x, y) => Math.abs(x - y) < 1e-6;
+    const [a, b, c] = marks();
+    t(
+      'chapters that render later are a change: the next draw maps the marks across the gap',
+      marks().length === 3 &&
+        close(a.left, pct(80)) &&
+        close(a.left + a.width, pct(100)) &&
+        close(b.left, pct(104)) &&
+        close(b.left + b.width, pct(134)) &&
+        close(c.left, pct(204)),
+      JSON.stringify(marks())
     );
   }
 

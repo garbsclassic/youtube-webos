@@ -4,7 +4,8 @@
  * yellow left at None is YouTube's, a yellow the mod sends itself (the Shorts
  * keep-alive's, through core/remote.js sendKey) runs no binding and neither
  * does YouTube's unstamped re-send of it within 100 ms, Back and
- * Escape with the black overlay up take it down and reach nothing else,
+ * Escape with the black overlay up take it down and reach nothing else, its
+ * repeats and its keyup held from YouTube until the release or 2 s,
  * without the overlay they are left alone, and a key the router handles on
  * window capture goes no further than the listeners on window itself.
  *
@@ -37,13 +38,15 @@ const FAST_TIMERS = { scale: 100, from: 200 };
  * A watch page with a paused <video> over a playback model, `cfg` over the
  * harness's configuration, and every keydown that reaches the document
  * recorded in `keys` (a document capture listener, behind the router's).
+ * `timers` goes to createPage, to shorten the router's 2 s Back hold.
  */
-function boot(cfg) {
+function boot(cfg, timers) {
   let model;
   const page = createPage({
     page: 'watch',
     config: Object.assign({}, cfg),
     captureKeys: true,
+    timers,
     setup(win) {
       model = videoModel(win, { currentTime: 10, duration: 100, paused: true });
     }
@@ -204,6 +207,74 @@ function bootShorts(cfg) {
       `prevented ${esc.defaultPrevented}, document ${keys.join(',')}`
     );
     t('no playback change on the way', model.plays === 0 && model.pauses === 0);
+  }
+
+  // ---- a held Back after it took the overlay down ----------------------------------------
+  {
+    // The 2 s hold at a twentieth, 100 ms; the 100 ms key debounce and the toasts' shorter
+    // timers keep their length.
+    const { win, d, keys, press, toasts, overlay } = boot({}, { scale: 20, from: 1500 });
+    const ups = [];
+    d.addEventListener('keyup', (e) => ups.push(e.keyCode), true);
+    /** A keyup of `code` on the body, as the remote sends it on release. */
+    const release = (code) => {
+      const evt = new win.KeyboardEvent('keyup', {
+        keyCode: code,
+        bubbles: true,
+        cancelable: true
+      });
+      d.body.dispatchEvent(evt);
+      return evt;
+    };
+    press(KEYS.RED);
+    t('setup: red puts the overlay up', !!overlay());
+    press(KEYS.BACK);
+    t('setup: Back takes it down', !overlay());
+    const repeats = [press(KEYS.BACK), press(KEYS.BACK), press(KEYS.BACK)];
+    t(
+      'the held Back repeats are kept from YouTube: prevented, none reaches the document',
+      repeats.every((e) => e.defaultPrevented) && keys.indexOf(KEYS.BACK) === -1,
+      keys.join(',')
+    );
+    t(
+      'and they raise nothing again: no overlay, one deactivation toast',
+      !overlay() && toasts().filter((m) => m === 'OLED Mode Deactivated').length === 1,
+      toasts().join(' | ')
+    );
+    const up = release(KEYS.BACK);
+    t(
+      'the keyup of the held Back is swallowed too',
+      up.defaultPrevented && ups.indexOf(KEYS.BACK) === -1,
+      ups.join(',')
+    );
+    const after = press(KEYS.BACK);
+    t(
+      'after the keyup a new Back with no overlay passes through to YouTube',
+      !after.defaultPrevented && keys.indexOf(KEYS.BACK) !== -1,
+      keys.join(',')
+    );
+    const laterUp = release(KEYS.BACK);
+    t(
+      'and so does its keyup: the hold is over',
+      !laterUp.defaultPrevented && ups.indexOf(KEYS.BACK) !== -1,
+      ups.join(',')
+    );
+  }
+  {
+    // A TV that never sends the keyup: the hold ends on its own after 2 s (100 ms here).
+    const { keys, press, overlay } = boot({}, { scale: 20, from: 1500 });
+    press(KEYS.RED);
+    press(KEYS.ESCAPE);
+    t('setup: Escape takes the overlay down', !overlay());
+    const held = press(KEYS.ESCAPE);
+    t('setup: a repeat of it is held', held.defaultPrevented && keys.indexOf(KEYS.ESCAPE) === -1);
+    await wait(250);
+    const later = press(KEYS.ESCAPE);
+    t(
+      'with no keyup the hold ends after 2 s: the next Escape passes through',
+      !later.defaultPrevented && keys.indexOf(KEYS.ESCAPE) !== -1,
+      keys.join(',')
+    );
   }
 
   // ---- Back and Escape without the overlay -----------------------------------------------

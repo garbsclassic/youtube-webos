@@ -84,7 +84,7 @@ The declarations that undo what a rule collapses, only those: the element keeps 
 <a id="fn-comments-fix-js-splitselectorlist"></a>
 **`splitSelectorList(selectorText)`** · function, exported · L78–93
 
-A selector list split on its top-level commas, leaving those inside `:is()`, `[attr]` and such.
+A selector list split on its top-level commas, leaving those inside `:is()` or `[attr]`.
 
 - **Called by:** [findCollapsingRules.consider](#fn-comments-fix-js-findcollapsingrules-consider)
 

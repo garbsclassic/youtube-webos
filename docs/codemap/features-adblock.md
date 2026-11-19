@@ -20,7 +20,7 @@ Modules: [features/adblock/constants.js](#mod-constants-js), [features/adblock/e
 
 ## features/adblock/emoji-wrap.js
 
-> shortcut: the legacy emoji fix only ran on webOS 3 and 4, which this fork does not build for, so these are no-ops. The callers in the adblock filters stay as upstream wrote them to keep its commits cherry-picking cleanly; remove them together if upstream drops the fix.
+> The legacy emoji fix only runs on webOS 3 and 4, which this fork does not build for, so these are no-ops. The callers in the adblock filters stay as upstream wrote them to keep its commits cherry-picking cleanly; remove them together if upstream drops the fix.
 
 11 lines · imported by [features/adblock/item-filters.js](#mod-item-filters-js), [features/adblock/parse-hook.js](#mod-parse-hook-js), [features/adblock/response-filters.js](#mod-response-filters-js)
 

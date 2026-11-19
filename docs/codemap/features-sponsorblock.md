@@ -641,7 +641,7 @@ Restores the mute state unless `time` is still inside the muted segment; without
 
 > The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. Finding the bar is bar.js's job.
 
-300 lines · imports [core/config.js](core.md#mod-config-js), [features/sponsorblock/constants.js](#mod-constants-js), [features/sponsorblock/labels.js](#mod-labels-js), [core/selectors.js](core.md#mod-selectors-js) · imported by [features/sponsorblock/bar.js](#mod-bar-js), [features/sponsorblock/index.js](#mod-index-js), [features/sponsorblock/skipping.js](#mod-skipping-js), [features/sponsorblock/video-events.js](#mod-video-events-js)
+304 lines · imports [core/config.js](core.md#mod-config-js), [features/sponsorblock/constants.js](#mod-constants-js), [features/sponsorblock/labels.js](#mod-labels-js), [core/selectors.js](core.md#mod-selectors-js) · imported by [features/sponsorblock/bar.js](#mod-bar-js), [features/sponsorblock/index.js](#mod-index-js), [features/sponsorblock/skipping.js](#mod-skipping-js), [features/sponsorblock/video-events.js](#mod-video-events-js)
 
 <a id="fn-overlay-js-anchorof"></a>
 **`anchorOf(bar)`** · function, exported · L16–22
@@ -710,7 +710,7 @@ Where a segment sits on a bar split into chapters, as `{ left, width }` percenta
 - **Browser:** `getComputedStyle`, `offsetWidth`
 
 <a id="fn-overlay-js-drawoverlay"></a>
-**`drawOverlay(sb)`** · function, exported · L189–283
+**`drawOverlay(sb)`** · function, exported · L189–287
 
 Draws (or keeps) the overlay for the current segments and settings beside the tracked bar. False when the bar is gone from the document: the caller then looks for it again. True otherwise, including when nothing needs drawing.
 
@@ -721,7 +721,7 @@ Draws (or keeps) the overlay for the current segments and settings beside the tr
 - **Browser:** `querySelector`
 
 <a id="fn-overlay-js-recolouroverlay"></a>
-**`recolourOverlay(sb)`** · function, exported · L290–300
+**`recolourOverlay(sb)`** · function, exported · L294–304
 
 Gives every mark its category's colour as the settings have it now: a colour picked in the panel (one change per step of a drag) repaints the marks rather than rebuilding the overlay.
 

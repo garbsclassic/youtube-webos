@@ -31,6 +31,10 @@ function keyNameOf(evt) {
 const SYNTHETIC_ECHO_MS = 100;
 const syntheticEcho = { key: null, time: 0 };
 
+// The Back code that took the OLED overlay down, swallowed until its keyup.
+let heldBack = null;
+const BACK_HOLD_MS = 2000;
+
 /** Whether the action may run on the current page. */
 function inScope(action) {
   return action.global || isWatchPage() || isShortsPage();
@@ -49,11 +53,23 @@ function onKeyDown(evt) {
     return;
   }
 
+  const code = keyCodeOf(evt);
+  if (heldBack !== null && code === heldBack) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    return;
+  }
+
   // While the black overlay is up, Back only takes it down: the screen is black, so a page
   // back underneath would go somewhere the user cannot see. 27 is the Escape webOS also sends.
-  const code = keyCodeOf(evt);
   if ((code === REMOTE_KEYS.BACK.code || code === 27) && isOledOverlayActive()) {
     toggleOledOverlay();
+    // A held Back repeats; the repeats would page back once the overlay is gone.
+    heldBack = code;
+    // A keyup the TV never delivers must not swallow Back for good.
+    setTimeout(() => {
+      if (heldBack === code) heldBack = null;
+    }, BACK_HOLD_MS);
     evt.preventDefault();
     evt.stopPropagation();
     return;
@@ -109,3 +125,13 @@ function onKeyDown(evt) {
 // keys it claims (yellow is search, Back navigates) before document sees the trusted press. The
 // userScript runs before YouTube's code, so this listener is registered ahead of theirs.
 window.addEventListener('keydown', onKeyDown, true);
+
+/** Ends a swallowed Back hold; its keyup does not reach YouTube either. */
+function onKeyUp(evt) {
+  if (heldBack === null || keyCodeOf(evt) !== heldBack) return;
+  heldBack = null;
+  evt.preventDefault();
+  evt.stopPropagation();
+}
+
+window.addEventListener('keyup', onKeyUp, true);

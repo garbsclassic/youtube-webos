@@ -2,7 +2,7 @@
 
 Generated from the source by `tools/codemap.mjs`; do not edit it by hand. After changing code, run `npm run codemap` (`npm test` fails while the map is out of date). A function's description is the comment right above it in the source: improve it there.
 
-**127 modules, 828 named functions**, 611 of them described (the perf monitor in `src/dev/` is a development tool, not in release builds, and is listed in short form). This page is the index; each folder has a page in [codemap/](codemap/) with every function of its modules. The overview (boot order, the hooks, how a response flows through the filters) is [ARCHITECTURE.md](ARCHITECTURE.md); the same data for scripts is [codemap.json](codemap.json).
+**127 modules, 829 named functions**, 612 of them described (the perf monitor in `src/dev/` is a development tool, not in release builds, and is listed in short form). This page is the index; each folder has a page in [codemap/](codemap/) with every function of its modules. The overview (boot order, the hooks, how a response flows through the filters) is [ARCHITECTURE.md](ARCHITECTURE.md); the same data for scripts is [codemap.json](codemap.json).
 
 How to read it:
 
@@ -35,7 +35,7 @@ How to read it:
 | [core/per-video.js](codemap/core.md#mod-per-video-js) | 72 | 7 | One instance per watched video (SponsorBlock's): created when the watch page shows a video, kept across hash changes within the same video, torn down when the video changes, off the watch page, when its setting change... |
 | [core/player-state.js](codemap/core.md#mod-player-state-js) | 10 | 0 | The YouTube player API's playback states, as getPlayerState() reports them and as the `yt-player-state-change` event (features/video-quality) carries them. |
 | [core/remote.js](codemap/core.md#mod-remote-js) | 114 | 3 | The remote control: key codes, the colour-key lookup, and synthetic key presses dispatched on the app's behalf. |
-| [core/selectors.js](codemap/core.md#mod-selectors-js) | 94 | 0 | Class names, ids and tag names YouTube's leanback app puts on the page. |
+| [core/selectors.js](codemap/core.md#mod-selectors-js) | 91 | 0 | Class names, ids and tag names YouTube's leanback app puts on the page. |
 | [core/speed-cap.js](codemap/core.md#mod-speed-cap-js) | 14 | 2 | Whether the playback speed feature holds the video at 1080p: above 1.25x a TV cannot decode 2160p fast enough, so it caps the quality, and Force Max Quality (features/video-quality) waits meanwhile. |
 | [core/styles.js](codemap/core.md#mod-styles-js) | 20 | 2 | Every stylesheet of the bundle in one &lt;style> element, put in the page once. |
 | [core/text.js](codemap/core.md#mod-text-js) | 17 | 3 | Small string helpers shared across modules. |
@@ -44,7 +44,7 @@ How to read it:
 | [core/yt-storage.js](codemap/core.md#mod-yt-storage-js) | 36 | 3 | The records the leanback app keeps in localStorage (JSON, usually { data, creation, expiration }), read and written in one place: a record that is missing, malformed or behind a storage error reads as null, and a writ... |
 | [dev/perf-mon.js](codemap/dev.md#mod-perf-mon-js) | 4741 | 142 | perf-mon.js — YTAF Engine Diagnostics ===================================================================== Dev-only instrumentation for the webOS YouTube mod. |
 | [features/adblock/constants.js](codemap/features-adblock.md#mod-constants-js) | 53 | 0 | String tables shared by the adblock modules. |
-| [features/adblock/emoji-wrap.js](codemap/features-adblock.md#mod-emoji-wrap-js) | 11 | 2 | shortcut: the legacy emoji fix only ran on webOS 3 and 4, which this fork does not build for, so these are no-ops. |
+| [features/adblock/emoji-wrap.js](codemap/features-adblock.md#mod-emoji-wrap-js) | 11 | 2 | The legacy emoji fix only runs on webOS 3 and 4, which this fork does not build for, so these are no-ops. |
 | [features/adblock/fallback.js](codemap/features-adblock.md#mod-fallback-js) | 82 | 3 | The fallback for a response no schema path matched, and the guide filter for the small guide response: one bounded search over the body serves both. |
 | [features/adblock/flags.js](codemap/features-adblock.md#mod-flags-js) | 93 | 2 | The filter switches as one mutable snapshot, refreshed when a setting changes rather than re-read on every JSON.parse. |
 | [features/adblock/index.js](codemap/features-adblock.md#mod-index-js) | 7 | 0 | Ad blocking: the JSON.parse and JSON.stringify hooks (parse-hook.js, stringify-hook.ts) that userScript.js installs for the life of the page, and the telemetry blockers (tracking-block.js); all of them follow the adbl... |
@@ -91,7 +91,7 @@ How to read it:
 | [features/sponsorblock/index.js](codemap/features-sponsorblock.md#mod-index-js) | 364 | 19 | SponsorBlock: skips sponsored segments and draws them on the progress bar. |
 | [features/sponsorblock/labels.js](codemap/features-sponsorblock.md#mod-labels-js) | 257 | 11 | Two small SponsorBlock readouts rendered into YouTube's own DOM: 1. |
 | [features/sponsorblock/mute.js](codemap/features-sponsorblock.md#mod-mute-js) | 23 | 2 | Muted segments: the audio is off while the playhead is inside a segment the API marked `mute` (and the setting allows it), and the viewer's own mute state comes back on the way out, on a seek away and on destroy. |
-| [features/sponsorblock/overlay.js](codemap/features-sponsorblock.md#mod-overlay-js) | 300 | 10 | The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. |
+| [features/sponsorblock/overlay.js](codemap/features-sponsorblock.md#mod-overlay-js) | 304 | 10 | The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. |
 | [features/sponsorblock/popup.js](codemap/features-sponsorblock.md#mod-popup-js) | 118 | 5 | The SponsorBlock popup beside the options panel: the current video's segments, one row each with its category colour, name and time. |
 | [features/sponsorblock/segments.js](codemap/features-sponsorblock.md#mod-segments-js) | 139 | 7 | Segment math, touching nothing but the handler's segment fields: which segments are skippable under the current settings, where the playhead is relative to them, and the end clamp. |
 | [features/sponsorblock/skipping.js](codemap/features-sponsorblock.md#mod-skipping-js) | 316 | 19 | Playback-time behaviour: aiming at the next segment, the timeupdate listener, the per-frame loop near a segment and the skip itself, which the chain at the start (chain.js) takes too. |
@@ -139,7 +139,7 @@ How to read it:
 | [ui/shortcuts/page.js](codemap/ui-shortcuts.md#mod-page-js) | 41 | 1 | The page itself: a soft reload through the app's own command bus. |
 | [ui/shortcuts/panels.js](codemap/ui-shortcuts.md#mod-panels-js) | 99 | 7 | The watch-page side panels: comments (or live chat), description and the save dialog, each toggled like the remote would: Back when it is open, its button when it is not. |
 | [ui/shortcuts/playback.js](codemap/ui-shortcuts.md#mod-playback-js) | 100 | 5 | Playback: play/pause with the controls bar kept out of the way, and the subtitles toggle through the player API with a UI fallback. |
-| [ui/shortcuts/router.js](codemap/ui-shortcuts.md#mod-router-js) | 111 | 4 | The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call. |
+| [ui/shortcuts/router.js](codemap/ui-shortcuts.md#mod-router-js) | 137 | 5 | The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call. |
 | [ui/shortcuts/seek.js](codemap/ui-shortcuts.md#mod-seek-js) | 178 | 7 | Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump. |
 | [ui/styles/html-classes.js](codemap/ui-styles.md#mod-html-classes-js) | 72 | 4 | The state of the UI as classes on &lt;html>: the theme, OLED-care mode and the UI tweaks, each driven by a setting. |
 | [ui/toast/index.js](codemap/ui-toast.md#mod-index-js) | 119 | 8 | Toast notifications in the top right corner. |
@@ -219,7 +219,7 @@ Events the app creates and listens to: its own (`ytaf-*`), YouTube's and the bro
 | `hashchange` |  | [core/per-video.js › bootstrapPerVideo](codemap/core.md#fn-per-video-js-bootstrappervideo), [dev/perf-mon.js › installVitals](codemap/dev.md#fn-perf-mon-js-installvitals), [features/screensaver-fix/index.js (at load)](codemap/features-screensaver-fix.md#mod-index-js) |
 | `innertube-command` | [ui/shortcuts/page.js › refreshPage](codemap/ui-shortcuts.md#fn-page-js-refreshpage) |  |
 | `keydown` | [core/remote.js (at load)](codemap/core.md#mod-remote-js) | [dev/perf-mon.js › installRemote](codemap/dev.md#fn-perf-mon-js-installremote), [features/thumbnail-quality/index.js (at load)](codemap/features-thumbnail-quality.md#mod-index-js), [ui/panel/keyboard.js › createPanelKeyboard.attach](codemap/ui-panel.md#fn-keyboard-js-createpanelkeyboard-attach), [ui/panel/keyboard.js › swallowUntilReleased](codemap/ui-panel.md#fn-keyboard-js-swallowuntilreleased), [ui/shortcuts/router.js (at load)](codemap/ui-shortcuts.md#mod-router-js) |
-| `keyup` |  | [ui/panel/keyboard.js › createPanelKeyboard.attach](codemap/ui-panel.md#fn-keyboard-js-createpanelkeyboard-attach), [ui/panel/keyboard.js › swallowUntilReleased](codemap/ui-panel.md#fn-keyboard-js-swallowuntilreleased) |
+| `keyup` |  | [ui/panel/keyboard.js › createPanelKeyboard.attach](codemap/ui-panel.md#fn-keyboard-js-createpanelkeyboard-attach), [ui/panel/keyboard.js › swallowUntilReleased](codemap/ui-panel.md#fn-keyboard-js-swallowuntilreleased), [ui/shortcuts/router.js (at load)](codemap/ui-shortcuts.md#mod-router-js) |
 | `loadedmetadata` |  | [features/sponsorblock/chain.js › retryOnMetadata](codemap/features-sponsorblock.md#fn-chain-js-retryonmetadata) |
 | `loadend` |  | [dev/perf-mon.js › installNetworkProbes.XHR.prototype.send](codemap/dev.md#fn-perf-mon-js-installnetworkprobes-xhr-prototype-send) |
 | `mousemove` |  | [ui/panel/keyboard.js › createPanelKeyboard.attach](codemap/ui-panel.md#fn-keyboard-js-createpanelkeyboard-attach) |
@@ -256,9 +256,7 @@ The `SELECTORS` table (`src/core/selectors.js`): what each entry matches, its no
 | `PLAYER_CONTAINER` | `ytlr-player__player-container` |  | [features/screensaver-fix/index.js › findWatchVideo](codemap/features-screensaver-fix.md#fn-index-js-findwatchvideo) |
 | `WATCH_PLAYER` | `ytlr-watch-default` | The watch page's player shell; the clock hides while it holds focus. | [features/watch/index.js (at load)](codemap/features-watch.md#mod-index-js), [features/watch/index.js › Watch.updateVisibility](codemap/features-watch.md#fn-index-js-watch-updatevisibility) |
 | `HTML5_PLAYER_FALLBACK` | `.html5-video-player` | Older player root, tried when PLAYER_ID is not on the page. | [features/playback-speed/index.js › getPlayer](codemap/features-playback-speed.md#fn-index-js-getplayer), [ui/shortcuts/actions.js › ACTIONS.toggle_subs.run](codemap/ui-shortcuts.md#fn-actions-js-actions-toggle-subs-run) |
-| `THUMBNAIL_TILE` | `ytlr-thumbnail-details` |  |  |
 | `THUMBNAIL_NODES` | `ytlr-thumbnail-details, ytlr-surface-page, thumbnail image` | Everything that can carry a thumbnail image; thumbnail-quality rescans these. | [features/thumbnail-quality/rendered.js › renderedThumbnails](codemap/features-thumbnail-quality.md#fn-rendered-js-renderedthumbnails) |
-| `TEXT_HOST_TAGS` | `['yt-formatted-string', 'yt-core-attributed-string']` | The elements whose text can hold emoji, as localName values (emoji-font). |  |
 | `CONTROLS` | `yt-focus-container[idomkey="controls"]` | Transport controls and the progress bar | [features/video-quality/kickstart.js › dismissRaisedControls](codemap/features-video-quality.md#fn-kickstart-js-dismissraisedcontrols), [ui/shortcuts/playback.js › controlsFocused](codemap/ui-shortcuts.md#fn-playback-js-controlsfocused) |
 | `FOCUS_CLASS` | `zylon-focus` | On whichever element holds focus. | [ui/shortcuts/playback.js › controlsFocused](codemap/ui-shortcuts.md#fn-playback-js-controlsfocused) |
 | `HIDDEN_CLASS` | `zylon-hidden` | On elements the app hides without unmounting them (the progress bar during playback). | [features/sponsorblock/overlay.js › syncOverlayPosition](codemap/features-sponsorblock.md#fn-overlay-js-syncoverlayposition) |

@@ -204,7 +204,14 @@ export function drawOverlay(sb) {
   const config = configGetAll();
   // What the marks are (the modes include the highlight's); their colours are
   // changed in place (recolourOverlay).
-  const overlayHash = `${duration}_${sb.modeSig}_${sb.segments.length}`;
+  // The chapter pieces are children of the track, which the tracked bar (its segment) sits in.
+  // They can render after the first draw, so their count is part of what the marks are.
+  const chapterTrack =
+    sb.progressBar.closest(SELECTORS.PROGRESS_BAR_TRACK) ||
+    sb.progressBar.querySelector(SELECTORS.PROGRESS_BAR_TRACK) ||
+    sb.progressBar;
+  const chapters = chapterTrack.childElementCount;
+  const overlayHash = `${duration}_${sb.modeSig}_${sb.segments.length}_${chapters}`;
   if (overlayHash === sb.lastOverlayHash && sb.overlay && sb.overlay.isConnected) return true;
   sb.lastOverlayHash = overlayHash;
 
@@ -214,11 +221,6 @@ export function drawOverlay(sb) {
   const fragment = document.createDocumentFragment();
   const highlightMode = config.sbMode_highlight;
 
-  // The chapter pieces are children of the track, which the tracked bar (its segment) sits in.
-  const chapterTrack =
-    sb.progressBar.closest(SELECTORS.PROGRESS_BAR_TRACK) ||
-    sb.progressBar.querySelector(SELECTORS.PROGRESS_BAR_TRACK) ||
-    sb.progressBar;
   for (let i = 0; i < sb.segments.length; i++) {
     const segment = sb.segments[i];
     // A full-video label spans [0, 0] and would draw a zero-width bar.
@@ -256,7 +258,9 @@ export function drawOverlay(sb) {
     for (const range of ranges) {
       const div = document.createElement('div');
       div.className = 'previewbar';
-      div.style.cssText = `background-color: ${color}; left: ${range.left}%; width: ${range.width}%; opacity: ${opacity};`;
+      div.style.cssText =
+        `background-color: ${color}; left: ${range.left}%; ` +
+        `width: ${range.width}%; opacity: ${opacity};`;
       fragment.appendChild(div);
       sb.overlayMarks.push({ div, category: segment.category, color });
     }
