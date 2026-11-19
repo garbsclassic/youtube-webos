@@ -1,8 +1,7 @@
 /**
- * adblock/text-fixes and emoji-wrap as a unit: trackingParams blanking done on the JSON text
+ * adblock/text-fixes as a unit: trackingParams blanking done on the JSON text
  * before the parse (every depth, the quick exit when the key is absent,
- * clickTrackingParams and escaped or non-string values left alone), and the
- * emoji walk that no longer carries a tracking mode.
+ * clickTrackingParams and escaped or non-string values left alone).
  *
  * Run: node tests/unit/adblock-text-fixes-test.cjs
  */
@@ -18,11 +17,9 @@ const report = createReport();
 const t = report.check;
 const eq = report.eq;
 
-const SOURCES = ['text-fixes.js', 'emoji-wrap.js'].map((f) =>
-  path.join(SRC, 'features', 'adblock', f)
-);
-const { sandbox, get } = loadSources(SOURCES, { log: { debug() {}, warn() {} } });
-const { stripTrackingParams, wrapEmojiInTree, mayNeedEmojiWork } = sandbox;
+const SOURCES = ['text-fixes.js'].map((f) => path.join(SRC, 'features', 'adblock', f));
+const { sandbox } = loadSources(SOURCES, { log: { debug() {}, warn() {} } });
+const { stripTrackingParams } = sandbox;
 
 /** Every non-empty string trackingParams left in a tree, with the deepest one's depth. */
 function leftover(obj) {
@@ -265,102 +262,6 @@ function leftover(obj) {
       outOdd.continuationContents.tvSurfaceContentContinuation.inner.trackingParams
     ].join('|'),
     'has a " quote|'
-  );
-}
-
-// ---- the emoji walk carries no tracking mode any more ----
-{
-  const obj = { trackingParams: 'CAEQ_keep', title: { simpleText: 'Hi 😀' } };
-  wrapEmojiInTree(obj);
-  eq('the emoji walk leaves trackingParams alone', obj.trackingParams, 'CAEQ_keep');
-  t(
-    'and wraps the emoji',
-    JSON.stringify(obj.title).indexOf('​') !== -1,
-    JSON.stringify(obj.title)
-  );
-  const other = { deep: { title: { runs: [{ text: 'a 😀 b' }] } } };
-  wrapEmojiInTree(other);
-  t(
-    'and splits a run around the emoji',
-    other.deep.title.runs.length === 3,
-    JSON.stringify(other.deep.title.runs)
-  );
-}
-
-// ---- the walk's depth: 20 levels below the root ----
-{
-  const nest = (levels) => {
-    let node = { title: { simpleText: 'x 😀' } };
-    for (let i = 0; i < levels; i++) node = { child: node };
-    return node;
-  };
-  const wrapped = (root) => JSON.stringify(root).indexOf(String.fromCharCode(0x200b)) !== -1;
-  const at19 = nest(19);
-  wrapEmojiInTree(at19);
-  t('a title 20 levels down is wrapped', wrapped(at19));
-  const at20 = nest(20);
-  wrapEmojiInTree(at20);
-  t('one level further it is past the bound', !wrapped(at20));
-}
-
-// ---- the emoji gate over the raw text (the legacy fix walks only when it says so) ----
-{
-  const bs = String.fromCharCode(92);
-  const plain = JSON.stringify(makeBrowse({ shelves: 3, tilesPer: 4 }));
-  t('a plain browse response needs no emoji walk', mayNeedEmojiWork(plain) === false);
-  t(
-    'nor does one with escaped ASCII (an ampersand in a URL)',
-    mayNeedEmojiWork('{"url":"https://x.test/?a=1' + bs + 'u0026b=2"}') === false
-  );
-  t(
-    'a raw emoji needs the walk',
-    mayNeedEmojiWork('{"t":"Hi ' + String.fromCodePoint(0x1f600) + '"}') === true
-  );
-  t(
-    'a BMP emoji (a heart) needs it',
-    mayNeedEmojiWork('{"t":"I ' + String.fromCharCode(0x2764) + ' it"}') === true
-  );
-  t(
-    'an escaped surrogate pair needs it',
-    mayNeedEmojiWork('{"t":"Hi ' + bs + 'ud83d' + bs + 'ude00"}') === true
-  );
-  t(
-    'an escaped BMP emoji needs it, in either case of hex',
-    mayNeedEmojiWork('{"t":"' + bs + 'u2764"}') === true &&
-      mayNeedEmojiWork('{"t":"' + bs + 'u00A9"}') === true
-  );
-  t(
-    'a sentinel (raw or escaped) needs it, so it is stripped',
-    mayNeedEmojiWork('{"t":"a' + String.fromCharCode(0x2060) + 'b"}') === true &&
-      mayNeedEmojiWork('{"t":"a' + bs + 'ufeffb"}') === true
-  );
-  t(
-    'with the fix generated, a browse with emoji titles needs it',
-    mayNeedEmojiWork(JSON.stringify(makeBrowse({ shelves: 2, tilesPer: 2, withEmoji: true }))) ===
-      true
-  );
-
-  // The gate is one character class built from the exact regexes (a scan of
-  // one class per character, not four alternatives): it has to let through
-  // every character they match, and may let through a lone high surrogate.
-  const gate = get('NEEDS_TEXT_WORK_RE');
-  const exact = new RegExp(`${get('EMOJI_CHAR_RE').source}|\\u20E3|${get('CLEAN_TEXT_RE').source}`);
-  let missed = 0;
-  for (let c = 0; c < 0x10000; c++) {
-    const ch = String.fromCharCode(c);
-    if (exact.test(ch) && !gate.test(ch)) missed++;
-  }
-  for (let cp = 0x1f000; cp < 0x1fb00; cp++) {
-    const ch = String.fromCodePoint(cp);
-    if (exact.test(ch) && !gate.test(ch)) missed++;
-  }
-  eq('the gate lets through every character the exact regexes match', missed, 0);
-  t('the gate is a single character class', /^\[[^\]]*\]$/.test(gate.source));
-  t(
-    'dashes, curly quotes and other scripts do not pass it',
-    !gate.test(
-      'A \u2013 B \u201Cquoted\u201D \u2026 \u041F\u0440\u0438\u0432\u0435\u0442 \u3053\u3093'
-    )
   );
 }
 

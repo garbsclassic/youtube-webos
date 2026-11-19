@@ -27,28 +27,24 @@ function testBuildNumber(env) {
 
 /** @type {(env: Record<string, string>) => (import('webpack').Configuration)[]} */
 const makeConfig = (env) => {
-  const isModern = env && env.modern;
   // Dev-only instrumentation; see src/dev/perf-mon.js. Off unless `--env perf`.
   const withPerfMon = !!(env && env.perf);
   const build = testBuildNumber(env);
   // What the panel heading shows (src/core/version.js): 0.8.5, 0.8.5 b2.
   const versionLabel = version + (build ? ` b${build}` : '');
-  // The engine each build is for, as a browserslist query. Every tool that
-  // asks browserslist (autoprefixer, cssnano, Babel's preset-env) reads it from
-  // the environment, so the CSS and the JS aim at the same browser; one build
-  // runs per process.
-  const browsers = isModern ? 'chrome 87' : 'chrome 38';
+  // webOS 22's engine, as a browserslist query. Every tool that asks
+  // browserslist (autoprefixer, cssnano, Babel's preset-env) reads it from the
+  // environment, so the CSS and the JS aim at the same browser.
+  const browsers = 'chrome 87';
   process.env.BROWSERSLIST = browsers;
 
   return [
     {
-      target: isModern ? `browserslist:${browsers}` : ['web', 'es5'],
+      target: `browserslist:${browsers}`,
       // No eval-wrapped modules in build:dev either: the TV runs the bundle as is.
       devtool: false,
-      // A fresh dist/ per build so nothing stale reaches the package, except
-      // the packaged .ipk files: the release builds are kept in dist/ and the
-      // webOS 22+ build script runs after the legacy one has packaged its own.
-      output: { clean: { keep: /\.ipk$/ } },
+      // A fresh dist/ per build so nothing stale reaches the package.
+      output: { clean: true },
       entry: {
         index: './src/index.js',
         userScript: {
@@ -57,66 +53,17 @@ const makeConfig = (env) => {
         }
       },
       resolve: {
-        // Each build without the other's modules: the legacy-only ones away
-        // from the webOS 22+ bundle, the webOS 25 ones (which run that bundle)
-        // away from the legacy one. A module imported by name gets a stand-in
-        // with the same exports (*-absent.js); one imported for its side
-        // effects maps to nothing.
-        alias: Object.assign(
-          withPerfMon ? {} : { [path.resolve(__dirname, 'src/dev/perf-mon.js')]: false },
-          isModern
-            ? {
-                // Chrome 87 has fetch.
-                'whatwg-fetch': false,
-
-                // Chrome 87 has every built-in polyfills.js installs, so the whole
-                // file is dead weight (and a pile of no-op feature checks) here.
-                [path.resolve(__dirname, 'src/polyfills/polyfills.js')]: false,
-                // Its stylesheet goes with it: index.js is its only importer.
-                [path.resolve(__dirname, 'src/features/emoji-font/index.js')]: false,
-                [path.resolve(__dirname, 'src/hooks/buffer-limit.js')]: false,
-                [path.resolve(__dirname, 'src/features/adblock/emoji-wrap.js')]: path.resolve(
-                  __dirname,
-                  'src/features/adblock/emoji-wrap-absent.js'
-                )
-              }
-            : {
-                [path.resolve(__dirname, 'src/features/block-webos-cast.ts')]: path.resolve(
-                  __dirname,
-                  'src/features/block-webos-cast-absent.js'
-                ),
-                [path.resolve(__dirname, 'src/features/video-quality/kickstart.js')]: path.resolve(
-                  __dirname,
-                  'src/features/video-quality/kickstart-absent.js'
-                ),
-                // DeArrow's title formatter: 48 KiB here, usable on webOS 5 and 6 only.
-                [path.resolve(__dirname, 'src/features/dearrow/formatter.js')]: path.resolve(
-                  __dirname,
-                  'src/features/dearrow/formatter-absent.js'
-                ),
-                // The speed engine needs WebCodecs (Chrome 94, webOS 23).
-                [path.resolve(__dirname, 'src/features/playback-speed/index.js')]: path.resolve(
-                  __dirname,
-                  'src/features/playback-speed-absent.js'
-                )
-              }
-        )
+        // perf-mon only in a `--env perf` build.
+        alias: withPerfMon ? {} : { [path.resolve(__dirname, 'src/dev/perf-mon.js')]: false }
       },
       module: {
         rules: [
           {
             test: /\.[jt]s$/i,
             loader: 'babel-loader',
-            // Everything bundled from node_modules is ES5 already (twemoji,
-            // whatwg-fetch, the Babel runtime helpers), so none of it goes
-            // through Babel; bundle-check parses the legacy bundle as ES5 and
-            // would catch a dependency that is not.
+            // node_modules ships code Chrome 87 runs as is.
             exclude: /node_modules/,
-            options: {
-              cacheDirectory: true,
-              // Both branches live in babel.config.js; this picks one.
-              envName: isModern ? 'modern' : 'legacy'
-            }
+            options: { cacheDirectory: true }
           },
           {
             test: /\.png$/i,
@@ -133,8 +80,7 @@ const makeConfig = (env) => {
                 options: {
                   postcssOptions: {
                     plugins: [
-                      // The engine's prefixes (-webkit-user-select, -webkit-appearance,
-                      // -webkit-filter on Chromium 38), so the sources carry none.
+                      // The engine's prefixes, so the sources carry none.
                       'autoprefixer',
                       [
                         'cssnano',
@@ -177,7 +123,7 @@ const makeConfig = (env) => {
                 // its caller, a closure per item on the filter and walk paths,
                 // which Chromium 38's compiler does not optimise away.
                 reduce_funcs: false,
-                ecma: isModern ? 2020 : 5
+                ecma: 2020
               }
             },
             extractComments: false

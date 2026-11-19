@@ -2,7 +2,7 @@
 
 Part of the [code map](../CODEMAP.md), generated from the source by `tools/codemap.mjs`: do not edit it by hand.
 
-Modules: [features/adblock/constants.js](#mod-constants-js), [features/adblock/emoji-wrap-absent.js](#mod-emoji-wrap-absent-js), [features/adblock/emoji-wrap.js](#mod-emoji-wrap-js), [features/adblock/fallback.js](#mod-fallback-js), [features/adblock/flags.js](#mod-flags-js), [features/adblock/index.js](#mod-index-js), [features/adblock/item-filters.js](#mod-item-filters-js), [features/adblock/log.js](#mod-log-js), [features/adblock/nav-filters.js](#mod-nav-filters-js), [features/adblock/parse-hook.js](#mod-parse-hook-js), [features/adblock/player-filters.js](#mod-player-filters-js), [features/adblock/response-filters.js](#mod-response-filters-js), [features/adblock/search.js](#mod-search-js), [features/adblock/stringify-hook.ts](#mod-stringify-hook-ts), [features/adblock/text-fixes.js](#mod-text-fixes-js), [features/adblock/tracking-block.js](#mod-tracking-block-js)
+Modules: [features/adblock/constants.js](#mod-constants-js), [features/adblock/emoji-wrap.js](#mod-emoji-wrap-js), [features/adblock/fallback.js](#mod-fallback-js), [features/adblock/flags.js](#mod-flags-js), [features/adblock/index.js](#mod-index-js), [features/adblock/item-filters.js](#mod-item-filters-js), [features/adblock/log.js](#mod-log-js), [features/adblock/nav-filters.js](#mod-nav-filters-js), [features/adblock/parse-hook.js](#mod-parse-hook-js), [features/adblock/player-filters.js](#mod-player-filters-js), [features/adblock/response-filters.js](#mod-response-filters-js), [features/adblock/search.js](#mod-search-js), [features/adblock/stringify-hook.ts](#mod-stringify-hook-ts), [features/adblock/text-fixes.js](#mod-text-fixes-js), [features/adblock/tracking-block.js](#mod-tracking-block-js)
 
 <a id="mod-constants-js"></a>
 
@@ -16,109 +16,27 @@ Modules: [features/adblock/constants.js](#mod-constants-js), [features/adblock/e
 
 - **Settings:** uses `enableAdBlock`, `enableTrackingBlock`, `removeGlobalShorts`, `removeLiveVideos`, `removeTopLiveGames`, `removeMostRelevant`, `hideGuestSignInPrompts`, `enableLegacyEmojiFix`, `hideEndcards`, `upgradeThumbnails`, `enableRowsAhead`, `enableDeArrow`
 
-<a id="mod-emoji-wrap-absent-js"></a>
-
-## features/adblock/emoji-wrap-absent.js
-
-> The webOS 22+ build's emoji-wrap.js (webpack.config.js): the legacy emoji fix is off on every engine that runs this build, so nothing here is reached with work to do.
-
-11 lines
-
-<a id="fn-emoji-wrap-absent-js-wrapemojiintree"></a>
-**`wrapEmojiInTree()`** · function, exported · L6–6
-
-Nothing to wrap.
-
-<a id="fn-emoji-wrap-absent-js-mayneedemojiwork"></a>
-**`mayNeedEmojiWork()`** · function, exported · L9–11
-
-No emoji work on this build.
-
 <a id="mod-emoji-wrap-js"></a>
 
 ## features/adblock/emoji-wrap.js
 
-> The legacy emoji fix's half in the response: every emoji in the parsed tree wrapped in sentinel characters, so features/emoji-font can swap it for an image on webOS 3 and 4. The webOS 22+ build carries emoji-wrap-absent.js in its place (webpack.config.js): the fix is never on there.
+> shortcut: the legacy emoji fix only ran on webOS 3 and 4, which this fork does not build for, so these are no-ops. The callers in the adblock filters stay as upstream wrote them to keep its commits cherry-picking cleanly; remove them together if upstream drops the fix.
 
-250 lines · imports [features/adblock/log.js](#mod-log-js) · imported by [features/adblock/item-filters.js](#mod-item-filters-js), [features/adblock/parse-hook.js](#mod-parse-hook-js), [features/adblock/response-filters.js](#mod-response-filters-js)
-
-**At load:**
-
-- **Calls:** [classBody](#fn-emoji-wrap-js-classbody)
-
-<a id="fn-emoji-wrap-js-classbody"></a>
-**`classBody(re)`** · arrow · L30–30
-
-The body of the first character class in `re`: what is between its [ and ].
-
-- **Called by:** [at load](#mod-emoji-wrap-js)
-
-<a id="fn-emoji-wrap-js-mayneedemojiwork"></a>
-**`mayNeedEmojiWork(text)`** · function, exported · L58–60
-
-Whether the JSON text can hold anything the emoji walk would change: one native scan of the text, so the walk over every item of a response (the most expensive pass on webOS 3 and 4) is skipped for the ones without.
-
-- **Called by:** [features/adblock/parse-hook.js › parseAndFilter](#fn-parse-hook-js-parseandfilter)
-
-<a id="fn-emoji-wrap-js-processemojistring"></a>
-**`processEmojiString(str)`** · function · L67–75
-
-A text with each emoji wrapped in sentinels (U+200B before, U+200C after) for features/emoji-font to draw as an image on webOS 3/4. Sentinels already in the text are removed first, so it is safe to run twice; plain text comes back as it is.
-
-- **Called by:** [processTextFieldsInPlace](#fn-emoji-wrap-js-processtextfieldsinplace)
-
-<a id="fn-emoji-wrap-js-splitintoruns"></a>
-**`splitIntoRuns(text, originalRun)`** · function · L78–94
-
-Called only for text that passed NEEDS_TEXT_WORK_RE in the caller.
-
-- **Called by:** [processTextFieldsInPlace](#fn-emoji-wrap-js-processtextfieldsinplace)
-
-<a id="fn-emoji-wrap-js-hasoffsetruns"></a>
-**`hasOffsetRuns(obj)`** · function · L97–102
-
-Whether `obj` has offset runs (commandRuns, styleRuns...) over its `content`.
-
-- **Called by:** [processTextFieldsInPlace](#fn-emoji-wrap-js-processtextfieldsinplace)
-
-<a id="fn-emoji-wrap-js-wrapattributedcontent"></a>
-**`wrapAttributedContent(obj)`** · function · L111–161
-
-An attributed string's `content` wrapped, and the offsets of its runs (UTF-16 units of `content`) moved with the characters they name: a run starting at an emoji starts at its opening sentinel, one ending with it ends after the closing one. Without this a mention, link or timestamp after an emoji pointed two characters early per emoji.
-
-- **Calls:** [wrapAttributedContent.moved](#fn-emoji-wrap-js-wrapattributedcontent-moved)
-- **Called by:** [processTextFieldsInPlace](#fn-emoji-wrap-js-processtextfieldsinplace)
-
-<a id="fn-emoji-wrap-js-wrapattributedcontent-moved"></a>
-**`wrapAttributedContent.moved(p)`** · arrow · L135–147
-
-Where offset `p` of `src` lands in `out`.
-
-- **Called by:** [wrapAttributedContent](#fn-emoji-wrap-js-wrapattributedcontent)
-
-<a id="fn-emoji-wrap-js-processtextfieldsinplace"></a>
-**`processTextFieldsInPlace(obj)`** · function · L165–216
-
-Non-recursive: the emoji/text fields of a single node, in place. walkAndProcess guarantees obj is a non-null object.
-
-- **Calls:** [hasOffsetRuns](#fn-emoji-wrap-js-hasoffsetruns), [processEmojiString](#fn-emoji-wrap-js-processemojistring), [splitIntoRuns](#fn-emoji-wrap-js-splitintoruns), [wrapAttributedContent](#fn-emoji-wrap-js-wrapattributedcontent)
-- **Called by:** [walkEmoji](#fn-emoji-wrap-js-walkemoji)
+11 lines · imported by [features/adblock/item-filters.js](#mod-item-filters-js), [features/adblock/parse-hook.js](#mod-parse-hook-js), [features/adblock/response-filters.js](#mod-response-filters-js)
 
 <a id="fn-emoji-wrap-js-wrapemojiintree"></a>
-**`wrapEmojiInTree(obj)`** · function, exported · L223–225
+**`wrapEmojiInTree()`** · function, exported · L6–6
 
-Wraps the emoji in the text fields of `obj` and every node below it.
+Nothing to wrap.
 
-- **Calls:** [walkEmoji](#fn-emoji-wrap-js-walkemoji)
 - **Called by:** [features/adblock/item-filters.js › filterItems](#fn-item-filters-js-filteritems), [features/adblock/item-filters.js › filterSectionList](#fn-item-filters-js-filtersectionlist), [features/adblock/parse-hook.js › wrapEmojiInFrameworkUpdates](#fn-parse-hook-js-wrapemojiinframeworkupdates), [features/adblock/response-filters.js › filterActions](#fn-response-filters-js-filteractions), [features/adblock/response-filters.js › filterContinuation](#fn-response-filters-js-filtercontinuation), [features/adblock/response-filters.js › filterWatchResponse](#fn-response-filters-js-filterwatchresponse)
 
-<a id="fn-emoji-wrap-js-walkemoji"></a>
-**`walkEmoji(obj, depth)`** · function · L229–250
+<a id="fn-emoji-wrap-js-mayneedemojiwork"></a>
+**`mayNeedEmojiWork()`** · function, exported · L9–11
 
-The depth is a plain argument: a default value would cost an `arguments` read per node in the legacy build.
+No emoji work on this build.
 
-- **Calls:** [processTextFieldsInPlace](#fn-emoji-wrap-js-processtextfieldsinplace)
-- **Called by:** [wrapEmojiInTree](#fn-emoji-wrap-js-wrapemojiintree)
+- **Called by:** [features/adblock/parse-hook.js › parseAndFilter](#fn-parse-hook-js-parseandfilter)
 
 <a id="mod-fallback-js"></a>
 
@@ -306,7 +224,7 @@ skipEmoji: set when the caller runs its own wrapEmojiInTree over an ancestor of 
 
 > The logger of the feature's modules: their messages carry [AdBlock] (core/log.js).
 
-4 lines · imports [core/log.js](core.md#mod-log-js) · imported by [features/adblock/emoji-wrap.js](#mod-emoji-wrap-js), [features/adblock/fallback.js](#mod-fallback-js), [features/adblock/item-filters.js](#mod-item-filters-js), [features/adblock/nav-filters.js](#mod-nav-filters-js), [features/adblock/parse-hook.js](#mod-parse-hook-js), [features/adblock/player-filters.js](#mod-player-filters-js), [features/adblock/response-filters.js](#mod-response-filters-js), [features/adblock/search.js](#mod-search-js), [features/adblock/stringify-hook.ts](#mod-stringify-hook-ts), [features/adblock/tracking-block.js](#mod-tracking-block-js)
+4 lines · imports [core/log.js](core.md#mod-log-js) · imported by [features/adblock/fallback.js](#mod-fallback-js), [features/adblock/item-filters.js](#mod-item-filters-js), [features/adblock/nav-filters.js](#mod-nav-filters-js), [features/adblock/parse-hook.js](#mod-parse-hook-js), [features/adblock/player-filters.js](#mod-player-filters-js), [features/adblock/response-filters.js](#mod-response-filters-js), [features/adblock/search.js](#mod-search-js), [features/adblock/stringify-hook.ts](#mod-stringify-hook-ts), [features/adblock/tracking-block.js](#mod-tracking-block-js)
 
 **At load:**
 

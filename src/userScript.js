@@ -3,15 +3,10 @@
 // hooks and handles launches and relaunches; the order of the imports below
 // is the order things start in (docs/ARCHITECTURE.md).
 
-// The polyfills first: whatwg-fetch reads at load whether URLSearchParams
-// exists, and sends a body of one urlencoded only then.
-import './polyfills/polyfills.js';
 // Dev diagnostics, aliased to an empty module unless built with `--env perf`.
-// MUST come before every other module but the polyfills: perf-mon installs
+// MUST come before every other module: perf-mon installs
 // "inner" probes underneath every other hook.
 import './dev/perf-mon.js';
-
-import 'whatwg-fetch';
 
 import {
   installParseHook,
@@ -19,12 +14,11 @@ import {
   startTrackingBlock
 } from './features/adblock/index.js';
 import { installCodecHooks } from './features/force-codec/index.js';
-import { installBufferLimit } from './hooks/buffer-limit.js';
 
 import { SELECTORS } from './core/selectors.js';
 import { handleLaunch, extractLaunchParams, hasLaunchTarget } from './core/launch.js';
 import { attemptActiveBypass, resetActiveBypass } from './features/auto-login/index.js';
-import { isWebOS25, simulatorMode, getWebOSVersion } from './core/webos.js';
+import { isWebOS25, simulatorMode } from './core/webos.js';
 import { initBlockWebOSCast } from './features/block-webos-cast.ts';
 // Each module registers its page listeners as it is imported, so they run in
 // this order.
@@ -33,27 +27,21 @@ import './features/video-quality/index.js';
 import { initLogoStyle } from './features/logo-style.js';
 import './ui/index.js';
 import './features/sponsorblock/index.js';
-import './features/emoji-font/index.js';
 import './features/screensaver-fix/index.js';
 import './features/comments-fix.js';
 import './features/watch/index.js';
 import './features/lang-settings-fix.ts';
-// Installs itself once its setting is on; the legacy build has a stand-in.
+// Installs itself once its setting is on.
 import './features/playback-speed/index.js';
 import { createLogger } from './core/log.js';
 
 const log = createLogger('Main');
 
 // The global hooks, installed once every module has loaded (the codec filter
-// runs inside the parse hook). The buffer limit is for webOS 3 and 4 only;
-// the webOS 22+ build aliases it away, so the import is undefined there.
+// runs inside the parse hook).
 installParseHook();
 installStringifyHook();
 installCodecHooks();
-if (typeof installBufferLimit === 'function' && getWebOSVersion() <= 4) {
-  installBufferLimit();
-  log.info('Initiating buffer limit');
-}
 
 // The features that start once the hooks are in: the wordmark style applies
 // to the header, and Tracking Block's network hooks follow the adblock flags

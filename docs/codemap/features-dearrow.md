@@ -2,7 +2,7 @@
 
 Part of the [code map](../CODEMAP.md), generated from the source by `tools/codemap.mjs`: do not edit it by hand.
 
-Modules: [features/dearrow/constants.js](#mod-constants-js), [features/dearrow/formatter-absent.js](#mod-formatter-absent-js), [features/dearrow/formatter.js](#mod-formatter-js), [features/dearrow/index.js](#mod-index-js), [features/dearrow/log.js](#mod-log-js), [features/dearrow/lookup.js](#mod-lookup-js), [features/dearrow/state.js](#mod-state-js), [features/dearrow/sweep.js](#mod-sweep-js), [features/dearrow/thumbs.js](#mod-thumbs-js), [features/dearrow/tiles.js](#mod-tiles-js), [features/dearrow/titles.js](#mod-titles-js)
+Modules: [features/dearrow/constants.js](#mod-constants-js), [features/dearrow/formatter.js](#mod-formatter-js), [features/dearrow/index.js](#mod-index-js), [features/dearrow/log.js](#mod-log-js), [features/dearrow/lookup.js](#mod-lookup-js), [features/dearrow/state.js](#mod-state-js), [features/dearrow/sweep.js](#mod-sweep-js), [features/dearrow/thumbs.js](#mod-thumbs-js), [features/dearrow/tiles.js](#mod-tiles-js), [features/dearrow/titles.js](#mod-titles-js)
 
 <a id="mod-constants-js"></a>
 
@@ -15,19 +15,6 @@ Modules: [features/dearrow/constants.js](#mod-constants-js), [features/dearrow/f
 **At load:**
 
 - **Settings:** uses `enableDeArrow`, `dearrowCrowdTitles`, `dearrowTitleFormatting`, `dearrowCleanEmojis`, `dearrowCrowdThumbnails`, `dearrowThumbnailFallback`, `dearrowShowBadge`, `upgradeThumbnails`, `thumbnailQualityMode`
-
-<a id="mod-formatter-absent-js"></a>
-
-## features/dearrow/formatter-absent.js
-
-> What the legacy build (webOS 3 to 6) has in place of formatter.js (webpack.config.js): no title formatting, so the panel shows no formatting rows and titles keep the case they were written in. The one thing the formatter does to every title is kept: a submitter's ">" before a word (which tells the formatter to leave that word alone) is taken out.
-
-19 lines
-
-<a id="fn-formatter-absent-js-formattitleinternal"></a>
-**`formatTitleInternal(title)`** · function, exported · L17–19
-
-The title with the ">" markers taken out and the ends trimmed, as the formatter's own unformatted path leaves it (cleanUnformattedTitle).
 
 <a id="mod-formatter-js"></a>
 

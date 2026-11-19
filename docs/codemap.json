@@ -89,8 +89,6 @@
     "features/dearrow/thumbs.js",
     "features/dearrow/tiles.js",
     "features/dearrow/titles.js",
-    "features/emoji-font/index.js",
-    "features/emoji-font/observer.js",
     "features/force-codec/index.js",
     "features/logo-style.js",
     "features/playback-speed/controller.js",
@@ -309,13 +307,9 @@
   },
   {
    "path": "core/launch.js",
-   "lines": 120,
+   "lines": 119,
    "header": "Launch-URL handling, kept apart from the rest of core/.\n\nindex.js is the tiny bootstrap page that only redirects to youtube.com/tv, so these two functions live here rather than in core/dom.js or remote.js - importing those would drag their module-level side effects onto a page with no YouTube in it.",
    "imports": [
-    {
-     "from": "polyfills/polyfills.js",
-     "names": []
-    },
     {
      "from": "core/log.js",
      "names": [
@@ -362,7 +356,6 @@
     "features/block-webos-cast.ts",
     "features/comments-fix.js",
     "features/dearrow/log.js",
-    "features/emoji-font/log.js",
     "features/force-codec/log.js",
     "features/lang-settings-fix.ts",
     "features/playback-speed/log.js",
@@ -373,7 +366,6 @@
     "features/thumbnail-quality/log.js",
     "features/video-quality/log.js",
     "features/watch/index.js",
-    "hooks/buffer-limit.js",
     "hooks/fetch.ts",
     "hooks/resolve-command.ts",
     "ui/panel/panel.js",
@@ -555,7 +547,6 @@
     "features/auto-login/whos-watching.js",
     "features/comments-fix.js",
     "features/dearrow/sweep.js",
-    "features/emoji-font/text-nodes.js",
     "features/playback-speed/index.js",
     "features/return-dislike/constants.js",
     "features/return-dislike/injection.js",
@@ -669,7 +660,6 @@
    "importedBy": [
     "core/fetch-timeout.js",
     "features/adblock/flags.js",
-    "features/emoji-font/index.js",
     "features/return-dislike/constants.js",
     "features/return-dislike/navigation.js",
     "features/sponsorblock/index.js",
@@ -968,58 +958,23 @@
    "functions": []
   },
   {
-   "path": "features/adblock/emoji-wrap-absent.js",
-   "lines": 11,
-   "header": "The webOS 22+ build's emoji-wrap.js (webpack.config.js): the legacy emoji fix is off on every engine that runs this build, so nothing here is reached with work to do.",
-   "imports": [],
-   "importedBy": [],
-   "exports": [
-    "wrapEmojiInTree",
-    "mayNeedEmojiWork"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/adblock/emoji-wrap-absent.js#wrapEmojiInTree",
-    "features/adblock/emoji-wrap-absent.js#mayNeedEmojiWork"
-   ]
-  },
-  {
    "path": "features/adblock/emoji-wrap.js",
-   "lines": 250,
-   "header": "The legacy emoji fix's half in the response: every emoji in the parsed tree wrapped in sentinel characters, so features/emoji-font can swap it for an image on webOS 3 and 4. The webOS 22+ build carries emoji-wrap-absent.js in its place (webpack.config.js): the fix is never on there.",
-   "imports": [
-    {
-     "from": "features/adblock/log.js",
-     "names": [
-      "log"
-     ]
-    }
-   ],
+   "lines": 11,
+   "header": "shortcut: the legacy emoji fix only ran on webOS 3 and 4, which this fork does not build for, so these are no-ops. The callers in the adblock filters stay as upstream wrote them to keep its commits cherry-picking cleanly; remove them together if upstream drops the fix.",
+   "imports": [],
    "importedBy": [
     "features/adblock/item-filters.js",
     "features/adblock/parse-hook.js",
     "features/adblock/response-filters.js"
    ],
    "exports": [
-    "mayNeedEmojiWork",
-    "wrapEmojiInTree"
+    "wrapEmojiInTree",
+    "mayNeedEmojiWork"
    ],
-   "atLoad": {
-    "calls": [
-     "features/adblock/emoji-wrap.js#classBody"
-    ]
-   },
+   "atLoad": {},
    "functions": [
-    "features/adblock/emoji-wrap.js#classBody",
-    "features/adblock/emoji-wrap.js#mayNeedEmojiWork",
-    "features/adblock/emoji-wrap.js#processEmojiString",
-    "features/adblock/emoji-wrap.js#splitIntoRuns",
-    "features/adblock/emoji-wrap.js#hasOffsetRuns",
-    "features/adblock/emoji-wrap.js#wrapAttributedContent",
-    "features/adblock/emoji-wrap.js#wrapAttributedContent.moved",
-    "features/adblock/emoji-wrap.js#processTextFieldsInPlace",
     "features/adblock/emoji-wrap.js#wrapEmojiInTree",
-    "features/adblock/emoji-wrap.js#walkEmoji"
+    "features/adblock/emoji-wrap.js#mayNeedEmojiWork"
    ]
   },
   {
@@ -1218,7 +1173,6 @@
     }
    ],
    "importedBy": [
-    "features/adblock/emoji-wrap.js",
     "features/adblock/fallback.js",
     "features/adblock/item-filters.js",
     "features/adblock/nav-filters.js",
@@ -1884,20 +1838,6 @@
    ]
   },
   {
-   "path": "features/block-webos-cast-absent.js",
-   "lines": 5,
-   "header": "The legacy build's block-webos-cast.ts (webpack.config.js): webOS 25 runs the webOS 22+ build, so the legacy one never has a cast wake-up to block.",
-   "imports": [],
-   "importedBy": [],
-   "exports": [
-    "initBlockWebOSCast"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/block-webos-cast-absent.js#initBlockWebOSCast"
-   ]
-  },
-  {
    "path": "features/block-webos-cast.ts",
    "lines": 45,
    "header": "Fixes webosbrew/youtube-webos/issues/343\n\nWraps window.fetch itself rather than listening on the FetchRegistry: a registry listener takes every request of the app through the hooked path (a URL object and an event per call), while this is one string check.",
@@ -2024,22 +1964,6 @@
     }
    },
    "functions": []
-  },
-  {
-   "path": "features/dearrow/formatter-absent.js",
-   "lines": 19,
-   "header": "What the legacy build (webOS 3 to 6) has in place of formatter.js (webpack.config.js): no title formatting, so the panel shows no formatting rows and titles keep the case they were written in. The one thing the formatter does to every title is kept: a submitter's \">\" before a word (which tells the formatter to leave that word alone) is taken out.",
-   "imports": [],
-   "importedBy": [],
-   "exports": [
-    "formattingSupported",
-    "TitleFormatting",
-    "formatTitleInternal"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/dearrow/formatter-absent.js#formatTitleInternal"
-   ]
   },
   {
    "path": "features/dearrow/formatter.js",
@@ -2488,230 +2412,6 @@
     "features/dearrow/titles.js#formatTitle",
     "features/dearrow/titles.js#crowdsourcedTitle",
     "features/dearrow/titles.js#resolveTitle"
-   ]
-  },
-  {
-   "path": "features/emoji-font/index.js",
-   "lines": 41,
-   "header": "Legacy Emoji Fix (webOS 3 and 4): swaps the emoji the adblock text pass wrapped in sentinel characters for twemoji images. This file follows the setting and the page.",
-   "imports": [
-    {
-     "from": "core/webos.js",
-     "names": [
-      "getWebOSVersion"
-     ]
-    },
-    {
-     "from": "core/config.js",
-     "names": [
-      "configAddChangeListener"
-     ]
-    },
-    {
-     "from": "features/emoji-font/emoji-font.css",
-     "names": []
-    },
-    {
-     "from": "features/emoji-font/observer.js",
-     "names": [
-      "manageObserverState",
-      "flushQueue"
-     ]
-    }
-   ],
-   "importedBy": [
-    "userScript.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "calls": [
-     "core/webos.js#getWebOSVersion",
-     "features/emoji-font/index.js#linkNotoFonts",
-     "features/emoji-font/observer.js#manageObserverState",
-     "core/config.js#configAddChangeListener",
-     "features/emoji-font/observer.js#flushQueue"
-    ],
-    "settings": {
-     "listen": [
-      "enableLegacyEmojiFix"
-     ]
-    },
-    "events": {
-     "listen": [
-      "ytaf-page-update"
-     ]
-    }
-   },
-   "functions": [
-    "features/emoji-font/index.js#linkNotoFonts"
-   ]
-  },
-  {
-   "path": "features/emoji-font/log.js",
-   "lines": 4,
-   "header": "The logger of the feature's modules: their messages carry [EmojiFont] (core/log.js).",
-   "imports": [
-    {
-     "from": "core/log.js",
-     "names": [
-      "createLogger"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/emoji-font/observer.js",
-    "features/emoji-font/text-nodes.js"
-   ],
-   "exports": [
-    "log"
-   ],
-   "atLoad": {
-    "calls": [
-     "core/log.js#createLogger"
-    ]
-   },
-   "functions": []
-  },
-  {
-   "path": "features/emoji-font/observer.js",
-   "lines": 97,
-   "header": "The MutationObserver that feeds the queue, armed and disarmed by the Legacy Emoji Fix setting.",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "features/emoji-font/tokenize.js",
-     "names": [
-      "parsedTextCache"
-     ]
-    },
-    {
-     "from": "features/emoji-font/text-nodes.js",
-     "names": [
-      "textNodesToProcess",
-      "emojiState",
-      "dropStaleRender",
-      "queueTextNode",
-      "processQueue",
-      "scanElement"
-     ]
-    },
-    {
-     "from": "features/emoji-font/log.js",
-     "names": [
-      "log"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/emoji-font/index.js"
-   ],
-   "exports": [
-    "manageObserverState",
-    "flushQueue"
-   ],
-   "atLoad": {
-    "calls": [
-     "features/emoji-font/text-nodes.js#dropStaleRender",
-     "features/emoji-font/text-nodes.js#queueTextNode",
-     "features/emoji-font/text-nodes.js#scanElement",
-     "features/emoji-font/text-nodes.js#processQueue"
-    ],
-    "browser": [
-     "MutationObserver",
-     "requestAnimationFrame"
-    ]
-   },
-   "functions": [
-    "features/emoji-font/observer.js#manageObserverState",
-    "features/emoji-font/observer.js#flushQueue"
-   ]
-  },
-  {
-   "path": "features/emoji-font/text-nodes.js",
-   "lines": 187,
-   "header": "Text nodes: which ones qualify, the queue drained once per frame, and the in-place replacement of a wrapped emoji run with its rendered span.",
-   "imports": [
-    {
-     "from": "features/emoji-font/tokenize.js",
-     "names": [
-      "parsedTextCache",
-      "MAX_CACHE_SIZE",
-      "tokenizeEmoji",
-      "renderTokens"
-     ]
-    },
-    {
-     "from": "core/selectors.js",
-     "names": [
-      "SELECTORS"
-     ]
-    },
-    {
-     "from": "features/emoji-font/log.js",
-     "names": [
-      "log"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/emoji-font/observer.js"
-   ],
-   "exports": [
-    "textNodesToProcess",
-    "dropStaleRender",
-    "emojiState",
-    "queueTextNode",
-    "processQueue",
-    "scanElement"
-   ],
-   "atLoad": {
-    "selectors": [
-     "TEXT_HOST_TAGS"
-    ]
-   },
-   "functions": [
-    "features/emoji-font/text-nodes.js#dropStaleRender",
-    "features/emoji-font/text-nodes.js#queueTextNode",
-    "features/emoji-font/text-nodes.js#processQueue",
-    "features/emoji-font/text-nodes.js#tokensFor",
-    "features/emoji-font/text-nodes.js#hasEmojiImage",
-    "features/emoji-font/text-nodes.js#renderRun",
-    "features/emoji-font/text-nodes.js#processTextNode",
-    "features/emoji-font/text-nodes.js#scanElement"
-   ]
-  },
-  {
-   "path": "features/emoji-font/tokenize.js",
-   "lines": 72,
-   "header": "From a wrapped emoji to twemoji image tokens, and from tokens to DOM: plain data in between, so nothing that arrived in a video title can become markup.",
-   "imports": [
-    {
-     "from": "@twemoji/api",
-     "names": [
-      "default as twemoji"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/emoji-font/observer.js",
-    "features/emoji-font/text-nodes.js"
-   ],
-   "exports": [
-    "parsedTextCache",
-    "MAX_CACHE_SIZE",
-    "tokenizeEmoji",
-    "renderTokens"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/emoji-font/tokenize.js#twemojiOptions.callback",
-    "features/emoji-font/tokenize.js#tokenizeEmoji",
-    "features/emoji-font/tokenize.js#renderTokens"
    ]
   },
   {
@@ -3227,30 +2927,6 @@
     "features/playback-speed/native-menu.js#wrapRate.wrapped",
     "features/playback-speed/native-menu.js#hookRateAssignments",
     "features/playback-speed/native-menu.js#bindPlayerRate"
-   ]
-  },
-  {
-   "path": "features/playback-speed-absent.js",
-   "lines": 15,
-   "header": "What the legacy build (webOS 3 to 6) has in place of features/playback-speed (webpack.config.js): the speed engine needs WebCodecs, which none of those TVs have, so the shortcuts only say so and the panel shows no row.",
-   "imports": [
-    {
-     "from": "ui/toast/index.js",
-     "names": [
-      "showNotification"
-     ]
-    }
-   ],
-   "importedBy": [],
-   "exports": [
-    "playbackSpeedSupported",
-    "stepSpeed",
-    "resetSpeed"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/playback-speed-absent.js#stepSpeed",
-    "features/playback-speed-absent.js#resetSpeed"
    ]
   },
   {
@@ -5671,20 +5347,6 @@
    ]
   },
   {
-   "path": "features/video-quality/kickstart-absent.js",
-   "lines": 5,
-   "header": "The legacy build's kickstart.js (webpack.config.js): the first-video kick is for webOS 25, which runs the webOS 22+ build.",
-   "imports": [],
-   "importedBy": [],
-   "exports": [
-    "ensurePlaybackStarts"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/video-quality/kickstart-absent.js#ensurePlaybackStarts"
-   ]
-  },
-  {
    "path": "features/video-quality/kickstart.js",
    "lines": 80,
    "header": "webOS 25 first-video fix: after the quality switch the player can sit in UNSTARTED, so the first playback is kicked until it reports PLAYING, and the controls bar that the kick raises is dismissed again.",
@@ -6033,43 +5695,6 @@
    ]
   },
   {
-   "path": "hooks/buffer-limit.js",
-   "lines": 219,
-   "header": "Caps MSE SourceBuffer memory by evicting already-played data.\n\nThe YouTube TV player leaves a large read-behind window in the SourceBuffer. On webOS 3/4 hardware (Chromium 38/53, ~1GB total RAM) that window plus the read-ahead can push the web process past what LG's memory manager tolerates, which kills the app with the \"restarting to free memory\" toast.\n\nChromium only garbage-collects a SourceBuffer once it hits its own internal ceiling (150MB video / 12MB audio on these builds). The trim keeps well below that.\n\nNo addEventListener option bags: webOS 3 is Chromium 38, which reads an options object as `useCapture: true`. Syntax is not a concern, Babel lowers the legacy build to ES5.",
-   "imports": [
-    {
-     "from": "core/log.js",
-     "names": [
-      "createLogger",
-      "isDebugEnabled"
-     ]
-    }
-   ],
-   "importedBy": [
-    "userScript.js"
-   ],
-   "exports": [
-    "installBufferLimit"
-   ],
-   "atLoad": {
-    "calls": [
-     "core/log.js#createLogger"
-    ]
-   },
-   "functions": [
-    "hooks/buffer-limit.js#currentTimeFor",
-    "hooks/buffer-limit.js#trimSourceBuffer",
-    "hooks/buffer-limit.js#patchAppend",
-    "hooks/buffer-limit.js#patchAppend.proto.appendBuffer",
-    "hooks/buffer-limit.js#patchAppend.proto.appendBuffer.onDone",
-    "hooks/buffer-limit.js#tick",
-    "hooks/buffer-limit.js#bufferStats",
-    "hooks/buffer-limit.js#installBufferLimit",
-    "hooks/buffer-limit.js#installBufferLimit.MediaSource.prototype.addSourceBuffer",
-    "hooks/buffer-limit.js#installBufferLimit.URL.createObjectURL"
-   ]
-  },
-  {
    "path": "hooks/fetch.ts",
    "lines": 134,
    "header": "The fetch hook: wraps window.fetch once and lets listeners see, and cancel, requests. Consumers get the one instance through getInstance().",
@@ -6160,187 +5785,6 @@
    },
    "functions": [
     "index.js#main"
-   ]
-  },
-  {
-   "path": "polyfills/array.js",
-   "lines": 46,
-   "header": "Array: from (Chrome 45), find and findIndex (45).",
-   "imports": [
-    {
-     "from": "polyfills/define.js",
-     "names": [
-      "def"
-     ]
-    }
-   ],
-   "importedBy": [
-    "polyfills/polyfills.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "calls": [
-     "polyfills/define.js#def"
-    ]
-   },
-   "functions": []
-  },
-  {
-   "path": "polyfills/define.js",
-   "lines": 14,
-   "header": "The one way every polyfill below is installed.",
-   "imports": [],
-   "importedBy": [
-    "polyfills/array.js",
-    "polyfills/object.js",
-    "polyfills/string.js"
-   ],
-   "exports": [
-    "def"
-   ],
-   "atLoad": {},
-   "functions": [
-    "polyfills/define.js#def"
-   ]
-  },
-  {
-   "path": "polyfills/dom.js",
-   "lines": 114,
-   "header": "DOM polyfills for Chromium 38: Element#closest, Node#isConnected, and iteration over NodeList, HTMLCollection and friends.",
-   "imports": [],
-   "importedBy": [
-    "polyfills/polyfills.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "hooks": [
-     "Element.prototype.closest",
-     "Node.prototype.isConnected",
-     "NodeList.prototype.forEach"
-    ]
-   },
-   "functions": [
-    "polyfills/dom.js#Element.prototype.closest"
-   ]
-  },
-  {
-   "path": "polyfills/object.js",
-   "lines": 33,
-   "header": "Object statics: assign (Chrome 45), entries and values (Chrome 54).",
-   "imports": [
-    {
-     "from": "polyfills/define.js",
-     "names": [
-      "def"
-     ]
-    }
-   ],
-   "importedBy": [
-    "polyfills/polyfills.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "calls": [
-     "polyfills/define.js#def"
-    ]
-   },
-   "functions": []
-  },
-  {
-   "path": "polyfills/polyfills.js",
-   "lines": 35,
-   "header": "Legacy webOS (Chromium 38 / webOS 3) polyfills.\n\nThis file replaces core-js. core-js's compat data considers Chromium 38 to need 386 modules (~334 KiB of source) because it re-implements any built-in with *any* spec deviation - Promise, Map, Set, Symbol, URL and most of Array.prototype included. None of those deviations affect this app, and `usage-pure` mode also rewrites every `arr.slice(...)` call site into `_sliceInstanceProperty(arr).call(arr, ...)`, which costs a function call and a property lookup on every invocation, forever, on every device.\n\nSo we ship only what Chromium 38 genuinely does not have and this codebase genuinely calls, with one deliberate exception: iteration over DOM collections (dom.js), kept as a guard. Everything is feature-detected: on webOS 4 (Chromium 53) Object.entries, Object.values and Node#isConnected are still installed, on webOS 5 and 6 nothing is.\n\nThe comment on each entry is the first Chrome version shipping it. tests/unit/polyfill-conformance-test.cjs differentially tests every one of these against the platform-native implementation.\n\nIf you use a newer built-in in src/, add it to the matching group: define.js            the non-enumerable installer the groups share dom.js               Element#closest, Node#isConnected, iterable collections object.js            Object.assign, entries, values array.js             Array.from, find, findIndex string.js            startsWith url-search-params.js URLSearchParams and url.searchParams",
-   "imports": [
-    {
-     "from": "polyfills/dom.js",
-     "names": []
-    },
-    {
-     "from": "polyfills/object.js",
-     "names": []
-    },
-    {
-     "from": "polyfills/array.js",
-     "names": []
-    },
-    {
-     "from": "polyfills/string.js",
-     "names": []
-    },
-    {
-     "from": "polyfills/url-search-params.js",
-     "names": []
-    }
-   ],
-   "importedBy": [
-    "core/launch.js",
-    "userScript.js"
-   ],
-   "exports": [],
-   "atLoad": {},
-   "functions": []
-  },
-  {
-   "path": "polyfills/string.js",
-   "lines": 9,
-   "header": "String: startsWith (Chrome 41). The other ES2015+ string methods are not called anywhere in the bundle, so they are not installed.",
-   "imports": [
-    {
-     "from": "polyfills/define.js",
-     "names": [
-      "def"
-     ]
-    }
-   ],
-   "importedBy": [
-    "polyfills/polyfills.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "calls": [
-     "polyfills/define.js#def"
-    ]
-   },
-   "functions": []
-  },
-  {
-   "path": "polyfills/url-search-params.js",
-   "lines": 276,
-   "header": "URLSearchParams and url.searchParams (Chrome 49/51), urlencoded serialiser only.",
-   "imports": [],
-   "importedBy": [
-    "polyfills/polyfills.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "calls": [
-     "polyfills/url-search-params.js#urlLacksSearchParams",
-     "polyfills/url-search-params.js#wireURLSearchParams"
-    ]
-   },
-   "functions": [
-    "polyfills/url-search-params.js#serialise",
-    "polyfills/url-search-params.js#deserialise",
-    "polyfills/url-search-params.js#USP",
-    "polyfills/url-search-params.js#USP.prototype._changed",
-    "polyfills/url-search-params.js#USP.prototype.append",
-    "polyfills/url-search-params.js#USP.prototype.getAll",
-    "polyfills/url-search-params.js#USP.prototype.has",
-    "polyfills/url-search-params.js#USP.prototype.get",
-    "polyfills/url-search-params.js#USP.prototype.set",
-    "polyfills/url-search-params.js#USP.prototype['delete']",
-    "polyfills/url-search-params.js#USP.prototype.sort",
-    "polyfills/url-search-params.js#pairIterator",
-    "polyfills/url-search-params.js#pairIterator.iterator.next",
-    "polyfills/url-search-params.js#pairIterator.iterator[Symbol.iterator]",
-    "polyfills/url-search-params.js#USP.prototype.keys",
-    "polyfills/url-search-params.js#USP.prototype.values",
-    "polyfills/url-search-params.js#USP.prototype.entries",
-    "polyfills/url-search-params.js#USP.prototype.forEach",
-    "polyfills/url-search-params.js#USP.prototype.toString",
-    "polyfills/url-search-params.js#urlLacksSearchParams",
-    "polyfills/url-search-params.js#wireURLSearchParams",
-    "polyfills/url-search-params.js#wireURLSearchParams.sp._onChange"
    ]
   },
   {
@@ -7591,7 +7035,6 @@
    ],
    "importedBy": [
     "features/force-codec/index.js",
-    "features/playback-speed-absent.js",
     "features/playback-speed/index.js",
     "features/sponsorblock/blue-key.js",
     "features/sponsorblock/index.js",
@@ -7623,19 +7066,11 @@
   },
   {
    "path": "userScript.js",
-   "lines": 92,
+   "lines": 80,
    "header": "The script webOS runs inside YouTube's TV site (built as webOSUserScripts/userScript.js). It loads every feature, installs the global hooks and handles launches and relaunches; the order of the imports below is the order things start in (docs/ARCHITECTURE.md).",
    "imports": [
     {
-     "from": "polyfills/polyfills.js",
-     "names": []
-    },
-    {
      "from": "dev/perf-mon.js",
-     "names": []
-    },
-    {
-     "from": "whatwg-fetch",
      "names": []
     },
     {
@@ -7650,12 +7085,6 @@
      "from": "features/force-codec/index.js",
      "names": [
       "installCodecHooks"
-     ]
-    },
-    {
-     "from": "hooks/buffer-limit.js",
-     "names": [
-      "installBufferLimit"
      ]
     },
     {
@@ -7683,8 +7112,7 @@
      "from": "core/webos.js",
      "names": [
       "isWebOS25",
-      "simulatorMode",
-      "getWebOSVersion"
+      "simulatorMode"
      ]
     },
     {
@@ -7713,10 +7141,6 @@
     },
     {
      "from": "features/sponsorblock/index.js",
-     "names": []
-    },
-    {
-     "from": "features/emoji-font/index.js",
      "names": []
     },
     {
@@ -7754,8 +7178,6 @@
      "features/adblock/parse-hook.js#installParseHook",
      "features/adblock/stringify-hook.ts#installStringifyHook",
      "features/force-codec/index.js#installCodecHooks",
-     "core/webos.js#getWebOSVersion",
-     "hooks/buffer-limit.js#installBufferLimit",
      "features/logo-style.js#initLogoStyle",
      "features/adblock/tracking-block.js#startTrackingBlock",
      "core/launch.js#extractLaunchParams",
@@ -8316,7 +7738,6 @@
     "features/dearrow/tiles.js#applyToTile",
     "features/dearrow/titles.js#crowdsourcedTitle",
     "features/dearrow/titles.js#formatTitle",
-    "features/emoji-font/observer.js#manageObserverState",
     "features/force-codec/index.js#applyMode",
     "features/logo-style.js#applyLogoStyle",
     "features/playback-speed/controller.js#createSpeedController.applyReload",
@@ -8390,7 +7811,6 @@
     "features/adblock/flags.js#(top level)",
     "features/auto-login/index.js#(top level)",
     "features/dearrow/index.js#(top level)",
-    "features/emoji-font/index.js#(top level)",
     "features/force-codec/index.js#installCodecHooks",
     "features/logo-style.js#initLogoStyle",
     "features/playback-speed/index.js#(top level)",
@@ -8848,8 +8268,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    22,
-    34
+    21,
+    33
    ],
    "description": "The launch parameters webOS passed to the app (window.launchParams), parsed once; {} when there are none.",
    "calledBy": [
@@ -8864,8 +8284,8 @@
    "params": "params",
    "exported": true,
    "lines": [
-    42,
-    45
+    41,
+    44
    ],
    "description": "Whether launch parameters ask for something to open: a deep link, a cast (DIAL), a search or a voice intent, all of which come as `target` or `contentTarget`. A plain relaunch (back from another app, or the app icon pressed again) carries neither.",
    "calledBy": [
@@ -8879,8 +8299,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    50,
-    56
+    49,
+    55
    ],
    "description": "The YouTube TV start URL, with the flags the app always sets (full animation, web speech, voice).",
    "calledBy": [
@@ -8894,8 +8314,8 @@
    "params": "a, b",
    "exported": false,
    "lines": [
-    59,
-    64
+    58,
+    63
    ],
    "description": "Appends every parameter of `b` to `a`, keeping repeated keys, and returns `a`.",
    "calledBy": [
@@ -8909,8 +8329,8 @@
    "params": "candidate, expectedOrigin",
    "exported": false,
    "lines": [
-    67,
-    75
+    66,
+    74
    ],
    "description": "`candidate` as a URL when it parses and has `expectedOrigin`, else null.",
    "calledBy": [
@@ -8924,8 +8344,8 @@
    "params": "params",
    "exported": true,
    "lines": [
-    81,
-    120
+    80,
+    119
    ],
    "description": "Opens YouTube for a launch or relaunch: a deep link (video, search, voice intent from the remote or the system) becomes the URL the leanback app starts on.",
    "calls": [
@@ -8953,7 +8373,6 @@
     "core/log.js#createLogger.debug",
     "core/log.js#createLogger.info",
     "features/adblock/parse-hook.js#filterResponse",
-    "hooks/buffer-limit.js#installBufferLimit",
     "hooks/fetch.ts#FetchRegistry.#customFetch",
     "hooks/fetch.ts#FetchRegistry.#hookedFetch"
    ]
@@ -8979,7 +8398,6 @@
     "features/block-webos-cast.ts#(top level)",
     "features/comments-fix.js#(top level)",
     "features/dearrow/log.js#(top level)",
-    "features/emoji-font/log.js#(top level)",
     "features/force-codec/log.js#(top level)",
     "features/lang-settings-fix.ts#(top level)",
     "features/playback-speed/log.js#(top level)",
@@ -8990,7 +8408,6 @@
     "features/thumbnail-quality/log.js#(top level)",
     "features/video-quality/log.js#(top level)",
     "features/watch/index.js#(top level)",
-    "hooks/buffer-limit.js#(top level)",
     "hooks/fetch.ts#(top level)",
     "hooks/resolve-command.ts#(top level)",
     "ui/panel/panel.js#(top level)",
@@ -9472,10 +8889,8 @@
     "core/webos.js#isLegacyWebOS",
     "core/webos.js#isWebOS25",
     "features/adblock/flags.js#recomputeFilterFlags",
-    "features/emoji-font/index.js#(top level)",
     "features/return-dislike/navigation.js#(top level)",
-    "ui/panel/pages.js#buildUITweaksPage",
-    "userScript.js#(top level)"
+    "ui/panel/pages.js#buildUITweaksPage"
    ]
   },
   {
@@ -12084,7 +11499,7 @@
    "description": ""
   },
   {
-   "id": "features/adblock/emoji-wrap-absent.js#wrapEmojiInTree",
+   "id": "features/adblock/emoji-wrap.js#wrapEmojiInTree",
    "name": "wrapEmojiInTree",
    "kind": "function",
    "params": "",
@@ -12093,163 +11508,7 @@
     6,
     6
    ],
-   "description": "Nothing to wrap."
-  },
-  {
-   "id": "features/adblock/emoji-wrap-absent.js#mayNeedEmojiWork",
-   "name": "mayNeedEmojiWork",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    9,
-    11
-   ],
-   "description": "No emoji work on this build."
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#classBody",
-   "name": "classBody",
-   "kind": "arrow",
-   "params": "re",
-   "exported": false,
-   "lines": [
-    30,
-    30
-   ],
-   "description": "The body of the first character class in `re`: what is between its [ and ].",
-   "calledBy": [
-    "features/adblock/emoji-wrap.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#mayNeedEmojiWork",
-   "name": "mayNeedEmojiWork",
-   "kind": "function",
-   "params": "text",
-   "exported": true,
-   "lines": [
-    58,
-    60
-   ],
-   "description": "Whether the JSON text can hold anything the emoji walk would change: one native scan of the text, so the walk over every item of a response (the most expensive pass on webOS 3 and 4) is skipped for the ones without.",
-   "calledBy": [
-    "features/adblock/parse-hook.js#parseAndFilter"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#processEmojiString",
-   "name": "processEmojiString",
-   "kind": "function",
-   "params": "str",
-   "exported": false,
-   "lines": [
-    67,
-    75
-   ],
-   "description": "A text with each emoji wrapped in sentinels (U+200B before, U+200C after) for features/emoji-font to draw as an image on webOS 3/4. Sentinels already in the text are removed first, so it is safe to run twice; plain text comes back as it is.",
-   "calledBy": [
-    "features/adblock/emoji-wrap.js#processTextFieldsInPlace"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#splitIntoRuns",
-   "name": "splitIntoRuns",
-   "kind": "function",
-   "params": "text, originalRun",
-   "exported": false,
-   "lines": [
-    78,
-    94
-   ],
-   "description": "Called only for text that passed NEEDS_TEXT_WORK_RE in the caller.",
-   "calledBy": [
-    "features/adblock/emoji-wrap.js#processTextFieldsInPlace"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#hasOffsetRuns",
-   "name": "hasOffsetRuns",
-   "kind": "function",
-   "params": "obj",
-   "exported": false,
-   "lines": [
-    97,
-    102
-   ],
-   "description": "Whether `obj` has offset runs (commandRuns, styleRuns...) over its `content`.",
-   "calledBy": [
-    "features/adblock/emoji-wrap.js#processTextFieldsInPlace"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#wrapAttributedContent",
-   "name": "wrapAttributedContent",
-   "kind": "function",
-   "params": "obj",
-   "exported": false,
-   "lines": [
-    111,
-    161
-   ],
-   "description": "An attributed string's `content` wrapped, and the offsets of its runs (UTF-16 units of `content`) moved with the characters they name: a run starting at an emoji starts at its opening sentinel, one ending with it ends after the closing one. Without this a mention, link or timestamp after an emoji pointed two characters early per emoji.",
-   "calls": [
-    "features/adblock/emoji-wrap.js#wrapAttributedContent.moved"
-   ],
-   "calledBy": [
-    "features/adblock/emoji-wrap.js#processTextFieldsInPlace"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#wrapAttributedContent.moved",
-   "name": "wrapAttributedContent.moved",
-   "kind": "arrow",
-   "params": "p",
-   "exported": false,
-   "lines": [
-    135,
-    147
-   ],
-   "description": "Where offset `p` of `src` lands in `out`.",
-   "calledBy": [
-    "features/adblock/emoji-wrap.js#wrapAttributedContent"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#processTextFieldsInPlace",
-   "name": "processTextFieldsInPlace",
-   "kind": "function",
-   "params": "obj",
-   "exported": false,
-   "lines": [
-    165,
-    216
-   ],
-   "description": "Non-recursive: the emoji/text fields of a single node, in place. walkAndProcess guarantees obj is a non-null object.",
-   "calls": [
-    "features/adblock/emoji-wrap.js#hasOffsetRuns",
-    "features/adblock/emoji-wrap.js#processEmojiString",
-    "features/adblock/emoji-wrap.js#splitIntoRuns",
-    "features/adblock/emoji-wrap.js#wrapAttributedContent"
-   ],
-   "calledBy": [
-    "features/adblock/emoji-wrap.js#walkEmoji"
-   ]
-  },
-  {
-   "id": "features/adblock/emoji-wrap.js#wrapEmojiInTree",
-   "name": "wrapEmojiInTree",
-   "kind": "function",
-   "params": "obj",
-   "exported": true,
-   "lines": [
-    223,
-    225
-   ],
-   "description": "Wraps the emoji in the text fields of `obj` and every node below it.",
-   "calls": [
-    "features/adblock/emoji-wrap.js#walkEmoji"
-   ],
+   "description": "Nothing to wrap.",
    "calledBy": [
     "features/adblock/item-filters.js#filterItems",
     "features/adblock/item-filters.js#filterSectionList",
@@ -12260,21 +11519,18 @@
    ]
   },
   {
-   "id": "features/adblock/emoji-wrap.js#walkEmoji",
-   "name": "walkEmoji",
+   "id": "features/adblock/emoji-wrap.js#mayNeedEmojiWork",
+   "name": "mayNeedEmojiWork",
    "kind": "function",
-   "params": "obj, depth",
-   "exported": false,
+   "params": "",
+   "exported": true,
    "lines": [
-    229,
-    250
+    9,
+    11
    ],
-   "description": "The depth is a plain argument: a default value would cost an `arguments` read per node in the legacy build.",
-   "calls": [
-    "features/adblock/emoji-wrap.js#processTextFieldsInPlace"
-   ],
+   "description": "No emoji work on this build.",
    "calledBy": [
-    "features/adblock/emoji-wrap.js#wrapEmojiInTree"
+    "features/adblock/parse-hook.js#parseAndFilter"
    ]
   },
   {
@@ -13762,18 +13018,6 @@
    ]
   },
   {
-   "id": "features/block-webos-cast-absent.js#initBlockWebOSCast",
-   "name": "initBlockWebOSCast",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    5,
-    5
-   ],
-   "description": "Nothing to install on webOS 3 to 6."
-  },
-  {
    "id": "features/block-webos-cast.ts#isCastWakeUp",
    "name": "isCastWakeUp",
    "kind": "function",
@@ -13938,18 +13182,6 @@
    "calledBy": [
     "features/comments-fix.js#(top level)"
    ]
-  },
-  {
-   "id": "features/dearrow/formatter-absent.js#formatTitleInternal",
-   "name": "formatTitleInternal",
-   "kind": "function",
-   "params": "title",
-   "exported": true,
-   "lines": [
-    17,
-    19
-   ],
-   "description": "The title with the \">\" markers taken out and the ends trimmed, as the formatter's own unformatted path leaves it (cleanUnformattedTitle)."
   },
   {
    "id": "features/dearrow/index.js#cancelSweep",
@@ -15021,249 +14253,6 @@
    ]
   },
   {
-   "id": "features/emoji-font/index.js#linkNotoFonts",
-   "name": "linkNotoFonts",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    19,
-    24
-   ],
-   "description": "Links Google's Noto Sans Arabic and Math stylesheet, the fonts emoji-font.css falls back to for characters webOS 3/4 cannot draw.",
-   "calledBy": [
-    "features/emoji-font/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/emoji-font/observer.js#manageObserverState",
-   "name": "manageObserverState",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    69,
-    92
-   ],
-   "description": "Starts the emoji observer (and scans the page once) while the Emoji + Characters Fix is on; stops it and clears its queues when it is turned off.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/emoji-font/text-nodes.js#processQueue",
-    "features/emoji-font/text-nodes.js#scanElement"
-   ],
-   "settings": {
-    "read": [
-     "enableLegacyEmojiFix"
-    ]
-   },
-   "browser": [
-    "requestAnimationFrame"
-   ],
-   "calledBy": [
-    "features/emoji-font/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/emoji-font/observer.js#flushQueue",
-   "name": "flushQueue",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    95,
-    97
-   ],
-   "description": "Drops the queued nodes on a heavy UI transition, while the observer is armed.",
-   "calledBy": [
-    "features/emoji-font/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#dropStaleRender",
-   "name": "dropStaleRender",
-   "kind": "function",
-   "params": "node",
-   "exported": true,
-   "lines": [
-    24,
-    33
-   ],
-   "description": "A characterData record for `node`: drops a render the app has since rewritten.",
-   "calledBy": [
-    "features/emoji-font/observer.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#queueTextNode",
-   "name": "queueTextNode",
-   "kind": "function",
-   "params": "node",
-   "exported": true,
-   "lines": [
-    42,
-    52
-   ],
-   "description": "Queues a text node for rendering when it holds a wrapped emoji and sits in an element where emoji are drawn.",
-   "calledBy": [
-    "features/emoji-font/observer.js#(top level)",
-    "features/emoji-font/text-nodes.js#scanElement"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#processQueue",
-   "name": "processQueue",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    55,
-    62
-   ],
-   "description": "Renders every queued text node (once per animation frame).",
-   "calls": [
-    "features/emoji-font/text-nodes.js#processTextNode"
-   ],
-   "calledBy": [
-    "features/emoji-font/observer.js#(top level)",
-    "features/emoji-font/observer.js#manageObserverState"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#tokensFor",
-   "name": "tokensFor",
-   "kind": "function",
-   "params": "cleanEmoji",
-   "exported": false,
-   "lines": [
-    65,
-    81
-   ],
-   "description": "The tokens of one emoji run, through the parse cache.",
-   "calls": [
-    "features/emoji-font/tokenize.js#tokenizeEmoji"
-   ],
-   "calledBy": [
-    "features/emoji-font/text-nodes.js#processTextNode"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#hasEmojiImage",
-   "name": "hasEmojiImage",
-   "kind": "function",
-   "params": "tokens",
-   "exported": false,
-   "lines": [
-    84,
-    89
-   ],
-   "description": "\"twemoji changed something\" == \"at least one img token\".",
-   "calledBy": [
-    "features/emoji-font/text-nodes.js#processTextNode"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#renderRun",
-   "name": "renderRun",
-   "kind": "function",
-   "params": "node, parent, tokens, cleanEmoji, created",
-   "exported": false,
-   "lines": [
-    95,
-    110
-   ],
-   "description": "Renders the run `node` holds into the span an earlier pass put after it, or into a new one (added to `created`); the node's own text is emptied.",
-   "calls": [
-    "features/emoji-font/tokenize.js#renderTokens"
-   ],
-   "calledBy": [
-    "features/emoji-font/text-nodes.js#processTextNode"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#processTextNode",
-   "name": "processTextNode",
-   "kind": "function",
-   "params": "textNode",
-   "exported": false,
-   "lines": [
-    116,
-    161
-   ],
-   "description": "Splits a text node around each wrapped emoji and replaces the emoji with its twemoji image (and a hidden text twin).",
-   "calls": [
-    "features/emoji-font/text-nodes.js#hasEmojiImage",
-    "features/emoji-font/text-nodes.js#renderRun",
-    "features/emoji-font/text-nodes.js#tokensFor"
-   ],
-   "calledBy": [
-    "features/emoji-font/text-nodes.js#processQueue"
-   ]
-  },
-  {
-   "id": "features/emoji-font/text-nodes.js#scanElement",
-   "name": "scanElement",
-   "kind": "function",
-   "params": "el",
-   "exported": true,
-   "lines": [
-    167,
-    187
-   ],
-   "description": "Queues every text node of an added element that holds a wrapped emoji; elements where emoji are not drawn are skipped.",
-   "calls": [
-    "features/emoji-font/text-nodes.js#queueTextNode"
-   ],
-   "selectors": [
-    "APP_ROOT"
-   ],
-   "calledBy": [
-    "features/emoji-font/observer.js#(top level)",
-    "features/emoji-font/observer.js#manageObserverState"
-   ]
-  },
-  {
-   "id": "features/emoji-font/tokenize.js#twemojiOptions.callback",
-   "name": "twemojiOptions.callback",
-   "kind": "property",
-   "params": "icon",
-   "exported": false,
-   "lines": [
-    10,
-    12
-   ],
-   "description": "The twemoji image URL of an emoji code (the 16.0.1 set on cdnjs, which must match @twemoji/api)."
-  },
-  {
-   "id": "features/emoji-font/tokenize.js#tokenizeEmoji",
-   "name": "tokenizeEmoji",
-   "kind": "function",
-   "params": "cleanEmoji",
-   "exported": true,
-   "lines": [
-    22,
-    42
-   ],
-   "description": "@returns {Array<{text?: string, src?: string, alt?: string, cls?: string}>}",
-   "calledBy": [
-    "features/emoji-font/text-nodes.js#tokensFor"
-   ]
-  },
-  {
-   "id": "features/emoji-font/tokenize.js#renderTokens",
-   "name": "renderTokens",
-   "kind": "function",
-   "params": "target, tokens",
-   "exported": true,
-   "lines": [
-    48,
-    72
-   ],
-   "description": "Fills `target` with the tokens: text as text nodes, each emoji as an <img> with a hidden text twin for search and accessibility.",
-   "calledBy": [
-    "features/emoji-font/text-nodes.js#renderRun"
-   ]
-  },
-  {
    "id": "features/force-codec/codecs.js#detectCodec",
    "name": "detectCodec",
    "kind": "function",
@@ -16154,33 +15143,6 @@
    "calledBy": [
     "features/playback-speed/index.js#install"
    ]
-  },
-  {
-   "id": "features/playback-speed-absent.js#stepSpeed",
-   "name": "stepSpeed",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    10,
-    12
-   ],
-   "description": "The Playback Speed + and - shortcuts: says the TV cannot.",
-   "calls": [
-    "ui/toast/index.js#showNotification"
-   ]
-  },
-  {
-   "id": "features/playback-speed-absent.js#resetSpeed",
-   "name": "resetSpeed",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    15,
-    15
-   ],
-   "description": "The Playback Speed 1x shortcut: nothing to reset."
   },
   {
    "id": "features/return-dislike/api.js#getCachedDislikes",
@@ -20946,18 +19908,6 @@
    ]
   },
   {
-   "id": "features/video-quality/kickstart-absent.js#ensurePlaybackStarts",
-   "name": "ensurePlaybackStarts",
-   "kind": "function, async",
-   "params": "",
-   "exported": true,
-   "lines": [
-    5,
-    5
-   ],
-   "description": "Nothing to kick on webOS 3 to 6."
-  },
-  {
    "id": "features/video-quality/kickstart.js#dismissRaisedControls",
    "name": "dismissRaisedControls",
    "kind": "function",
@@ -21523,178 +20473,6 @@
    ]
   },
   {
-   "id": "hooks/buffer-limit.js#currentTimeFor",
-   "name": "currentTimeFor",
-   "kind": "function",
-   "params": "ms",
-   "exported": false,
-   "lines": [
-    33,
-    47
-   ],
-   "description": "Find the currentTime of the <video> driving this MediaSource.",
-   "browser": [
-    "getElementsByTagName"
-   ],
-   "calledBy": [
-    "hooks/buffer-limit.js#bufferStats",
-    "hooks/buffer-limit.js#tick"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#trimSourceBuffer",
-   "name": "trimSourceBuffer",
-   "kind": "function",
-   "params": "sb, now",
-   "exported": false,
-   "lines": [
-    53,
-    79
-   ],
-   "description": "Removes what lies more than RETAIN_BEHIND_SECS behind the playhead from one SourceBuffer, unless it is busy or the slice is too small to bother.",
-   "calledBy": [
-    "hooks/buffer-limit.js#tick"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#patchAppend",
-   "name": "patchAppend",
-   "kind": "function",
-   "params": "sb",
-   "exported": false,
-   "lines": [
-    95,
-    129
-   ],
-   "description": "Patches appendBuffer on the SourceBuffer prototype (once), so an append that arrives while a trim is running waits for it instead of throwing.",
-   "calledBy": [
-    "hooks/buffer-limit.js#installBufferLimit.MediaSource.prototype.addSourceBuffer"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#patchAppend.proto.appendBuffer",
-   "name": "patchAppend.proto.appendBuffer",
-   "kind": "assigned",
-   "params": "data",
-   "exported": false,
-   "lines": [
-    108,
-    126
-   ],
-   "description": "appendBuffer that defers itself to the trim's updateend when a trim is in progress.",
-   "calls": [
-    "hooks/buffer-limit.js#patchAppend.proto.appendBuffer.onDone"
-   ],
-   "events": {
-    "listen": [
-     "updateend"
-    ]
-   }
-  },
-  {
-   "id": "hooks/buffer-limit.js#patchAppend.proto.appendBuffer.onDone",
-   "name": "patchAppend.proto.appendBuffer.onDone",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    112,
-    120
-   ],
-   "description": "Runs the deferred append once the trim has finished.",
-   "calledBy": [
-    "hooks/buffer-limit.js#patchAppend.proto.appendBuffer"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#tick",
-   "name": "tick",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    134,
-    152
-   ],
-   "description": "Every TRIM_INTERVAL_MS: trims the buffers of every open MediaSource and forgets the closed ones.",
-   "calls": [
-    "hooks/buffer-limit.js#currentTimeFor",
-    "hooks/buffer-limit.js#trimSourceBuffer"
-   ],
-   "calledBy": [
-    "hooks/buffer-limit.js#installBufferLimit"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#bufferStats",
-   "name": "bufferStats",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    158,
-    178
-   ],
-   "description": "On-device verification, with diagnostics on (localStorage ytaf-debug=1 and a reload): run __ytafBufferStats() in the console while a video plays. `behind` should hold near RETAIN_BEHIND_SECS instead of climbing with playback position.",
-   "calls": [
-    "hooks/buffer-limit.js#currentTimeFor"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#installBufferLimit",
-   "name": "installBufferLimit",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    184,
-    219
-   ],
-   "description": "Installs the buffer cap: tracks MediaSources as the player creates them, remembers their blob URLs, and starts the trim timer.",
-   "calls": [
-    "core/log.js#isDebugEnabled",
-    "hooks/buffer-limit.js#tick"
-   ],
-   "browser": [
-    "setInterval"
-   ],
-   "hooks": [
-    "MediaSource.prototype.addSourceBuffer",
-    "window.__ytafBufferStats",
-    "URL.createObjectURL"
-   ],
-   "calledBy": [
-    "userScript.js#(top level)"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#installBufferLimit.MediaSource.prototype.addSourceBuffer",
-   "name": "installBufferLimit.MediaSource.prototype.addSourceBuffer",
-   "kind": "assigned",
-   "params": "mime",
-   "exported": false,
-   "lines": [
-    193,
-    198
-   ],
-   "description": "addSourceBuffer that also tracks the MediaSource and patches the new buffer's appends.",
-   "calls": [
-    "hooks/buffer-limit.js#patchAppend"
-   ]
-  },
-  {
-   "id": "hooks/buffer-limit.js#installBufferLimit.URL.createObjectURL",
-   "name": "installBufferLimit.URL.createObjectURL",
-   "kind": "assigned",
-   "params": "obj",
-   "exported": false,
-   "lines": [
-    210,
-    214
-   ],
-   "description": "createObjectURL that remembers a MediaSource's blob URL, which is how currentTimeFor() finds its <video>."
-  },
-  {
    "id": "hooks/fetch.ts#callListener",
    "name": "callListener",
    "kind": "function",
@@ -21983,334 +20761,6 @@
    "calledBy": [
     "index.js#(top level)"
    ]
-  },
-  {
-   "id": "polyfills/define.js#def",
-   "name": "def",
-   "kind": "function",
-   "params": "target, name, value",
-   "exported": true,
-   "lines": [
-    6,
-    14
-   ],
-   "description": "Non-enumerable install, matching how the engine defines built-ins. A plain assignment on a prototype would make the method visible to for-in loops over arrays/strings and could break unrelated YouTube code.",
-   "calledBy": [
-    "polyfills/array.js#(top level)",
-    "polyfills/object.js#(top level)",
-    "polyfills/string.js#(top level)"
-   ]
-  },
-  {
-   "id": "polyfills/dom.js#Element.prototype.closest",
-   "name": "Element.prototype.closest",
-   "kind": "assigned",
-   "params": "s",
-   "exported": false,
-   "lines": [
-    7,
-    14
-   ],
-   "description": "Element.closest for engines without it (Chromium 38)."
-  },
-  {
-   "id": "polyfills/url-search-params.js#serialise",
-   "name": "serialise",
-   "kind": "function",
-   "params": "value",
-   "exported": false,
-   "lines": [
-    27,
-    31
-   ],
-   "description": "Encodes a name or value as application/x-www-form-urlencoded (spaces as +).",
-   "calledBy": [
-    "polyfills/url-search-params.js#USP.prototype.toString"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#deserialise",
-   "name": "deserialise",
-   "kind": "function",
-   "params": "value",
-   "exported": false,
-   "lines": [
-    36,
-    44
-   ],
-   "description": "Decodes a name or value (+ as a space); a malformed escape keeps its raw text, as browsers do.",
-   "calledBy": [
-    "polyfills/url-search-params.js#USP"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP",
-   "name": "USP",
-   "kind": "function",
-   "params": "init",
-   "exported": false,
-   "lines": [
-    50,
-    83
-   ],
-   "description": "URLSearchParams for Chromium 38: from a query string, another instance, an array of pairs or an object.",
-   "calls": [
-    "polyfills/url-search-params.js#deserialise"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype._changed",
-   "name": "USP.prototype._changed",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    86,
-    88
-   ],
-   "description": "Tells the URL this instance belongs to (url.searchParams) that the parameters changed."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.append",
-   "name": "USP.prototype.append",
-   "kind": "assigned",
-   "params": "name, value",
-   "exported": false,
-   "lines": [
-    91,
-    94
-   ],
-   "description": "Adds a pair, after the existing ones."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.getAll",
-   "name": "USP.prototype.getAll",
-   "kind": "assigned",
-   "params": "name",
-   "exported": false,
-   "lines": [
-    97,
-    104
-   ],
-   "description": "Every value of `name`, in order."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.has",
-   "name": "USP.prototype.has",
-   "kind": "assigned",
-   "params": "name",
-   "exported": false,
-   "lines": [
-    107,
-    109
-   ],
-   "description": "Whether `name` is present."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.get",
-   "name": "USP.prototype.get",
-   "kind": "assigned",
-   "params": "name",
-   "exported": false,
-   "lines": [
-    112,
-    118
-   ],
-   "description": "The first value of `name`, or null."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.set",
-   "name": "USP.prototype.set",
-   "kind": "assigned",
-   "params": "name, value",
-   "exported": false,
-   "lines": [
-    121,
-    139
-   ],
-   "description": "Spec: replace the first occurrence in place, drop the rest."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype['delete']",
-   "name": "USP.prototype['delete']",
-   "kind": "assigned",
-   "params": "name",
-   "exported": false,
-   "lines": [
-    142,
-    150
-   ],
-   "description": "Removes every pair named `name`."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.sort",
-   "name": "USP.prototype.sort",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    154,
-    166
-   ],
-   "description": "Spec: by name in UTF-16 code units, equal names kept in their order. Chromium 38's sort is not stable, so the position breaks the ties."
-  },
-  {
-   "id": "polyfills/url-search-params.js#pairIterator",
-   "name": "pairIterator",
-   "kind": "function",
-   "params": "params, pick",
-   "exported": false,
-   "lines": [
-    171,
-    189
-   ],
-   "description": "An iterator over the pairs, live as the native one, giving `pick(name, value)`.",
-   "calledBy": [
-    "polyfills/url-search-params.js#USP.prototype.entries",
-    "polyfills/url-search-params.js#USP.prototype.keys",
-    "polyfills/url-search-params.js#USP.prototype.values"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#pairIterator.iterator.next",
-   "name": "pairIterator.iterator.next",
-   "kind": "property",
-   "params": "",
-   "exported": false,
-   "lines": [
-    175,
-    180
-   ],
-   "description": "The next pair, as `pick` shapes it, or done."
-  },
-  {
-   "id": "polyfills/url-search-params.js#pairIterator.iterator[Symbol.iterator]",
-   "name": "pairIterator.iterator[Symbol.iterator]",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    184,
-    186
-   ],
-   "description": "The iterator is its own iterable (for...of)."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.keys",
-   "name": "USP.prototype.keys",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    192,
-    196
-   ],
-   "description": "An iterator of the names.",
-   "calls": [
-    "polyfills/url-search-params.js#pairIterator"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.values",
-   "name": "USP.prototype.values",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    199,
-    203
-   ],
-   "description": "An iterator of the values.",
-   "calls": [
-    "polyfills/url-search-params.js#pairIterator"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.entries",
-   "name": "USP.prototype.entries",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    206,
-    210
-   ],
-   "description": "An iterator of [name, value] pairs.",
-   "calls": [
-    "polyfills/url-search-params.js#pairIterator"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.forEach",
-   "name": "USP.prototype.forEach",
-   "kind": "assigned",
-   "params": "cb, thisArg",
-   "exported": false,
-   "lines": [
-    215,
-    219
-   ],
-   "description": "Calls `cb(value, name, params)` for every pair, in order."
-  },
-  {
-   "id": "polyfills/url-search-params.js#USP.prototype.toString",
-   "name": "USP.prototype.toString",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    222,
-    228
-   ],
-   "description": "The parameters as a query string, without the leading ?.",
-   "calls": [
-    "polyfills/url-search-params.js#serialise"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#urlLacksSearchParams",
-   "name": "urlLacksSearchParams",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    231,
-    238
-   ],
-   "description": "Whether `new URL()` lacks url.searchParams: Chromium 38 has URL without it (Chrome 51).",
-   "calledBy": [
-    "polyfills/url-search-params.js#(top level)"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#wireURLSearchParams",
-   "name": "wireURLSearchParams",
-   "kind": "function",
-   "params": "SearchParams",
-   "exported": false,
-   "lines": [
-    245,
-    272
-   ],
-   "description": "url.searchParams over `SearchParams`, wired to url.search in both directions: a change of the params writes url.search, and url.search written since the last read (or href) gives the same object the new query.",
-   "hooks": [
-    "window.URL.prototype.searchParams"
-   ],
-   "calledBy": [
-    "polyfills/url-search-params.js#(top level)"
-   ]
-  },
-  {
-   "id": "polyfills/url-search-params.js#wireURLSearchParams.sp._onChange",
-   "name": "wireURLSearchParams.sp._onChange",
-   "kind": "assigned",
-   "params": "str",
-   "exported": false,
-   "lines": [
-    254,
-    257
-   ],
-   "description": "Writes a change of url.searchParams back into the URL's search."
   },
   {
    "id": "ui/dom.js#createElement",
@@ -24991,7 +23441,6 @@
    },
    "calledBy": [
     "features/force-codec/index.js#applyMode",
-    "features/playback-speed-absent.js#stepSpeed",
     "features/playback-speed/index.js#stepSpeed",
     "features/sponsorblock/blue-key.js#jumpToHighlight",
     "features/sponsorblock/blue-key.js#manualSkipOrHighlight",
@@ -28068,12 +26517,6 @@
     "features/adblock/constants.js#(top level)",
     "features/adblock/flags.js#recomputeFilterFlags",
     "ui/panel/pages.js#buildUITweaksPage"
-   ],
-   "listen": [
-    "features/emoji-font/index.js#(top level)"
-   ],
-   "read": [
-    "features/emoji-font/observer.js#manageObserverState"
    ]
   },
   "hideGuestSignInPrompts": {
@@ -28344,9 +26787,6 @@
    ]
   },
   "updateend": {
-   "listen": [
-    "hooks/buffer-limit.js#patchAppend.proto.appendBuffer"
-   ],
    "emit": [
     "vendor/playback-speed/mse-hook.js#installMseHook.FakeAudioSourceBuffer._finishLater",
     "vendor/playback-speed/mse-hook.js#installMseHook.FakeAudioSourceBuffer.abort"
@@ -28393,7 +26833,6 @@
    "listen": [
     "core/dom.js#(top level)",
     "features/auto-login/whos-watching.js#setupActiveBypassListener",
-    "features/emoji-font/index.js#(top level)",
     "features/screensaver-fix/index.js#(top level)",
     "features/video-quality/index.js#setupListeners",
     "features/watch/index.js#Watch.setupGlobalListeners"
@@ -28438,7 +26877,6 @@
    "value": "ytlr-app",
    "note": "The app and the player",
    "usedBy": [
-    "features/emoji-font/text-nodes.js#scanElement",
     "features/sponsorblock/bar.js#watchProgressBar",
     "ui/shortcuts/page.js#refreshPage"
    ]
@@ -28514,9 +26952,7 @@
   "TEXT_HOST_TAGS": {
    "value": "['yt-formatted-string', 'yt-core-attributed-string']",
    "note": "The elements whose text can hold emoji, as localName values (emoji-font).",
-   "usedBy": [
-    "features/emoji-font/text-nodes.js#(top level)"
-   ]
+   "usedBy": []
   },
   "CONTROLS": {
    "value": "yt-focus-container[idomkey=\"controls\"]",
@@ -28743,9 +27179,6 @@
   }
  },
  "hooks": {
-  "Element.prototype.closest": [
-   "polyfills/dom.js#(top level)"
-  ],
   "Element.prototype.getBoundingClientRect": [
    "dev/perf-mon.js#installDomProbes"
   ],
@@ -28765,23 +27198,8 @@
   "MediaSource.isTypeSupported": [
    "features/force-codec/hooks.js#installHooks"
   ],
-  "MediaSource.prototype.addSourceBuffer": [
-   "hooks/buffer-limit.js#installBufferLimit"
-  ],
-  "Node.prototype.isConnected": [
-   "polyfills/dom.js#(top level)"
-  ],
-  "NodeList.prototype.forEach": [
-   "polyfills/dom.js#(top level)"
-  ],
-  "URL.createObjectURL": [
-   "hooks/buffer-limit.js#installBufferLimit"
-  ],
   "hookTarget.instance.resolveCommand": [
    "hooks/resolve-command.ts#ResolveCommandRegistry.constructor"
-  ],
-  "window.URL.prototype.searchParams": [
-   "polyfills/url-search-params.js#wireURLSearchParams"
   ],
   "window.XMLHttpRequest.prototype.open": [
    "features/adblock/tracking-block.js#installXHRWrappers"
@@ -28794,9 +27212,6 @@
   ],
   "window.__ytafAdblockStats": [
    "features/adblock/parse-hook.js#installParseHook"
-  ],
-  "window.__ytafBufferStats": [
-   "hooks/buffer-limit.js#installBufferLimit"
   ],
   "window.__ytafContinuationStats": [
    "features/rows-ahead.js#(top level)"

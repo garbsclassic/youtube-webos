@@ -89,11 +89,11 @@ let bundleScript = null;
 const compiledBundle = () =>
   bundleScript ||
   (bundleScript = new vm.Script(fs.readFileSync(BUNDLE, 'utf8'), { filename: BUNDLE }));
-const flavourArg = process.argv[3] || process.env.YTAF_FLAVOUR || 'legacy';
+const flavourArg = process.argv[3] || process.env.YTAF_FLAVOUR || 'modern';
 const flavour = flavourArg === 'modern' ? 'modern' : 'legacy';
 // The engine each second argument simulates by default.
 const ENGINES = { modern: 'webos22', legacy: 'webos3', webos6: 'webos6' };
-const engine = ENGINES[flavourArg] || 'webos3';
+const engine = ENGINES[flavourArg] || 'webos22';
 const DEFAULT_UA = engine;
 
 const BROWSE_HTML =

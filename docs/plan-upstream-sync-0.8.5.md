@@ -110,6 +110,7 @@ The rebuild inverts triage: each row is a fork change, judged against 0.8.5. RE-
 | Package manager | pnpm | npm | Owner toolchain. Costs one lockfile conflict per sync; `package.json` edits still cherry-pick. |
 | Fork history on `main` | Land with `git merge -s ours main` into the rebuild branch, then fast-forward `main` | Force-push `main` to the new branch | Keeps the fork's history reachable and `main` fast-forward only. |
 | Formatting | Keep upstream's Prettier | No formatter | Upstream cherry-picks apply without whitespace conflicts. |
+| Legacy-only branches in shared modules | Left as upstream wrote them (`isLegacyWebOS()`, `getWebOSVersion() <= 4`, the emoji-wrap calls in the adblock filters, now a no-op module; the Chrome 38 downgrade helpers in the test harness) | Strip them | They never run on webOS 22+, and editing upstream's hot paths would turn every later upstream change there into a conflict. Files, build plumbing and dependencies that existed only for the legacy build are gone. |
 | Codemap | Keep `tools/codemap.mjs`, `docs/codemap/` and `codemap:check` | Delete | Per-module map of callers, settings, events and selectors helps agent work; regenerated in the same commit as any module change. |
 | Release | One fork 0.3.0 (minor) | Ship 0.3.0 first, then rebuild | Owner decision; 0.3.0 never shipped. |
 
@@ -137,8 +138,10 @@ The rebuild inverts triage: each row is a fork change, judged against 0.8.5. RE-
 
 ### 3. Drop the legacy build (after 2)
 
-- [ ] Single modern webpack build; remove polyfills, stand-ins, emoji-font, the Chrome 38 harness and legacy tests (landmine 2)
-- [ ] Check: gate passes, bundle size recorded
+- [x] Single modern webpack build; remove polyfills, stand-ins, emoji-font, `buffer-limit`, the legacy test entries and `build-local*.cmd`; drop `@babel/runtime`, `@babel/plugin-transform-runtime`, `whatwg-fetch` and `@twemoji/api` (landmine 2)
+- [x] The tests that only ran on the legacy bundle now run on the webOS 22+ one; the harness defaults to it
+- [x] `ARCHITECTURE.md`, `DEPENDENCIES.md` and `bundle-snapshot.mjs` updated, codemap regenerated
+- [x] Check: `pnpm test` passes every step; bundle 252,003 bytes (budget 255 KiB), `.ipk` 108,970 bytes
 
 ### 4. Drop DeArrow and RYD (after 2)
 

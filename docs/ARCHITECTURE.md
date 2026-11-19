@@ -14,7 +14,7 @@ opening the project for the first time.
 - **[DEPENDENCIES.md](DEPENDENCIES.md)** covers the npm packages, how to update
   them safely, and the security status.
 
-## Two scripts, two builds
+## Two scripts, one build
 
 The app is a webOS web app with two scripts (`webpack.config.js`):
 
@@ -23,51 +23,26 @@ The app is a webOS web app with two scripts (`webpack.config.js`):
 | `src/index.js` | the app's start page (`index.html`) | Sends the app to `https://www.youtube.com/tv` with the launch parameters (a deep link, a voice search), then is gone. |
 | `src/userScript.js` | YouTube's TV site, injected by webOS (`webOSUserScripts/userScript.js`) | Everything else: the hooks, the features, the settings panel. |
 
-Each release is built twice from the same source:
+This fork builds once, for webOS 22 and newer (Chromium 87 or newer): `npm run build`. Upstream also builds a legacy ES5 bundle for webOS 3 to 6; the fork dropped it, so code paths that only that bundle reached (`isLegacyWebOS()`, `getWebOSVersion() <= 4` branches, the no-op `features/adblock/emoji-wrap.js`) stay as upstream wrote them but never run.
 
-| Build | Command | For | Engine |
-| --- | --- | --- | --- |
-| legacy | `npm run build` | webOS 3 to 6 | Chromium 38 to 79, compiled to ES5 |
-| webOS 22+ | `npm run build:modern` | webOS 22, 23, 24, 25 | Chromium 87 or newer |
+`--env build=N` (or the `YTAF_BUILD` environment variable) makes it test build N: the settings heading reads "YouTube Extended <version> bN" (`core/version.js`, written by webpack's DefinePlugin). Without it, a release.
 
-`--env build=N` (or the `YTAF_BUILD` environment variable, which the
-test-build workflow sets from a commit title like "0.8.5 build 2") makes it
-test build N: the settings heading reads "YouTube Extended 0.8.5 bN"
-(`core/version.js`, written by webpack's DefinePlugin). Without it, a release:
-"YouTube Extended 0.8.5".
+`dev/perf-mon.js` is aliased away unless the build runs with `--env perf`. Features that need a newer engine check at runtime: Playback Speed needs WebCodecs (webOS 23 and newer), and the cast block and the playback kick are for webOS 25.
 
-`resolve.alias` in `webpack.config.js` leaves out what a build does not need.
-A module imported by name gets a stand-in with the same exports
-(`*-absent.js`); one imported for its side effects maps to nothing:
-
-| Module | legacy | webOS 22+ |
-| --- | --- | --- |
-| `polyfills/polyfills.js`, `whatwg-fetch` | in | out (Chrome 87 has it all) |
-| `features/emoji-font/`, `features/adblock/emoji-wrap.js` | in | out / `emoji-wrap-absent.js` (the emoji fix is webOS 3/4 only) |
-| `hooks/buffer-limit.js` | in | out (the memory problem is webOS 3/4 only) |
-| `features/block-webos-cast.ts` | `block-webos-cast-absent.js` | in (webOS 25) |
-| `features/video-quality/kickstart.js` | `kickstart-absent.js` | in (webOS 25) |
-| `features/playback-speed/` (and `vendor/playback-speed/`) | `playback-speed-absent.js` | in (needs WebCodecs: webOS 23 and newer) |
-| `features/dearrow/formatter.js` (and `vendor/dearrow/`) | `formatter-absent.js` (48 KiB there, and only webOS 5/6 could use it) | in |
-| `dev/perf-mon.js` | out unless `--env perf` | out unless `--env perf` |
-
-`babel.config.js` has one branch per build (`envName` legacy or modern). There
-is no core-js: the legacy polyfills are hand-written in `src/polyfills/`, one
-group per file, each feature-detected (the reason is in DEPENDENCIES.md).
+`babel.config.js` targets Chrome 87 and strips the types; there are no polyfills.
 
 ## Folders
 
 | Folder | What lives there |
 | --- | --- |
 | `src/core/` | Shared building blocks: settings (`config.js`, `config-options.js`), page state, the remote's keys, the webOS version, logging, DOM helpers, the YouTube selectors table, the InnerTube response shapes. No feature logic. |
-| `src/hooks/` | Wrappers around browser built-ins that more than one feature uses: `fetch` (`fetch.ts`), YouTube's `resolveCommand` (`resolve-command.ts`), and the MSE buffer cap (`buffer-limit.js`). |
+| `src/hooks/` | Wrappers around browser built-ins that more than one feature uses: `fetch` (`fetch.ts`) and YouTube's `resolveCommand` (`resolve-command.ts`). |
 | `src/features/` | One folder (or file) per feature. A feature reads its settings, listens to page events and touches YouTube's page or responses. |
 | `src/ui/` | The options panel (`panel/`), the remote shortcuts (`shortcuts/`), the toasts (`toast/`), the theme classes on `<html>` (`styles/`). |
-| `src/polyfills/` | What Chromium 38 lacks and the code uses (legacy build only). |
 | `src/dev/` | The perf monitor, a development tool (`npm run build:perf`). |
 | `src/vendor/` | Third-party code kept as its authors wrote it: DeArrow's title formatter and the playback speed engine. Origins and licenses in `src/vendor/README.md`; lint, Prettier and the code map's description check skip it. |
 | `tools/` | Build helpers (the CSS collector, the bare-require check), the code map generator, the bundle snapshot. |
-| `tests/` | `run-all.mjs` runs everything: unit tests, behaviour tests on simulated webOS pages (jsdom, with a Chromium 38 profile for the legacy build), smoke tests on the built bundles, benchmarks. |
+| `tests/` | `run-all.mjs` runs everything: unit tests, behaviour tests on simulated webOS pages (jsdom, with a Chromium 87 profile), smoke tests on the built bundles, benchmarks. |
 
 ## Start-up order
 
@@ -76,24 +51,20 @@ feature module registers its listeners while it is imported:
 
 ```mermaid
 flowchart TD
-  A[polyfills.js<br/>legacy only] --> B[dev/perf-mon.js<br/>perf builds only]
-  B --> C[whatwg-fetch<br/>legacy only]
-  C --> D[feature modules imported<br/>return-dislike, video-quality, ui, sponsorblock,<br/>emoji-font, screensaver-fix, comments-fix, watch,<br/>lang-settings-fix: each registers its listeners]
-  D --> E[global hooks installed<br/>JSON.parse, JSON.stringify, codec hooks,<br/>buffer limit on webOS 3/4]
+  B[dev/perf-mon.js<br/>perf builds only] --> D[feature modules imported<br/>return-dislike, video-quality, ui, sponsorblock,<br/>screensaver-fix, comments-fix, watch,<br/>lang-settings-fix: each registers its listeners]
+  D --> E[global hooks installed<br/>JSON.parse, JSON.stringify, codec hooks]
   E --> F[initLogoStyle, startTrackingBlock]
   F --> G[launch params: account-selector bypass<br/>webOSRelaunch listener]
   G --> H[webOS 25: cast wake-up block]
 ```
 
-1. **Polyfills** first: `whatwg-fetch` checks at load whether `URLSearchParams`
-   exists.
-2. **perf-mon** (perf builds only) before everything else, so its probes sit
+1. **perf-mon** (perf builds only) before everything else, so its probes sit
    underneath every other hook.
-3. **The feature modules.** Importing one registers its page and setting
+2. **The feature modules.** Importing one registers its page and setting
    listeners; the order of these imports is the order those listeners run in.
-4. **The global hooks**, once every module has loaded (the codec filter runs
+3. **The global hooks**, once every module has loaded (the codec filter runs
    inside the parse hook, so it must exist first).
-5. **Launch handling**: the account-selector bypass for a launch with
+4. **Launch handling**: the account-selector bypass for a launch with
    parameters, and the `webOSRelaunch` listener (the app was opened again while
    running, for example from a voice search). A relaunch without a target
    (back from another app) leaves the page alone: going to `#/` would end
@@ -116,7 +87,6 @@ and the browser:
 | `XMLHttpRequest.prototype.open/send` | `features/adblock/tracking-block.js` | Tracking Block: telemetry XHRs go to an empty `data:` URL. |
 | `resolveCommand` on YouTube's app object | `hooks/resolve-command.ts` | `features/lang-settings-fix.ts`: a language change in YouTube's settings is written to the `PREF` cookie and the page reloads, which the TV app does not do by itself. |
 | `MediaSource.isTypeSupported`, `HTMLMediaElement.prototype.canPlayType` | `features/force-codec/hooks.js` | Force Video Codec: declines the codecs the setting rules out. |
-| `MediaSource.prototype.addSourceBuffer`, `SourceBuffer.prototype.appendBuffer`, `URL.createObjectURL` | `hooks/buffer-limit.js` | webOS 3/4: trims already-played video from the buffers so the TV does not run out of memory. |
 | `MediaSource.prototype.addSourceBuffer`, `URL.createObjectURL` / `revokeObjectURL`, `HTMLMediaElement.prototype.src`; `Object.prototype` accessors `enableSpeedOptions` and `setPlaybackRate` | `vendor/playback-speed/mse-hook.js`, `features/playback-speed/native-menu.js` | Playback Speed (webOS 23+, installed only once the setting is on): a MediaSource created at a speed other than 1x gets its video timeline rescaled and its audio played by the engine; YouTube's speed menu is offered and its picks reach the controller. At 1x everything passes through. |
 
 The table of every hook with the function that installs it is in
@@ -220,16 +190,14 @@ re-renders.
   only while diagnostics are on: `localStorage['ytaf-debug'] = '1'` (survives
   restarts) or `window.__ytaf_debug__ = true` (set in the TV's web inspector).
 - **Counters** on `window` for the web inspector: `__ytafAdblockStats`,
-  `__ytafThumbStats`, `__ytafQualityStats`, `__ytafContinuationStats` and, on
-  webOS 3/4 with diagnostics on, `__ytafBufferStats`.
-- **perf-mon** (`npm run build:perf` / `build:perf:modern`): timings of every
+  `__ytafThumbStats`, `__ytafQualityStats` and `__ytafContinuationStats`.
+- **perf-mon** (`npm run build:perf`): timings of every
   hook and feature, in an on-screen panel (press 0 three times) and in
   `window.__PERF` (`__PERF.help()` lists the API).
 
 ## Rules the code follows for old TVs
 
-These show up as comments across the source; keep to them when changing code,
-and look for breaks of them when optimising:
+These show up as comments across the source. Several exist for upstream's legacy webOS 3 to 6 build, which this fork does not ship; they stay because the code is upstream's and keeping it as written keeps upstream's commits cherry-picking cleanly. Keep to the rest when changing code, and look for breaks of them when optimising:
 
 - **Hot paths** (the parse and stringify hooks, focus listeners, the
   SponsorBlock time listener) return early for the common case, before any
@@ -253,7 +221,7 @@ and look for breaks of them when optimising:
 
 ## Working on the project
 
-- `npm test`: formatting, lint, types, the code map check, both builds and
+- `npm test`: formatting, lint, types, the code map check, the build and
   every test script. `npm run test:quick` for a faster pass;
   `node tests/run-all.mjs --only=NAME` for one test script.
 - `npm run codemap` after changing code. A new function needs a comment right
@@ -262,11 +230,7 @@ and look for breaks of them when optimising:
   dependencies: it says whether the code that runs on the TV changed
   (DEPENDENCIES.md).
 - `npm run bench`: the hook and panel benchmarks.
-- Test builds: push to `test` with a commit title like "0.8.5 build 2" (the
-  body is the patch notes). `.github/workflows/auto-discussion.yml` runs the
-  tests, builds both .ipk files (legacy and webOS 22+) with the build number
-  in them, puts them on a pre-release
-  (`v0.8.5-b2`) and posts the links in the "0.8.5 test builds" discussion.
+- Releases: see [release.md](release.md).
 
 ### For AI agents
 
@@ -280,5 +244,4 @@ and look for breaks of them when optimising:
 - Calls through a callback table or a parameter are not in the call graph
   (`ACTIONS[name].run(video)`, `sb.skipToPreviousSegment()`): search for the
   name as well.
-- Two builds share the source: check the alias table above before assuming a
-  module is in the bundle you are looking at.
+- Legacy-only branches (`isLegacyWebOS()`, `getWebOSVersion() <= 4`) never run in this fork's build.

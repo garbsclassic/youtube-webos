@@ -524,14 +524,6 @@ function boot() {
     );
   }
   {
-    const { win, tabs } = open();
-    tabs[4].click();
-    t(
-      'webOS 3: the UI Tweaks page has the emoji fix row',
-      !!panelCheckbox(win, 'Emoji + Characters Fix')
-    );
-  }
-  {
     const { win, tabs } = open({ ua: 'webos23' });
     tabs[4].click();
     t(

@@ -2,7 +2,7 @@
 // Shows whether a change (a dependency update, mostly) changes the code that
 // runs on the TV.
 //
-//   npm run bundle:snapshot   build both flavours and remember what they hold
+//   npm run bundle:snapshot   build and remember what the bundle holds
 //   (update dependencies: npm update, npm install x@latest, npm audit fix, ...)
 //   npm run bundle:compare    build again and compare with the snapshot
 //
@@ -43,7 +43,6 @@ function build(flavour) {
     out,
     `--json=${stats}`
   ];
-  if (flavour === 'modern') args.push('--env', 'modern');
   const run = spawnSync(process.execPath, args, { cwd: root, encoding: 'utf8' });
   if (run.status !== 0) {
     console.error(run.stdout.slice(-2000), run.stderr.slice(-2000));
@@ -124,16 +123,13 @@ function compareFlavour(flavour, before, after) {
 const current = {
   createdAt: new Date().toISOString(),
   versions: toolVersions(),
-  legacy: build('legacy'),
   modern: build('modern')
 };
 
 if (mode === 'snapshot') {
   mkdirSync(dirname(snapshotFile), { recursive: true });
   writeFileSync(snapshotFile, JSON.stringify(current));
-  console.log(
-    `Snapshot saved: legacy ${current.legacy.bytes} bytes, webOS 22+ ${current.modern.bytes} bytes.`
-  );
+  console.log(`Snapshot saved: webOS 22+ ${current.modern.bytes} bytes.`);
   console.log('Update the dependencies, then run: npm run bundle:compare');
 } else {
   if (!existsSync(snapshotFile)) {
@@ -148,14 +144,11 @@ if (mode === 'snapshot') {
   for (const k of changedVersions) {
     console.log(`  ${k}: ${before.versions[k] || 'not installed'} -> ${current.versions[k]}`);
   }
-  const same = [
-    compareFlavour('legacy (webOS 3-6)', before.legacy, current.legacy),
-    compareFlavour('webOS 22+', before.modern, current.modern)
-  ].every(Boolean);
+  const same = compareFlavour('webOS 22+', before.modern, current.modern);
   console.log(
     same
       ? 'The code that runs on the TV is unchanged.'
-      : 'The code that runs on the TV changed: check the modules above, then test on a TV (webOS 3 first).'
+      : 'The code that runs on the TV changed: check the modules above, then test on a TV.'
   );
   process.exit(same ? 0 : 1);
 }

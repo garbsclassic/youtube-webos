@@ -2,7 +2,7 @@
 
 Part of the [code map](../CODEMAP.md), generated from the source by `tools/codemap.mjs`: do not edit it by hand.
 
-Modules: [features/video-quality/index.js](#mod-index-js), [features/video-quality/kickstart-absent.js](#mod-kickstart-absent-js), [features/video-quality/kickstart.js](#mod-kickstart-js), [features/video-quality/log.js](#mod-log-js), [features/video-quality/player-state.js](#mod-player-state-js), [features/video-quality/quality.js](#mod-quality-js), [features/video-quality/state.js](#mod-state-js)
+Modules: [features/video-quality/index.js](#mod-index-js), [features/video-quality/kickstart.js](#mod-kickstart-js), [features/video-quality/log.js](#mod-log-js), [features/video-quality/player-state.js](#mod-player-state-js), [features/video-quality/quality.js](#mod-quality-js), [features/video-quality/state.js](#mod-state-js)
 
 <a id="mod-index-js"></a>
 
@@ -69,19 +69,6 @@ Follows page changes, and checks the current page once the document is ready.
 - **Calls:** [handleNavigation](#fn-index-js-handlenavigation)
 - **Called by:** [at load](#mod-index-js)
 - **Events:** listens to `ytaf-page-update`, `DOMContentLoaded`
-
-<a id="mod-kickstart-absent-js"></a>
-
-## features/video-quality/kickstart-absent.js
-
-> The legacy build's kickstart.js (webpack.config.js): the first-video kick is for webOS 25, which runs the webOS 22+ build.
-
-5 lines
-
-<a id="fn-kickstart-absent-js-ensureplaybackstarts"></a>
-**`ensurePlaybackStarts()`** · function, async, exported · L5–5
-
-Nothing to kick on webOS 3 to 6.
 
 <a id="mod-kickstart-js"></a>
 

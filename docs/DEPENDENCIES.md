@@ -6,34 +6,31 @@ Checked on 2026-10-24 (0.8.5).
 
 ## What runs on the TV
 
-Only four npm packages are inside the bundles. Everything else is a build,
+Only one npm package is inside the bundle. Everything else is a build,
 lint or test tool that runs on your computer, and only matters to the TV
-through what it writes into the bundle.
+through what it writes into the bundle. (Upstream's legacy build also carried
+`whatwg-fetch`, `@babel/runtime` and `@twemoji/api`; the fork builds for
+webOS 22+ only.)
 
-| Package | In which build | What it does | Pinned |
-| --- | --- | --- | --- |
-| `whatwg-fetch` | legacy (webOS 3) | `fetch()` for Chromium 38, which has none | 3.6.20 |
-| `@babel/runtime` | legacy | Babel's helpers (classes, private fields, for-of, async) | 8.0.7 |
-| `@twemoji/api` | legacy (webOS 3/4) | Emoji images for the Emoji + Characters Fix | 16.0.1 |
-| `tiny-sha256` | both | SponsorBlock's privacy hash of the video id | 1.0.2 |
+| Package | What it does | Pinned |
+| --- | --- | --- |
+| `tiny-sha256` | SponsorBlock's privacy hash of the video id | 1.0.2 |
 
 Two pieces of third-party code are not npm packages but copied into
 `src/vendor/` (0.8.5 build 2), so they change only when someone copies a new
-version in: DeArrow's title formatter (GPL-3.0, webOS 22+ build only) and the
-playback speed engine (GPL-3.0, webOS 22+ build only). Where each came from is
+version in: DeArrow's title formatter (GPL-3.0) and the
+playback speed engine (GPL-3.0). Where each came from is
 in `src/vendor/README.md`.
 
-They are pinned to exact versions on purpose: a routine `npm update` must not
-change TV code without a decision. `@twemoji/api` stays on 16.0.1 because the
-emoji image URLs it builds have to match the image set it loads (see 0.8.2 in
-the changelog); move both together.
+It is pinned to an exact version on purpose: a routine `pnpm update` must not
+change TV code without a decision.
 
 ## Build and test tools (your computer only)
 
 | Package | Used by |
 | --- | --- |
 | `webpack`, `webpack-cli` | `npm run build` |
-| `babel-loader`, `@babel/core`, `@babel/preset-env`, `@babel/plugin-transform-runtime`, `@babel/plugin-transform-typescript` | Compiling `src/` for Chrome 38 (legacy) and Chrome 87 (webOS 22+), `babel.config.js` |
+| `babel-loader`, `@babel/core`, `@babel/preset-env`, `@babel/plugin-transform-typescript` | Compiling `src/` for Chrome 87 (webOS 22+), `babel.config.js` |
 | `terser-webpack-plugin` | Minifying the bundles |
 | `postcss`, `postcss-loader`, `autoprefixer`, `cssnano` | The stylesheets: `-webkit-` prefixes for old engines, minifying |
 | `copy-webpack-plugin` | Copies `assets/` and `index.html` into `dist/` |
@@ -43,10 +40,9 @@ the changelog); move both together.
 | `typescript` | `npm run typecheck` (6.0: the ESLint parser cannot read TypeScript 7 yet) |
 | `jsdom`, `acorn` | The test suite (simulated webOS pages, bundle syntax checks) |
 
-None of them is unused. Removed in 0.8.5 because nothing used them any more:
-style-loader, css-loader, postcss-preset-env, postcss-load-config,
-transform-async-modules-webpack-plugin, husky, lint-staged,
-@stylistic/eslint-plugin and four `@types` packages.
+| `husky`, `lint-staged` | The pre-commit hook (`.husky/pre-commit`, `lint-staged.config.js`): Prettier, ESLint and tsc on staged files |
+
+None of them is unused.
 
 ## Why updating once made the app slow (0.6.2 / 0.6.3)
 
@@ -69,20 +65,18 @@ Reproduced by building both commits from history (36e08e5, a17d392): the
 that module; the 0.6.4 bundle reads the native `JSON.parse`.
 
 It cannot happen this way any more: 0.8.3 removed core-js entirely, and
-`babel.config.js` uses no polyfill plugin (the legacy polyfills are
-hand-written in `src/polyfills/`).
+`babel.config.js` uses no polyfill plugin.
 
 ## Updating safely
 
-1. `npm run bundle:snapshot` (builds both flavours into a temp folder and
-   remembers what they contain)
-2. Update: `npm update`, `npm install <pkg>@latest`, `npm audit fix`, ...
-3. `npm run bundle:compare`
+1. `pnpm run bundle:snapshot` (builds into a temp folder and remembers what
+   the bundle contains)
+2. Update: `pnpm update`, `pnpm add <pkg>@latest`, `pnpm audit --fix`, ...
+3. `pnpm run bundle:compare`
 
 "identical" means the update cannot change anything on the TV. "CHANGED" lists
 the modules that were added, removed or resized, npm packages first: that is
-where a 0.6.3-style problem shows up. Then run `npm test` and try the legacy
-build on webOS 3 before releasing.
+where a 0.6.3-style problem shows up. Then run `pnpm test` before releasing.
 
 Example from 2026-10-24: `npm update` (all in range) took `@babel/runtime`
 8.0.7 → 8.0.8, and the compare showed the legacy bundle changed: the array

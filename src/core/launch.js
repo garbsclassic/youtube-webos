@@ -6,7 +6,6 @@
  * importing those would drag their module-level side effects onto a page with
  * no YouTube in it.
  */
-import '../polyfills/polyfills.js';
 import { createLogger } from './log.js';
 
 const log = createLogger('Launch');

@@ -16,8 +16,8 @@ const os = require('os');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-// The release bundle the runner hands this script (a copy of the legacy build:
-// the webOS 22+ build may be emptying dist/ meanwhile), else dist/.
+// The release bundle the runner hands this script (the webOS 22+ build:
+// dist/ unless given), else dist/.
 const releaseBundle = process.argv[2] || path.join(ROOT, 'dist/webOSUserScripts/userScript.js');
 const out = fs.mkdtempSync(path.join(os.tmpdir(), 'youtube-webos-perf-'));
 const cli = path.join(ROOT, 'node_modules', 'webpack-cli', 'bin', 'cli.js');
@@ -29,7 +29,7 @@ const build = spawnSync(
 
 // The harness reads the bundle and the flavour from these two arguments.
 process.argv[2] = path.join(out, 'webOSUserScripts', 'userScript.js');
-process.argv[3] = 'legacy';
+process.argv[3] = 'modern';
 const { createPage } = require('../harness/page.cjs');
 const { createReport } = require('../harness/report.cjs');
 const { wait } = require('../harness/fixtures.cjs');
