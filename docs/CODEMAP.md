@@ -2,7 +2,7 @@
 
 Generated from the source by `tools/codemap.mjs`; do not edit it by hand. After changing code, run `npm run codemap` (`npm test` fails while the map is out of date). A function's description is the comment right above it in the source: improve it there.
 
-**127 modules, 827 named functions**, 610 of them described (the perf monitor in `src/dev/` is a development tool, not in release builds, and is listed in short form). This page is the index; each folder has a page in [codemap/](codemap/) with every function of its modules. The overview (boot order, the hooks, how a response flows through the filters) is [ARCHITECTURE.md](ARCHITECTURE.md); the same data for scripts is [codemap.json](codemap.json).
+**127 modules, 828 named functions**, 611 of them described (the perf monitor in `src/dev/` is a development tool, not in release builds, and is listed in short form). This page is the index; each folder has a page in [codemap/](codemap/) with every function of its modules. The overview (boot order, the hooks, how a response flows through the filters) is [ARCHITECTURE.md](ARCHITECTURE.md); the same data for scripts is [codemap.json](codemap.json).
 
 How to read it:
 
@@ -91,7 +91,7 @@ How to read it:
 | [features/sponsorblock/index.js](codemap/features-sponsorblock.md#mod-index-js) | 364 | 19 | SponsorBlock: skips sponsored segments and draws them on the progress bar. |
 | [features/sponsorblock/labels.js](codemap/features-sponsorblock.md#mod-labels-js) | 257 | 11 | Two small SponsorBlock readouts rendered into YouTube's own DOM: 1. |
 | [features/sponsorblock/mute.js](codemap/features-sponsorblock.md#mod-mute-js) | 23 | 2 | Muted segments: the audio is off while the playhead is inside a segment the API marked `mute` (and the setting allows it), and the viewer's own mute state comes back on the way out, on a seek away and on destroy. |
-| [features/sponsorblock/overlay.js](codemap/features-sponsorblock.md#mod-overlay-js) | 234 | 9 | The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. |
+| [features/sponsorblock/overlay.js](codemap/features-sponsorblock.md#mod-overlay-js) | 295 | 10 | The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. |
 | [features/sponsorblock/popup.js](codemap/features-sponsorblock.md#mod-popup-js) | 118 | 5 | The SponsorBlock popup beside the options panel: the current video's segments, one row each with its category colour, name and time. |
 | [features/sponsorblock/segments.js](codemap/features-sponsorblock.md#mod-segments-js) | 139 | 7 | Segment math, touching nothing but the handler's segment fields: which segments are skippable under the current settings, where the playhead is relative to them, and the end clamp. |
 | [features/sponsorblock/skipping.js](codemap/features-sponsorblock.md#mod-skipping-js) | 316 | 19 | Playback-time behaviour: aiming at the next segment, the timeupdate listener, the per-frame loop near a segment and the skip itself, which the chain at the start (chain.js) takes too. |

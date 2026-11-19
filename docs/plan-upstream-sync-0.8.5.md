@@ -155,7 +155,7 @@ One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't 
 
 - [ ] Yellow key on window capture
 - [x] `comments-fix` narrowed override: ported onto upstream's scanner, unit and bundle tests added; still to re-verify on the TV with the #188 repro
-- [ ] SponsorBlock chapter-aware markers
+- [x] SponsorBlock chapter-aware markers: `chapterBarRanges` in `overlay.js`, keeping upstream's sibling-overlay positioning (the fork's move of the overlay to `body` was not taken); unit and bar tests added; still to check on a chaptered video on the TV
 - [ ] Back #159, options-panel error, shortcut debounce
 - [ ] OLED layering and Back
 - [ ] Lifecycle ownership fixes that reproduce

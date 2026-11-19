@@ -641,7 +641,7 @@ Restores the mute state unless `time` is still inside the muted segment; without
 
 > The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. Finding the bar is bar.js's job.
 
-234 lines · imports [core/config.js](core.md#mod-config-js), [features/sponsorblock/constants.js](#mod-constants-js), [features/sponsorblock/labels.js](#mod-labels-js), [core/selectors.js](core.md#mod-selectors-js) · imported by [features/sponsorblock/bar.js](#mod-bar-js), [features/sponsorblock/index.js](#mod-index-js), [features/sponsorblock/skipping.js](#mod-skipping-js), [features/sponsorblock/video-events.js](#mod-video-events-js)
+295 lines · imports [core/config.js](core.md#mod-config-js), [features/sponsorblock/constants.js](#mod-constants-js), [features/sponsorblock/labels.js](#mod-labels-js), [core/selectors.js](core.md#mod-selectors-js) · imported by [features/sponsorblock/bar.js](#mod-bar-js), [features/sponsorblock/index.js](#mod-index-js), [features/sponsorblock/skipping.js](#mod-skipping-js), [features/sponsorblock/video-events.js](#mod-video-events-js)
 
 <a id="fn-overlay-js-anchorof"></a>
 **`anchorOf(bar)`** · function, exported · L16–22
@@ -701,17 +701,25 @@ resyncOverlay at most every OVERLAY_SYNC_MS: the timeupdate path, which fires at
 - **Calls:** [resyncOverlay](#fn-overlay-js-resyncoverlay)
 - **Called by:** [features/sponsorblock/skipping.js › handleTimeUpdate](#fn-skipping-js-handletimeupdate)
 
+<a id="fn-overlay-js-chapterbarranges"></a>
+**`chapterBarRanges(track, start, end, duration)`** · function, exported · L136–181
+
+Where a segment sits on a bar split into chapters, as `{ left, width }` percentages of the bar: YouTube draws each chapter as its own child with margins between them, so a plain time-to-percent mapping drifts by the gaps on a chaptered video. A segment across a gap is cut into one range per chapter. Null when the track has no chapter children.
+
+- **Called by:** [drawOverlay](#fn-overlay-js-drawoverlay)
+- **Browser:** `getComputedStyle`, `offsetWidth`
+
 <a id="fn-overlay-js-drawoverlay"></a>
-**`drawOverlay(sb)`** · function, exported · L136–217
+**`drawOverlay(sb)`** · function, exported · L189–278
 
 Draws (or keeps) the overlay for the current segments and settings beside the tracked bar. False when the bar is gone from the document: the caller then looks for it again. True otherwise, including when nothing needs drawing.
 
-- **Calls:** [core/config.js › configGetAll](core.md#fn-config-js-configgetall), [features/sponsorblock/constants.js › categoryColor](#fn-constants-js-categorycolor), [features/sponsorblock/labels.js › isFullVideoSegment](#fn-labels-js-isfullvideosegment), [forgetAnchor](#fn-overlay-js-forgetanchor), [getProgressBarAnchor](#fn-overlay-js-getprogressbaranchor), [syncOverlayPosition](#fn-overlay-js-syncoverlayposition)
+- **Calls:** [core/config.js › configGetAll](core.md#fn-config-js-configgetall), [features/sponsorblock/constants.js › categoryColor](#fn-constants-js-categorycolor), [features/sponsorblock/labels.js › isFullVideoSegment](#fn-labels-js-isfullvideosegment), [chapterBarRanges](#fn-overlay-js-chapterbarranges), [forgetAnchor](#fn-overlay-js-forgetanchor), [getProgressBarAnchor](#fn-overlay-js-getprogressbaranchor), [syncOverlayPosition](#fn-overlay-js-syncoverlayposition)
 - **Called by:** [features/sponsorblock/bar.js › redrawOverlay](#fn-bar-js-redrawoverlay)
 - **Settings:** uses `(all)`
 
 <a id="fn-overlay-js-recolouroverlay"></a>
-**`recolourOverlay(sb)`** · function, exported · L224–234
+**`recolourOverlay(sb)`** · function, exported · L285–295
 
 Gives every mark its category's colour as the settings have it now: a colour picked in the panel (one change per step of a drag) repaints the marks rather than rebuilding the overlay.
 

@@ -3193,7 +3193,7 @@
   },
   {
    "path": "features/sponsorblock/overlay.js",
-   "lines": 234,
+   "lines": 295,
    "header": "The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. Finding the bar is bar.js's job.",
    "imports": [
     {
@@ -3237,6 +3237,7 @@
     "forgetAnchor",
     "resyncOverlay",
     "resyncOverlayThrottled",
+    "chapterBarRanges",
     "drawOverlay",
     "recolourOverlay"
    ],
@@ -3249,6 +3250,7 @@
     "features/sponsorblock/overlay.js#syncOverlayPosition",
     "features/sponsorblock/overlay.js#resyncOverlay",
     "features/sponsorblock/overlay.js#resyncOverlayThrottled",
+    "features/sponsorblock/overlay.js#chapterBarRanges",
     "features/sponsorblock/overlay.js#drawOverlay",
     "features/sponsorblock/overlay.js#recolourOverlay"
    ]
@@ -14737,20 +14739,40 @@
    ]
   },
   {
+   "id": "features/sponsorblock/overlay.js#chapterBarRanges",
+   "name": "chapterBarRanges",
+   "kind": "function",
+   "params": "track, start, end, duration",
+   "exported": true,
+   "lines": [
+    136,
+    181
+   ],
+   "description": "Where a segment sits on a bar split into chapters, as `{ left, width }` percentages of the bar: YouTube draws each chapter as its own child with margins between them, so a plain time-to-percent mapping drifts by the gaps on a chaptered video. A segment across a gap is cut into one range per chapter. Null when the track has no chapter children.",
+   "browser": [
+    "getComputedStyle",
+    "offsetWidth"
+   ],
+   "calledBy": [
+    "features/sponsorblock/overlay.js#drawOverlay"
+   ]
+  },
+  {
    "id": "features/sponsorblock/overlay.js#drawOverlay",
    "name": "drawOverlay",
    "kind": "function",
    "params": "sb",
    "exported": true,
    "lines": [
-    136,
-    217
+    189,
+    278
    ],
    "description": "Draws (or keeps) the overlay for the current segments and settings beside the tracked bar. False when the bar is gone from the document: the caller then looks for it again. True otherwise, including when nothing needs drawing.",
    "calls": [
     "core/config.js#configGetAll",
     "features/sponsorblock/constants.js#categoryColor",
     "features/sponsorblock/labels.js#isFullVideoSegment",
+    "features/sponsorblock/overlay.js#chapterBarRanges",
     "features/sponsorblock/overlay.js#forgetAnchor",
     "features/sponsorblock/overlay.js#getProgressBarAnchor",
     "features/sponsorblock/overlay.js#syncOverlayPosition"
@@ -14771,8 +14793,8 @@
    "params": "sb",
    "exported": true,
    "lines": [
-    224,
-    234
+    285,
+    295
    ],
    "description": "Gives every mark its category's colour as the settings have it now: a colour picked in the panel (one change per step of a drag) repaints the marks rather than rebuilding the overlay.",
    "calls": [

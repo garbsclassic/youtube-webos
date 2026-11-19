@@ -128,6 +128,59 @@ export function resyncOverlayThrottled(sb) {
 }
 
 /**
+ * Where a segment sits on a bar split into chapters, as `{ left, width }` percentages of the bar:
+ * YouTube draws each chapter as its own child with margins between them, so a plain
+ * time-to-percent mapping drifts by the gaps on a chaptered video. A segment across a gap is cut
+ * into one range per chapter. Null when the track has no chapter children.
+ */
+export function chapterBarRanges(track, start, end, duration) {
+  const chapters = [];
+  for (let i = 0; i < track.children.length; i++) {
+    const el = track.children[i];
+    if (!/^chapter-\d+$/.test(el.getAttribute('idomkey') || '')) continue;
+    const style = window.getComputedStyle(el);
+    const width = Number.parseFloat(el.style.width) || el.offsetWidth;
+    if (width > 0) {
+      chapters.push({
+        width,
+        marginLeft: Number.parseFloat(style.marginLeft) || 0,
+        marginRight: Number.parseFloat(style.marginRight) || 0
+      });
+    }
+  }
+  let contentWidth = 0;
+  let layoutWidth = 0;
+  for (const c of chapters) {
+    contentWidth += c.width;
+    layoutWidth += c.marginLeft + c.width + c.marginRight;
+  }
+  if (!contentWidth || !layoutWidth) return null;
+
+  const ranges = [];
+  let timeOffset = 0;
+  let xOffset = 0;
+  for (const c of chapters) {
+    const timeStart = (timeOffset / contentWidth) * duration;
+    const timeEnd = ((timeOffset + c.width) / contentWidth) * duration;
+    const clippedStart = Math.max(start, timeStart);
+    const clippedEnd = Math.min(end, timeEnd);
+    if (clippedStart < clippedEnd) {
+      const chapterLeft = xOffset + c.marginLeft;
+      const span = timeEnd - timeStart;
+      const left = chapterLeft + ((clippedStart - timeStart) / span) * c.width;
+      const right = chapterLeft + ((clippedEnd - timeStart) / span) * c.width;
+      ranges.push({
+        left: (left * 100) / layoutWidth,
+        width: ((right - left) * 100) / layoutWidth
+      });
+    }
+    timeOffset += c.width;
+    xOffset += c.marginLeft + c.width + c.marginRight;
+  }
+  return ranges;
+}
+
+/**
  * Draws (or keeps) the overlay for the current segments and settings beside
  * the tracked bar. False when the bar is gone from the document: the caller
  * then looks for it again. True otherwise, including when nothing needs
@@ -176,24 +229,32 @@ export function drawOverlay(sb) {
 
     const start = segment.segment[0];
     const end = segment.segment[1];
-    const div = document.createElement('div');
-
     const color = categoryColor(segment.category, '#00d400');
     const left = (start / duration) * 100;
 
     // Placement and stacking come from .previewbar in sponsorblock.css; only
     // what differs per segment is written inline, in one go.
-    div.className = isHighlight ? 'previewbar highlight' : 'previewbar';
     if (isHighlight) {
+      const div = document.createElement('div');
+      div.className = 'previewbar highlight';
       div.style.cssText = `background-color: ${color}; left: ${left}%;`;
-    } else {
-      const width = ((end - start) / duration) * 100;
-      const opacity = segmentTypes[segment.category]?.opacity || '0.7';
-      div.style.cssText = `background-color: ${color}; left: ${left}%; width: ${width}%; opacity: ${opacity};`;
+      fragment.appendChild(div);
+      sb.overlayMarks.push({ div, category: segment.category, color });
+      continue;
     }
 
-    fragment.appendChild(div);
-    sb.overlayMarks.push({ div, category: segment.category, color });
+    const opacity = segmentTypes[segment.category]?.opacity || '0.7';
+    // The plain mapping when the bar has no chapters.
+    const ranges = chapterBarRanges(sb.progressBar, start, end, duration) || [
+      { left, width: ((end - start) / duration) * 100 }
+    ];
+    for (const range of ranges) {
+      const div = document.createElement('div');
+      div.className = 'previewbar';
+      div.style.cssText = `background-color: ${color}; left: ${range.left}%; width: ${range.width}%; opacity: ${opacity};`;
+      fragment.appendChild(div);
+      sb.overlayMarks.push({ div, category: segment.category, color });
+    }
   }
 
   // Everything was filtered out (e.g. the only entry was a full-video

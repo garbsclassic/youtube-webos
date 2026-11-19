@@ -5,7 +5,8 @@
  * missing or tracked with nothing to draw, a video with whole-video labels
  * only that touches neither the bar nor the <video>, and the overlay's geometry
  * following the bar (hidden with it, no layout read while hidden, re-synced on
- * resize and on the bar's attributes). The popup and the labels are
+ * resize and on the bar's attributes), and the marks on a bar split into
+ * chapters following the chapters. The popup and the labels are
  * sponsorblock-ui-test.cjs.
  *
  * Run: node tests/behaviour/sponsorblock-bar-test.cjs [bundle]
@@ -336,6 +337,51 @@ const finderWaiting = (p) => {
     renderer.style.opacity = '0';
     p.resize();
     t('an inline opacity 0 on the bar hides the overlay', st().opacity === '0', st().opacity);
+  }
+
+  // ---- a bar split into chapters: the marks follow the chapters, not the plain mapping ----
+  {
+    // Chapter 1 is [0, 100] s at 100px, chapter 2 [100, 400] s at 300px, a 4px gap between.
+    const p = boot([seg('sponsor', 80, 130), seg('selfpromo', 200, 250)], {}, 0, {
+      duration: 400
+    });
+    const d = p.win.document;
+    for (const [key, css] of [
+      ['chapter-0', 'width: 100px; margin-right: 4px;'],
+      ['chapter-1', 'width: 300px;']
+    ]) {
+      const el = d.createElement('div');
+      el.setAttribute('idomkey', key);
+      el.style.cssText = css;
+      p.track().appendChild(el);
+    }
+    await p.ready();
+    const marks = [...d.querySelectorAll('#previewbar .previewbar')].map((m) => ({
+      left: parseFloat(m.style.left),
+      width: parseFloat(m.style.width)
+    }));
+    const pct = (px) => (px * 100) / 404;
+    const close = (a, b) => Math.abs(a - b) < 1e-6;
+    t(
+      'the segment across the gap is drawn as two marks, three in all',
+      marks.length === 3,
+      JSON.stringify(marks)
+    );
+    const [a, b, c] = marks;
+    t(
+      'the two marks of the crossing segment stop at the gap and resume after it',
+      marks.length === 3 &&
+        close(a.left, pct(80)) &&
+        close(a.left + a.width, pct(100)) &&
+        close(b.left, pct(104)) &&
+        close(b.left + b.width, pct(134)),
+      JSON.stringify(marks)
+    );
+    t(
+      "the segment inside chapter 2 is shifted right by chapter 1's margin",
+      marks.length === 3 && close(c.left, pct(204)) && close(c.width, pct(50)),
+      JSON.stringify(c)
+    );
   }
 
   // ---- the renderer is built a tick before its track ------------------------------------

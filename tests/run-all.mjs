@@ -75,6 +75,7 @@ const full = [
   test(null, 'tests/unit/force-codec-test.cjs'),
   test(null, 'tests/unit/sponsorblock-labels-test.cjs'),
   test(null, 'tests/unit/sponsorblock-api-test.cjs'),
+  test(null, 'tests/unit/sponsorblock-chapters-test.cjs'),
   test(null, 'tests/unit/runner-verdict-test.cjs'),
   test(null, 'tests/unit/resolve-command-test.cjs'),
   test(null, 'tests/unit/thumbnail-capset-test.cjs'),
