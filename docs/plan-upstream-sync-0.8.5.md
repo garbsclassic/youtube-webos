@@ -130,10 +130,10 @@ The rebuild inverts triage: each row is a fork change, judged against 0.8.5. RE-
 
 ### 2. New base (after 1)
 
-- [ ] Cut the rebuild branch from tag `0.8.5`
-- [ ] Carry over the fork's `docs/`, README, `repo.json`, `.gitignore`, release and test workflows; keep upstream's `AGENTS.md`-style docs beside them
-- [ ] Switch to pnpm and drop `package-lock.json`
-- [ ] Check: the CI gate passes on the untouched upstream code
+- [x] Cut the rebuild branch from tag `0.8.5`
+- [x] Carry over the fork's `docs/`, README, `repo.json`, `.gitignore`, release and test workflows; keep upstream's `AGENTS.md`-style docs beside them
+- [x] Switch to pnpm and drop `package-lock.json`; husky and lint-staged restored, with Prettier added to the hook
+- [x] Check: the CI gate passes on the untouched upstream code (`pnpm test`, all steps, plus `pnpm run build` and `pnpm run package`)
 
 ### 3. Drop the legacy build (after 2)
 
