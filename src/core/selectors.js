@@ -3,8 +3,8 @@
 // this one table, so a YouTube markup change is fixed here and nowhere else.
 // Six-letter tokens are YouTube's obfuscated class names and change the most;
 // the comment says what each was observed to be. The app's own ids and classes
-// (ytaf-*, ryd-*) stay with the feature that creates them,
-// and Return YouTube Dislike keeps its panel-internal selectors in its own table.
+// (ytaf-*) stay with the feature that creates them,
+// and a feature keeps its panel-internal selectors in its own table.
 //
 // Read an entry as SELECTORS.NAME, pass it on, iterate it or put it in a
 // template string, but do not call a method on it directly
@@ -26,10 +26,6 @@ export const SELECTORS = {
   // Older player root, tried when PLAYER_ID is not on the page.
   HTML5_PLAYER_FALLBACK: '.html5-video-player',
   THUMBNAIL_TILE: 'ytlr-thumbnail-details',
-  // A tile of a shelf or grid, and the title text inside one (DeArrow).
-  TILE: 'ytlr-tile-renderer',
-  TILE_METADATA: 'ytlr-tile-metadata-renderer',
-  TILE_TITLE: 'ytlr-tile-metadata-renderer yt-formatted-string',
   // Everything that can carry a thumbnail image; thumbnail-quality rescans these.
   THUMBNAIL_NODES: 'ytlr-thumbnail-details, ytlr-surface-page, thumbnail image',
   // The elements whose text can hold emoji, as localName values (emoji-font).

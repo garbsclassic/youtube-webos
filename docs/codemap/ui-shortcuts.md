@@ -155,7 +155,7 @@ Clicks a YouTube button, and calls its component's onSelect() when it has one.
 
 > The logger of the shortcut modules: their messages carry [Shortcut] (core/log.js).
 
-4 lines · imports [core/log.js](core.md#mod-log-js) · imported by [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [ui/shortcuts/page.js](#mod-page-js), [ui/shortcuts/panels.js](#mod-panels-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/seek.js](#mod-seek-js)
+4 lines · imports [core/log.js](core.md#mod-log-js) · imported by [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [ui/shortcuts/page.js](#mod-page-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/seek.js](#mod-seek-js)
 
 **At load:**
 
@@ -209,10 +209,10 @@ Asks YouTube to soft-reload the current page, with the same innertube command it
 
 > The watch-page side panels: comments (or live chat), description and the save dialog, each toggled like the remote would: Back when it is open, its button when it is not.
 
-114 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [features/return-dislike/bootstrap.js](features-return-dislike.md#mod-bootstrap-js), [core/selectors.js](core.md#mod-selectors-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
+99 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [core/selectors.js](core.md#mod-selectors-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
 
 <a id="fn-panels-js-firstmatch"></a>
-**`firstMatch(selectors)`** · function · L16–22
+**`firstMatch(selectors)`** · function · L14–20
 
 The first element a candidate selector finds, in the order given (a key press, a few lookups).
 
@@ -220,14 +220,14 @@ The first element a candidate selector finds, in the order given (a key press, a
 - **Browser:** `querySelector`
 
 <a id="fn-panels-js-ispressed"></a>
-**`isPressed(button)`** · arrow · L25–28
+**`isPressed(button)`** · arrow · L23–26
 
 Whether a toggle button shows as on (aria-pressed or aria-selected).
 
 - **Called by:** [togglePanelButton](#fn-panels-js-togglepanelbutton)
 
 <a id="fn-panels-js-togglepanelbutton"></a>
-**`togglePanelButton({ button, name, isOpen = isEngagementPanelVisible, onOpened })`** · function · L35–45
+**`togglePanelButton({ button, name, isOpen = isEngagementPanelVisible, onOpened })`** · function · L33–43
 
 Toggles a panel: Back when `isOpen()` says it is up (or its button reads pressed), else a click on `button` with `onOpened` afterwards; a toast when there is no button to click.
 
@@ -235,7 +235,7 @@ Toggles a panel: Back when `isOpen()` says it is up (or its button reads pressed
 - **Called by:** [saveToPlaylist](#fn-panels-js-savetoplaylist), [toggleComments](#fn-panels-js-togglecomments), [toggleDescription](#fn-panels-js-toggledescription)
 
 <a id="fn-panels-js-togglecomments"></a>
-**`toggleComments()`** · function, exported · L51–69
+**`toggleComments()`** · function, exported · L49–67
 
 Opens or closes the comments, or the live chat on a live stream; says so when neither is available.
 
@@ -244,7 +244,7 @@ Opens or closes the comments, or the live chat on a live stream; says so when ne
 - **Browser:** `querySelector`
 
 <a id="fn-panels-js-finddescriptionbutton"></a>
-**`findDescriptionButton()`** · function · L72–81
+**`findDescriptionButton()`** · function · L70–79
 
 The description button, by its label text, else the generic text button.
 
@@ -253,15 +253,14 @@ The description button, by its label text, else the generic text button.
 - **Browser:** `querySelectorAll`, `querySelector`
 
 <a id="fn-panels-js-toggledescription"></a>
-**`toggleDescription()`** · function, exported · L87–102
+**`toggleDescription()`** · function, exported · L82–87
 
-Opens or closes the description panel; once it is open, the dislike counter is asked to look for it.
+Opens or closes the description panel.
 
-- **Calls:** [features/return-dislike/bootstrap.js › getReturnDislike](features-return-dislike.md#fn-bootstrap-js-getreturndislike), [findDescriptionButton](#fn-panels-js-finddescriptionbutton), [togglePanelButton](#fn-panels-js-togglepanelbutton)
-- **Browser:** `setTimeout`
+- **Calls:** [findDescriptionButton](#fn-panels-js-finddescriptionbutton), [togglePanelButton](#fn-panels-js-togglepanelbutton)
 
 <a id="fn-panels-js-savetoplaylist"></a>
-**`saveToPlaylist()`** · function, exported · L105–114
+**`saveToPlaylist()`** · function, exported · L90–99
 
 Opens or closes the Save (Watch Later, playlists) dialog.
 

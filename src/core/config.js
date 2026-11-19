@@ -14,8 +14,6 @@ export {
   forcePreviewModes,
   videoCodecModes,
   uiThemes,
-  dearrowTitleFormats,
-  dearrowThumbnailFallbacks,
   clockModes
 } from './config-options.js';
 

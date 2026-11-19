@@ -22,7 +22,6 @@ import { isWebOS25, simulatorMode } from './core/webos.js';
 import { initBlockWebOSCast } from './features/block-webos-cast.ts';
 // Each module registers its page listeners as it is imported, so they run in
 // this order.
-import './features/return-dislike/index.js';
 import './features/video-quality/index.js';
 import { initLogoStyle } from './features/logo-style.js';
 import './ui/index.js';
@@ -66,7 +65,7 @@ document.addEventListener(
       attemptActiveBypass(true);
     }
     // A plain relaunch has nothing to open: going to #/ would leave YouTube on
-    // the video it is playing but end SponsorBlock and the dislike counter
+    // the video it is playing but end SponsorBlock
     // for it (core/per-video.js sees a page without a video).
     if (hasLaunchTarget(evt.detail)) handleLaunch(evt.detail);
     else log.info('Plain relaunch: staying on the current page');

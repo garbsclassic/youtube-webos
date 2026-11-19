@@ -75,7 +75,6 @@ const full = [
   test(null, 'tests/unit/force-codec-test.cjs'),
   test(null, 'tests/unit/sponsorblock-labels-test.cjs'),
   test(null, 'tests/unit/sponsorblock-api-test.cjs'),
-  test(null, 'tests/unit/return-dislike-format-test.cjs'),
   test(null, 'tests/unit/runner-verdict-test.cjs'),
   test(null, 'tests/unit/resolve-command-test.cjs'),
   test(null, 'tests/unit/thumbnail-capset-test.cjs'),
@@ -110,8 +109,6 @@ const full = [
   test('modern', 'tests/behaviour/adblock-lifecycle-test.cjs'),
   test('modern', 'tests/behaviour/sponsorblock-lifecycle-test.cjs'),
   test('modern', 'tests/behaviour/panel-navigation-test.cjs'),
-  test('modern', 'tests/behaviour/return-dislike-test.cjs'),
-  test('modern', 'tests/behaviour/return-dislike-navigation-test.cjs'),
   test('modern', 'tests/behaviour/auto-login-test.cjs'),
   test('modern', 'tests/behaviour/shortcuts-watch-test.cjs'),
   // The thumbnail engine queues on requestIdleCallback and samples with an
@@ -126,7 +123,6 @@ const full = [
   test('modern', 'tests/behaviour/screensaver-fix-test.cjs'),
   test('modern', 'tests/behaviour/logo-style-test.cjs'),
   test('modern', 'tests/behaviour/hooks-and-fixes-test.cjs'),
-  test('modern', 'tests/behaviour/dearrow-test.cjs'),
   test('modern', 'tests/behaviour/playback-speed-test.cjs')
 ];
 

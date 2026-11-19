@@ -25,7 +25,7 @@ Visits every object under `root` (itself included) breadth first, down to `maxDe
 
 > Every setting the app knows about, with its default and the label the options panel shows, plus the value tables the cycle controls choose from. An option's `upgrade(stored)` turns a value an older build stored into this build's (core/config.js applies it when the settings load).
 
-283 lines · imports [core/text.js](#mod-text-js) · imported by [core/config.js](#mod-config-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js)
+232 lines · imports [core/text.js](#mod-text-js) · imported by [core/config.js](#mod-config-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js)
 
 **At load:**
 
@@ -37,7 +37,7 @@ Visits every object under `root` (itself included) breadth first, down to `maxDe
 
 > Persisted settings: one localStorage entry, read into memory once, written back debounced, with change listeners per key. The option tables themselves live in config-options.js and are re-exported here so callers import one module.
 
-168 lines · imports [core/config-options.js](#mod-config-options-js), [core/log.js](#mod-log-js) · imported by [core/per-video.js](#mod-per-video-js), [features/adblock/flags.js](features-adblock.md#mod-flags-js), [features/auto-login/index.js](features-auto-login.md#mod-index-js), [features/auto-login/previews.js](features-auto-login.md#mod-previews-js), [features/auto-login/whos-watching.js](features-auto-login.md#mod-whos-watching-js), [features/dearrow/index.js](features-dearrow.md#mod-index-js), [features/dearrow/lookup.js](features-dearrow.md#mod-lookup-js), [features/dearrow/sweep.js](features-dearrow.md#mod-sweep-js), [features/dearrow/thumbs.js](features-dearrow.md#mod-thumbs-js), [features/dearrow/tiles.js](features-dearrow.md#mod-tiles-js), [features/dearrow/titles.js](features-dearrow.md#mod-titles-js), [features/force-codec/index.js](features-force-codec.md#mod-index-js), [features/logo-style.js](features.md#mod-logo-style-js), [features/playback-speed/controller.js](features-playback-speed.md#mod-controller-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js), [features/return-dislike/bootstrap.js](features-return-dislike.md#mod-bootstrap-js), [features/sponsorblock/blue-key.js](features-sponsorblock.md#mod-blue-key-js), [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js), [features/sponsorblock/constants.js](features-sponsorblock.md#mod-constants-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/sponsorblock/labels.js](features-sponsorblock.md#mod-labels-js), [features/sponsorblock/overlay.js](features-sponsorblock.md#mod-overlay-js), [features/sponsorblock/segments.js](features-sponsorblock.md#mod-segments-js), [features/sponsorblock/skipping.js](features-sponsorblock.md#mod-skipping-js), [features/thumbnail-quality/index.js](features-thumbnail-quality.md#mod-index-js), [features/thumbnail-quality/state.js](features-thumbnail-quality.md#mod-state-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/watch/index.js](features-watch.md#mod-index-js), [ui/panel/controls/checkbox.js](ui-panel.md#mod-controls-checkbox-js), [ui/panel/controls/color-picker.js](ui-panel.md#mod-controls-color-picker-js), [ui/panel/controls/cycle-row.js](ui-panel.md#mod-controls-cycle-row-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/styles/html-classes.js](ui-styles.md#mod-html-classes-js), [ui/toast/index.js](ui-toast.md#mod-index-js)
+166 lines · imports [core/config-options.js](#mod-config-options-js), [core/log.js](#mod-log-js) · imported by [core/per-video.js](#mod-per-video-js), [features/adblock/flags.js](features-adblock.md#mod-flags-js), [features/auto-login/index.js](features-auto-login.md#mod-index-js), [features/auto-login/previews.js](features-auto-login.md#mod-previews-js), [features/auto-login/whos-watching.js](features-auto-login.md#mod-whos-watching-js), [features/force-codec/index.js](features-force-codec.md#mod-index-js), [features/logo-style.js](features.md#mod-logo-style-js), [features/playback-speed/controller.js](features-playback-speed.md#mod-controller-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js), [features/sponsorblock/blue-key.js](features-sponsorblock.md#mod-blue-key-js), [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js), [features/sponsorblock/constants.js](features-sponsorblock.md#mod-constants-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/sponsorblock/labels.js](features-sponsorblock.md#mod-labels-js), [features/sponsorblock/overlay.js](features-sponsorblock.md#mod-overlay-js), [features/sponsorblock/segments.js](features-sponsorblock.md#mod-segments-js), [features/sponsorblock/skipping.js](features-sponsorblock.md#mod-skipping-js), [features/thumbnail-quality/index.js](features-thumbnail-quality.md#mod-index-js), [features/thumbnail-quality/state.js](features-thumbnail-quality.md#mod-state-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/watch/index.js](features-watch.md#mod-index-js), [ui/panel/controls/checkbox.js](ui-panel.md#mod-controls-checkbox-js), [ui/panel/controls/color-picker.js](ui-panel.md#mod-controls-color-picker-js), [ui/panel/controls/cycle-row.js](ui-panel.md#mod-controls-cycle-row-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/styles/html-classes.js](ui-styles.md#mod-html-classes-js), [ui/toast/index.js](ui-toast.md#mod-index-js)
 
 **At load:**
 
@@ -45,7 +45,7 @@ Visits every object under `root` (itself included) breadth first, down to `maxDe
 - **Events:** listens to `beforeunload`, `pagehide`
 
 <a id="fn-config-js-loadstoredconfig"></a>
-**`loadStoredConfig()`** · function · L28–36
+**`loadStoredConfig()`** · function · L26–34
 
 The stored settings as an object, or null when there are none or they do not parse.
 
@@ -53,14 +53,14 @@ The stored settings as an object, or null when there are none or they do not par
 - **Browser:** `localStorage`
 
 <a id="fn-config-js-buildconfig"></a>
-**`buildConfig(stored)`** · function · L44–60
+**`buildConfig(stored)`** · function · L42–58
 
 Every option of this build: the stored value where there is one (through the option's `upgrade` when it has one: a value an older build stored), else the default. A key the store holds that this build does not have (a setting from an older one) is left out, so the next write drops it from storage.
 
 - **Called by:** [at load](#mod-config-js)
 
 <a id="fn-config-js-writenow"></a>
-**`writeNow()`** · function · L72–79
+**`writeNow()`** · function · L70–77
 
 Writes the whole config to localStorage now; a full or refused storage keeps it in memory only.
 
@@ -68,7 +68,7 @@ Writes the whole config to localStorage now; a full or refused storage keeps it 
 - **Browser:** `localStorage`
 
 <a id="fn-config-js-flushpendingwrite"></a>
-**`flushPendingWrite()`** · arrow · L84–89
+**`flushPendingWrite()`** · arrow · L82–87
 
 Writes a pending debounced change at once (on beforeunload and pagehide), so leaving the app does not lose it.
 
@@ -76,7 +76,7 @@ Writes a pending debounced change at once (on beforeunload and pagehide), so lea
 - **Called by:** [at load](#mod-config-js)
 
 <a id="fn-config-js-schedulewrite"></a>
-**`scheduleWrite()`** · arrow · L91–93
+**`scheduleWrite()`** · arrow · L89–91
 
 Starts the 200 ms debounced write unless one is already pending.
 
@@ -85,14 +85,14 @@ Starts the 200 ms debounced write unless one is already pending.
 - **Browser:** `setTimeout`
 
 <a id="fn-config-js-configexists"></a>
-**`configExists(key)`** · function · L98–100
+**`configExists(key)`** · function · L96–98
 
 Whether this build has a setting called `key`.
 
 - **Called by:** [assertKey](#fn-config-js-assertkey)
 
 <a id="fn-config-js-assertkey"></a>
-**`assertKey(key, verb)`** · function · L103–105
+**`assertKey(key, verb)`** · function · L101–103
 
 Throws for a key no option defines: a typo, or a key a build removed.
 
@@ -100,7 +100,7 @@ Throws for a key no option defines: a typo, or a key a build removed.
 - **Called by:** [configAddChangeListener](#fn-config-js-configaddchangelistener), [configGetDefault](#fn-config-js-configgetdefault), [configGetDesc](#fn-config-js-configgetdesc), [configRead](#fn-config-js-configread), [configWrite](#fn-config-js-configwrite)
 
 <a id="fn-config-js-configgetdesc"></a>
-**`configGetDesc(key)`** · function, exported · L108–111
+**`configGetDesc(key)`** · function, exported · L106–109
 
 The label the options panel shows for `key`.
 
@@ -108,15 +108,15 @@ The label the options panel shows for `key`.
 - **Called by:** [ui/panel/controls/checkbox.js › createConfigCheckbox](ui-panel.md#fn-controls-checkbox-js-createconfigcheckbox), [ui/panel/controls/cycle-row.js › createAlignedCycleControl](ui-panel.md#fn-controls-cycle-row-js-createalignedcyclecontrol), [ui/panel/controls/cycle-row.js › createOpacityControl](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol), [ui/panel/controls/cycle-row.js › createPreviewControl](ui-panel.md#fn-controls-cycle-row-js-createpreviewcontrol), [ui/panel/controls/cycle-row.js › createSegmentControl](ui-panel.md#fn-controls-cycle-row-js-createsegmentcontrol), [ui/panel/controls/cycle-row.js › createShortcutControl](ui-panel.md#fn-controls-cycle-row-js-createshortcutcontrol)
 
 <a id="fn-config-js-configread"></a>
-**`configRead(key)`** · function, exported · L114–117
+**`configRead(key)`** · function, exported · L112–115
 
 The current value of setting `key` (from memory: no storage read). Throws for an unknown key.
 
 - **Calls:** [assertKey](#fn-config-js-assertkey)
-- **Called by:** [features/auto-login/index.js › initAutoLogin](features-auto-login.md#fn-index-js-initautologin), [features/auto-login/previews.js › initPreviews](features-auto-login.md#fn-previews-js-initpreviews), [features/auto-login/whos-watching.js › attemptActiveBypass](features-auto-login.md#fn-whos-watching-js-attemptactivebypass), [features/dearrow/index.js › onSettingsChange](features-dearrow.md#fn-index-js-onsettingschange), [features/dearrow/index.js › scheduleSweep](features-dearrow.md#fn-index-js-schedulesweep), [features/dearrow/lookup.js › pump](features-dearrow.md#fn-lookup-js-pump), [features/dearrow/lookup.js › resolve](features-dearrow.md#fn-lookup-js-resolve), [features/dearrow/lookup.js › resolveThumb](features-dearrow.md#fn-lookup-js-resolvethumb), [features/dearrow/sweep.js › sweepTiles](features-dearrow.md#fn-sweep-js-sweeptiles), [features/dearrow/thumbs.js › copyWidth](features-dearrow.md#fn-thumbs-js-copywidth), [features/dearrow/tiles.js › applyToTile](features-dearrow.md#fn-tiles-js-applytotile), [features/dearrow/titles.js › crowdsourcedTitle](features-dearrow.md#fn-titles-js-crowdsourcedtitle), [features/dearrow/titles.js › formatTitle](features-dearrow.md#fn-titles-js-formattitle), [features/force-codec/index.js › applyMode](features-force-codec.md#fn-index-js-applymode), [features/logo-style.js › applyLogoStyle](features.md#fn-logo-style-js-applylogostyle), [features/playback-speed/controller.js › createSpeedController.applyReload](features-playback-speed.md#fn-controller-js-createspeedcontroller-applyreload), [features/playback-speed/index.js › isOn](features-playback-speed.md#fn-index-js-ison), [features/return-dislike/bootstrap.js › bootstrapReturnDislike](features-return-dislike.md#fn-bootstrap-js-bootstrapreturndislike), [features/sponsorblock/bootstrap.js › bootstrapSponsorBlock](features-sponsorblock.md#fn-bootstrap-js-bootstrapsponsorblock), [features/sponsorblock/labels.js › buildCss](features-sponsorblock.md#fn-labels-js-buildcss), [features/sponsorblock/labels.js › pickFullLabel](features-sponsorblock.md#fn-labels-js-pickfulllabel), [features/sponsorblock/labels.js › skippableSeconds](features-sponsorblock.md#fn-labels-js-skippableseconds), [features/thumbnail-quality/state.js (at load)](features-thumbnail-quality.md#mod-state-js), [features/video-quality/index.js › initVideoQuality](features-video-quality.md#fn-index-js-initvideoquality), [features/watch/index.js (at load)](features-watch.md#mod-index-js), [ui/panel/controls/checkbox.js › createConfigCheckbox](ui-panel.md#fn-controls-checkbox-js-createconfigcheckbox), [ui/panel/controls/color-picker.js › createColorPicker](ui-panel.md#fn-controls-color-picker-js-createcolorpicker), [ui/panel/controls/cycle-row.js › createCycleControl.cycle](ui-panel.md#fn-controls-cycle-row-js-createcyclecontrol-cycle), [ui/panel/controls/cycle-row.js › createCycleControl.displayValue](ui-panel.md#fn-controls-cycle-row-js-createcyclecontrol-displayvalue), [ui/panel/controls/cycle-row.js › createOpacityControl](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol), [ui/panel/controls/cycle-row.js › createOpacityControl.changeValue](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol-changevalue), [ui/panel/controls/cycle-row.js › createOpacityControl.sync](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol-sync), [ui/panel/controls/cycle-row.js › createThumbnailQualityControl.sync](ui-panel.md#fn-controls-cycle-row-js-createthumbnailqualitycontrol-sync), [ui/panel/pages.js › buildDeArrowPage.sync](ui-panel.md#fn-pages-js-builddearrowpage-sync), [ui/panel/pages.js › buildMainPage.updateDependencyState](ui-panel.md#fn-pages-js-buildmainpage-updatedependencystate), [ui/panel/panel.js › createHeading.toggleTheme](ui-panel.md#fn-panel-js-createheading-toggletheme), [ui/shortcuts/bindings.js › updateShortcutCache](ui-shortcuts.md#fn-bindings-js-updateshortcutcache), [ui/styles/html-classes.js › read](ui-styles.md#fn-html-classes-js-read), [ui/styles/html-classes.js › syncOledShelfOpacity](ui-styles.md#fn-html-classes-js-syncoledshelfopacity), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
+- **Called by:** [features/auto-login/index.js › initAutoLogin](features-auto-login.md#fn-index-js-initautologin), [features/auto-login/previews.js › initPreviews](features-auto-login.md#fn-previews-js-initpreviews), [features/auto-login/whos-watching.js › attemptActiveBypass](features-auto-login.md#fn-whos-watching-js-attemptactivebypass), [features/force-codec/index.js › applyMode](features-force-codec.md#fn-index-js-applymode), [features/logo-style.js › applyLogoStyle](features.md#fn-logo-style-js-applylogostyle), [features/playback-speed/controller.js › createSpeedController.applyReload](features-playback-speed.md#fn-controller-js-createspeedcontroller-applyreload), [features/playback-speed/index.js › isOn](features-playback-speed.md#fn-index-js-ison), [features/sponsorblock/bootstrap.js › bootstrapSponsorBlock](features-sponsorblock.md#fn-bootstrap-js-bootstrapsponsorblock), [features/sponsorblock/labels.js › buildCss](features-sponsorblock.md#fn-labels-js-buildcss), [features/sponsorblock/labels.js › pickFullLabel](features-sponsorblock.md#fn-labels-js-pickfulllabel), [features/sponsorblock/labels.js › skippableSeconds](features-sponsorblock.md#fn-labels-js-skippableseconds), [features/thumbnail-quality/state.js (at load)](features-thumbnail-quality.md#mod-state-js), [features/video-quality/index.js › initVideoQuality](features-video-quality.md#fn-index-js-initvideoquality), [features/watch/index.js (at load)](features-watch.md#mod-index-js), [ui/panel/controls/checkbox.js › createConfigCheckbox](ui-panel.md#fn-controls-checkbox-js-createconfigcheckbox), [ui/panel/controls/color-picker.js › createColorPicker](ui-panel.md#fn-controls-color-picker-js-createcolorpicker), [ui/panel/controls/cycle-row.js › createCycleControl.cycle](ui-panel.md#fn-controls-cycle-row-js-createcyclecontrol-cycle), [ui/panel/controls/cycle-row.js › createCycleControl.displayValue](ui-panel.md#fn-controls-cycle-row-js-createcyclecontrol-displayvalue), [ui/panel/controls/cycle-row.js › createOpacityControl](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol), [ui/panel/controls/cycle-row.js › createOpacityControl.changeValue](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol-changevalue), [ui/panel/controls/cycle-row.js › createOpacityControl.sync](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol-sync), [ui/panel/controls/cycle-row.js › createThumbnailQualityControl.sync](ui-panel.md#fn-controls-cycle-row-js-createthumbnailqualitycontrol-sync), [ui/panel/pages.js › buildMainPage.updateDependencyState](ui-panel.md#fn-pages-js-buildmainpage-updatedependencystate), [ui/panel/panel.js › createHeading.toggleTheme](ui-panel.md#fn-panel-js-createheading-toggletheme), [ui/shortcuts/bindings.js › updateShortcutCache](ui-shortcuts.md#fn-bindings-js-updateshortcutcache), [ui/styles/html-classes.js › read](ui-styles.md#fn-html-classes-js-read), [ui/styles/html-classes.js › syncOledShelfOpacity](ui-styles.md#fn-html-classes-js-syncoledshelfopacity), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 
 <a id="fn-config-js-configwrite"></a>
-**`configWrite(key, value)`** · function, exported · L122–142
+**`configWrite(key, value)`** · function, exported · L120–140
 
 The per-write log is debug level: configWrite fires per event during colour-picker drags and opacity scrubs (the localStorage write itself is debounced).
 
@@ -124,22 +124,22 @@ The per-write log is debug level: configWrite fires per event during colour-pick
 - **Called by:** [ui/panel/controls/checkbox.js › createConfigCheckbox](ui-panel.md#fn-controls-checkbox-js-createconfigcheckbox), [ui/panel/controls/color-picker.js › createColorPicker](ui-panel.md#fn-controls-color-picker-js-createcolorpicker), [ui/panel/controls/cycle-row.js › createCycleControl.cycle](ui-panel.md#fn-controls-cycle-row-js-createcyclecontrol-cycle), [ui/panel/controls/cycle-row.js › createOpacityControl.changeValue](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol-changevalue), [ui/panel/panel.js › createHeading.toggleTheme](ui-panel.md#fn-panel-js-createheading-toggletheme), [ui/shortcuts/bindings.js › ensureMenuKey](ui-shortcuts.md#fn-bindings-js-ensuremenukey), [ui/shortcuts/bindings.js › updateShortcutCache](ui-shortcuts.md#fn-bindings-js-updateshortcutcache)
 
 <a id="fn-config-js-configaddchangelistener"></a>
-**`configAddChangeListener(key, callback)`** · function, exported · L148–152
+**`configAddChangeListener(key, callback)`** · function, exported · L146–150
 
 Calls `callback({ detail: { key, newValue, oldValue } })` whenever `key` changes through configWrite.
 
 - **Calls:** [assertKey](#fn-config-js-assertkey)
-- **Called by:** [core/per-video.js › bootstrapPerVideo](#fn-per-video-js-bootstrappervideo), [features/adblock/flags.js (at load)](features-adblock.md#mod-flags-js), [features/auto-login/index.js (at load)](features-auto-login.md#mod-index-js), [features/dearrow/index.js (at load)](features-dearrow.md#mod-index-js), [features/force-codec/index.js › installCodecHooks](features-force-codec.md#fn-index-js-installcodechooks), [features/logo-style.js › initLogoStyle](features.md#fn-logo-style-js-initlogostyle), [features/playback-speed/index.js (at load)](features-playback-speed.md#mod-index-js), [features/sponsorblock/index.js › SponsorBlockHandler.setupConfigListeners.listen](features-sponsorblock.md#fn-index-js-sponsorblockhandler-setupconfiglisteners-listen), [features/thumbnail-quality/index.js (at load)](features-thumbnail-quality.md#mod-index-js), [features/video-quality/index.js (at load)](features-video-quality.md#mod-index-js), [features/watch/index.js (at load)](features-watch.md#mod-index-js), [ui/panel/controls/checkbox.js › createConfigCheckbox](ui-panel.md#fn-controls-checkbox-js-createconfigcheckbox), [ui/panel/controls/color-picker.js › createColorPicker](ui-panel.md#fn-controls-color-picker-js-createcolorpicker), [ui/panel/controls/cycle-row.js › createCycleControl](ui-panel.md#fn-controls-cycle-row-js-createcyclecontrol), [ui/panel/controls/cycle-row.js › createOpacityControl](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol), [ui/panel/controls/cycle-row.js › createThumbnailQualityControl](ui-panel.md#fn-controls-cycle-row-js-createthumbnailqualitycontrol), [ui/panel/pages.js › buildDeArrowPage](ui-panel.md#fn-pages-js-builddearrowpage), [ui/panel/pages.js › buildMainPage](ui-panel.md#fn-pages-js-buildmainpage), [ui/shortcuts/bindings.js (at load)](ui-shortcuts.md#mod-bindings-js), [ui/styles/html-classes.js › initHtmlClasses](ui-styles.md#fn-html-classes-js-inithtmlclasses)
+- **Called by:** [core/per-video.js › bootstrapPerVideo](#fn-per-video-js-bootstrappervideo), [features/adblock/flags.js (at load)](features-adblock.md#mod-flags-js), [features/auto-login/index.js (at load)](features-auto-login.md#mod-index-js), [features/force-codec/index.js › installCodecHooks](features-force-codec.md#fn-index-js-installcodechooks), [features/logo-style.js › initLogoStyle](features.md#fn-logo-style-js-initlogostyle), [features/playback-speed/index.js (at load)](features-playback-speed.md#mod-index-js), [features/sponsorblock/index.js › SponsorBlockHandler.setupConfigListeners.listen](features-sponsorblock.md#fn-index-js-sponsorblockhandler-setupconfiglisteners-listen), [features/thumbnail-quality/index.js (at load)](features-thumbnail-quality.md#mod-index-js), [features/video-quality/index.js (at load)](features-video-quality.md#mod-index-js), [features/watch/index.js (at load)](features-watch.md#mod-index-js), [ui/panel/controls/checkbox.js › createConfigCheckbox](ui-panel.md#fn-controls-checkbox-js-createconfigcheckbox), [ui/panel/controls/color-picker.js › createColorPicker](ui-panel.md#fn-controls-color-picker-js-createcolorpicker), [ui/panel/controls/cycle-row.js › createCycleControl](ui-panel.md#fn-controls-cycle-row-js-createcyclecontrol), [ui/panel/controls/cycle-row.js › createOpacityControl](ui-panel.md#fn-controls-cycle-row-js-createopacitycontrol), [ui/panel/controls/cycle-row.js › createThumbnailQualityControl](ui-panel.md#fn-controls-cycle-row-js-createthumbnailqualitycontrol), [ui/panel/pages.js › buildMainPage](ui-panel.md#fn-pages-js-buildmainpage), [ui/shortcuts/bindings.js (at load)](ui-shortcuts.md#mod-bindings-js), [ui/styles/html-classes.js › initHtmlClasses](ui-styles.md#fn-html-classes-js-inithtmlclasses)
 
 <a id="fn-config-js-configremovechangelistener"></a>
-**`configRemoveChangeListener(key, callback)`** · function, exported · L155–157
+**`configRemoveChangeListener(key, callback)`** · function, exported · L153–155
 
 Stops calling `callback` for changes of `key`.
 
 - **Called by:** [features/sponsorblock/index.js › SponsorBlockHandler.setupConfigListeners.listen](features-sponsorblock.md#fn-index-js-sponsorblockhandler-setupconfiglisteners-listen)
 
 <a id="fn-config-js-configgetdefault"></a>
-**`configGetDefault(key)`** · function, exported · L160–163
+**`configGetDefault(key)`** · function, exported · L158–161
 
 The default value of setting `key`, as config-options.js declares it.
 
@@ -147,7 +147,7 @@ The default value of setting `key`, as config-options.js declares it.
 - **Called by:** [ui/panel/controls/color-picker.js › createColorPicker](ui-panel.md#fn-controls-color-picker-js-createcolorpicker)
 
 <a id="fn-config-js-configgetall"></a>
-**`configGetAll()`** · function, exported · L166–168
+**`configGetAll()`** · function, exported · L164–166
 
 Export the live object reference directly for zero-overhead caching
 
@@ -159,14 +159,14 @@ Export the live object reference directly for zero-overhead caching
 
 > What an instance registers and must undo on destroy, in one bag: listeners, observers, timers and any other undo. dispose() runs them in reverse order of registration.
 
-31 lines · imported by [features/return-dislike/index.js](features-return-dislike.md#mod-index-js), [features/return-dislike/panel-observer.js](features-return-dislike.md#mod-panel-observer-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/watch/index.js](features-watch.md#mod-index-js)
+31 lines · imported by [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/watch/index.js](features-watch.md#mod-index-js)
 
 <a id="fn-disposables-js-createdisposables"></a>
 **`createDisposables()`** · function, exported · L4–31
 
 What an instance registers and must undo on destroy, in one bag: listeners, observers, timers and any other undo. dispose() runs them in reverse order of registration.
 
-- **Called by:** [features/return-dislike/index.js › ReturnYouTubeDislike.constructor](features-return-dislike.md#fn-index-js-returnyoutubedislike-constructor), [features/return-dislike/panel-observer.js › setupPanel](features-return-dislike.md#fn-panel-observer-js-setuppanel), [features/sponsorblock/index.js › SponsorBlockHandler.bindVideo](features-sponsorblock.md#fn-index-js-sponsorblockhandler-bindvideo), [features/sponsorblock/index.js › SponsorBlockHandler.constructor](features-sponsorblock.md#fn-index-js-sponsorblockhandler-constructor), [features/video-quality/index.js › initVideoQuality](features-video-quality.md#fn-index-js-initvideoquality), [features/watch/index.js › Watch.constructor](features-watch.md#fn-index-js-watch-constructor)
+- **Called by:** [features/sponsorblock/index.js › SponsorBlockHandler.bindVideo](features-sponsorblock.md#fn-index-js-sponsorblockhandler-bindvideo), [features/sponsorblock/index.js › SponsorBlockHandler.constructor](features-sponsorblock.md#fn-index-js-sponsorblockhandler-constructor), [features/video-quality/index.js › initVideoQuality](features-video-quality.md#fn-index-js-initvideoquality), [features/watch/index.js › Watch.constructor](features-watch.md#fn-index-js-watch-constructor)
 
 <a id="fn-disposables-js-createdisposables-listen"></a>
 **`createDisposables.listen(target, type, handler, capture)`** · property · L8–11
@@ -201,7 +201,7 @@ Undoes everything added, newest first.
 
 > DOM helpers shared by the features: the cached &lt;video> lookup, waiting for a node to appear, and a plain debounce.
 
-137 lines · imported by [features/return-dislike/panel-observer.js](features-return-dislike.md#mod-panel-observer-js), [features/screensaver-fix/index.js](features-screensaver-fix.md#mod-index-js), [features/sponsorblock/bar.js](features-sponsorblock.md#mod-bar-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/watch/index.js](features-watch.md#mod-index-js), [ui/shortcuts/router.js](ui-shortcuts.md#mod-router-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js), [ui/styles/html-classes.js](ui-styles.md#mod-html-classes-js)
+137 lines · imported by [features/screensaver-fix/index.js](features-screensaver-fix.md#mod-index-js), [features/sponsorblock/bar.js](features-sponsorblock.md#mod-bar-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/watch/index.js](features-watch.md#mod-index-js), [ui/shortcuts/router.js](ui-shortcuts.md#mod-router-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js), [ui/styles/html-classes.js](ui-styles.md#mod-html-classes-js)
 
 **At load:**
 
@@ -221,7 +221,7 @@ The page's &lt;video> element, cached while it stays in the document.
 Calls `fn` every `intervalMs` until it returns true, for at most `maxAttempts` calls (a count, not a time: the TV may set its clock meanwhile); `onGiveUp` runs when the limit is reached first. The first call is the caller's, before the poll. Returns a handle: cancel() stops it, from inside `fn` too, and `active` is true until it found, gave up or was cancelled.
 
 - **Calls:** [pollUntil.tick](#fn-dom-js-polluntil-tick)
-- **Called by:** [features/return-dislike/panel-observer.js › pollForPanel](features-return-dislike.md#fn-panel-observer-js-pollforpanel), [features/sponsorblock/bar.js › scheduleBarRetry](features-sponsorblock.md#fn-bar-js-schedulebarretry), [features/video-quality/index.js › pollForPlayer](features-video-quality.md#fn-index-js-pollforplayer)
+- **Called by:** [features/sponsorblock/bar.js › scheduleBarRetry](features-sponsorblock.md#fn-bar-js-schedulebarretry), [features/video-quality/index.js › pollForPlayer](features-video-quality.md#fn-index-js-pollforplayer)
 - **Browser:** `setTimeout`
 
 <a id="fn-dom-js-polluntil-handle-cancel"></a>
@@ -283,14 +283,14 @@ Rejects the promise with 'cancelled' and stops watching, if it is still waiting.
 
 > fetch() of a JSON answer with a deadline that covers the body as well as the headers: the request is dropped when it passes (through an AbortController where the engine has one), and the timer is cleared on any outcome, so a request that won the race leaves nothing to fire later.
 
-58 lines · imports [core/webos.js](#mod-webos-js) · imported by [features/dearrow/lookup.js](features-dearrow.md#mod-lookup-js), [features/return-dislike/api.js](features-return-dislike.md#mod-api-js), [features/sponsorblock/api.js](features-sponsorblock.md#mod-api-js)
+58 lines · imports [core/webos.js](#mod-webos-js) · imported by [features/sponsorblock/api.js](features-sponsorblock.md#mod-api-js)
 
 <a id="fn-fetch-timeout-js-fetchjsonwithtimeout"></a>
 **`fetchJsonWithTimeout(url, timeoutMs, readStatuses)`** · function, exported · L16–58
 
 Starts the request; `promise` resolves with `{ ok, status, data }` (the parsed body of a 2xx answer, or of an answer whose status is in `readStatuses`; null otherwise, its body unread) or rejects like fetch(), with Error('timeout') once the deadline passes, headers or body, and `abort()` drops it early (an AbortError then). Without an AbortController (webOS 3 and 4) the request itself runs on, but its answer is never handed out after a timeout or an abort.
 
-- **Called by:** [features/dearrow/lookup.js › fetchBranding](features-dearrow.md#fn-lookup-js-fetchbranding), [features/return-dislike/api.js › fetchDislikeCount](features-return-dislike.md#fn-api-js-fetchdislikecount), [features/sponsorblock/api.js › fetchSegments.tryFetch](features-sponsorblock.md#fn-api-js-fetchsegments-tryfetch)
+- **Called by:** [features/sponsorblock/api.js › fetchSegments.tryFetch](features-sponsorblock.md#fn-api-js-fetchsegments-tryfetch)
 - **Browser:** `setTimeout`, `fetch`
 
 <a id="fn-fetch-timeout-js-fetchjsonwithtimeout-abort"></a>
@@ -416,7 +416,7 @@ Opens YouTube for a launch or relaunch: a deep link (video, search, voice intent
 >
 > Diagnostics are on when localStorage holds `ytaf-debug` = '1' (set it from the TV's web inspector; it survives restarts and needs no rebuild), or while `window.__ytaf_debug__` is true (set from the devtools console; the tests use it too). The stored flag is read once at load: a reload is how it takes effect.
 
-55 lines · imported by [core/config.js](#mod-config-js), [core/launch.js](#mod-launch-js), [core/remote.js](#mod-remote-js), [core/webos.js](#mod-webos-js), [features/adblock/log.js](features-adblock.md#mod-log-js), [features/adblock/parse-hook.js](features-adblock.md#mod-parse-hook-js), [features/auto-login/log.js](features-auto-login.md#mod-log-js), [features/block-webos-cast.ts](features.md#mod-block-webos-cast-ts), [features/comments-fix.js](features.md#mod-comments-fix-js), [features/dearrow/log.js](features-dearrow.md#mod-log-js), [features/force-codec/log.js](features-force-codec.md#mod-log-js), [features/lang-settings-fix.ts](features.md#mod-lang-settings-fix-ts), [features/playback-speed/log.js](features-playback-speed.md#mod-log-js), [features/return-dislike/index.js](features-return-dislike.md#mod-index-js), [features/screensaver-fix/log.js](features-screensaver-fix.md#mod-log-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/sponsorblock/labels.js](features-sponsorblock.md#mod-labels-js), [features/thumbnail-quality/log.js](features-thumbnail-quality.md#mod-log-js), [features/video-quality/log.js](features-video-quality.md#mod-log-js), [features/watch/index.js](features-watch.md#mod-index-js), [hooks/fetch.ts](hooks.md#mod-fetch-ts), [hooks/resolve-command.ts](hooks.md#mod-resolve-command-ts), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/log.js](ui-shortcuts.md#mod-log-js), [userScript.js](app.md#mod-userscript-js)
+55 lines · imported by [core/config.js](#mod-config-js), [core/launch.js](#mod-launch-js), [core/remote.js](#mod-remote-js), [core/webos.js](#mod-webos-js), [features/adblock/log.js](features-adblock.md#mod-log-js), [features/adblock/parse-hook.js](features-adblock.md#mod-parse-hook-js), [features/auto-login/log.js](features-auto-login.md#mod-log-js), [features/block-webos-cast.ts](features.md#mod-block-webos-cast-ts), [features/comments-fix.js](features.md#mod-comments-fix-js), [features/force-codec/log.js](features-force-codec.md#mod-log-js), [features/lang-settings-fix.ts](features.md#mod-lang-settings-fix-ts), [features/playback-speed/log.js](features-playback-speed.md#mod-log-js), [features/screensaver-fix/log.js](features-screensaver-fix.md#mod-log-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/sponsorblock/labels.js](features-sponsorblock.md#mod-labels-js), [features/thumbnail-quality/log.js](features-thumbnail-quality.md#mod-log-js), [features/video-quality/log.js](features-video-quality.md#mod-log-js), [features/watch/index.js](features-watch.md#mod-index-js), [hooks/fetch.ts](hooks.md#mod-fetch-ts), [hooks/resolve-command.ts](hooks.md#mod-resolve-command-ts), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/log.js](ui-shortcuts.md#mod-log-js), [userScript.js](app.md#mod-userscript-js)
 
 **At load:**
 
@@ -434,7 +434,7 @@ Whether diagnostics are on: `ytaf-debug` = '1' in localStorage (read at load), o
 
 `tag` is what every line from the module is prefixed with, in brackets.
 
-- **Called by:** [core/config.js (at load)](#mod-config-js), [core/launch.js (at load)](#mod-launch-js), [core/remote.js (at load)](#mod-remote-js), [core/webos.js (at load)](#mod-webos-js), [features/adblock/log.js (at load)](features-adblock.md#mod-log-js), [features/auto-login/log.js (at load)](features-auto-login.md#mod-log-js), [features/block-webos-cast.ts (at load)](features.md#mod-block-webos-cast-ts), [features/comments-fix.js (at load)](features.md#mod-comments-fix-js), [features/dearrow/log.js (at load)](features-dearrow.md#mod-log-js), [features/force-codec/log.js (at load)](features-force-codec.md#mod-log-js), [features/lang-settings-fix.ts (at load)](features.md#mod-lang-settings-fix-ts), [features/playback-speed/log.js (at load)](features-playback-speed.md#mod-log-js), [features/return-dislike/index.js › ReturnYouTubeDislike.constructor](features-return-dislike.md#fn-index-js-returnyoutubedislike-constructor), [features/screensaver-fix/log.js (at load)](features-screensaver-fix.md#mod-log-js), [features/sponsorblock/index.js › SponsorBlockHandler.constructor](features-sponsorblock.md#fn-index-js-sponsorblockhandler-constructor), [features/sponsorblock/labels.js (at load)](features-sponsorblock.md#mod-labels-js), [features/thumbnail-quality/log.js (at load)](features-thumbnail-quality.md#mod-log-js), [features/video-quality/log.js (at load)](features-video-quality.md#mod-log-js), [features/watch/index.js (at load)](features-watch.md#mod-index-js), [hooks/fetch.ts (at load)](hooks.md#mod-fetch-ts), [hooks/resolve-command.ts (at load)](hooks.md#mod-resolve-command-ts), [ui/panel/panel.js (at load)](ui-panel.md#mod-panel-js), [ui/shortcuts/log.js (at load)](ui-shortcuts.md#mod-log-js), [userScript.js (at load)](app.md#mod-userscript-js)
+- **Called by:** [core/config.js (at load)](#mod-config-js), [core/launch.js (at load)](#mod-launch-js), [core/remote.js (at load)](#mod-remote-js), [core/webos.js (at load)](#mod-webos-js), [features/adblock/log.js (at load)](features-adblock.md#mod-log-js), [features/auto-login/log.js (at load)](features-auto-login.md#mod-log-js), [features/block-webos-cast.ts (at load)](features.md#mod-block-webos-cast-ts), [features/comments-fix.js (at load)](features.md#mod-comments-fix-js), [features/force-codec/log.js (at load)](features-force-codec.md#mod-log-js), [features/lang-settings-fix.ts (at load)](features.md#mod-lang-settings-fix-ts), [features/playback-speed/log.js (at load)](features-playback-speed.md#mod-log-js), [features/screensaver-fix/log.js (at load)](features-screensaver-fix.md#mod-log-js), [features/sponsorblock/index.js › SponsorBlockHandler.constructor](features-sponsorblock.md#fn-index-js-sponsorblockhandler-constructor), [features/sponsorblock/labels.js (at load)](features-sponsorblock.md#mod-labels-js), [features/thumbnail-quality/log.js (at load)](features-thumbnail-quality.md#mod-log-js), [features/video-quality/log.js (at load)](features-video-quality.md#mod-log-js), [features/watch/index.js (at load)](features-watch.md#mod-index-js), [hooks/fetch.ts (at load)](hooks.md#mod-fetch-ts), [hooks/resolve-command.ts (at load)](hooks.md#mod-resolve-command-ts), [ui/panel/panel.js (at load)](ui-panel.md#mod-panel-js), [ui/shortcuts/log.js (at load)](ui-shortcuts.md#mod-log-js), [userScript.js (at load)](app.md#mod-userscript-js)
 
 <a id="fn-log-js-createlogger-debug"></a>
 **`createLogger.debug()`** · arrow · L36–38
@@ -516,40 +516,40 @@ Whether the search page is showing.
 
 ## core/per-video.js
 
-> One instance per watched video, shared by SponsorBlock and the dislike counter: created when the watch page shows a video, kept across hash changes within the same video, torn down when the video changes, off the watch page, when its setting changes (and then recreated) and on unload.
+> One instance per watched video (SponsorBlock's): created when the watch page shows a video, kept across hash changes within the same video, torn down when the video changes, off the watch page, when its setting changes (and then recreated) and on unload.
 
-73 lines · imports [core/config.js](#mod-config-js) · imported by [features/return-dislike/bootstrap.js](features-return-dislike.md#mod-bootstrap-js), [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js)
+72 lines · imports [core/config.js](#mod-config-js) · imported by [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js)
 
 <a id="fn-per-video-js-watchvideoidfromhash"></a>
-**`watchVideoIdFromHash()`** · function · L8–13
+**`watchVideoIdFromHash()`** · function · L7–12
 
 The id of the video being watched, or null off the watch page.
 
 - **Called by:** [bootstrapPerVideo.sync](#fn-per-video-js-bootstrappervideo-sync)
 
 <a id="fn-per-video-js-bootstrappervideo"></a>
-**`bootstrapPerVideo({ create, restartOn, windowName })`** · function, exported · L22–73
+**`bootstrapPerVideo({ create, restartOn, windowName })`** · function, exported · L21–72
 
 `create(videoID)` returns the instance (with init(), destroy(), `videoID` and `isDestroyed`) or null while the feature is off; a change of the `restartOn` setting recreates it; `windowName` exposes the live instance on window, for the tests and for diagnostics on the TV. Returns the getter of the live instance: the current one, or null once it has torn itself down.
 
 - **Calls:** [core/config.js › configAddChangeListener](#fn-config-js-configaddchangelistener), [bootstrapPerVideo.start](#fn-per-video-js-bootstrappervideo-start), [bootstrapPerVideo.sync](#fn-per-video-js-bootstrappervideo-sync), [bootstrapPerVideo.teardown](#fn-per-video-js-bootstrappervideo-teardown)
-- **Called by:** [features/return-dislike/bootstrap.js › bootstrapReturnDislike](features-return-dislike.md#fn-bootstrap-js-bootstrapreturndislike), [features/sponsorblock/bootstrap.js › bootstrapSponsorBlock](features-sponsorblock.md#fn-bootstrap-js-bootstrapsponsorblock)
+- **Called by:** [features/sponsorblock/bootstrap.js › bootstrapSponsorBlock](features-sponsorblock.md#fn-bootstrap-js-bootstrapsponsorblock)
 - **Events:** listens to `hashchange`, `beforeunload`, `DOMContentLoaded`
 
 <a id="fn-per-video-js-bootstrappervideo-live"></a>
-**`bootstrapPerVideo.live()`** · arrow · L26–26
+**`bootstrapPerVideo.live()`** · arrow · L25–25
 
 The current instance while it is alive, else null (also the getter published on window).
 
 <a id="fn-per-video-js-bootstrappervideo-set"></a>
-**`bootstrapPerVideo.set(instance)`** · arrow · L30–32
+**`bootstrapPerVideo.set(instance)`** · arrow · L29–31
 
 Replaces the current instance (null: none).
 
 - **Called by:** [bootstrapPerVideo.sync](#fn-per-video-js-bootstrappervideo-sync), [bootstrapPerVideo.teardown](#fn-per-video-js-bootstrappervideo-teardown)
 
 <a id="fn-per-video-js-bootstrappervideo-teardown"></a>
-**`bootstrapPerVideo.teardown()`** · arrow · L34–38
+**`bootstrapPerVideo.teardown()`** · arrow · L33–37
 
 Destroys the current instance, if any, and forgets it.
 
@@ -557,7 +557,7 @@ Destroys the current instance, if any, and forgets it.
 - **Called by:** [bootstrapPerVideo](#fn-per-video-js-bootstrappervideo), [bootstrapPerVideo.sync](#fn-per-video-js-bootstrappervideo-sync)
 
 <a id="fn-per-video-js-bootstrappervideo-sync"></a>
-**`bootstrapPerVideo.sync(settingChanged)`** · arrow · L43–61
+**`bootstrapPerVideo.sync(settingChanged)`** · arrow · L42–60
 
 Deferred a moment, so a burst of hash changes settles into one decision.
 
@@ -566,7 +566,7 @@ Deferred a moment, so a burst of hash changes settles into one decision.
 - **Browser:** `setTimeout`
 
 <a id="fn-per-video-js-bootstrappervideo-start"></a>
-**`bootstrapPerVideo.start()`** · arrow · L68–68
+**`bootstrapPerVideo.start()`** · arrow · L67–67
 
 The body class and the hash are settled half a second after the document is.
 
@@ -588,7 +588,7 @@ The body class and the hash are settled half a second after the document is.
 
 > The remote control: key codes, the colour-key lookup, and synthetic key presses dispatched on the app's behalf.
 
-114 lines · imports [core/log.js](#mod-log-js) · imported by [features/auto-login/whos-watching.js](features-auto-login.md#mod-whos-watching-js), [features/return-dislike/navigation.js](features-return-dislike.md#mod-navigation-js), [features/return-dislike/panel-dom.js](features-return-dislike.md#mod-panel-dom-js), [features/screensaver-fix/shorts-keep-alive.js](features-screensaver-fix.md#mod-shorts-keep-alive-js), [features/video-quality/kickstart.js](features-video-quality.md#mod-kickstart-js), [ui/panel/controls/cycle-row.js](ui-panel.md#mod-controls-cycle-row-js), [ui/panel/keyboard.js](ui-panel.md#mod-keyboard-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/shortcuts/helpers.js](ui-shortcuts.md#mod-helpers-js), [ui/shortcuts/oled.js](ui-shortcuts.md#mod-oled-js), [ui/shortcuts/playback.js](ui-shortcuts.md#mod-playback-js), [ui/shortcuts/router.js](ui-shortcuts.md#mod-router-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js)
+114 lines · imports [core/log.js](#mod-log-js) · imported by [features/auto-login/whos-watching.js](features-auto-login.md#mod-whos-watching-js), [features/screensaver-fix/shorts-keep-alive.js](features-screensaver-fix.md#mod-shorts-keep-alive-js), [features/video-quality/kickstart.js](features-video-quality.md#mod-kickstart-js), [ui/panel/controls/cycle-row.js](ui-panel.md#mod-controls-cycle-row-js), [ui/panel/keyboard.js](ui-panel.md#mod-keyboard-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/shortcuts/helpers.js](ui-shortcuts.md#mod-helpers-js), [ui/shortcuts/oled.js](ui-shortcuts.md#mod-oled-js), [ui/shortcuts/playback.js](ui-shortcuts.md#mod-playback-js), [ui/shortcuts/router.js](ui-shortcuts.md#mod-router-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js)
 
 **At load:**
 
@@ -615,17 +615,17 @@ Getters for keyCode, which and charCode on every synthetic event: neither the co
 Dispatches a synthetic keydown and keyup for a remote key (REMOTE_KEYS entry) on `target`, with keyCode/which forced the way Chromium 38 needs; marked so real-press-only listeners ignore it.
 
 - **Calls:** [createDescriptor](#fn-remote-js-createdescriptor)
-- **Called by:** [features/auto-login/whos-watching.js › attemptActiveBypass](features-auto-login.md#fn-whos-watching-js-attemptactivebypass), [features/return-dislike/panel-dom.js › triggerEnter](features-return-dislike.md#fn-panel-dom-js-triggerenter), [features/screensaver-fix/shorts-keep-alive.js › setShortsKeepAlive](features-screensaver-fix.md#fn-shorts-keep-alive-js-setshortskeepalive), [features/video-quality/kickstart.js › dismissRaisedControls](features-video-quality.md#fn-kickstart-js-dismissraisedcontrols), [ui/shortcuts/helpers.js › simulateBack](ui-shortcuts.md#fn-helpers-js-simulateback), [ui/shortcuts/oled.js › toggleOledOverlay](ui-shortcuts.md#fn-oled-js-toggleoledoverlay), [ui/shortcuts/playback.js › hideControlsAfterPause](ui-shortcuts.md#fn-playback-js-hidecontrolsafterpause), [ui/shortcuts/seek.js › doSkipChapter](ui-shortcuts.md#fn-seek-js-doskipchapter)
+- **Called by:** [features/auto-login/whos-watching.js › attemptActiveBypass](features-auto-login.md#fn-whos-watching-js-attemptactivebypass), [features/screensaver-fix/shorts-keep-alive.js › setShortsKeepAlive](features-screensaver-fix.md#fn-shorts-keep-alive-js-setshortskeepalive), [features/video-quality/kickstart.js › dismissRaisedControls](features-video-quality.md#fn-kickstart-js-dismissraisedcontrols), [ui/shortcuts/helpers.js › simulateBack](ui-shortcuts.md#fn-helpers-js-simulateback), [ui/shortcuts/oled.js › toggleOledOverlay](ui-shortcuts.md#fn-oled-js-toggleoledoverlay), [ui/shortcuts/playback.js › hideControlsAfterPause](ui-shortcuts.md#fn-playback-js-hidecontrolsafterpause), [ui/shortcuts/seek.js › doSkipChapter](ui-shortcuts.md#fn-seek-js-doskipchapter)
 
 <a id="mod-selectors-js"></a>
 
 ## core/selectors.js
 
-> Class names, ids and tag names YouTube's leanback app puts on the page. Everything that has to recognise a page, the player or a control goes through this one table, so a YouTube markup change is fixed here and nowhere else. Six-letter tokens are YouTube's obfuscated class names and change the most; the comment says what each was observed to be. The app's own ids and classes (ytaf-\*, ryd-\*) stay with the feature that creates them, and Return YouTube Dislike keeps its panel-internal selectors in its own table.
+> Class names, ids and tag names YouTube's leanback app puts on the page. Everything that has to recognise a page, the player or a control goes through this one table, so a YouTube markup change is fixed here and nowhere else. Six-letter tokens are YouTube's obfuscated class names and change the most; the comment says what each was observed to be. The app's own ids and classes (ytaf-\*) stay with the feature that creates them, and a feature keeps its panel-internal selectors in its own table.
 >
 > Read an entry as SELECTORS.NAME, pass it on, iterate it or put it in a template string, but do not call a method on it directly (SELECTORS.NAME.map(...), SELECTORS.NAME.toUpperCase()): the minifier then keeps the whole table in the bundle instead of inlining the entries used.
 
-98 lines · imported by [core/page-state.js](#mod-page-state-js), [features/auto-login/whos-watching.js](features-auto-login.md#mod-whos-watching-js), [features/comments-fix.js](features.md#mod-comments-fix-js), [features/dearrow/sweep.js](features-dearrow.md#mod-sweep-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js), [features/return-dislike/constants.js](features-return-dislike.md#mod-constants-js), [features/return-dislike/injection.js](features-return-dislike.md#mod-injection-js), [features/screensaver-fix/index.js](features-screensaver-fix.md#mod-index-js), [features/screensaver-fix/shorts-keep-alive.js](features-screensaver-fix.md#mod-shorts-keep-alive-js), [features/sponsorblock/bar.js](features-sponsorblock.md#mod-bar-js), [features/sponsorblock/labels.js](features-sponsorblock.md#mod-labels-js), [features/sponsorblock/overlay.js](features-sponsorblock.md#mod-overlay-js), [features/thumbnail-quality/rendered.js](features-thumbnail-quality.md#mod-rendered-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/video-quality/kickstart.js](features-video-quality.md#mod-kickstart-js), [features/watch/index.js](features-watch.md#mod-index-js), [ui/shortcuts/actions.js](ui-shortcuts.md#mod-actions-js), [ui/shortcuts/helpers.js](ui-shortcuts.md#mod-helpers-js), [ui/shortcuts/page.js](ui-shortcuts.md#mod-page-js), [ui/shortcuts/panels.js](ui-shortcuts.md#mod-panels-js), [ui/shortcuts/playback.js](ui-shortcuts.md#mod-playback-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js), [userScript.js](app.md#mod-userscript-js)
+94 lines · imported by [core/page-state.js](#mod-page-state-js), [features/auto-login/whos-watching.js](features-auto-login.md#mod-whos-watching-js), [features/comments-fix.js](features.md#mod-comments-fix-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js), [features/screensaver-fix/index.js](features-screensaver-fix.md#mod-index-js), [features/screensaver-fix/shorts-keep-alive.js](features-screensaver-fix.md#mod-shorts-keep-alive-js), [features/sponsorblock/bar.js](features-sponsorblock.md#mod-bar-js), [features/sponsorblock/labels.js](features-sponsorblock.md#mod-labels-js), [features/sponsorblock/overlay.js](features-sponsorblock.md#mod-overlay-js), [features/thumbnail-quality/rendered.js](features-thumbnail-quality.md#mod-rendered-js), [features/video-quality/index.js](features-video-quality.md#mod-index-js), [features/video-quality/kickstart.js](features-video-quality.md#mod-kickstart-js), [features/watch/index.js](features-watch.md#mod-index-js), [ui/shortcuts/actions.js](ui-shortcuts.md#mod-actions-js), [ui/shortcuts/helpers.js](ui-shortcuts.md#mod-helpers-js), [ui/shortcuts/page.js](ui-shortcuts.md#mod-page-js), [ui/shortcuts/panels.js](ui-shortcuts.md#mod-panels-js), [ui/shortcuts/playback.js](ui-shortcuts.md#mod-playback-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js), [userScript.js](app.md#mod-userscript-js)
 
 <a id="mod-speed-cap-js"></a>
 
@@ -715,7 +715,7 @@ Two digits: 5 is "05".
 
 > The platform: which webOS version this is (from the user agent, cached), whether it is the simulator, and the engine features the modules branch on. Read by the features that differ between webOS 3 and 4, webOS 5 and 6, and webOS 22 onward.
 
-95 lines · imports [core/log.js](#mod-log-js) · imported by [core/fetch-timeout.js](#mod-fetch-timeout-js), [features/adblock/flags.js](features-adblock.md#mod-flags-js), [features/return-dislike/constants.js](features-return-dislike.md#mod-constants-js), [features/return-dislike/navigation.js](features-return-dislike.md#mod-navigation-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/video-quality/state.js](features-video-quality.md#mod-state-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [userScript.js](app.md#mod-userscript-js)
+95 lines · imports [core/log.js](#mod-log-js) · imported by [core/fetch-timeout.js](#mod-fetch-timeout-js), [features/adblock/flags.js](features-adblock.md#mod-flags-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/video-quality/state.js](features-video-quality.md#mod-state-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [userScript.js](app.md#mod-userscript-js)
 
 **At load:**
 
@@ -726,7 +726,7 @@ Two digits: 5 is "05".
 
 The TV's webOS version from the user agent: the platform year, else the firmware (webOS 25), else the Chromium version (the simulators); 6 when nothing matches. Cached.
 
-- **Called by:** [isLegacyWebOS](#fn-webos-js-islegacywebos), [isWebOS25](#fn-webos-js-iswebos25), [features/adblock/flags.js › recomputeFilterFlags](features-adblock.md#fn-flags-js-recomputefilterflags), [features/return-dislike/navigation.js (at load)](features-return-dislike.md#mod-navigation-js), [ui/panel/pages.js › buildUITweaksPage](ui-panel.md#fn-pages-js-builduitweakspage)
+- **Called by:** [isLegacyWebOS](#fn-webos-js-islegacywebos), [isWebOS25](#fn-webos-js-iswebos25), [features/adblock/flags.js › recomputeFilterFlags](features-adblock.md#fn-flags-js-recomputefilterflags), [ui/panel/pages.js › buildUITweaksPage](ui-panel.md#fn-pages-js-builduitweakspage)
 
 <a id="fn-webos-js-iswebos25"></a>
 **`isWebOS25()`** · function, exported · L88–90
@@ -742,7 +742,7 @@ Whether the TV runs webOS 25 or later.
 Whether the TV runs webOS 6 or older (the legacy build's platforms).
 
 - **Calls:** [getWebOSVersion](#fn-webos-js-getwebosversion)
-- **Called by:** [features/return-dislike/constants.js (at load)](features-return-dislike.md#mod-constants-js), [features/sponsorblock/index.js › SponsorBlockHandler.constructor](features-sponsorblock.md#fn-index-js-sponsorblockhandler-constructor)
+- **Called by:** [features/sponsorblock/index.js › SponsorBlockHandler.constructor](features-sponsorblock.md#fn-index-js-sponsorblockhandler-constructor)
 
 <a id="mod-yt-storage-js"></a>
 

@@ -21,7 +21,7 @@
   },
   {
    "path": "core/config-options.js",
-   "lines": 283,
+   "lines": 232,
    "header": "Every setting the app knows about, with its default and the label the options panel shows, plus the value tables the cycle controls choose from. An option's `upgrade(stored)` turns a value an older build stored into this build's (core/config.js applies it when the settings load).",
    "imports": [
     {
@@ -41,8 +41,6 @@
     "uiThemes",
     "logoStyles",
     "thumbnailQualityModes",
-    "dearrowTitleFormats",
-    "dearrowThumbnailFallbacks",
     "clockModes",
     "shortcutActions",
     "sbModes",
@@ -61,7 +59,7 @@
   },
   {
    "path": "core/config.js",
-   "lines": 168,
+   "lines": 166,
    "header": "Persisted settings: one localStorage entry, read into memory once, written back debounced, with change listeners per key. The option tables themselves live in config-options.js and are re-exported here so callers import one module.",
    "imports": [
     {
@@ -83,17 +81,10 @@
     "features/auto-login/index.js",
     "features/auto-login/previews.js",
     "features/auto-login/whos-watching.js",
-    "features/dearrow/index.js",
-    "features/dearrow/lookup.js",
-    "features/dearrow/sweep.js",
-    "features/dearrow/thumbs.js",
-    "features/dearrow/tiles.js",
-    "features/dearrow/titles.js",
     "features/force-codec/index.js",
     "features/logo-style.js",
     "features/playback-speed/controller.js",
     "features/playback-speed/index.js",
-    "features/return-dislike/bootstrap.js",
     "features/sponsorblock/blue-key.js",
     "features/sponsorblock/bootstrap.js",
     "features/sponsorblock/constants.js",
@@ -125,8 +116,6 @@
     "forcePreviewModes",
     "videoCodecModes",
     "uiThemes",
-    "dearrowTitleFormats",
-    "dearrowThumbnailFallbacks",
     "clockModes",
     "configGetDesc",
     "configRead",
@@ -173,8 +162,6 @@
    "header": "What an instance registers and must undo on destroy, in one bag: listeners, observers, timers and any other undo. dispose() runs them in reverse order of registration.",
    "imports": [],
    "importedBy": [
-    "features/return-dislike/index.js",
-    "features/return-dislike/panel-observer.js",
     "features/sponsorblock/index.js",
     "features/video-quality/index.js",
     "features/watch/index.js"
@@ -198,7 +185,6 @@
    "header": "DOM helpers shared by the features: the cached <video> lookup, waiting for a node to appear, and a plain debounce.",
    "imports": [],
    "importedBy": [
-    "features/return-dislike/panel-observer.js",
     "features/screensaver-fix/index.js",
     "features/sponsorblock/bar.js",
     "features/sponsorblock/index.js",
@@ -247,8 +233,6 @@
     }
    ],
    "importedBy": [
-    "features/dearrow/lookup.js",
-    "features/return-dislike/api.js",
     "features/sponsorblock/api.js"
    ],
    "exports": [
@@ -355,11 +339,9 @@
     "features/auto-login/log.js",
     "features/block-webos-cast.ts",
     "features/comments-fix.js",
-    "features/dearrow/log.js",
     "features/force-codec/log.js",
     "features/lang-settings-fix.ts",
     "features/playback-speed/log.js",
-    "features/return-dislike/index.js",
     "features/screensaver-fix/log.js",
     "features/sponsorblock/index.js",
     "features/sponsorblock/labels.js",
@@ -438,8 +420,8 @@
   },
   {
    "path": "core/per-video.js",
-   "lines": 73,
-   "header": "One instance per watched video, shared by SponsorBlock and the dislike counter: created when the watch page shows a video, kept across hash changes within the same video, torn down when the video changes, off the watch page, when its setting changes (and then recreated) and on unload.",
+   "lines": 72,
+   "header": "One instance per watched video (SponsorBlock's): created when the watch page shows a video, kept across hash changes within the same video, torn down when the video changes, off the watch page, when its setting changes (and then recreated) and on unload.",
    "imports": [
     {
      "from": "core/config.js",
@@ -449,7 +431,6 @@
     }
    ],
    "importedBy": [
-    "features/return-dislike/bootstrap.js",
     "features/sponsorblock/bootstrap.js"
    ],
    "exports": [
@@ -501,8 +482,6 @@
    ],
    "importedBy": [
     "features/auto-login/whos-watching.js",
-    "features/return-dislike/navigation.js",
-    "features/return-dislike/panel-dom.js",
     "features/screensaver-fix/shorts-keep-alive.js",
     "features/video-quality/kickstart.js",
     "ui/panel/controls/cycle-row.js",
@@ -539,17 +518,14 @@
   },
   {
    "path": "core/selectors.js",
-   "lines": 98,
-   "header": "Class names, ids and tag names YouTube's leanback app puts on the page. Everything that has to recognise a page, the player or a control goes through this one table, so a YouTube markup change is fixed here and nowhere else. Six-letter tokens are YouTube's obfuscated class names and change the most; the comment says what each was observed to be. The app's own ids and classes (ytaf-*, ryd-*) stay with the feature that creates them, and Return YouTube Dislike keeps its panel-internal selectors in its own table.\n\nRead an entry as SELECTORS.NAME, pass it on, iterate it or put it in a template string, but do not call a method on it directly (SELECTORS.NAME.map(...), SELECTORS.NAME.toUpperCase()): the minifier then keeps the whole table in the bundle instead of inlining the entries used.",
+   "lines": 94,
+   "header": "Class names, ids and tag names YouTube's leanback app puts on the page. Everything that has to recognise a page, the player or a control goes through this one table, so a YouTube markup change is fixed here and nowhere else. Six-letter tokens are YouTube's obfuscated class names and change the most; the comment says what each was observed to be. The app's own ids and classes (ytaf-*) stay with the feature that creates them, and a feature keeps its panel-internal selectors in its own table.\n\nRead an entry as SELECTORS.NAME, pass it on, iterate it or put it in a template string, but do not call a method on it directly (SELECTORS.NAME.map(...), SELECTORS.NAME.toUpperCase()): the minifier then keeps the whole table in the bundle instead of inlining the entries used.",
    "imports": [],
    "importedBy": [
     "core/page-state.js",
     "features/auto-login/whos-watching.js",
     "features/comments-fix.js",
-    "features/dearrow/sweep.js",
     "features/playback-speed/index.js",
-    "features/return-dislike/constants.js",
-    "features/return-dislike/injection.js",
     "features/screensaver-fix/index.js",
     "features/screensaver-fix/shorts-keep-alive.js",
     "features/sponsorblock/bar.js",
@@ -660,8 +636,6 @@
    "importedBy": [
     "core/fetch-timeout.js",
     "features/adblock/flags.js",
-    "features/return-dislike/constants.js",
-    "features/return-dislike/navigation.js",
     "features/sponsorblock/index.js",
     "features/video-quality/state.js",
     "ui/panel/pages.js",
@@ -751,7 +725,6 @@
       "enableTrackingBlock",
       "upgradeThumbnails",
       "enableSponsorBlock",
-      "enableReturnYouTubeDislike",
       "forceHighResVideo",
       "enableLegacyEmojiFix",
       "removeGlobalShorts",
@@ -920,7 +893,7 @@
   },
   {
    "path": "features/adblock/constants.js",
-   "lines": 54,
+   "lines": 53,
    "header": "String tables shared by the adblock modules.",
    "imports": [],
    "importedBy": [
@@ -950,8 +923,7 @@
       "enableLegacyEmojiFix",
       "hideEndcards",
       "upgradeThumbnails",
-      "enableRowsAhead",
-      "enableDeArrow"
+      "enableRowsAhead"
      ]
     }
    },
@@ -1037,7 +1009,7 @@
   },
   {
    "path": "features/adblock/flags.js",
-   "lines": 97,
+   "lines": 93,
    "header": "The filter switches as one mutable snapshot, refreshed when a setting changes rather than re-read on every JSON.parse.",
    "imports": [
     {
@@ -1229,7 +1201,7 @@
   },
   {
    "path": "features/adblock/parse-hook.js",
-   "lines": 182,
+   "lines": 179,
    "header": "The JSON.parse hook: classifies each InnerTube response and runs the filters, the thumbnail rewrite and the text fixes over it before the app sees it.",
    "imports": [
     {
@@ -1248,12 +1220,6 @@
      "from": "features/thumbnail-quality/index.js",
      "names": [
       "upgradeResponseThumbnails"
-     ]
-    },
-    {
-     "from": "features/dearrow/index.js",
-     "names": [
-      "applyDeArrow"
      ]
     },
     {
@@ -1916,505 +1882,6 @@
    ]
   },
   {
-   "path": "features/dearrow/constants.js",
-   "lines": 70,
-   "header": "DeArrow's servers, limits and timings (features/dearrow).",
-   "imports": [],
-   "importedBy": [
-    "features/dearrow/index.js",
-    "features/dearrow/lookup.js",
-    "features/dearrow/sweep.js",
-    "features/dearrow/thumbs.js",
-    "features/dearrow/tiles.js"
-   ],
-   "exports": [
-    "BRANDING_API",
-    "THUMBNAIL_API",
-    "FETCH_TIMEOUT_MS",
-    "MAX_CONCURRENT",
-    "CACHE_LIMIT",
-    "COPY_WIDTHS",
-    "DATA_URL_WIDTH",
-    "BLOB_BUDGET",
-    "DATA_URL_BUDGET",
-    "SWEEP_DELAY",
-    "RANDOM_FRAME_RETRIES_MS",
-    "TILES_PER_VIDEO",
-    "BADGE_MARK",
-    "SCAN_MAX_NODES",
-    "SCAN_MAX_DEPTH",
-    "AUTOGENERATED_FRAMES",
-    "BLANK_THUMB",
-    "VIDEO_ID_RE",
-    "DEARROW_CONFIG_KEYS"
-   ],
-   "atLoad": {
-    "settings": {
-     "other": [
-      "enableDeArrow",
-      "dearrowCrowdTitles",
-      "dearrowTitleFormatting",
-      "dearrowCleanEmojis",
-      "dearrowCrowdThumbnails",
-      "dearrowThumbnailFallback",
-      "dearrowShowBadge",
-      "upgradeThumbnails",
-      "thumbnailQualityMode"
-     ]
-    }
-   },
-   "functions": []
-  },
-  {
-   "path": "features/dearrow/formatter.js",
-   "lines": 13,
-   "header": "DeArrow's title formatter (src/vendor/dearrow, GPL-3.0), as the feature uses it. The legacy build has formatter-absent.js in its place (webpack.config.js): the formatter is 48 KiB there, and of the TVs that build runs on only webOS 5 and 6 could use it.",
-   "imports": [
-    {
-     "from": "vendor/dearrow/shim.js",
-     "names": [
-      "unicodeRegExpSupported"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/dearrow/titles.js"
-   ],
-   "exports": [
-    "formatTitleInternal",
-    "TitleFormatting",
-    "formattingSupported"
-   ],
-   "atLoad": {},
-   "functions": []
-  },
-  {
-   "path": "features/dearrow/index.js",
-   "lines": 123,
-   "header": "DeArrow (https://dearrow.ajay.app): crowdsourced titles and thumbnails in place of clickbait ones, on the tiles of shelves and grids. Off by default; its own page in the options panel.\n\nA branding lookup takes a request per video, which the JSON.parse hook cannot wait for, so it works in two halves: 1. applyDeArrow() runs in the parse hook (adblock/parse-hook.js) and writes what is already decided into every tile of the response, so those render right the first time; videos not seen before are queued for a lookup (lookup.js). 2. When a lookup lands, the tiles already on screen are patched (sweep.js). Tiles are rebuilt as the user moves around, so the sweep also follows every parse and key press. What is shown follows the extension: the top title or thumbnail unless it is the original or voted below zero (a locked one always wins), with the extension's own title formatter (src/vendor/dearrow).",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead",
-      "configAddChangeListener"
-     ]
-    },
-    {
-     "from": "features/dearrow/constants.js",
-     "names": [
-      "CACHE_LIMIT",
-      "DEARROW_CONFIG_KEYS",
-      "SWEEP_DELAY"
-     ]
-    },
-    {
-     "from": "features/dearrow/state.js",
-     "names": [
-      "videos",
-      "nextGeneration"
-     ]
-    },
-    {
-     "from": "features/dearrow/thumbs.js",
-     "names": [
-      "forgetThumbs",
-      "thumbsFull"
-     ]
-    },
-    {
-     "from": "features/dearrow/tiles.js",
-     "names": [
-      "patchResponseTiles",
-      "unpatchResponses",
-      "applyToVideo"
-     ]
-    },
-    {
-     "from": "features/dearrow/sweep.js",
-     "names": [
-      "sweepTiles"
-     ]
-    },
-    {
-     "from": "features/dearrow/lookup.js",
-     "names": [
-      "queueLookups",
-      "clearQueue",
-      "setChangeHandler"
-     ]
-    },
-    {
-     "from": "features/dearrow/log.js",
-     "names": [
-      "log"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/adblock/parse-hook.js",
-    "ui/panel/pages.js"
-   ],
-   "exports": [
-    "titleFormattingSupported",
-    "applyDeArrow"
-   ],
-   "atLoad": {
-    "calls": [
-     "features/dearrow/lookup.js#setChangeHandler",
-     "features/dearrow/tiles.js#applyToVideo",
-     "features/dearrow/index.js#scheduleSweep",
-     "core/config.js#configAddChangeListener",
-     "features/dearrow/index.js#onSettingsChange"
-    ],
-    "events": {
-     "listen": [
-      "keydown"
-     ]
-    }
-   },
-   "functions": [
-    "features/dearrow/index.js#cancelSweep",
-    "features/dearrow/index.js#scheduleSweep",
-    "features/dearrow/index.js#restoreTiles",
-    "features/dearrow/index.js#wipe",
-    "features/dearrow/index.js#applyDeArrow",
-    "features/dearrow/index.js#onSettingsChange"
-   ]
-  },
-  {
-   "path": "features/dearrow/log.js",
-   "lines": 4,
-   "header": "The logger of the feature's modules: their messages carry [DeArrow] (core/log.js).",
-   "imports": [
-    {
-     "from": "core/log.js",
-     "names": [
-      "createLogger"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/dearrow/index.js",
-    "features/dearrow/lookup.js"
-   ],
-   "exports": [
-    "log"
-   ],
-   "atLoad": {
-    "calls": [
-     "core/log.js#createLogger"
-    ]
-   },
-   "functions": []
-  },
-  {
-   "path": "features/dearrow/lookup.js",
-   "lines": 195,
-   "header": "Asking DeArrow about videos and deciding what their tiles show: a queue of lookups (four at a time, in screen order), the branding answer per video, then the title and the thumbnail, with each improvement handed to the sweep. A random frame can take the thumbnail server tens of seconds to render, so YouTube's auto-generated start frame stands in until it does, as in the extension.",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "core/fetch-timeout.js",
-     "names": [
-      "fetchJsonWithTimeout"
-     ]
-    },
-    {
-     "from": "features/dearrow/constants.js",
-     "names": [
-      "AUTOGENERATED_FRAMES",
-      "BLANK_THUMB",
-      "BRANDING_API",
-      "FETCH_TIMEOUT_MS",
-      "MAX_CONCURRENT",
-      "RANDOM_FRAME_RETRIES_MS",
-      "THUMBNAIL_API"
-     ]
-    },
-    {
-     "from": "features/dearrow/state.js",
-     "names": [
-      "videos",
-      "currentGeneration"
-     ]
-    },
-    {
-     "from": "features/dearrow/thumbs.js",
-     "names": [
-      "loadThumb"
-     ]
-    },
-    {
-     "from": "features/dearrow/titles.js",
-     "names": [
-      "isTrusted",
-      "resolveTitle",
-      "crowdsourcedTitle"
-     ]
-    },
-    {
-     "from": "features/dearrow/log.js",
-     "names": [
-      "log"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/dearrow/index.js"
-   ],
-   "exports": [
-    "setChangeHandler",
-    "queueLookups",
-    "clearQueue"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/dearrow/lookup.js#onChange",
-    "features/dearrow/lookup.js#setChangeHandler",
-    "features/dearrow/lookup.js#thumbnailUrl",
-    "features/dearrow/lookup.js#randomFrameTime",
-    "features/dearrow/lookup.js#resolveThumb",
-    "features/dearrow/lookup.js#resolveThumb.retry",
-    "features/dearrow/lookup.js#resolve",
-    "features/dearrow/lookup.js#fetchBranding",
-    "features/dearrow/lookup.js#lookup",
-    "features/dearrow/lookup.js#pump",
-    "features/dearrow/lookup.js#pump.next",
-    "features/dearrow/lookup.js#queueLookups",
-    "features/dearrow/lookup.js#clearQueue"
-   ]
-  },
-  {
-   "path": "features/dearrow/state.js",
-   "lines": 29,
-   "header": "What DeArrow knows, shared by its modules: the videos seen, and the generation that a settings change or a wipe bumps so that work started before it does not write stale output.",
-   "imports": [],
-   "importedBy": [
-    "features/dearrow/index.js",
-    "features/dearrow/lookup.js",
-    "features/dearrow/sweep.js",
-    "features/dearrow/tiles.js"
-   ],
-   "exports": [
-    "videos",
-    "currentGeneration",
-    "nextGeneration"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/dearrow/state.js#currentGeneration",
-    "features/dearrow/state.js#nextGeneration"
-   ]
-  },
-  {
-   "path": "features/dearrow/sweep.js",
-   "lines": 114,
-   "header": "DeArrow on screen: the rendered tiles brought in line with what is decided for their videos, or put back to YouTube's own. A tile is matched to its video by the thumbnail it shows (YouTube's URL carries the id, DeArrow's small copies are looked up), and only text or images this feature wrote are ever put back. The DeArrow badge YouTube draws from the responses (tiles.js) gets the logo here, or is hidden while the badge is off.",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "core/selectors.js",
-     "names": [
-      "SELECTORS"
-     ]
-    },
-    {
-     "from": "features/dearrow/constants.js",
-     "names": [
-      "VIDEO_ID_RE",
-      "BADGE_MARK"
-     ]
-    },
-    {
-     "from": "features/dearrow/dearrow-logo.png",
-     "names": [
-      "default as logoUrl"
-     ]
-    },
-    {
-     "from": "features/dearrow/dearrow.css",
-     "names": []
-    },
-    {
-     "from": "features/dearrow/state.js",
-     "names": [
-      "videos"
-     ]
-    },
-    {
-     "from": "features/dearrow/thumbs.js",
-     "names": [
-      "thumbOwner"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/dearrow/index.js"
-   ],
-   "exports": [
-    "sweepTiles"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/dearrow/sweep.js#setText",
-    "features/dearrow/sweep.js#tileVideo",
-    "features/dearrow/sweep.js#sweepThumb",
-    "features/dearrow/sweep.js#sweepTitle",
-    "features/dearrow/sweep.js#sweepBadges",
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
-  },
-  {
-   "path": "features/dearrow/thumbs.js",
-   "lines": 132,
-   "header": "DeArrow's thumbnails, downloaded once and drawn as a 16:9 copy as wide as Max Thumbnail Quality makes the tiles around them (COPY_WIDTHS), as a blob URL (a data URL on webOS 3 and 4, where canvas has no toBlob), remembered with the video it belongs to.",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "features/dearrow/constants.js",
-     "names": [
-      "COPY_WIDTHS",
-      "DATA_URL_WIDTH",
-      "BLOB_BUDGET",
-      "DATA_URL_BUDGET",
-      "CACHE_LIMIT"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/dearrow/index.js",
-    "features/dearrow/lookup.js",
-    "features/dearrow/sweep.js"
-   ],
-   "exports": [
-    "thumbOwner",
-    "thumbsFull",
-    "copyWidth",
-    "loadThumb",
-    "forgetThumbs"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/dearrow/thumbs.js#canBlob",
-    "features/dearrow/thumbs.js#thumbOwner",
-    "features/dearrow/thumbs.js#thumbsFull",
-    "features/dearrow/thumbs.js#copyWidth",
-    "features/dearrow/thumbs.js#drawCopy",
-    "features/dearrow/thumbs.js#drawCopy.img.onerror",
-    "features/dearrow/thumbs.js#drawCopy.img.onload",
-    "features/dearrow/thumbs.js#drawCopy.img.onload.finish",
-    "features/dearrow/thumbs.js#loadThumb",
-    "features/dearrow/thumbs.js#forgetThumbs"
-   ]
-  },
-  {
-   "path": "features/dearrow/tiles.js",
-   "lines": 287,
-   "header": "DeArrow in the responses: every video tile of an InnerTube response, found by a bounded walk, is remembered with its video and gets what is decided for it: the title, the thumbnail, and the DeArrow badge in its metadata line. A tile seen before its video's answer is written to again when the answer lands (applyToVideo), so YouTube draws it right whenever it draws it from that response (scrolling, coming back to a page). YouTube keeps parsed responses and renders cached pages from them, so what each tile had is recorded once and can be put back.",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "features/dearrow/constants.js",
-     "names": [
-      "TILES_PER_VIDEO",
-      "SCAN_MAX_DEPTH",
-      "SCAN_MAX_NODES",
-      "BADGE_MARK"
-     ]
-    },
-    {
-     "from": "features/dearrow/state.js",
-     "names": [
-      "videos"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/dearrow/index.js"
-   ],
-   "exports": [
-    "applyToVideo",
-    "unpatchResponses",
-    "patchResponseTiles"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/dearrow/tiles.js#parseDuration",
-    "features/dearrow/tiles.js#readTile",
-    "features/dearrow/tiles.js#lineItemLists",
-    "features/dearrow/tiles.js#isBadge",
-    "features/dearrow/tiles.js#learnBadge",
-    "features/dearrow/tiles.js#makeBadge",
-    "features/dearrow/tiles.js#badgeSlot",
-    "features/dearrow/tiles.js#originalOf",
-    "features/dearrow/tiles.js#restoreTitle",
-    "features/dearrow/tiles.js#removeBadge",
-    "features/dearrow/tiles.js#applyToTile",
-    "features/dearrow/tiles.js#applyToVideo",
-    "features/dearrow/tiles.js#unpatchResponses",
-    "features/dearrow/tiles.js#remember",
-    "features/dearrow/tiles.js#patchResponseTiles"
-   ]
-  },
-  {
-   "path": "features/dearrow/titles.js",
-   "lines": 63,
-   "header": "DeArrow's titles: the crowdsourced one when it is trusted, else YouTube's own, either formatted as Title formatting says by the extension's own formatter (formatter.js; the legacy build has none, and keeps titles as written).",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "features/dearrow/formatter.js",
-     "names": [
-      "formatTitleInternal",
-      "TitleFormatting",
-      "formattingSupported"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/dearrow/lookup.js"
-   ],
-   "exports": [
-    "titleFormattingSupported",
-    "isTrusted",
-    "crowdsourcedTitle",
-    "resolveTitle"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/dearrow/titles.js#isTrusted",
-    "features/dearrow/titles.js#formatTitle",
-    "features/dearrow/titles.js#crowdsourcedTitle",
-    "features/dearrow/titles.js#resolveTitle"
-   ]
-  },
-  {
    "path": "features/force-codec/codecs.js",
    "lines": 96,
    "header": "Codec recognition and policy: the names as they appear in MIME strings and format entries, what the current mode allows, and whether the platform can actually drive a codec.",
@@ -2927,470 +2394,6 @@
     "features/playback-speed/native-menu.js#wrapRate.wrapped",
     "features/playback-speed/native-menu.js#hookRateAssignments",
     "features/playback-speed/native-menu.js#bindPlayerRate"
-   ]
-  },
-  {
-   "path": "features/return-dislike/api.js",
-   "lines": 34,
-   "header": "The Return YouTube Dislike API and its short-lived in-memory cache.",
-   "imports": [
-    {
-     "from": "features/return-dislike/constants.js",
-     "names": [
-      "API",
-      "TIMING"
-     ]
-    },
-    {
-     "from": "core/fetch-timeout.js",
-     "names": [
-      "fetchJsonWithTimeout"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/index.js"
-   ],
-   "exports": [
-    "getCachedDislikes",
-    "setCachedDislikes",
-    "fetchDislikeCount"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/return-dislike/api.js#getCachedDislikes",
-    "features/return-dislike/api.js#setCachedDislikes",
-    "features/return-dislike/api.js#fetchDislikeCount"
-   ]
-  },
-  {
-   "path": "features/return-dislike/bootstrap.js",
-   "lines": 23,
-   "header": "Global start: one instance per watched video (core/per-video.js). The instance exists even with the dislike count off: the description panel's keyboard navigation is its too.",
-   "imports": [
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "core/per-video.js",
-     "names": [
-      "bootstrapPerVideo"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/index.js",
-    "ui/shortcuts/panels.js"
-   ],
-   "exports": [
-    "getReturnDislike",
-    "bootstrapReturnDislike"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/return-dislike/bootstrap.js#live",
-    "features/return-dislike/bootstrap.js#getReturnDislike",
-    "features/return-dislike/bootstrap.js#bootstrapReturnDislike"
-   ]
-  },
-  {
-   "path": "features/return-dislike/constants.js",
-   "lines": 49,
-   "header": "Timing, the API, feature detection and the description panel's selectors.",
-   "imports": [
-    {
-     "from": "core/selectors.js",
-     "names": [
-      "SELECTORS"
-     ]
-    },
-    {
-     "from": "core/webos.js",
-     "names": [
-      "isLegacyWebOS"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/api.js",
-    "features/return-dislike/focus-tracking.js",
-    "features/return-dislike/index.js",
-    "features/return-dislike/injection.js",
-    "features/return-dislike/navigation.js",
-    "features/return-dislike/panel-dom.js",
-    "features/return-dislike/panel-observer.js"
-   ],
-   "exports": [
-    "API",
-    "TIMING",
-    "HAS_INTERSECTION_OBSERVER",
-    "NO_FLEX_GAP",
-    "DISLIKE_PLACEHOLDER",
-    "PANEL"
-   ],
-   "atLoad": {
-    "calls": [
-     "core/webos.js#isLegacyWebOS"
-    ],
-    "selectors": [
-     "FOCUS_CLASS"
-    ]
-   },
-   "functions": []
-  },
-  {
-   "path": "features/return-dislike/focus-tracking.js",
-   "lines": 66,
-   "header": "Focus is the only reliable signal for the role=\"dialog\" description panel on webOS: these capture-phase listeners detect the panel, track whether focus is inside it and keep the highlight in step. `ryd` is the instance.",
-   "imports": [
-    {
-     "from": "features/return-dislike/constants.js",
-     "names": [
-      "TIMING"
-     ]
-    },
-    {
-     "from": "features/return-dislike/panel-dom.js",
-     "names": [
-      "closestPanel",
-      "closestMenuItem"
-     ]
-    },
-    {
-     "from": "features/return-dislike/panel-observer.js",
-     "names": [
-      "releasePanel",
-      "pollForPanel",
-      "setupPanel"
-     ]
-    },
-    {
-     "from": "features/return-dislike/navigation.js",
-     "names": [
-      "updateVisualState",
-      "clearAllHighlights",
-      "handleNavigation"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/index.js"
-   ],
-   "exports": [
-    "attachListeners"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/return-dislike/focus-tracking.js#attachListeners",
-    "features/return-dislike/focus-tracking.js#handleFocusIn",
-    "features/return-dislike/focus-tracking.js#handleFocusOut"
-   ]
-  },
-  {
-   "path": "features/return-dislike/index.js",
-   "lines": 158,
-   "header": "Return YouTube Dislike: shows the dislike count in the description panel and keeps keyboard navigation working inside it. This class owns the fields, the lifecycle and the data fetch; the sibling modules take the instance as `ryd`.",
-   "imports": [
-    {
-     "from": "features/return-dislike/return-dislike.css",
-     "names": []
-    },
-    {
-     "from": "features/return-dislike/constants.js",
-     "names": [
-      "TIMING"
-     ]
-    },
-    {
-     "from": "core/disposables.js",
-     "names": [
-      "createDisposables"
-     ]
-    },
-    {
-     "from": "core/log.js",
-     "names": [
-      "createLogger"
-     ]
-    },
-    {
-     "from": "features/return-dislike/api.js",
-     "names": [
-      "getCachedDislikes",
-      "setCachedDislikes",
-      "fetchDislikeCount"
-     ]
-    },
-    {
-     "from": "features/return-dislike/injection.js",
-     "names": [
-      "updateDislikeDisplay",
-      "clearHeaderShift"
-     ]
-    },
-    {
-     "from": "features/return-dislike/panel-observer.js",
-     "names": [
-      "findPanelNow",
-      "pollForPanel",
-      "stopPanelPoll",
-      "releasePanel"
-     ]
-    },
-    {
-     "from": "features/return-dislike/focus-tracking.js",
-     "names": [
-      "attachListeners"
-     ]
-    },
-    {
-     "from": "features/return-dislike/bootstrap.js",
-     "names": [
-      "bootstrapReturnDislike"
-     ]
-    }
-   ],
-   "importedBy": [
-    "userScript.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "calls": [
-     "features/return-dislike/bootstrap.js#bootstrapReturnDislike",
-     "features/return-dislike/index.js#ReturnYouTubeDislike.constructor"
-    ]
-   },
-   "functions": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.constructor",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.schedule",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.init",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.pollForPanel",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.destroy"
-   ]
-  },
-  {
-   "path": "features/return-dislike/injection.js",
-   "lines": 257,
-   "header": "Puts the dislike factoid into the description panel and keeps the rows below it where YouTube expects them.",
-   "imports": [
-    {
-     "from": "features/return-dislike/constants.js",
-     "names": [
-      "DISLIKE_PLACEHOLDER",
-      "NO_FLEX_GAP",
-      "PANEL"
-     ]
-    },
-    {
-     "from": "features/return-dislike/panel-dom.js",
-     "names": [
-      "formatNumber"
-     ]
-    },
-    {
-     "from": "core/selectors.js",
-     "names": [
-      "SELECTORS"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/index.js",
-    "features/return-dislike/panel-observer.js"
-   ],
-   "exports": [
-    "updateDislikeDisplay",
-    "clearHeaderShift",
-    "checkAndInjectDislike"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/return-dislike/injection.js#dislikeText",
-    "features/return-dislike/injection.js#updateDislikeDisplay",
-    "features/return-dislike/injection.js#markHeaderRow",
-    "features/return-dislike/injection.js#rootFontSize",
-    "features/return-dislike/injection.js#findHeaderRow",
-    "features/return-dislike/injection.js#measureGrowth",
-    "features/return-dislike/injection.js#applyShift",
-    "features/return-dislike/injection.js#compensateHeaderGrowth",
-    "features/return-dislike/injection.js#clearHeaderShift",
-    "features/return-dislike/injection.js#detectLayout",
-    "features/return-dislike/injection.js#insertDislikeFactoid",
-    "features/return-dislike/injection.js#checkAndInjectDislike"
-   ]
-  },
-  {
-   "path": "features/return-dislike/navigation.js",
-   "lines": 217,
-   "header": "Keyboard navigation inside the description panel: which menu item is highlighted, moving between items, and forwarding Enter.",
-   "imports": [
-    {
-     "from": "features/return-dislike/constants.js",
-     "names": [
-      "PANEL",
-      "TIMING"
-     ]
-    },
-    {
-     "from": "features/return-dislike/panel-dom.js",
-     "names": [
-      "triggerEnter",
-      "closestMenuItem"
-     ]
-    },
-    {
-     "from": "core/remote.js",
-     "names": [
-      "SYNTHETIC_KEY_FLAG"
-     ]
-    },
-    {
-     "from": "core/webos.js",
-     "names": [
-      "getWebOSVersion"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/focus-tracking.js",
-    "features/return-dislike/panel-observer.js"
-   ],
-   "exports": [
-    "updateVisualState",
-    "clearAllHighlights",
-    "handleNavigation"
-   ],
-   "atLoad": {
-    "calls": [
-     "core/webos.js#getWebOSVersion"
-    ]
-   },
-   "functions": [
-    "features/return-dislike/navigation.js#scrollItemIntoView",
-    "features/return-dislike/navigation.js#refreshMenuCache",
-    "features/return-dislike/navigation.js#dynamicList",
-    "features/return-dislike/navigation.js#updateVisualState",
-    "features/return-dislike/navigation.js#toggleParentFocus",
-    "features/return-dislike/navigation.js#clearAllHighlights",
-    "features/return-dislike/navigation.js#pressEnter",
-    "features/return-dislike/navigation.js#resolveFocusedIndex",
-    "features/return-dislike/navigation.js#moveFocus",
-    "features/return-dislike/navigation.js#handleNavigation"
-   ]
-  },
-  {
-   "path": "features/return-dislike/panel-dom.js",
-   "lines": 36,
-   "header": "DOM helpers with no instance state: ancestor walks, number formatting and the synthetic Enter press.",
-   "imports": [
-    {
-     "from": "features/return-dislike/constants.js",
-     "names": [
-      "PANEL"
-     ]
-    },
-    {
-     "from": "core/remote.js",
-     "names": [
-      "sendKey",
-      "REMOTE_KEYS"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/focus-tracking.js",
-    "features/return-dislike/injection.js",
-    "features/return-dislike/navigation.js",
-    "features/return-dislike/panel-observer.js"
-   ],
-   "exports": [
-    "closestPanel",
-    "closestMenuItem",
-    "formatNumber",
-    "triggerEnter"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/return-dislike/panel-dom.js#closestPanel",
-    "features/return-dislike/panel-dom.js#closestMenuItem",
-    "features/return-dislike/panel-dom.js#formatNumber",
-    "features/return-dislike/panel-dom.js#triggerEnter"
-   ]
-  },
-  {
-   "path": "features/return-dislike/panel-observer.js",
-   "lines": 187,
-   "header": "Finding the description panel and watching it: one look, a bounded poll as the safety net, a MutationObserver for its content and an IntersectionObserver for when it is actually on screen. `ryd` is the instance.",
-   "imports": [
-    {
-     "from": "features/return-dislike/constants.js",
-     "names": [
-      "HAS_INTERSECTION_OBSERVER",
-      "PANEL",
-      "TIMING"
-     ]
-    },
-    {
-     "from": "core/disposables.js",
-     "names": [
-      "createDisposables"
-     ]
-    },
-    {
-     "from": "core/dom.js",
-     "names": [
-      "pollUntil"
-     ]
-    },
-    {
-     "from": "features/return-dislike/injection.js",
-     "names": [
-      "checkAndInjectDislike"
-     ]
-    },
-    {
-     "from": "features/return-dislike/navigation.js",
-     "names": [
-      "updateVisualState",
-      "clearAllHighlights"
-     ]
-    },
-    {
-     "from": "features/return-dislike/panel-dom.js",
-     "names": [
-      "closestMenuItem"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/return-dislike/focus-tracking.js",
-    "features/return-dislike/index.js"
-   ],
-   "exports": [
-    "releasePanel",
-    "stopPanelPoll",
-    "findPanelNow",
-    "pollForPanel",
-    "setupPanel"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/return-dislike/panel-observer.js#resetMenuCache",
-    "features/return-dislike/panel-observer.js#releasePanel",
-    "features/return-dislike/panel-observer.js#stopPanelPoll",
-    "features/return-dislike/panel-observer.js#findPanelNow",
-    "features/return-dislike/panel-observer.js#pollForPanel",
-    "features/return-dislike/panel-observer.js#pollForPanel.round",
-    "features/return-dislike/panel-observer.js#setupPanel",
-    "features/return-dislike/panel-observer.js#watchPanelContent",
-    "features/return-dislike/panel-observer.js#watchPanelVisibility",
-    "features/return-dislike/panel-observer.js#disconnectPanelObservers",
-    "features/return-dislike/panel-observer.js#ownMutations",
-    "features/return-dislike/panel-observer.js#handlePanelMutation"
    ]
   },
   {
@@ -6147,23 +5150,15 @@
   },
   {
    "path": "ui/panel/pages.js",
-   "lines": 249,
-   "header": "The five pages of the options panel. Each builder returns its page element; the panel appends it and decides when it is built (Main up front, the rest one per frame once the panel is on screen).",
+   "lines": 190,
+   "header": "The four pages of the options panel. Each builder returns its page element; the panel appends it and decides when it is built (Main up front, the rest one per frame once the panel is on screen).",
    "imports": [
     {
      "from": "core/config.js",
      "names": [
       "configRead",
       "configAddChangeListener",
-      "dearrowTitleFormats",
-      "dearrowThumbnailFallbacks",
       "clockModes"
-     ]
-    },
-    {
-     "from": "features/dearrow/index.js",
-     "names": [
-      "titleFormattingSupported"
      ]
     },
     {
@@ -6224,7 +5219,6 @@
    "exports": [
     "buildMainPage",
     "buildSponsorPage",
-    "buildDeArrowPage",
     "buildShortcutsPage",
     "buildUITweaksPage"
    ],
@@ -6235,15 +5229,13 @@
     "ui/panel/pages.js#buildMainPage",
     "ui/panel/pages.js#buildMainPage.updateDependencyState",
     "ui/panel/pages.js#buildSponsorPage",
-    "ui/panel/pages.js#buildDeArrowPage",
-    "ui/panel/pages.js#buildDeArrowPage.sync",
     "ui/panel/pages.js#buildShortcutsPage",
     "ui/panel/pages.js#buildUITweaksPage"
    ]
   },
   {
    "path": "ui/panel/panel.js",
-   "lines": 296,
+   "lines": 289,
    "header": "The options panel: the container and its tab menu, showing and hiding it and keeping focus inside it.",
    "imports": [
     {
@@ -6299,7 +5291,6 @@
      "names": [
       "buildMainPage",
       "buildSponsorPage",
-      "buildDeArrowPage",
       "buildShortcutsPage",
       "buildUITweaksPage"
      ]
@@ -6605,7 +5596,6 @@
     "ui/shortcuts/bindings.js",
     "ui/shortcuts/helpers.js",
     "ui/shortcuts/page.js",
-    "ui/shortcuts/panels.js",
     "ui/shortcuts/playback.js",
     "ui/shortcuts/seek.js"
    ],
@@ -6692,7 +5682,7 @@
   },
   {
    "path": "ui/shortcuts/panels.js",
-   "lines": 114,
+   "lines": 99,
    "header": "The watch-page side panels: comments (or live chat), description and the save dialog, each toggled like the remote would: Back when it is open, its button when it is not.",
    "imports": [
     {
@@ -6711,21 +5701,9 @@
      ]
     },
     {
-     "from": "features/return-dislike/bootstrap.js",
-     "names": [
-      "getReturnDislike"
-     ]
-    },
-    {
      "from": "core/selectors.js",
      "names": [
       "SELECTORS"
-     ]
-    },
-    {
-     "from": "ui/shortcuts/log.js",
-     "names": [
-      "log"
      ]
     }
    ],
@@ -7066,7 +6044,7 @@
   },
   {
    "path": "userScript.js",
-   "lines": 80,
+   "lines": 79,
    "header": "The script webOS runs inside YouTube's TV site (built as webOSUserScripts/userScript.js). It loads every feature, installs the global hooks and handles launches and relaunches; the order of the imports below is the order things start in (docs/ARCHITECTURE.md).",
    "imports": [
     {
@@ -7120,10 +6098,6 @@
      "names": [
       "initBlockWebOSCast"
      ]
-    },
-    {
-     "from": "features/return-dislike/index.js",
-     "names": []
     },
     {
      "from": "features/video-quality/index.js",
@@ -7197,148 +6171,6 @@
      "ACCOUNT_SELECTOR"
     ]
    },
-   "functions": []
-  },
-  {
-   "path": "vendor/dearrow/shim.js",
-   "lines": 45,
-   "header": "[ytaf] Stand-ins for the DeArrow extension modules that titleFormatter.js imports. Only formatTitleInternal() is called from here, and it takes every setting as an argument, so these just need to exist.",
-   "imports": [],
-   "importedBy": [
-    "features/dearrow/formatter.js",
-    "vendor/dearrow/titleFormatter.js"
-   ],
-   "exports": [
-    "TitleFormatting",
-    "default",
-    "getTitleFormatting",
-    "shouldCleanEmojis",
-    "chromeP",
-    "unicodeRegExpSupported",
-    "uRegExp"
-   ],
-   "atLoad": {},
-   "functions": [
-    "vendor/dearrow/shim.js#getTitleFormatting",
-    "vendor/dearrow/shim.js#shouldCleanEmojis",
-    "vendor/dearrow/shim.js#uRegExp"
-   ]
-  },
-  {
-   "path": "vendor/dearrow/titleFormatter.js",
-   "lines": 688,
-   "header": "Vendored from DeArrow (GPL-3.0) - https://github.com/ajayyy/DeArrow src/titles/titleFormatter.ts @ 482cf997c91efcf226e1c7852db186cc29a75474\n\nTypeScript types stripped with @babel/plugin-transform-typescript. Other changes are marked [ytaf]: imports point at ./shim, language detection is disabled, the extension-page localisation helpers are dropped, and every \\p{...} regex literal is built at runtime via uRegExp() (see shim.js). / // [ytaf] File extensions on the imports: an ES module package resolves them as written.",
-   "imports": [
-    {
-     "from": "vendor/dearrow/shim.js",
-     "names": [
-      "default as Config",
-      "TitleFormatting",
-      "getTitleFormatting",
-      "shouldCleanEmojis",
-      "chromeP",
-      "uRegExp"
-     ]
-    },
-    {
-     "from": "vendor/dearrow/titleFormatterData.js",
-     "names": [
-      "acronymBlocklist",
-      "allowlistedStartOfWords",
-      "allowlistedWords",
-      "fancyTextConversions",
-      "notStartOfSentence",
-      "titleCaseNotCapitalized"
-     ]
-    }
-   ],
-   "importedBy": [],
-   "exports": [
-    "formatTitle",
-    "formatTitleDefaultSettings",
-    "formatTitleInternal",
-    "toLowerCaseTitle",
-    "toFirstLetterUppercase",
-    "toSentenceCase",
-    "toTitleCase",
-    "toCapitalizeCase",
-    "isInTitleCase",
-    "isMostlyAllCaps",
-    "capitalizeFirstLetter",
-    "isWordCustomCapitalization",
-    "isAcronym",
-    "isAcronymStrict",
-    "cleanResultingTitle",
-    "cleanPunctuation",
-    "cleanEmojis",
-    "cleanFancyText"
-   ],
-   "atLoad": {},
-   "functions": [
-    "vendor/dearrow/titleFormatter.js#formatTitle",
-    "vendor/dearrow/titleFormatter.js#formatTitleDefaultSettings",
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal",
-    "vendor/dearrow/titleFormatter.js#toLowerCaseTitle",
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#toTitleCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase",
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#isInTitleCase",
-    "vendor/dearrow/titleFormatter.js#shouldTrustCaps",
-    "vendor/dearrow/titleFormatter.js#isMostlyAllCaps",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-    "vendor/dearrow/titleFormatter.js#isWordCapitalCase",
-    "vendor/dearrow/titleFormatter.js#startsWithEmojiLetter",
-    "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-    "vendor/dearrow/titleFormatter.js#isCompoundWord",
-    "vendor/dearrow/titleFormatter.js#isNumberThenLetter",
-    "vendor/dearrow/titleFormatter.js#doesStartWithNonLetter",
-    "vendor/dearrow/titleFormatter.js#isYear",
-    "vendor/dearrow/titleFormatter.js#isFirstLetterCapital",
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#greekLetterAllowed",
-    "vendor/dearrow/titleFormatter.js#toLowerCase",
-    "vendor/dearrow/titleFormatter.js#toUpperCase",
-    "vendor/dearrow/titleFormatter.js#getLangInfo",
-    "vendor/dearrow/titleFormatter.js#checkAnyLanguage",
-    "vendor/dearrow/titleFormatter.js#checkLanguages",
-    "vendor/dearrow/titleFormatter.js#checkLanguages.getLanguageFromBrowserApi",
-    "vendor/dearrow/titleFormatter.js#isAcronym",
-    "vendor/dearrow/titleFormatter.js#countLetters",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-    "vendor/dearrow/titleFormatter.js#startOfSentence",
-    "vendor/dearrow/titleFormatter.js#endOfSentence",
-    "vendor/dearrow/titleFormatter.js#isEntirelyDelimeter",
-    "vendor/dearrow/titleFormatter.js#isDelimeter",
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-    "vendor/dearrow/titleFormatter.js#cleanUnformattedTitle",
-    "vendor/dearrow/titleFormatter.js#cleanWordPunctuation",
-    "vendor/dearrow/titleFormatter.js#cleanPunctuation",
-    "vendor/dearrow/titleFormatter.js#cleanEmojis",
-    "vendor/dearrow/titleFormatter.js#cleanFancyText",
-    "vendor/dearrow/titleFormatter.js#listHasWord",
-    "vendor/dearrow/titleFormatter.js#listHasStartOfWord"
-   ]
-  },
-  {
-   "path": "vendor/dearrow/titleFormatterData.js",
-   "lines": 413,
-   "header": "Vendored from DeArrow (GPL-3.0) - https://github.com/ajayyy/DeArrow src/titles/titleFormatterData.ts @ 482cf997c91efcf226e1c7852db186cc29a75474",
-   "imports": [],
-   "importedBy": [
-    "vendor/dearrow/titleFormatter.js"
-   ],
-   "exports": [
-    "titleCaseNotCapitalized",
-    "allowlistedWords",
-    "allowlistedStartOfWords",
-    "acronymBlocklist",
-    "notStartOfSentence",
-    "fancyTextConversions"
-   ],
-   "atLoad": {},
    "functions": []
   },
   {
@@ -7566,8 +6398,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    28,
-    36
+    26,
+    34
    ],
    "description": "The stored settings as an object, or null when there are none or they do not parse.",
    "browser": [
@@ -7584,8 +6416,8 @@
    "params": "stored",
    "exported": false,
    "lines": [
-    44,
-    60
+    42,
+    58
    ],
    "description": "Every option of this build: the stored value where there is one (through the option's `upgrade` when it has one: a value an older build stored), else the default. A key the store holds that this build does not have (a setting from an older one) is left out, so the next write drops it from storage.",
    "calledBy": [
@@ -7599,8 +6431,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    72,
-    79
+    70,
+    77
    ],
    "description": "Writes the whole config to localStorage now; a full or refused storage keeps it in memory only.",
    "browser": [
@@ -7618,8 +6450,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    84,
-    89
+    82,
+    87
    ],
    "description": "Writes a pending debounced change at once (on beforeunload and pagehide), so leaving the app does not lose it.",
    "calls": [
@@ -7636,8 +6468,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    91,
-    93
+    89,
+    91
    ],
    "description": "Starts the 200 ms debounced write unless one is already pending.",
    "calls": [
@@ -7657,8 +6489,8 @@
    "params": "key",
    "exported": false,
    "lines": [
-    98,
-    100
+    96,
+    98
    ],
    "description": "Whether this build has a setting called `key`.",
    "calledBy": [
@@ -7672,8 +6504,8 @@
    "params": "key, verb",
    "exported": false,
    "lines": [
-    103,
-    105
+    101,
+    103
    ],
    "description": "Throws for a key no option defines: a typo, or a key a build removed.",
    "calls": [
@@ -7694,8 +6526,8 @@
    "params": "key",
    "exported": true,
    "lines": [
-    108,
-    111
+    106,
+    109
    ],
    "description": "The label the options panel shows for `key`.",
    "calls": [
@@ -7717,8 +6549,8 @@
    "params": "key",
    "exported": true,
    "lines": [
-    114,
-    117
+    112,
+    115
    ],
    "description": "The current value of setting `key` (from memory: no storage read). Throws for an unknown key.",
    "calls": [
@@ -7728,21 +6560,10 @@
     "features/auto-login/index.js#initAutoLogin",
     "features/auto-login/previews.js#initPreviews",
     "features/auto-login/whos-watching.js#attemptActiveBypass",
-    "features/dearrow/index.js#onSettingsChange",
-    "features/dearrow/index.js#scheduleSweep",
-    "features/dearrow/lookup.js#pump",
-    "features/dearrow/lookup.js#resolve",
-    "features/dearrow/lookup.js#resolveThumb",
-    "features/dearrow/sweep.js#sweepTiles",
-    "features/dearrow/thumbs.js#copyWidth",
-    "features/dearrow/tiles.js#applyToTile",
-    "features/dearrow/titles.js#crowdsourcedTitle",
-    "features/dearrow/titles.js#formatTitle",
     "features/force-codec/index.js#applyMode",
     "features/logo-style.js#applyLogoStyle",
     "features/playback-speed/controller.js#createSpeedController.applyReload",
     "features/playback-speed/index.js#isOn",
-    "features/return-dislike/bootstrap.js#bootstrapReturnDislike",
     "features/sponsorblock/bootstrap.js#bootstrapSponsorBlock",
     "features/sponsorblock/labels.js#buildCss",
     "features/sponsorblock/labels.js#pickFullLabel",
@@ -7758,7 +6579,6 @@
     "ui/panel/controls/cycle-row.js#createOpacityControl.changeValue",
     "ui/panel/controls/cycle-row.js#createOpacityControl.sync",
     "ui/panel/controls/cycle-row.js#createThumbnailQualityControl.sync",
-    "ui/panel/pages.js#buildDeArrowPage.sync",
     "ui/panel/pages.js#buildMainPage.updateDependencyState",
     "ui/panel/panel.js#createHeading.toggleTheme",
     "ui/shortcuts/bindings.js#updateShortcutCache",
@@ -7774,8 +6594,8 @@
    "params": "key, value",
    "exported": true,
    "lines": [
-    122,
-    142
+    120,
+    140
    ],
    "description": "The per-write log is debug level: configWrite fires per event during colour-picker drags and opacity scrubs (the localStorage write itself is debounced).",
    "calls": [
@@ -7799,8 +6619,8 @@
    "params": "key, callback",
    "exported": true,
    "lines": [
-    148,
-    152
+    146,
+    150
    ],
    "description": "Calls `callback({ detail: { key, newValue, oldValue } })` whenever `key` changes through configWrite.",
    "calls": [
@@ -7810,7 +6630,6 @@
     "core/per-video.js#bootstrapPerVideo",
     "features/adblock/flags.js#(top level)",
     "features/auto-login/index.js#(top level)",
-    "features/dearrow/index.js#(top level)",
     "features/force-codec/index.js#installCodecHooks",
     "features/logo-style.js#initLogoStyle",
     "features/playback-speed/index.js#(top level)",
@@ -7823,7 +6642,6 @@
     "ui/panel/controls/cycle-row.js#createCycleControl",
     "ui/panel/controls/cycle-row.js#createOpacityControl",
     "ui/panel/controls/cycle-row.js#createThumbnailQualityControl",
-    "ui/panel/pages.js#buildDeArrowPage",
     "ui/panel/pages.js#buildMainPage",
     "ui/shortcuts/bindings.js#(top level)",
     "ui/styles/html-classes.js#initHtmlClasses"
@@ -7836,8 +6654,8 @@
    "params": "key, callback",
    "exported": true,
    "lines": [
-    155,
-    157
+    153,
+    155
    ],
    "description": "Stops calling `callback` for changes of `key`.",
    "calledBy": [
@@ -7851,8 +6669,8 @@
    "params": "key",
    "exported": true,
    "lines": [
-    160,
-    163
+    158,
+    161
    ],
    "description": "The default value of setting `key`, as config-options.js declares it.",
    "calls": [
@@ -7869,8 +6687,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    166,
-    168
+    164,
+    166
    ],
    "description": "Export the live object reference directly for zero-overhead caching",
    "calledBy": [
@@ -7896,8 +6714,6 @@
    ],
    "description": "What an instance registers and must undo on destroy, in one bag: listeners, observers, timers and any other undo. dispose() runs them in reverse order of registration.",
    "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.constructor",
-    "features/return-dislike/panel-observer.js#setupPanel",
     "features/sponsorblock/index.js#SponsorBlockHandler.bindVideo",
     "features/sponsorblock/index.js#SponsorBlockHandler.constructor",
     "features/video-quality/index.js#initVideoQuality",
@@ -8007,7 +6823,6 @@
     "setTimeout"
    ],
    "calledBy": [
-    "features/return-dislike/panel-observer.js#pollForPanel",
     "features/sponsorblock/bar.js#scheduleBarRetry",
     "features/video-quality/index.js#pollForPlayer"
    ]
@@ -8151,8 +6966,6 @@
     "fetch"
    ],
    "calledBy": [
-    "features/dearrow/lookup.js#fetchBranding",
-    "features/return-dislike/api.js#fetchDislikeCount",
     "features/sponsorblock/api.js#fetchSegments.tryFetch"
    ]
   },
@@ -8397,11 +7210,9 @@
     "features/auto-login/log.js#(top level)",
     "features/block-webos-cast.ts#(top level)",
     "features/comments-fix.js#(top level)",
-    "features/dearrow/log.js#(top level)",
     "features/force-codec/log.js#(top level)",
     "features/lang-settings-fix.ts#(top level)",
     "features/playback-speed/log.js#(top level)",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.constructor",
     "features/screensaver-fix/log.js#(top level)",
     "features/sponsorblock/index.js#SponsorBlockHandler.constructor",
     "features/sponsorblock/labels.js#(top level)",
@@ -8578,8 +7389,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    8,
-    13
+    7,
+    12
    ],
    "description": "The id of the video being watched, or null off the watch page.",
    "calledBy": [
@@ -8593,8 +7404,8 @@
    "params": "{ create, restartOn, windowName }",
    "exported": true,
    "lines": [
-    22,
-    73
+    21,
+    72
    ],
    "description": "`create(videoID)` returns the instance (with init(), destroy(), `videoID` and `isDestroyed`) or null while the feature is off; a change of the `restartOn` setting recreates it; `windowName` exposes the live instance on window, for the tests and for diagnostics on the TV. Returns the getter of the live instance: the current one, or null once it has torn itself down.",
    "calls": [
@@ -8611,7 +7422,6 @@
     ]
    },
    "calledBy": [
-    "features/return-dislike/bootstrap.js#bootstrapReturnDislike",
     "features/sponsorblock/bootstrap.js#bootstrapSponsorBlock"
    ]
   },
@@ -8622,8 +7432,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    26,
-    26
+    25,
+    25
    ],
    "description": "The current instance while it is alive, else null (also the getter published on window)."
   },
@@ -8634,8 +7444,8 @@
    "params": "instance",
    "exported": false,
    "lines": [
-    30,
-    32
+    29,
+    31
    ],
    "description": "Replaces the current instance (null: none).",
    "calledBy": [
@@ -8650,8 +7460,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    34,
-    38
+    33,
+    37
    ],
    "description": "Destroys the current instance, if any, and forgets it.",
    "calls": [
@@ -8669,8 +7479,8 @@
    "params": "settingChanged",
    "exported": false,
    "lines": [
-    43,
-    61
+    42,
+    60
    ],
    "description": "Deferred a moment, so a burst of hash changes settles into one decision.",
    "calls": [
@@ -8693,8 +7503,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    68,
-    68
+    67,
+    67
    ],
    "description": "The body class and the hash are settled half a second after the document is.",
    "calls": [
@@ -8753,7 +7563,6 @@
    ],
    "calledBy": [
     "features/auto-login/whos-watching.js#attemptActiveBypass",
-    "features/return-dislike/panel-dom.js#triggerEnter",
     "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive",
     "features/video-quality/kickstart.js#dismissRaisedControls",
     "ui/shortcuts/helpers.js#simulateBack",
@@ -8889,7 +7698,6 @@
     "core/webos.js#isLegacyWebOS",
     "core/webos.js#isWebOS25",
     "features/adblock/flags.js#recomputeFilterFlags",
-    "features/return-dislike/navigation.js#(top level)",
     "ui/panel/pages.js#buildUITweaksPage"
    ]
   },
@@ -8927,7 +7735,6 @@
     "core/webos.js#getWebOSVersion"
    ],
    "calledBy": [
-    "features/return-dislike/constants.js#(top level)",
     "features/sponsorblock/index.js#SponsorBlockHandler.constructor"
    ]
   },
@@ -11602,8 +10409,8 @@
    "params": "fn",
    "exported": true,
    "lines": [
-    46,
-    48
+    45,
+    47
    ],
    "description": "Calls `fn` whenever the flags were recomputed (a setting changed).",
    "calledBy": [
@@ -11617,8 +10424,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    54,
-    92
+    53,
+    88
    ],
    "description": "Recomputes cfgFlags, cfgFlagsNoEmoji and filterState from the settings, then calls the onFlagsChange listeners. Runs at load and on every change of a key in CONFIG_KEYS.",
    "calls": [
@@ -11636,7 +10443,6 @@
      "enableLegacyEmojiFix",
      "hideEndcards",
      "upgradeThumbnails",
-     "enableDeArrow",
      "enableRowsAhead"
     ]
    },
@@ -11958,8 +10764,8 @@
    "params": "fn",
    "exported": true,
    "lines": [
-    27,
-    29
+    26,
+    28
    ],
    "description": "Sets the step run on every object parsed past the size gate (null: none).",
    "calledBy": [
@@ -11973,8 +10779,8 @@
    "params": "data, textLength",
    "exported": false,
    "lines": [
-    32,
-    36
+    31,
+    35
    ],
    "description": "Debug log for a large response no schema recognised (the fallback filters ran instead).",
    "calledBy": [
@@ -11988,8 +10794,8 @@
    "params": "data, flags",
    "exported": false,
    "lines": [
-    42,
-    46
+    41,
+    45
    ],
    "description": "The legacy emoji rewrite over frameworkUpdates, the one part of a response the content filters never reach.",
    "calls": [
@@ -12006,8 +10812,8 @@
    "params": "text, reviver",
    "exported": false,
    "lines": [
-    58,
-    67
+    57,
+    66
    ],
    "description": "The JSON.parse replacement. Texts under 500 characters (YouTube's many small blobs) go straight to the native parse; the rest through parseAndFilter.",
    "calls": [
@@ -12021,8 +10827,8 @@
    "params": "text, reviver",
    "exported": false,
    "lines": [
-    73,
-    99
+    72,
+    98
    ],
    "description": "Parses a large text (with tracking parameters blanked first when Tracking Block is on) and, when it is an InnerTube response, runs the filters on it in place.",
    "calls": [
@@ -12041,8 +10847,8 @@
    "params": "data, textLength, flags",
    "exported": false,
    "lines": [
-    105,
-    111
+    104,
+    110
    ],
    "description": "filterResponse, with an error logged instead of thrown: a filter bug must never break YouTube's parse.",
    "calls": [
@@ -12059,10 +10865,10 @@
    "params": "data, textLength, flags",
    "exported": false,
    "lines": [
-    118,
-    160
+    117,
+    157
    ],
-   "description": "Everything done to a parsed response, in order: the codec filter, Load Rows Ahead, the content filters (by schema, the fallback search, or the guide's nav entries), then the thumbnail upgrade, DeArrow and the emoji wrap.",
+   "description": "Everything done to a parsed response, in order: the codec filter, Load Rows Ahead, the content filters (by schema, the fallback search, or the guide's nav entries), then the thumbnail upgrade and the emoji wrap.",
    "calls": [
     "core/innertube.js#detectResponseType",
     "core/log.js#isDebugEnabled",
@@ -12072,7 +10878,6 @@
     "features/adblock/parse-hook.js#logSchemaMiss",
     "features/adblock/parse-hook.js#wrapEmojiInFrameworkUpdates",
     "features/adblock/response-filters.js#applySchemaFilters",
-    "features/dearrow/index.js#applyDeArrow",
     "features/force-codec/hooks.js#filterParsedResponse",
     "features/rows-ahead.js#raiseRowsAhead",
     "features/thumbnail-quality/dispatch.js#upgradeResponseThumbnails"
@@ -12088,10 +10893,10 @@
    "params": "",
    "exported": true,
    "lines": [
-    170,
-    182
+    167,
+    179
    ],
-   "description": "Installs the hook, once, for the life of the page.\n\nEvery switch that lives on it (ads, Shorts, guest prompts, endcards, trackingParams, the legacy emoji rewrite, the thumbnail upgrade, DeArrow) is a flag in flags.js, and filterResponse stops after the rows-ahead pass (its own switch, Load Rows Ahead) while none of them is on; force-codec's offer filter runs inside it as well.",
+   "description": "Installs the hook, once, for the life of the page.\n\nEvery switch that lives on it (ads, Shorts, guest prompts, endcards, trackingParams, the legacy emoji rewrite, the thumbnail upgrade) is a flag in flags.js, and filterResponse stops after the rows-ahead pass (its own switch, Load Rows Ahead) while none of them is on; force-codec's offer filter runs inside it as well.",
    "hooks": [
     "JSON.parse",
     "window.__ytafAdblockStats"
@@ -13184,1075 +11989,6 @@
    ]
   },
   {
-   "id": "features/dearrow/index.js#cancelSweep",
-   "name": "cancelSweep",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    31,
-    34
-   ],
-   "description": "Drops the sweep waiting for its moment.",
-   "calledBy": [
-    "features/dearrow/index.js#restoreTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/index.js#scheduleSweep",
-   "name": "scheduleSweep",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    37,
-    43
-   ],
-   "description": "Sweeps the rendered tiles SWEEP_DELAY from now, once however often it is asked.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/sweep.js#sweepTiles"
-   ],
-   "settings": {
-    "read": [
-     "enableDeArrow"
-    ]
-   },
-   "browser": [
-    "setTimeout"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#(top level)",
-    "features/dearrow/index.js#applyDeArrow"
-   ]
-  },
-  {
-   "id": "features/dearrow/index.js#restoreTiles",
-   "name": "restoreTiles",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    46,
-    49
-   ],
-   "description": "Puts YouTube's own titles and thumbnails back on screen; a pending sweep would undo it.",
-   "calls": [
-    "features/dearrow/index.js#cancelSweep",
-    "features/dearrow/sweep.js#sweepTiles"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#wipe"
-   ]
-  },
-  {
-   "id": "features/dearrow/index.js#wipe",
-   "name": "wipe",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    56,
-    64
-   ],
-   "description": "Forgets everything (too many videos remembered, or DeArrow switched off): originals back on screen and in the stored responses while they are still known, then the videos, the queue and the thumbnails, whose blobs are freed.",
-   "calls": [
-    "features/dearrow/index.js#restoreTiles",
-    "features/dearrow/lookup.js#clearQueue",
-    "features/dearrow/state.js#nextGeneration",
-    "features/dearrow/thumbs.js#forgetThumbs",
-    "features/dearrow/tiles.js#unpatchResponses"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#applyDeArrow",
-    "features/dearrow/index.js#onSettingsChange"
-   ]
-  },
-  {
-   "id": "features/dearrow/index.js#applyDeArrow",
-   "name": "applyDeArrow",
-   "kind": "function",
-   "params": "data, responseType",
-   "exported": true,
-   "lines": [
-    72,
-    80
-   ],
-   "description": "The parse hook's step (adblock/parse-hook.js) for an InnerTube response: its video tiles get what is decided, new videos are queued for a lookup, and the rendered tiles are swept a moment later. Player responses carry no tiles and are skipped.",
-   "calls": [
-    "features/dearrow/index.js#scheduleSweep",
-    "features/dearrow/index.js#wipe",
-    "features/dearrow/lookup.js#queueLookups",
-    "features/dearrow/thumbs.js#thumbsFull",
-    "features/dearrow/tiles.js#patchResponseTiles"
-   ],
-   "calledBy": [
-    "features/adblock/parse-hook.js#filterResponse"
-   ]
-  },
-  {
-   "id": "features/dearrow/index.js#onSettingsChange",
-   "name": "onSettingsChange",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    89,
-    103
-   ],
-   "description": "A DeArrow setting changed: everything is decided again (answers already fetched are reused), newest first, since those are the videos likely on screen. Turned off, YouTube's own come back everywhere and everything DeArrow kept goes with them: up to BLOB_BUDGET of thumbnail copies would otherwise stay in memory for the rest of the session.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/index.js#wipe",
-    "features/dearrow/lookup.js#clearQueue",
-    "features/dearrow/lookup.js#queueLookups",
-    "features/dearrow/state.js#nextGeneration",
-    "features/dearrow/tiles.js#unpatchResponses"
-   ],
-   "settings": {
-    "read": [
-     "enableDeArrow"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#onChange",
-   "name": "onChange",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    26,
-    26
-   ],
-   "description": "Called with the video when what its tiles should show changed (index.js).",
-   "calledBy": [
-    "features/dearrow/lookup.js#resolve"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#setChangeHandler",
-   "name": "setChangeHandler",
-   "kind": "function",
-   "params": "fn",
-   "exported": true,
-   "lines": [
-    29,
-    31
-   ],
-   "description": "Sets what runs (with the video) when a video's title or thumbnail changed.",
-   "calledBy": [
-    "features/dearrow/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#thumbnailUrl",
-   "name": "thumbnailUrl",
-   "kind": "arrow",
-   "params": "videoId, time",
-   "exported": false,
-   "lines": [
-    34,
-    34
-   ],
-   "description": "The thumbnail server's URL for the frame of `videoId` at `time` seconds.",
-   "calledBy": [
-    "features/dearrow/lookup.js#resolveThumb"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#randomFrameTime",
-   "name": "randomFrameTime",
-   "kind": "function",
-   "params": "video",
-   "exported": false,
-   "lines": [
-    42,
-    47
-   ],
-   "description": "The random frame's time in seconds, from the server's random position and the video's length (sent even for videos nobody submitted anything for), so the frame is the one other DeArrow users already had rendered; null without an answer (offline), and the auto-generated frame stays.",
-   "calledBy": [
-    "features/dearrow/lookup.js#resolveThumb"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#resolveThumb",
-   "name": "resolveThumb",
-   "kind": "function, async",
-   "params": "videoId, video, gen, show",
-   "exported": false,
-   "lines": [
-    55,
-    110
-   ],
-   "description": "Decides the thumbnail, calling show(thumb, crowdsourced) with each improvement: a trusted crowdsourced frame, or the fallback the settings pick (YouTube's own, a blank, one of YouTube's auto-generated frames, or a random frame with the start frame standing in until the server has rendered it).",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/lookup.js#randomFrameTime",
-    "features/dearrow/lookup.js#resolveThumb.retry",
-    "features/dearrow/lookup.js#thumbnailUrl",
-    "features/dearrow/thumbs.js#loadThumb",
-    "features/dearrow/titles.js#isTrusted"
-   ],
-   "settings": {
-    "read": [
-     "dearrowCrowdThumbnails",
-     "dearrowThumbnailFallback"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/lookup.js#resolve"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#resolveThumb.retry",
-   "name": "resolveThumb.retry",
-   "kind": "arrow",
-   "params": "delays",
-   "exported": false,
-   "lines": [
-    100,
-    108
-   ],
-   "description": "Asks for the random frame again after the next delay, until it comes or the delays run out.",
-   "calls": [
-    "features/dearrow/state.js#currentGeneration",
-    "features/dearrow/thumbs.js#loadThumb"
-   ],
-   "browser": [
-    "setTimeout"
-   ],
-   "calledBy": [
-    "features/dearrow/lookup.js#resolveThumb"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#resolve",
-   "name": "resolve",
-   "kind": "function, async",
-   "params": "videoId, video",
-   "exported": false,
-   "lines": [
-    113,
-    132
-   ],
-   "description": "Decides `video`'s title, then its thumbnail; output from an older generation is dropped.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/lookup.js#onChange",
-    "features/dearrow/lookup.js#resolveThumb",
-    "features/dearrow/state.js#currentGeneration",
-    "features/dearrow/titles.js#crowdsourcedTitle",
-    "features/dearrow/titles.js#resolveTitle"
-   ],
-   "settings": {
-    "read": [
-     "enableDeArrow"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/lookup.js#lookup"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#fetchBranding",
-   "name": "fetchBranding",
-   "kind": "function",
-   "params": "videoId, video",
-   "exported": false,
-   "lines": [
-    139,
-    155
-   ],
-   "description": "The branding answer of one video, asked for once however often it is looked up: a 404 (nobody submitted anything) still carries the random frame time and the length. Resolves with the answer, or null (offline, blocked, slow).",
-   "calls": [
-    "core/fetch-timeout.js#fetchJsonWithTimeout"
-   ],
-   "calledBy": [
-    "features/dearrow/lookup.js#lookup"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#lookup",
-   "name": "lookup",
-   "kind": "function, async",
-   "params": "videoId",
-   "exported": false,
-   "lines": [
-    158,
-    170
-   ],
-   "description": "Asks about one video (once), then decides what its tiles show.",
-   "calls": [
-    "features/dearrow/lookup.js#fetchBranding",
-    "features/dearrow/lookup.js#resolve"
-   ],
-   "calledBy": [
-    "features/dearrow/lookup.js#pump"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#pump",
-   "name": "pump",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    173,
-    184
-   ],
-   "description": "Starts queued lookups until MAX_CONCURRENT run.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/lookup.js#lookup",
-    "features/dearrow/lookup.js#pump.next"
-   ],
-   "settings": {
-    "read": [
-     "enableDeArrow"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/lookup.js#pump.next",
-    "features/dearrow/lookup.js#queueLookups"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#pump.next",
-   "name": "pump.next",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    178,
-    181
-   ],
-   "description": "One lookup done: start the next.",
-   "calls": [
-    "features/dearrow/lookup.js#pump"
-   ],
-   "calledBy": [
-    "features/dearrow/lookup.js#pump"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#queueLookups",
-   "name": "queueLookups",
-   "kind": "function",
-   "params": "ids",
-   "exported": true,
-   "lines": [
-    187,
-    190
-   ],
-   "description": "Queues `ids` for a lookup, in order, and starts what can start.",
-   "calls": [
-    "features/dearrow/lookup.js#pump"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#applyDeArrow",
-    "features/dearrow/index.js#onSettingsChange"
-   ]
-  },
-  {
-   "id": "features/dearrow/lookup.js#clearQueue",
-   "name": "clearQueue",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    193,
-    195
-   ],
-   "description": "Empties the queue (lookups already running finish, their output dropped by generation).",
-   "calledBy": [
-    "features/dearrow/index.js#onSettingsChange",
-    "features/dearrow/index.js#wipe"
-   ]
-  },
-  {
-   "id": "features/dearrow/state.js#currentGeneration",
-   "name": "currentGeneration",
-   "kind": "arrow",
-   "params": "",
-   "exported": true,
-   "lines": [
-    24,
-    24
-   ],
-   "description": "The current generation.",
-   "calledBy": [
-    "features/dearrow/lookup.js#resolve",
-    "features/dearrow/lookup.js#resolveThumb.retry"
-   ]
-  },
-  {
-   "id": "features/dearrow/state.js#nextGeneration",
-   "name": "nextGeneration",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    27,
-    29
-   ],
-   "description": "Starts a new generation: work begun before it drops its output.",
-   "calledBy": [
-    "features/dearrow/index.js#onSettingsChange",
-    "features/dearrow/index.js#wipe"
-   ]
-  },
-  {
-   "id": "features/dearrow/sweep.js#setText",
-   "name": "setText",
-   "kind": "function",
-   "params": "el, text",
-   "exported": false,
-   "lines": [
-    22,
-    26
-   ],
-   "description": "Replaces an element's text, editing its one text node where it has one: the renderer keeps a handle on that node and reuses the tile for other videos.",
-   "calledBy": [
-    "features/dearrow/sweep.js#sweepTitle"
-   ]
-  },
-  {
-   "id": "features/dearrow/sweep.js#tileVideo",
-   "name": "tileVideo",
-   "kind": "function",
-   "params": "thumbEl",
-   "exported": false,
-   "lines": [
-    29,
-    36
-   ],
-   "description": "The video a rendered tile shows, from its thumbnail, or undefined.",
-   "calls": [
-    "features/dearrow/thumbs.js#thumbOwner"
-   ],
-   "calledBy": [
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/sweep.js#sweepThumb",
-   "name": "sweepThumb",
-   "kind": "function",
-   "params": "thumbEl, video, want",
-   "exported": false,
-   "lines": [
-    39,
-    54
-   ],
-   "description": "One tile's thumbnail: DeArrow's on top (`want`), or YouTube's back when DeArrow put one there.",
-   "calledBy": [
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/sweep.js#sweepTitle",
-   "name": "sweepTitle",
-   "kind": "function",
-   "params": "titleEl, video, want",
-   "exported": false,
-   "lines": [
-    57,
-    64
-   ],
-   "description": "One tile's title: DeArrow's (`want`), or YouTube's back when the text is still DeArrow's.",
-   "calls": [
-    "features/dearrow/sweep.js#setText"
-   ],
-   "calledBy": [
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/sweep.js#sweepBadges",
-   "name": "sweepBadges",
-   "kind": "function",
-   "params": "tile, hide",
-   "exported": false,
-   "lines": [
-    73,
-    95
-   ],
-   "description": "The DeArrow badges YouTube drew in a tile (the text BADGE_MARK): the logo drawn over the mark, or with `hide` the whole badge hidden (DeArrow or its badge switched off, until YouTube draws the tile again without it).",
-   "selectors": [
-    "TILE_METADATA"
-   ],
-   "browser": [
-    "querySelector",
-    "getElementsByTagName"
-   ],
-   "calledBy": [
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/sweep.js#sweepTiles",
-   "name": "sweepTiles",
-   "kind": "function",
-   "params": "restoreAll",
-   "exported": true,
-   "lines": [
-    101,
-    114
-   ],
-   "description": "Brings every rendered tile in line with what is decided for its video; with `restoreAll`, puts back every original this feature replaced (DeArrow off).",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/sweep.js#sweepBadges",
-    "features/dearrow/sweep.js#sweepThumb",
-    "features/dearrow/sweep.js#sweepTitle",
-    "features/dearrow/sweep.js#tileVideo"
-   ],
-   "settings": {
-    "read": [
-     "dearrowShowBadge"
-    ]
-   },
-   "selectors": [
-    "TILE",
-    "THUMBNAIL_TILE",
-    "TILE_TITLE"
-   ],
-   "browser": [
-    "querySelectorAll",
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#restoreTiles",
-    "features/dearrow/index.js#scheduleSweep"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#canBlob",
-   "name": "canBlob",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    25,
-    26
-   ],
-   "description": "Whether canvas can make blobs here (Chrome 50+); webOS 3 and 4 make data URLs.",
-   "calledBy": [
-    "features/dearrow/thumbs.js#copyWidth",
-    "features/dearrow/thumbs.js#thumbsFull"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#thumbOwner",
-   "name": "thumbOwner",
-   "kind": "arrow",
-   "params": "url",
-   "exported": true,
-   "lines": [
-    29,
-    29
-   ],
-   "description": "The video a copy shows, or undefined for any other URL.",
-   "calledBy": [
-    "features/dearrow/sweep.js#tileVideo"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#thumbsFull",
-   "name": "thumbsFull",
-   "kind": "arrow",
-   "params": "",
-   "exported": true,
-   "lines": [
-    35,
-    36
-   ],
-   "description": "Whether the kept copies are at their limit: CACHE_LIMIT of them, or their weight at BLOB_BUDGET (DATA_URL_BUDGET for data URLs, on webOS 3 and 4).",
-   "calls": [
-    "features/dearrow/thumbs.js#canBlob"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#applyDeArrow"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#copyWidth",
-   "name": "copyWidth",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    42,
-    46
-   ],
-   "description": "How wide copies are drawn now: as wide as Max Thumbnail Quality's strategy makes YouTube's tiles (COPY_WIDTHS), DATA_URL_WIDTH for data URLs.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/thumbs.js#canBlob"
-   ],
-   "settings": {
-    "read": [
-     "upgradeThumbnails",
-     "thumbnailQualityMode"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/thumbs.js#loadThumb"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#drawCopy",
-   "name": "drawCopy",
-   "kind": "function",
-   "params": "url, videoId, width, key",
-   "exported": false,
-   "lines": [
-    54,
-    107
-   ],
-   "description": "Downloads `url` and resolves with a copy `width` wide (never wider than the source), cropped to 16:9 (which also trims the letterbox of YouTube's 4:3 hq1 to hq3 frames); null when the image does not load (the thumbnail server answers 204 for a frame it has not rendered yet) or cannot be drawn.",
-   "browser": [
-    "Image"
-   ],
-   "calledBy": [
-    "features/dearrow/thumbs.js#loadThumb"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#drawCopy.img.onerror",
-   "name": "drawCopy.img.onerror",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    59,
-    59
-   ],
-   "description": "Not loaded (204 for a frame not rendered yet, a network error): no copy."
-  },
-  {
-   "id": "features/dearrow/thumbs.js#drawCopy.img.onload",
-   "name": "drawCopy.img.onload",
-   "kind": "assigned",
-   "params": "",
-   "exported": false,
-   "lines": [
-    61,
-    104
-   ],
-   "description": "Loaded: draws the copy.",
-   "calls": [
-    "features/dearrow/thumbs.js#drawCopy.img.onload.finish"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#drawCopy.img.onload.finish",
-   "name": "drawCopy.img.onload.finish",
-   "kind": "arrow",
-   "params": "copy, weight",
-   "exported": false,
-   "lines": [
-    69,
-    76
-   ],
-   "description": "Remembers the copy and its weight, if there is one, and resolves with it.",
-   "calledBy": [
-    "features/dearrow/thumbs.js#drawCopy.img.onload"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#loadThumb",
-   "name": "loadThumb",
-   "kind": "function",
-   "params": "url, videoId",
-   "exported": true,
-   "lines": [
-    110,
-    122
-   ],
-   "description": "The copy of `url` for `videoId` at the current width: the one kept, the download in flight, or a new one.",
-   "calls": [
-    "features/dearrow/thumbs.js#copyWidth",
-    "features/dearrow/thumbs.js#drawCopy"
-   ],
-   "calledBy": [
-    "features/dearrow/lookup.js#resolveThumb",
-    "features/dearrow/lookup.js#resolveThumb.retry"
-   ]
-  },
-  {
-   "id": "features/dearrow/thumbs.js#forgetThumbs",
-   "name": "forgetThumbs",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    125,
-    132
-   ],
-   "description": "Drops every copy, freeing the blobs.",
-   "calledBy": [
-    "features/dearrow/index.js#wipe"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#parseDuration",
-   "name": "parseDuration",
-   "kind": "function",
-   "params": "text",
-   "exported": false,
-   "lines": [
-    37,
-    40
-   ],
-   "description": "\"1:02:03\" -> 3723 seconds; null for anything else.",
-   "calledBy": [
-    "features/dearrow/tiles.js#readTile"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#readTile",
-   "name": "readTile",
-   "kind": "function",
-   "params": "tile",
-   "exported": false,
-   "lines": [
-    43,
-    63
-   ],
-   "description": "What YouTube sent for a tile: its title, its thumbnail URL and its length in seconds.",
-   "calls": [
-    "features/dearrow/tiles.js#parseDuration"
-   ],
-   "calledBy": [
-    "features/dearrow/tiles.js#patchResponseTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#lineItemLists",
-   "name": "lineItemLists",
-   "kind": "function",
-   "params": "tile",
-   "exported": false,
-   "lines": [
-    66,
-    75
-   ],
-   "description": "The item lists of a tile's metadata lines (each line's lineRenderer.items).",
-   "calledBy": [
-    "features/dearrow/tiles.js#applyToTile",
-    "features/dearrow/tiles.js#patchResponseTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#isBadge",
-   "name": "isBadge",
-   "kind": "arrow",
-   "params": "item",
-   "exported": false,
-   "lines": [
-    78,
-    78
-   ],
-   "description": "Whether a metadata line item is a badge (\"4K\", \"HD\", \"CC\"), not text.",
-   "calledBy": [
-    "features/dearrow/tiles.js#badgeSlot",
-    "features/dearrow/tiles.js#learnBadge"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#learnBadge",
-   "name": "learnBadge",
-   "kind": "function",
-   "params": "lists",
-   "exported": false,
-   "lines": [
-    81,
-    90
-   ],
-   "description": "Remembers the first real badge seen, without its label, as the shape of the DeArrow badge.",
-   "calls": [
-    "features/dearrow/tiles.js#isBadge"
-   ],
-   "calledBy": [
-    "features/dearrow/tiles.js#patchResponseTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#makeBadge",
-   "name": "makeBadge",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    96,
-    105
-   ],
-   "description": "A DeArrow badge for a metadata line: the learned badge with BADGE_MARK as its label, which the sweep (sweep.js) draws as the DeArrow logo.",
-   "calledBy": [
-    "features/dearrow/tiles.js#applyToTile"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#badgeSlot",
-   "name": "badgeSlot",
-   "kind": "function",
-   "params": "lists",
-   "exported": false,
-   "lines": [
-    112,
-    119
-   ],
-   "description": "Where the DeArrow badge goes: after the last badge of the line that has one (next to \"4K\"), else at the start of the last line (the one with the views and the age). Returns [items, index], or null for a tile without lines.",
-   "calls": [
-    "features/dearrow/tiles.js#isBadge"
-   ],
-   "calledBy": [
-    "features/dearrow/tiles.js#applyToTile"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#originalOf",
-   "name": "originalOf",
-   "kind": "function",
-   "params": "tile",
-   "exported": false,
-   "lines": [
-    122,
-    138
-   ],
-   "description": "The record of what YouTube had in `tile`, made the first time DeArrow writes to it.",
-   "calledBy": [
-    "features/dearrow/tiles.js#applyToTile"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#restoreTitle",
-   "name": "restoreTitle",
-   "kind": "function",
-   "params": "rec",
-   "exported": false,
-   "lines": [
-    141,
-    146
-   ],
-   "description": "Puts YouTube's own title back into a tile.",
-   "calledBy": [
-    "features/dearrow/tiles.js#applyToTile",
-    "features/dearrow/tiles.js#unpatchResponses"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#removeBadge",
-   "name": "removeBadge",
-   "kind": "function",
-   "params": "rec",
-   "exported": false,
-   "lines": [
-    149,
-    155
-   ],
-   "description": "Takes the DeArrow badge back out of its metadata line.",
-   "calledBy": [
-    "features/dearrow/tiles.js#applyToTile",
-    "features/dearrow/tiles.js#unpatchResponses"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#applyToTile",
-   "name": "applyToTile",
-   "kind": "function",
-   "params": "tile, video",
-   "exported": false,
-   "lines": [
-    162,
-    196
-   ],
-   "description": "Writes what is decided for `video` into a tile of a response: its title and thumbnail (YouTube's own where nothing is), and the badge while either is a crowdsourced one and the badge setting is on.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/tiles.js#badgeSlot",
-    "features/dearrow/tiles.js#lineItemLists",
-    "features/dearrow/tiles.js#makeBadge",
-    "features/dearrow/tiles.js#originalOf",
-    "features/dearrow/tiles.js#removeBadge",
-    "features/dearrow/tiles.js#restoreTitle"
-   ],
-   "settings": {
-    "read": [
-     "dearrowShowBadge"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/tiles.js#applyToVideo",
-    "features/dearrow/tiles.js#patchResponseTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#applyToVideo",
-   "name": "applyToVideo",
-   "kind": "function",
-   "params": "video",
-   "exported": true,
-   "lines": [
-    199,
-    202
-   ],
-   "description": "Writes what is now decided for `video` into every tile of it remembered from the responses.",
-   "calls": [
-    "features/dearrow/tiles.js#applyToTile"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#unpatchResponses",
-   "name": "unpatchResponses",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    205,
-    218
-   ],
-   "description": "Puts YouTube's own titles, thumbnails and lines back into every stored response edited.",
-   "calls": [
-    "features/dearrow/tiles.js#removeBadge",
-    "features/dearrow/tiles.js#restoreTitle"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#onSettingsChange",
-    "features/dearrow/index.js#wipe"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#remember",
-   "name": "remember",
-   "kind": "function",
-   "params": "video, tile",
-   "exported": false,
-   "lines": [
-    221,
-    228
-   ],
-   "description": "Remembers `tile` as one of `video`'s (the last TILES_PER_VIDEO of them).",
-   "calledBy": [
-    "features/dearrow/tiles.js#patchResponseTiles"
-   ]
-  },
-  {
-   "id": "features/dearrow/tiles.js#patchResponseTiles",
-   "name": "patchResponseTiles",
-   "kind": "function",
-   "params": "data",
-   "exported": true,
-   "lines": [
-    236,
-    287
-   ],
-   "description": "Walks a parsed response breadth first (so videos come in screen order), bounded by SCAN_MAX_NODES and SCAN_MAX_DEPTH: each video tile is remembered, and written to when its video is decided. Returns the ids of the videos seen for the first time, now waiting for a lookup.",
-   "calls": [
-    "features/dearrow/tiles.js#applyToTile",
-    "features/dearrow/tiles.js#learnBadge",
-    "features/dearrow/tiles.js#lineItemLists",
-    "features/dearrow/tiles.js#readTile",
-    "features/dearrow/tiles.js#remember"
-   ],
-   "calledBy": [
-    "features/dearrow/index.js#applyDeArrow"
-   ]
-  },
-  {
-   "id": "features/dearrow/titles.js#isTrusted",
-   "name": "isTrusted",
-   "kind": "function",
-   "params": "entry",
-   "exported": true,
-   "lines": [
-    24,
-    26
-   ],
-   "description": "A submission DeArrow would show: not the original, and locked or voted zero or above.",
-   "calledBy": [
-    "features/dearrow/lookup.js#resolveThumb",
-    "features/dearrow/titles.js#crowdsourcedTitle"
-   ]
-  },
-  {
-   "id": "features/dearrow/titles.js#formatTitle",
-   "name": "formatTitle",
-   "kind": "function",
-   "params": "title, isCustom",
-   "exported": false,
-   "lines": [
-    33,
-    42
-   ],
-   "description": "`title` formatted as Title formatting says, the same for a crowdsourced one (`isCustom`, whose \">\" markers keep a word as written) as for YouTube's; resolves with the text.",
-   "calls": [
-    "core/config.js#configRead",
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ],
-   "settings": {
-    "read": [
-     "dearrowTitleFormatting",
-     "dearrowCleanEmojis"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/titles.js#resolveTitle"
-   ]
-  },
-  {
-   "id": "features/dearrow/titles.js#crowdsourcedTitle",
-   "name": "crowdsourcedTitle",
-   "kind": "function",
-   "params": "video",
-   "exported": true,
-   "lines": [
-    45,
-    49
-   ],
-   "description": "The crowdsourced title the settings let a video show: the top one when it is trusted, else null.",
-   "calls": [
-    "core/config.js#configRead",
-    "features/dearrow/titles.js#isTrusted"
-   ],
-   "settings": {
-    "read": [
-     "dearrowCrowdTitles"
-    ]
-   },
-   "calledBy": [
-    "features/dearrow/lookup.js#resolve",
-    "features/dearrow/titles.js#resolveTitle"
-   ]
-  },
-  {
-   "id": "features/dearrow/titles.js#resolveTitle",
-   "name": "resolveTitle",
-   "kind": "function, async",
-   "params": "video",
-   "exported": true,
-   "lines": [
-    56,
-    63
-   ],
-   "description": "The title a video's tiles should show, or null for YouTube's own: the top crowdsourced one when it is trusted, else the original when formatting changes it.",
-   "calls": [
-    "features/dearrow/titles.js#crowdsourcedTitle",
-    "features/dearrow/titles.js#formatTitle"
-   ],
-   "calledBy": [
-    "features/dearrow/lookup.js#resolve"
-   ]
-  },
-  {
    "id": "features/force-codec/codecs.js#detectCodec",
    "name": "detectCodec",
    "kind": "function",
@@ -15142,1010 +12878,6 @@
    ],
    "calledBy": [
     "features/playback-speed/index.js#install"
-   ]
-  },
-  {
-   "id": "features/return-dislike/api.js#getCachedDislikes",
-   "name": "getCachedDislikes",
-   "kind": "function",
-   "params": "videoID",
-   "exported": true,
-   "lines": [
-    8,
-    12
-   ],
-   "description": "The cached count for a video, or undefined when absent or stale.",
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData"
-   ]
-  },
-  {
-   "id": "features/return-dislike/api.js#setCachedDislikes",
-   "name": "setCachedDislikes",
-   "kind": "function",
-   "params": "videoID, dislikes",
-   "exported": true,
-   "lines": [
-    15,
-    18
-   ],
-   "description": "Remembers a video's dislike count, keeping the 50 most recent videos.",
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData"
-   ]
-  },
-  {
-   "id": "features/return-dislike/api.js#fetchDislikeCount",
-   "name": "fetchDislikeCount",
-   "kind": "function",
-   "params": "videoID",
-   "exported": true,
-   "lines": [
-    25,
-    34
-   ],
-   "description": "Asks the API for the dislike count: `promise` rejects on HTTP errors, network errors and after the timeout, so the caller decides about retries; `abort()` drops the request.",
-   "calls": [
-    "core/fetch-timeout.js#fetchJsonWithTimeout"
-   ],
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData"
-   ]
-  },
-  {
-   "id": "features/return-dislike/bootstrap.js#live",
-   "name": "live",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    8,
-    8
-   ],
-   "description": "The live instance (core/per-video.js), once bootstrapped.",
-   "calledBy": [
-    "features/return-dislike/bootstrap.js#getReturnDislike"
-   ]
-  },
-  {
-   "id": "features/return-dislike/bootstrap.js#getReturnDislike",
-   "name": "getReturnDislike",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    11,
-    13
-   ],
-   "description": "The ReturnYouTubeDislike instance for the video being watched, or null.",
-   "calls": [
-    "features/return-dislike/bootstrap.js#live"
-   ],
-   "calledBy": [
-    "ui/shortcuts/panels.js#toggleDescription"
-   ]
-  },
-  {
-   "id": "features/return-dislike/bootstrap.js#bootstrapReturnDislike",
-   "name": "bootstrapReturnDislike",
-   "kind": "function",
-   "params": "ReturnYouTubeDislike",
-   "exported": true,
-   "lines": [
-    16,
-    23
-   ],
-   "description": "Takes the class rather than importing it, so the two files do not import each other.",
-   "calls": [
-    "core/config.js#configRead",
-    "core/per-video.js#bootstrapPerVideo"
-   ],
-   "settings": {
-    "read": [
-     "enableReturnYouTubeDislike"
-    ]
-   },
-   "calledBy": [
-    "features/return-dislike/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/return-dislike/focus-tracking.js#attachListeners",
-   "name": "attachListeners",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    10,
-    14
-   ],
-   "description": "The window and document listeners, undone by the instance's bag.",
-   "calls": [
-    "features/return-dislike/focus-tracking.js#handleFocusIn",
-    "features/return-dislike/focus-tracking.js#handleFocusOut",
-    "features/return-dislike/navigation.js#handleNavigation"
-   ],
-   "events": {
-    "listen": [
-     "keydown",
-     "focusin",
-     "focusout"
-    ]
-   },
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.init"
-   ]
-  },
-  {
-   "id": "features/return-dislike/focus-tracking.js#handleFocusIn",
-   "name": "handleFocusIn",
-   "kind": "function",
-   "params": "ryd, e",
-   "exported": false,
-   "lines": [
-    20,
-    47
-   ],
-   "description": "A focus change on the watch page: finds the description panel when the focus enters it (the main way it is detected), and highlights the menu item that got the focus.",
-   "calls": [
-    "features/return-dislike/navigation.js#updateVisualState",
-    "features/return-dislike/panel-dom.js#closestMenuItem",
-    "features/return-dislike/panel-dom.js#closestPanel",
-    "features/return-dislike/panel-observer.js#pollForPanel",
-    "features/return-dislike/panel-observer.js#releasePanel",
-    "features/return-dislike/panel-observer.js#setupPanel"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#attachListeners"
-   ]
-  },
-  {
-   "id": "features/return-dislike/focus-tracking.js#handleFocusOut",
-   "name": "handleFocusOut",
-   "kind": "function",
-   "params": "ryd",
-   "exported": false,
-   "lines": [
-    50,
-    66
-   ],
-   "description": "Focus left something: once it settles, clears the highlights if it left the panel.",
-   "calls": [
-    "features/return-dislike/navigation.js#clearAllHighlights"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#attachListeners"
-   ]
-  },
-  {
-   "id": "features/return-dislike/index.js#ReturnYouTubeDislike.constructor",
-   "name": "ReturnYouTubeDislike.constructor",
-   "kind": "method",
-   "params": "videoID, enableDislikes",
-   "exported": false,
-   "lines": [
-    19,
-    61
-   ],
-   "description": "A dislike counter for one video: empty state (the count, the panel, its observers, the focus tracking, named timers). init() starts it.",
-   "calls": [
-    "core/disposables.js#createDisposables",
-    "core/log.js#createLogger"
-   ],
-   "calledBy": [
-    "features/return-dislike/index.js#(top level)"
-   ]
-  },
-  {
-   "id": "features/return-dislike/index.js#ReturnYouTubeDislike.schedule",
-   "name": "ReturnYouTubeDislike.schedule",
-   "kind": "method",
-   "params": "callback, delay, name",
-   "exported": false,
-   "lines": [
-    64,
-    71
-   ],
-   "description": "A named timer: scheduling again replaces the pending one, destroy clears them all.",
-   "browser": [
-    "setTimeout"
-   ],
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData"
-   ]
-  },
-  {
-   "id": "features/return-dislike/index.js#ReturnYouTubeDislike.init",
-   "name": "ReturnYouTubeDislike.init",
-   "kind": "method, async",
-   "params": "",
-   "exported": false,
-   "lines": [
-    76,
-    93
-   ],
-   "description": "Starts the listeners, looks for an open description panel once, and fetches the dislike count.",
-   "calls": [
-    "features/return-dislike/focus-tracking.js#attachListeners",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData",
-    "features/return-dislike/panel-observer.js#findPanelNow"
-   ]
-  },
-  {
-   "id": "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData",
-   "name": "ReturnYouTubeDislike.fetchVideoData",
-   "kind": "method, async",
-   "params": "",
-   "exported": false,
-   "lines": [
-    99,
-    132
-   ],
-   "description": "Gets the dislike count (cached, else from the API) and shows it; a failed request is retried a few times with a growing delay.",
-   "calls": [
-    "features/return-dislike/api.js#fetchDislikeCount",
-    "features/return-dislike/api.js#getCachedDislikes",
-    "features/return-dislike/api.js#setCachedDislikes",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.schedule",
-    "features/return-dislike/injection.js#updateDislikeDisplay"
-   ],
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.init"
-   ]
-  },
-  {
-   "id": "features/return-dislike/index.js#ReturnYouTubeDislike.pollForPanel",
-   "name": "ReturnYouTubeDislike.pollForPanel",
-   "kind": "method",
-   "params": "",
-   "exported": false,
-   "lines": [
-    135,
-    137
-   ],
-   "description": "The description shortcut and a stale panel arm the bounded poll (panel-observer.js)."
-  },
-  {
-   "id": "features/return-dislike/index.js#ReturnYouTubeDislike.destroy",
-   "name": "ReturnYouTubeDislike.destroy",
-   "kind": "method",
-   "params": "",
-   "exported": false,
-   "lines": [
-    143,
-    155
-   ],
-   "description": "Undoes everything: the fetch, timers, the panel poll, listeners, the panel's observers and the header shift. Safe to call twice.",
-   "calls": [
-    "features/return-dislike/injection.js#clearHeaderShift",
-    "features/return-dislike/panel-observer.js#releasePanel",
-    "features/return-dislike/panel-observer.js#stopPanelPoll"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#dislikeText",
-   "name": "dislikeText",
-   "kind": "function",
-   "params": "ryd",
-   "exported": false,
-   "lines": [
-    27,
-    29
-   ],
-   "description": "The count as the factoid shows it: the placeholder until the fetch lands.",
-   "calls": [
-    "features/return-dislike/panel-dom.js#formatNumber"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#insertDislikeFactoid",
-    "features/return-dislike/injection.js#updateDislikeDisplay"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#updateDislikeDisplay",
-   "name": "updateDislikeDisplay",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    36,
-    46
-   ],
-   "description": "Rewrites the already-injected factoid in place. Injection does not wait for the network, so this turns the placeholder into the real number whenever the fetch lands, first try or third.",
-   "calls": [
-    "features/return-dislike/injection.js#compensateHeaderGrowth",
-    "features/return-dislike/injection.js#dislikeText"
-   ],
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.fetchVideoData"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#markHeaderRow",
-   "name": "markHeaderRow",
-   "kind": "function",
-   "params": "rows, header",
-   "exported": false,
-   "lines": [
-    49,
-    58
-   ],
-   "description": "Marks `header` among `rows` and no other, touching only the rows whose mark is wrong.",
-   "calledBy": [
-    "features/return-dislike/injection.js#applyShift"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#rootFontSize",
-   "name": "rootFontSize",
-   "kind": "function",
-   "params": "",
-   "exported": false,
-   "lines": [
-    64,
-    69
-   ],
-   "description": "The page's root font size in px, read once (the panel's rem sizes depend on it).",
-   "browser": [
-    "getComputedStyle"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#measureGrowth"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#findHeaderRow",
-   "name": "findHeaderRow",
-   "kind": "function",
-   "params": "container",
-   "exported": false,
-   "lines": [
-    72,
-    80
-   ],
-   "description": "The row of YouTube's virtual list that holds `container`, with the list and its box, or null.",
-   "selectors": [
-    "VIRTUAL_LIST"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#compensateHeaderGrowth"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#measureGrowth",
-   "name": "measureGrowth",
-   "kind": "function",
-   "params": "ryd, row",
-   "exported": false,
-   "lines": [
-    90,
-    109
-   ],
-   "description": "How far the row's content outgrew the height YouTube measured it at, in px, and whether that is the last pass's answer for the same row; null for a row YouTube never measured (0 or no inline height: its zero-height state), where shifting against a bogus height would make things worse. Measured (a forced layout) only when the row, its inline height or its content box changed since the last pass; a re-render that keeps them keeps the delta.",
-   "calls": [
-    "features/return-dislike/injection.js#rootFontSize"
-   ],
-   "browser": [
-    "getBoundingClientRect"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#compensateHeaderGrowth"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#applyShift",
-   "name": "applyShift",
-   "kind": "function",
-   "params": "ryd, found, delta",
-   "exported": false,
-   "lines": [
-    112,
-    133
-   ],
-   "description": "Marks the list and its header row, and moves the rows below by `delta` px.",
-   "calls": [
-    "features/return-dislike/injection.js#clearHeaderShift",
-    "features/return-dislike/injection.js#markHeaderRow"
-   ],
-   "selectors": [
-    "VIRTUAL_LIST"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#compensateHeaderGrowth"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#compensateHeaderGrowth",
-   "name": "compensateHeaderGrowth",
-   "kind": "function",
-   "params": "ryd, container",
-   "exported": false,
-   "lines": [
-    144,
-    157
-   ],
-   "description": "YouTube measures each description row once, in the same task that renders it, and positions the rows below from that measurement. The header row then grows under the .ryd-ready styles, but YouTube keeps positioning every row below it with the old height, so they cover the Views/Date line. Push those rows down by the difference.\n\nRows are absolutely positioned, so margin-top moves them without touching YouTube's inline height/transform. The value lives in a stylesheet of its own, keyed on attributes, so a YouTube re-render cannot wipe it.",
-   "calls": [
-    "features/return-dislike/injection.js#applyShift",
-    "features/return-dislike/injection.js#findHeaderRow",
-    "features/return-dislike/injection.js#measureGrowth"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#checkAndInjectDislike",
-    "features/return-dislike/injection.js#updateDislikeDisplay"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#clearHeaderShift",
-   "name": "clearHeaderShift",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    160,
-    171
-   ],
-   "description": "Undoes the header shift: the attributes on the panel's list and the shift stylesheet.",
-   "browser": [
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.destroy",
-    "features/return-dislike/injection.js#applyShift"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#detectLayout",
-   "name": "detectLayout",
-   "kind": "function",
-   "params": "ryd, panelElement",
-   "exported": false,
-   "lines": [
-    178,
-    193
-   ],
-   "description": "The panel's layout and its factoid container: the layout is detected once and kept on `ryd`, the container found on the way being the one used; null when the panel has neither layout's container.",
-   "browser": [
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#checkAndInjectDislike"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#insertDislikeFactoid",
-   "name": "insertDislikeFactoid",
-   "kind": "function",
-   "params": "ryd, mode, container",
-   "exported": false,
-   "lines": [
-    202,
-    226
-   ],
-   "description": "Clones the likes factoid in `container` into the dislike one, fills it in, puts it right after the likes and keeps its elements on `ryd` for updateDislikeDisplay(). False when there is no likes factoid, or no value and label in it: the clone would be a second likes factoid that never fills in.",
-   "calls": [
-    "features/return-dislike/injection.js#dislikeText"
-   ],
-   "browser": [
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/return-dislike/injection.js#checkAndInjectDislike"
-   ]
-  },
-  {
-   "id": "features/return-dislike/injection.js#checkAndInjectDislike",
-   "name": "checkAndInjectDislike",
-   "kind": "function",
-   "params": "ryd, panelElement",
-   "exported": true,
-   "lines": [
-    232,
-    257
-   ],
-   "description": "Puts the dislike factoid into the description panel (with a placeholder until the count arrives), or keeps the header shift in step when it is already there.",
-   "calls": [
-    "features/return-dislike/injection.js#compensateHeaderGrowth",
-    "features/return-dislike/injection.js#detectLayout",
-    "features/return-dislike/injection.js#insertDislikeFactoid"
-   ],
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#handlePanelMutation",
-    "features/return-dislike/panel-observer.js#setupPanel",
-    "features/return-dislike/panel-observer.js#watchPanelVisibility"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#scrollItemIntoView",
-   "name": "scrollItemIntoView",
-   "kind": "function",
-   "params": "item",
-   "exported": false,
-   "lines": [
-    13,
-    17
-   ],
-   "description": "Brings an item into view, centred where the engine can.",
-   "calledBy": [
-    "features/return-dislike/navigation.js#moveFocus"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#refreshMenuCache",
-   "name": "refreshMenuCache",
-   "kind": "function",
-   "params": "ryd",
-   "exported": false,
-   "lines": [
-    23,
-    44
-   ],
-   "description": "Lists the panel's menu items (innermost only) with their indexes, and finds the one currently highlighted.",
-   "browser": [
-    "querySelectorAll",
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/return-dislike/navigation.js#handleNavigation",
-    "features/return-dislike/navigation.js#updateVisualState"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#dynamicList",
-   "name": "dynamicList",
-   "kind": "function",
-   "params": "ryd",
-   "exported": false,
-   "lines": [
-    47,
-    52
-   ],
-   "description": "The list container, looked up once per panel (forgotten with the menu cache).",
-   "browser": [
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/return-dislike/navigation.js#clearAllHighlights",
-    "features/return-dislike/navigation.js#updateVisualState"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#updateVisualState",
-   "name": "updateVisualState",
-   "kind": "function",
-   "params": "ryd, targetItem",
-   "exported": true,
-   "lines": [
-    58,
-    82
-   ],
-   "description": "Moves the highlight to `targetItem`, as YouTube draws its own focus (the item's classes and its wrapper's).",
-   "calls": [
-    "features/return-dislike/navigation.js#dynamicList",
-    "features/return-dislike/navigation.js#refreshMenuCache",
-    "features/return-dislike/navigation.js#toggleParentFocus"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#handleFocusIn",
-    "features/return-dislike/navigation.js#moveFocus",
-    "features/return-dislike/panel-observer.js#watchPanelVisibility"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#toggleParentFocus",
-   "name": "toggleParentFocus",
-   "kind": "function",
-   "params": "ryd, element, shouldFocus",
-   "exported": false,
-   "lines": [
-    95,
-    123
-   ],
-   "description": "Adds or removes the focused look of an item's wrapper (its class lookups cached per element).",
-   "calledBy": [
-    "features/return-dislike/navigation.js#clearAllHighlights",
-    "features/return-dislike/navigation.js#updateVisualState"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#clearAllHighlights",
-   "name": "clearAllHighlights",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    126,
-    139
-   ],
-   "description": "Removes the highlight from the last item and the list (focus left the panel).",
-   "calls": [
-    "features/return-dislike/navigation.js#dynamicList",
-    "features/return-dislike/navigation.js#toggleParentFocus"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#handleFocusOut",
-    "features/return-dislike/navigation.js#pressEnter",
-    "features/return-dislike/panel-observer.js#releasePanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#pressEnter",
-   "name": "pressEnter",
-   "kind": "function",
-   "params": "ryd, e",
-   "exported": false,
-   "lines": [
-    147,
-    154
-   ],
-   "description": "Enter on the highlighted menu item: intercepted only when the item itself is the active element. With focus on a focusable descendant the real Enter must reach YouTube: a synthetic keydown on the parent would target the wrong node.",
-   "calls": [
-    "features/return-dislike/navigation.js#clearAllHighlights",
-    "features/return-dislike/panel-dom.js#triggerEnter"
-   ],
-   "calledBy": [
-    "features/return-dislike/navigation.js#handleNavigation"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#resolveFocusedIndex",
-   "name": "resolveFocusedIndex",
-   "kind": "function",
-   "params": "ryd",
-   "exported": false,
-   "lines": [
-    157,
-    170
-   ],
-   "description": "The index of the focused item, resynced when it drifted from the element; 0 when none is known.",
-   "calls": [
-    "features/return-dislike/panel-dom.js#closestMenuItem"
-   ],
-   "calledBy": [
-    "features/return-dislike/navigation.js#moveFocus"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#moveFocus",
-   "name": "moveFocus",
-   "kind": "function",
-   "params": "ryd, down",
-   "exported": false,
-   "lines": [
-    173,
-    183
-   ],
-   "description": "Moves focus and the highlight one item down or up, wrapping at the ends.",
-   "calls": [
-    "features/return-dislike/navigation.js#resolveFocusedIndex",
-    "features/return-dislike/navigation.js#scrollItemIntoView",
-    "features/return-dislike/navigation.js#updateVisualState"
-   ],
-   "calledBy": [
-    "features/return-dislike/navigation.js#handleNavigation"
-   ]
-  },
-  {
-   "id": "features/return-dislike/navigation.js#handleNavigation",
-   "name": "handleNavigation",
-   "kind": "function",
-   "params": "ryd, e",
-   "exported": true,
-   "lines": [
-    186,
-    217
-   ],
-   "description": "A key on the description panel: Up and Down move between its items, Enter presses one.",
-   "calls": [
-    "features/return-dislike/navigation.js#moveFocus",
-    "features/return-dislike/navigation.js#pressEnter",
-    "features/return-dislike/navigation.js#refreshMenuCache"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#attachListeners"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-dom.js#closestPanel",
-   "name": "closestPanel",
-   "kind": "function",
-   "params": "el",
-   "exported": true,
-   "lines": [
-    10,
-    15
-   ],
-   "description": "closest() runs the selector engine at every level of the ancestor chain, and handleFocusIn runs on every focus change in the app while a watch page is open. Both selectors here are trivial (a tag name, an attribute), so a hand-rolled walk gives the same answer without the engine.",
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#handleFocusIn"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-dom.js#closestMenuItem",
-   "name": "closestMenuItem",
-   "kind": "function",
-   "params": "el",
-   "exported": true,
-   "lines": [
-    18,
-    23
-   ],
-   "description": "The closest ancestor of `el` (or `el` itself) with role=menuitem, or null.",
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#handleFocusIn",
-    "features/return-dislike/navigation.js#resolveFocusedIndex",
-    "features/return-dislike/panel-observer.js#watchPanelVisibility"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-dom.js#formatNumber",
-   "name": "formatNumber",
-   "kind": "function",
-   "params": "num",
-   "exported": true,
-   "lines": [
-    26,
-    31
-   ],
-   "description": "A count as YouTube writes it: 950, 1.2k, 3.4m.",
-   "calledBy": [
-    "features/return-dislike/injection.js#dislikeText"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-dom.js#triggerEnter",
-   "name": "triggerEnter",
-   "kind": "function",
-   "params": "element",
-   "exported": true,
-   "lines": [
-    34,
-    36
-   ],
-   "description": "A synthetic Enter on the element; sendKey() flags it, so handleNavigation ignores it.",
-   "calls": [
-    "core/remote.js#sendKey"
-   ],
-   "calledBy": [
-    "features/return-dislike/navigation.js#pressEnter"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#resetMenuCache",
-   "name": "resetMenuCache",
-   "kind": "function",
-   "params": "ryd",
-   "exported": false,
-   "lines": [
-    15,
-    20
-   ],
-   "description": "Forgets the menu items of the current panel; they are re-read on the next focus. The highlighted item is kept: it is still the one to clear.",
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#handlePanelMutation",
-    "features/return-dislike/panel-observer.js#releasePanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#releasePanel",
-   "name": "releasePanel",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    27,
-    43
-   ],
-   "description": "Lets go of the tracked panel: the highlight, its observers, the factoid, the class on YouTube's factoid row and every field that points into it. Binding another panel, a panel gone stale and destroy() all come here.",
-   "calls": [
-    "features/return-dislike/navigation.js#clearAllHighlights",
-    "features/return-dislike/panel-observer.js#disconnectPanelObservers",
-    "features/return-dislike/panel-observer.js#resetMenuCache"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#handleFocusIn",
-    "features/return-dislike/index.js#ReturnYouTubeDislike.destroy",
-    "features/return-dislike/panel-observer.js#pollForPanel.round",
-    "features/return-dislike/panel-observer.js#setupPanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#stopPanelPoll",
-   "name": "stopPanelPoll",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    46,
-    51
-   ],
-   "description": "Stops the bounded poll for the description panel, if one runs.",
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.destroy",
-    "features/return-dislike/panel-observer.js#pollForPanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#findPanelNow",
-   "name": "findPanelNow",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    54,
-    60
-   ],
-   "description": "Binds the panel if it is in the DOM now; true when it was.",
-   "calls": [
-    "features/return-dislike/panel-observer.js#setupPanel"
-   ],
-   "browser": [
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/return-dislike/index.js#ReturnYouTubeDislike.init",
-    "features/return-dislike/panel-observer.js#pollForPanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#pollForPanel",
-   "name": "pollForPanel",
-   "kind": "function",
-   "params": "ryd",
-   "exported": true,
-   "lines": [
-    67,
-    88
-   ],
-   "description": "A bounded poll, and only a safety net: the panel is also detected by handleFocusIn (focus is the only reliable signal for the role=\"dialog\" description panel). Armed by ui/shortcuts/panels.js after the description shortcut fires and by focus-tracking.js when the tracked panel went stale, for PANEL_POLL_MAX rounds, then idle until something re-arms it.",
-   "calls": [
-    "core/dom.js#pollUntil",
-    "features/return-dislike/panel-observer.js#findPanelNow",
-    "features/return-dislike/panel-observer.js#pollForPanel.round",
-    "features/return-dislike/panel-observer.js#stopPanelPoll"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#handleFocusIn"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#pollForPanel.round",
-   "name": "pollForPanel.round",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    74,
-    85
-   ],
-   "description": "One round; true when there is nothing left to look for.",
-   "calls": [
-    "features/return-dislike/panel-observer.js#releasePanel",
-    "features/return-dislike/panel-observer.js#setupPanel"
-   ],
-   "browser": [
-    "querySelector"
-   ],
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#pollForPanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#setupPanel",
-   "name": "setupPanel",
-   "kind": "function",
-   "params": "ryd, panel",
-   "exported": true,
-   "lines": [
-    94,
-    110
-   ],
-   "description": "Starts working with a description panel: watches its content and visibility, and injects the factoid once it is visible.",
-   "calls": [
-    "core/disposables.js#createDisposables",
-    "features/return-dislike/injection.js#checkAndInjectDislike",
-    "features/return-dislike/panel-observer.js#releasePanel",
-    "features/return-dislike/panel-observer.js#watchPanelContent",
-    "features/return-dislike/panel-observer.js#watchPanelVisibility"
-   ],
-   "calledBy": [
-    "features/return-dislike/focus-tracking.js#handleFocusIn",
-    "features/return-dislike/panel-observer.js#findPanelNow",
-    "features/return-dislike/panel-observer.js#pollForPanel.round"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#watchPanelContent",
-   "name": "watchPanelContent",
-   "kind": "function",
-   "params": "ryd, panelElement",
-   "exported": false,
-   "lines": [
-    113,
-    122
-   ],
-   "description": "The panel's content, for rows being re-rendered under the factoid.",
-   "calls": [
-    "features/return-dislike/panel-observer.js#handlePanelMutation"
-   ],
-   "browser": [
-    "MutationObserver"
-   ],
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#setupPanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#watchPanelVisibility",
-   "name": "watchPanelVisibility",
-   "kind": "function",
-   "params": "ryd, panelElement",
-   "exported": false,
-   "lines": [
-    125,
-    146
-   ],
-   "description": "The panel coming on screen: inject then, and pick up a focus already inside.",
-   "calls": [
-    "features/return-dislike/injection.js#checkAndInjectDislike",
-    "features/return-dislike/navigation.js#updateVisualState",
-    "features/return-dislike/panel-dom.js#closestMenuItem"
-   ],
-   "browser": [
-    "IntersectionObserver"
-   ],
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#setupPanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#disconnectPanelObservers",
-   "name": "disconnectPanelObservers",
-   "kind": "function",
-   "params": "ryd",
-   "exported": false,
-   "lines": [
-    149,
-    153
-   ],
-   "description": "The panel's observers, disconnected when the panel is let go of.",
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#releasePanel"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#ownMutations",
-   "name": "ownMutations",
-   "kind": "function",
-   "params": "ryd, mutations",
-   "exported": false,
-   "lines": [
-    160,
-    171
-   ],
-   "description": "Whether every record is one of the instance's own writes: the factoid going in, or its text being replaced. Those would otherwise schedule an injection pass that finds the factoid in place and does nothing.",
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#handlePanelMutation"
-   ]
-  },
-  {
-   "id": "features/return-dislike/panel-observer.js#handlePanelMutation",
-   "name": "handlePanelMutation",
-   "kind": "function",
-   "params": "ryd, mutations",
-   "exported": false,
-   "lines": [
-    177,
-    187
-   ],
-   "description": "The panel's content changed (not by this code): drops the menu cache and re-checks the factoid, debounced.",
-   "calls": [
-    "features/return-dislike/injection.js#checkAndInjectDislike",
-    "features/return-dislike/panel-observer.js#ownMutations",
-    "features/return-dislike/panel-observer.js#resetMenuCache"
-   ],
-   "calledBy": [
-    "features/return-dislike/panel-observer.js#watchPanelContent"
    ]
   },
   {
@@ -20781,7 +17513,6 @@
     "ui/panel/controls/cycle-row.js#createControlRow",
     "ui/panel/controls/cycle-row.js#createControlRow.arrow",
     "ui/panel/controls/section.js#createSection",
-    "ui/panel/pages.js#buildDeArrowPage",
     "ui/panel/pages.js#buildMainPage",
     "ui/panel/pages.js#buildShortcutsPage",
     "ui/panel/pages.js#buildSponsorPage",
@@ -20854,7 +17585,6 @@
     "ui/dom.js#createElement"
    ],
    "calledBy": [
-    "ui/panel/pages.js#buildDeArrowPage",
     "ui/panel/pages.js#buildMainPage",
     "ui/panel/pages.js#buildSponsorPage",
     "ui/panel/pages.js#buildUITweaksPage"
@@ -20877,7 +17607,6 @@
    "calledBy": [
     "ui/panel/controls/cycle-row.js#createOpacityControl.sync",
     "ui/panel/controls/cycle-row.js#createThumbnailQualityControl.sync",
-    "ui/panel/pages.js#buildDeArrowPage.sync",
     "ui/panel/pages.js#buildMainPage.updateDependencyState"
    ]
   },
@@ -21101,12 +17830,11 @@
     157,
     158
    ],
-   "description": "A row among checkbox rows that cycles `configKey` through the values of `displayMap` (value -> label): the DeArrow choices and the clock.",
+   "description": "A row among checkbox rows that cycles `configKey` through the values of `displayMap` (value -> label): the clock.",
    "calls": [
     "ui/panel/controls/cycle-row.js#createAlignedCycleControl"
    ],
    "calledBy": [
-    "ui/panel/pages.js#buildDeArrowPage",
     "ui/panel/pages.js#buildMainPage"
    ]
   },
@@ -21386,7 +18114,6 @@
     "ui/dom.js#createElement"
    ],
    "calledBy": [
-    "ui/panel/pages.js#buildDeArrowPage",
     "ui/panel/pages.js#buildMainPage",
     "ui/panel/pages.js#buildUITweaksPage"
    ]
@@ -21866,15 +18593,14 @@
    "params": "text",
    "exported": false,
    "lines": [
-    34,
-    34
+    27,
+    27
    ],
    "description": "A line of small help text under a row.",
    "calls": [
     "ui/dom.js#createElement"
    ],
    "calledBy": [
-    "ui/panel/pages.js#buildDeArrowPage",
     "ui/panel/pages.js#buildUITweaksPage"
    ]
   },
@@ -21885,15 +18611,14 @@
    "params": "text",
    "exported": false,
    "lines": [
-    37,
-    37
+    30,
+    30
    ],
    "description": "The centred small print at the foot of a page: what the feature is and where it comes from.",
    "calls": [
     "ui/dom.js#createElement"
    ],
    "calledBy": [
-    "ui/panel/pages.js#buildDeArrowPage",
     "ui/panel/pages.js#buildSponsorPage"
    ]
   },
@@ -21904,8 +18629,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    44,
-    100
+    37,
+    92
    ],
    "description": "The Main page: Cosmetic Filtering (Ad Blocking and the filters that depend on it, greyed out while it is off), then the other features.",
    "calls": [
@@ -21933,7 +18658,6 @@
      "hideGuestSignInPrompts",
      "forceHighResVideo",
      "hideEndcards",
-     "enableReturnYouTubeDislike",
      "enableAutoLogin",
      "upgradeThumbnails",
      "showWatch",
@@ -21949,8 +18673,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    70,
-    75
+    63,
+    68
    ],
    "description": "Greys out the rows that depend on Ad Blocking while it is off.",
    "calls": [
@@ -21973,8 +18697,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    104,
-    135
+    96,
+    127
    ],
    "description": "The SponsorBlock page: the switch, one row per category, and the SponsorBlock options.",
    "calls": [
@@ -22004,74 +18728,14 @@
    }
   },
   {
-   "id": "ui/panel/pages.js#buildDeArrowPage",
-   "name": "buildDeArrowPage",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    143,
-    186
-   ],
-   "description": "The DeArrow page: the switch and the logo, then the title and thumbnail options, greyed out while it is off (and the thumbnail fallback while crowdsourced thumbnails are). Title formatting is in the webOS 22+ build only (features/dearrow/titles.js): the legacy one gets no formatting rows.",
-   "calls": [
-    "core/config.js#configAddChangeListener",
-    "ui/dom.js#createElement",
-    "ui/panel/controls/checkbox.js#createConfigCheckbox",
-    "ui/panel/controls/cycle-row.js#createChoiceControl",
-    "ui/panel/controls/section.js#createSection",
-    "ui/panel/pages.js#buildDeArrowPage.sync",
-    "ui/panel/pages.js#footNote",
-    "ui/panel/pages.js#helpLine"
-   ],
-   "settings": {
-    "listen": [
-     "enableDeArrow",
-     "dearrowCrowdThumbnails"
-    ],
-    "other": [
-     "dearrowShowBadge",
-     "dearrowCrowdTitles",
-     "dearrowTitleFormatting",
-     "dearrowCleanEmojis",
-     "dearrowThumbnailFallback"
-    ]
-   }
-  },
-  {
-   "id": "ui/panel/pages.js#buildDeArrowPage.sync",
-   "name": "buildDeArrowPage.sync",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    174,
-    181
-   ],
-   "description": "Greys out the rows while DeArrow is off, and the fallback while crowdsourced thumbnails are.",
-   "calls": [
-    "core/config.js#configRead",
-    "ui/panel/controls/checkbox.js#setUnavailable"
-   ],
-   "settings": {
-    "read": [
-     "enableDeArrow",
-     "dearrowCrowdThumbnails"
-    ]
-   },
-   "calledBy": [
-    "ui/panel/pages.js#buildDeArrowPage"
-   ]
-  },
-  {
    "id": "ui/panel/pages.js#buildShortcutsPage",
    "name": "buildShortcutsPage",
    "kind": "function",
    "params": "",
    "exported": true,
    "lines": [
-    190,
-    200
+    131,
+    141
    ],
    "description": "The Shortcuts page: one row per configurable key.",
    "calls": [
@@ -22086,8 +18750,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    207,
-    249
+    148,
+    190
    ],
    "description": "The UI Tweaks page: shelf opacity, previews, titles, rows ahead, Liquid Glass, the theme, the emoji fix on webOS 3/4, and playback speed where the TV can (webOS 23 and newer).",
    "calls": [
@@ -22120,8 +18784,8 @@
    "params": "pages, container",
    "exported": false,
    "lines": [
-    42,
-    71
+    35,
+    64
    ],
    "description": "The pages, built lazily into `container`: `elements[i]` is page i once built, `ensure(i)` builds it now, `startDeferred()` builds the rest one per animation frame. A builder never runs twice.",
    "calledBy": [
@@ -22135,8 +18799,8 @@
    "params": "index",
    "exported": false,
    "lines": [
-    47,
-    53
+    40,
+    46
    ],
    "description": "Builds page `index` now, if it is not built yet, and adds it to the panel.",
    "calledBy": [
@@ -22150,8 +18814,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    58,
-    69
+    51,
+    62
    ],
    "description": "Builds the pages not built yet, one per animation frame, so opening the panel does not wait for all of them.",
    "calls": [
@@ -22168,8 +18832,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    62,
-    67
+    55,
+    60
    ],
    "description": "Builds the next unbuilt page and asks for another frame.",
    "calls": [
@@ -22189,8 +18853,8 @@
    "params": "pages, onPick, activeIndex",
    "exported": false,
    "lines": [
-    78,
-    103
+    71,
+    96
    ],
    "description": "The tab bar: a button per page, the first one active; `onPick(index)` on a click, and the pointer leaving the bar puts focus back on the open tab (`activeIndex()`). Returns the bar and its buttons.",
    "calls": [
@@ -22207,8 +18871,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    112,
-    114
+    105,
+    107
    ],
    "description": "Whether the options panel is currently shown.",
    "calledBy": [
@@ -22223,8 +18887,8 @@
    "params": "afterToggle",
    "exported": false,
    "lines": [
-    122,
-    153
+    115,
+    146
    ],
    "description": "The heading with the logo. A logo click (a Magic Remote pointer affordance; the logo is not in the focus order) flips the theme and hands focus back through `afterToggle`; the UI Theme row on the UI Tweaks page is the key path. There is one drawn logo per look (blue, red, dark): the <html> theme classes pick the one shown (panel.css, theme-red.css, theme-oled.css). A CSS filter on the blue image came out orange for red and too bright for OLED.",
    "calls": [
@@ -22242,8 +18906,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    124,
-    129
+    117,
+    122
    ],
    "description": "Switches to the next UI theme (a click on the logo).",
    "calls": [
@@ -22266,8 +18930,8 @@
    "params": "src, variant",
    "exported": false,
    "lines": [
-    134,
-    141
+    127,
+    134
    ],
    "description": "One of the heading's logos (one per theme; CSS shows the current one); a click switches the theme.",
    "calls": [
@@ -22284,8 +18948,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    159,
-    237
+    152,
+    230
    ],
    "description": "Builds the options panel: heading, tab bar, the Main page (the others are built later), the keyboard handler and the focus trap. Returns the element and its controls.",
    "calls": [
@@ -22309,8 +18973,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    172,
-    172
+    165,
+    165
    ],
    "description": "Shows the SponsorBlock segment popup beside the panel while its page is open on a watch page.",
    "calls": [
@@ -22327,8 +18991,8 @@
    "params": "pageIndex",
    "exported": false,
    "lines": [
-    178,
-    196
+    171,
+    189
    ],
    "description": "Shows page `pageIndex` (building it first if needed), marks its tab, and moves the focus into it unless the user is on the tab bar.",
    "calls": [
@@ -22346,8 +19010,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    231,
-    231
+    224,
+    224
    ],
    "description": "The tab button of the open page."
   },
@@ -22358,8 +19022,8 @@
    "params": "visible",
    "exported": true,
    "lines": [
-    243,
-    289
+    236,
+    282
    ],
    "description": "Opens (building it the first time) or closes the options panel, with its keyboard handler, focus trap and popup. Toggles are ignored for 500 ms after the first build.",
    "calls": [
@@ -22381,8 +19045,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    296,
-    296
+    289,
+    289
    ],
    "description": "Test hook: whether the panel takes toggles again (the first build's 500 ms block is over)."
   },
@@ -22732,8 +19396,8 @@
    "params": "selectors",
    "exported": false,
    "lines": [
-    16,
-    22
+    14,
+    20
    ],
    "description": "The first element a candidate selector finds, in the order given (a key press, a few lookups).",
    "browser": [
@@ -22751,8 +19415,8 @@
    "params": "button",
    "exported": false,
    "lines": [
-    25,
-    28
+    23,
+    26
    ],
    "description": "Whether a toggle button shows as on (aria-pressed or aria-selected).",
    "calledBy": [
@@ -22766,8 +19430,8 @@
    "params": "{ button, name, isOpen = isEngagementPanelVisible, onOpened }",
    "exported": false,
    "lines": [
-    35,
-    45
+    33,
+    43
    ],
    "description": "Toggles a panel: Back when `isOpen()` says it is up (or its button reads pressed), else a click on `button` with `onOpened` afterwards; a toast when there is no button to click.",
    "calls": [
@@ -22789,8 +19453,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    51,
-    69
+    49,
+    67
    ],
    "description": "Opens or closes the comments, or the live chat on a live stream; says so when neither is available.",
    "calls": [
@@ -22816,8 +19480,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    72,
-    81
+    70,
+    79
    ],
    "description": "The description button, by its label text, else the generic text button.",
    "selectors": [
@@ -22840,17 +19504,13 @@
    "params": "",
    "exported": true,
    "lines": [
-    87,
-    102
+    82,
+    87
    ],
-   "description": "Opens or closes the description panel; once it is open, the dislike counter is asked to look for it.",
+   "description": "Opens or closes the description panel.",
    "calls": [
-    "features/return-dislike/bootstrap.js#getReturnDislike",
     "ui/shortcuts/panels.js#findDescriptionButton",
     "ui/shortcuts/panels.js#togglePanelButton"
-   ],
-   "browser": [
-    "setTimeout"
    ]
   },
   {
@@ -22860,8 +19520,8 @@
    "params": "",
    "exported": true,
    "lines": [
-    105,
-    114
+    90,
+    99
    ],
    "description": "Opens or closes the Save (Watch Later, playlists) dialog.",
    "calls": [
@@ -23463,993 +20123,6 @@
     "ui/shortcuts/playback.js#toggleSubtitles",
     "ui/shortcuts/seek.js#doSkipChapter",
     "ui/shortcuts/seek.js#performBurstSeek"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/shim.js#getTitleFormatting",
-   "name": "getTitleFormatting",
-   "kind": "arrow, async",
-   "params": "",
-   "exported": true,
-   "lines": [
-    18,
-    18
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitle"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/shim.js#shouldCleanEmojis",
-   "name": "shouldCleanEmojis",
-   "kind": "arrow, async",
-   "params": "",
-   "exported": true,
-   "lines": [
-    19,
-    19
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitle"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/shim.js#uRegExp",
-   "name": "uRegExp",
-   "kind": "function",
-   "params": "source, flags",
-   "exported": true,
-   "lines": [
-    38,
-    45
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-    "vendor/dearrow/titleFormatter.js#cleanEmojis",
-    "vendor/dearrow/titleFormatter.js#countLetters",
-    "vendor/dearrow/titleFormatter.js#doesStartWithNonLetter",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#isFirstLetterCapital",
-    "vendor/dearrow/titleFormatter.js#isNumberThenLetter",
-    "vendor/dearrow/titleFormatter.js#isWordCapitalCase",
-    "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-    "vendor/dearrow/titleFormatter.js#startsWithEmojiLetter",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#formatTitle",
-   "name": "formatTitle",
-   "kind": "function, async",
-   "params": "title, isCustom, videoID",
-   "exported": true,
-   "lines": [
-    31,
-    33
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#getTitleFormatting",
-    "vendor/dearrow/shim.js#shouldCleanEmojis",
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#formatTitleDefaultSettings",
-   "name": "formatTitleDefaultSettings",
-   "kind": "function, async",
-   "params": "title, isCustom",
-   "exported": true,
-   "lines": [
-    35,
-    37
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#formatTitleInternal",
-   "name": "formatTitleInternal",
-   "kind": "function, async",
-   "params": "title, isCustom, titleFormatting, shouldCleanEmojis, formatCustomTitles, formatOriginalTitles",
-   "exported": true,
-   "lines": [
-    39,
-    63
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#cleanEmojis",
-    "vendor/dearrow/titleFormatter.js#cleanFancyText",
-    "vendor/dearrow/titleFormatter.js#cleanUnformattedTitle",
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toLowerCaseTitle",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#toTitleCase"
-   ],
-   "calledBy": [
-    "features/dearrow/titles.js#formatTitle",
-    "vendor/dearrow/titleFormatter.js#formatTitle",
-    "vendor/dearrow/titleFormatter.js#formatTitleDefaultSettings"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#toLowerCaseTitle",
-   "name": "toLowerCaseTitle",
-   "kind": "function, async",
-   "params": "str",
-   "exported": true,
-   "lines": [
-    65,
-    79
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-    "vendor/dearrow/titleFormatter.js#getLangInfo",
-    "vendor/dearrow/titleFormatter.js#greekLetterAllowed",
-    "vendor/dearrow/titleFormatter.js#toLowerCase"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-   "name": "toFirstLetterUppercase",
-   "kind": "function, async",
-   "params": "str",
-   "exported": true,
-   "lines": [
-    81,
-    100
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-    "vendor/dearrow/titleFormatter.js#getLangInfo",
-    "vendor/dearrow/titleFormatter.js#greekLetterAllowed",
-    "vendor/dearrow/titleFormatter.js#isNumberThenLetter",
-    "vendor/dearrow/titleFormatter.js#startOfSentence",
-    "vendor/dearrow/titleFormatter.js#toLowerCase"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#toSentenceCase",
-   "name": "toSentenceCase",
-   "kind": "function, async",
-   "params": "str, isCustom",
-   "exported": true,
-   "lines": [
-    102,
-    143
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp",
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#getLangInfo",
-    "vendor/dearrow/titleFormatter.js#greekLetterAllowed",
-    "vendor/dearrow/titleFormatter.js#isAcronym",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#isInTitleCase",
-    "vendor/dearrow/titleFormatter.js#isMostlyAllCaps",
-    "vendor/dearrow/titleFormatter.js#isNumberThenLetter",
-    "vendor/dearrow/titleFormatter.js#isWordCapitalCase",
-    "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-    "vendor/dearrow/titleFormatter.js#shouldTrustCaps",
-    "vendor/dearrow/titleFormatter.js#startOfSentence",
-    "vendor/dearrow/titleFormatter.js#toLowerCase"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#toTitleCase",
-   "name": "toTitleCase",
-   "kind": "function, async",
-   "params": "str, isCustom",
-   "exported": true,
-   "lines": [
-    145,
-    169
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-    "vendor/dearrow/titleFormatter.js#getLangInfo",
-    "vendor/dearrow/titleFormatter.js#isMostlyAllCaps",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#wordToTitleCase",
-   "name": "wordToTitleCase",
-   "kind": "function, async",
-   "params": "word, index, words, params",
-   "exported": false,
-   "lines": [
-    179,
-    228
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-    "vendor/dearrow/titleFormatter.js#endOfSentence",
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#greekLetterAllowed",
-    "vendor/dearrow/titleFormatter.js#isAcronym",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#isCompoundWord",
-    "vendor/dearrow/titleFormatter.js#isFirstLetterCapital",
-    "vendor/dearrow/titleFormatter.js#isNumberThenLetter",
-    "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-    "vendor/dearrow/titleFormatter.js#isYear",
-    "vendor/dearrow/titleFormatter.js#listHasWord",
-    "vendor/dearrow/titleFormatter.js#shouldTrustCaps",
-    "vendor/dearrow/titleFormatter.js#startOfSentence",
-    "vendor/dearrow/titleFormatter.js#toLowerCase"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-   "name": "toCapitalizeCase",
-   "kind": "function, async",
-   "params": "str, isCustom",
-   "exported": true,
-   "lines": [
-    230,
-    275
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#getLangInfo",
-    "vendor/dearrow/titleFormatter.js#greekLetterAllowed",
-    "vendor/dearrow/titleFormatter.js#isAcronym",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#isCompoundWord",
-    "vendor/dearrow/titleFormatter.js#isFirstLetterCapital",
-    "vendor/dearrow/titleFormatter.js#isMostlyAllCaps",
-    "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-    "vendor/dearrow/titleFormatter.js#isYear",
-    "vendor/dearrow/titleFormatter.js#shouldTrustCaps"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isInTitleCase",
-   "name": "isInTitleCase",
-   "kind": "function",
-   "params": "words",
-   "exported": true,
-   "lines": [
-    277,
-    301
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#doesStartWithNonLetter",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#isFirstLetterCapital",
-    "vendor/dearrow/titleFormatter.js#listHasWord"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toSentenceCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#shouldTrustCaps",
-   "name": "shouldTrustCaps",
-   "kind": "function",
-   "params": "mostlyAllCaps, words, index",
-   "exported": false,
-   "lines": [
-    303,
-    307
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#isAllCaps"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isMostlyAllCaps",
-   "name": "isMostlyAllCaps",
-   "kind": "function",
-   "params": "words",
-   "exported": true,
-   "lines": [
-    309,
-    319
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#isAllCaps"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#toTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isAllCaps",
-   "name": "isAllCaps",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    324,
-    329
-   ],
-   "description": "Has at least one char and is upper case",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#isAcronym",
-    "vendor/dearrow/titleFormatter.js#isInTitleCase",
-    "vendor/dearrow/titleFormatter.js#isMostlyAllCaps",
-    "vendor/dearrow/titleFormatter.js#shouldTrustCaps",
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-   "name": "capitalizeFirstLetter",
-   "kind": "function, async",
-   "params": "word, isTurkiq",
-   "exported": true,
-   "lines": [
-    331,
-    351
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp",
-    "vendor/dearrow/titleFormatter.js#startsWithEmojiLetter",
-    "vendor/dearrow/titleFormatter.js#toLowerCase",
-    "vendor/dearrow/titleFormatter.js#toUpperCase"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isWordCapitalCase",
-   "name": "isWordCapitalCase",
-   "kind": "function",
-   "params": "word, allowSingleWords",
-   "exported": false,
-   "lines": [
-    353,
-    357
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toSentenceCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#startsWithEmojiLetter",
-   "name": "startsWithEmojiLetter",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    359,
-    361
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-   "name": "isWordCustomCapitalization",
-   "kind": "function",
-   "params": "word",
-   "exported": true,
-   "lines": [
-    366,
-    376
-   ],
-   "description": "Not just capital at start",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp",
-    "vendor/dearrow/titleFormatter.js#isCompoundWord",
-    "vendor/dearrow/titleFormatter.js#isFirstLetterCapital"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isCompoundWord",
-   "name": "isCompoundWord",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    378,
-    380
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isNumberThenLetter",
-   "name": "isNumberThenLetter",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    385,
-    387
-   ],
-   "description": "3rd, 45th",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#doesStartWithNonLetter",
-   "name": "doesStartWithNonLetter",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    389,
-    391
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#isInTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isYear",
-   "name": "isYear",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    393,
-    395
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isFirstLetterCapital",
-   "name": "isFirstLetterCapital",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    397,
-    399
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#isInTitleCase",
-    "vendor/dearrow/titleFormatter.js#isWordCustomCapitalization",
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-   "name": "forceKeepFormatting",
-   "kind": "function",
-   "params": "word, ignorePunctuation",
-   "exported": false,
-   "lines": [
-    401,
-    425
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#listHasStartOfWord",
-    "vendor/dearrow/titleFormatter.js#listHasWord"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#cleanPunctuation",
-    "vendor/dearrow/titleFormatter.js#cleanWordPunctuation",
-    "vendor/dearrow/titleFormatter.js#shouldTrustCaps",
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#greekLetterAllowed",
-   "name": "greekLetterAllowed",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    430,
-    432
-   ],
-   "description": "Allow mathematical greek symbols",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toLowerCaseTitle",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#toLowerCase",
-   "name": "toLowerCase",
-   "kind": "function, async",
-   "params": "word, isTurkiq",
-   "exported": false,
-   "lines": [
-    434,
-    440
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#checkAnyLanguage"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter",
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toLowerCaseTitle",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#toUpperCase",
-   "name": "toUpperCase",
-   "kind": "function, async",
-   "params": "word, isTurkiq",
-   "exported": false,
-   "lines": [
-    442,
-    448
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#checkAnyLanguage"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#capitalizeFirstLetter"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#getLangInfo",
-   "name": "getLangInfo",
-   "kind": "function, async",
-   "params": "str",
-   "exported": false,
-   "lines": [
-    450,
-    474
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#checkLanguages"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toLowerCaseTitle",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#toTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#checkAnyLanguage",
-   "name": "checkAnyLanguage",
-   "kind": "function, async",
-   "params": "title, languages, percentage",
-   "exported": false,
-   "lines": [
-    476,
-    478
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#checkLanguages"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toLowerCase",
-    "vendor/dearrow/titleFormatter.js#toUpperCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#checkLanguages",
-   "name": "checkLanguages",
-   "kind": "function, async",
-   "params": "title, languages, percentage",
-   "exported": false,
-   "lines": [
-    480,
-    522
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#checkLanguages.getLanguageFromBrowserApi"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#checkAnyLanguage",
-    "vendor/dearrow/titleFormatter.js#getLangInfo"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#checkLanguages.getLanguageFromBrowserApi",
-   "name": "checkLanguages.getLanguageFromBrowserApi",
-   "kind": "arrow, async",
-   "params": "title",
-   "exported": false,
-   "lines": [
-    495,
-    498
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#checkLanguages"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isAcronym",
-   "name": "isAcronym",
-   "kind": "function",
-   "params": "word",
-   "exported": true,
-   "lines": [
-    524,
-    531
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#countLetters",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#listHasWord"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#countLetters",
-   "name": "countLetters",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    533,
-    535
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#isAcronym"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-   "name": "isAcronymStrict",
-   "kind": "function",
-   "params": "word",
-   "exported": true,
-   "lines": [
-    537,
-    540
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#cleanWordPunctuation",
-    "vendor/dearrow/titleFormatter.js#isAcronym",
-    "vendor/dearrow/titleFormatter.js#isAllCaps",
-    "vendor/dearrow/titleFormatter.js#isDelimeter",
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#startOfSentence",
-   "name": "startOfSentence",
-   "kind": "function",
-   "params": "index, words",
-   "exported": false,
-   "lines": [
-    542,
-    544
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#isDelimeter"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#endOfSentence",
-   "name": "endOfSentence",
-   "kind": "function",
-   "params": "index, words",
-   "exported": false,
-   "lines": [
-    546,
-    550
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#isDelimeter",
-    "vendor/dearrow/titleFormatter.js#isEntirelyDelimeter"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isEntirelyDelimeter",
-   "name": "isEntirelyDelimeter",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    552,
-    554
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#endOfSentence",
-    "vendor/dearrow/titleFormatter.js#isDelimeter"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#isDelimeter",
-   "name": "isDelimeter",
-   "kind": "function",
-   "params": "word",
-   "exported": false,
-   "lines": [
-    556,
-    562
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict",
-    "vendor/dearrow/titleFormatter.js#isEntirelyDelimeter",
-    "vendor/dearrow/titleFormatter.js#listHasWord"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#cleanPunctuation",
-    "vendor/dearrow/titleFormatter.js#endOfSentence",
-    "vendor/dearrow/titleFormatter.js#startOfSentence"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-   "name": "cleanResultingTitle",
-   "kind": "function",
-   "params": "title",
-   "exported": true,
-   "lines": [
-    564,
-    566
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#cleanPunctuation",
-    "vendor/dearrow/titleFormatter.js#cleanUnformattedTitle"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#toCapitalizeCase",
-    "vendor/dearrow/titleFormatter.js#toFirstLetterUppercase",
-    "vendor/dearrow/titleFormatter.js#toLowerCaseTitle",
-    "vendor/dearrow/titleFormatter.js#toSentenceCase",
-    "vendor/dearrow/titleFormatter.js#toTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#cleanUnformattedTitle",
-   "name": "cleanUnformattedTitle",
-   "kind": "function",
-   "params": "title",
-   "exported": false,
-   "lines": [
-    568,
-    570
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle",
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#cleanWordPunctuation",
-   "name": "cleanWordPunctuation",
-   "kind": "function",
-   "params": "title",
-   "exported": false,
-   "lines": [
-    572,
-    598
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#isAcronymStrict"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#cleanPunctuation"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#cleanPunctuation",
-   "name": "cleanPunctuation",
-   "kind": "function",
-   "params": "title",
-   "exported": true,
-   "lines": [
-    600,
-    630
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/titleFormatter.js#cleanWordPunctuation",
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#isDelimeter"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#cleanResultingTitle"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#cleanEmojis",
-   "name": "cleanEmojis",
-   "kind": "function",
-   "params": "title",
-   "exported": true,
-   "lines": [
-    632,
-    650
-   ],
-   "description": "",
-   "calls": [
-    "vendor/dearrow/shim.js#uRegExp"
-   ],
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#cleanFancyText",
-   "name": "cleanFancyText",
-   "kind": "function",
-   "params": "title",
-   "exported": true,
-   "lines": [
-    652,
-    669
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#formatTitleInternal"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#listHasWord",
-   "name": "listHasWord",
-   "kind": "function",
-   "params": "list, word",
-   "exported": false,
-   "lines": [
-    671,
-    673
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting",
-    "vendor/dearrow/titleFormatter.js#isAcronym",
-    "vendor/dearrow/titleFormatter.js#isDelimeter",
-    "vendor/dearrow/titleFormatter.js#isInTitleCase",
-    "vendor/dearrow/titleFormatter.js#wordToTitleCase"
-   ]
-  },
-  {
-   "id": "vendor/dearrow/titleFormatter.js#listHasStartOfWord",
-   "name": "listHasStartOfWord",
-   "kind": "function",
-   "params": "list, word",
-   "exported": false,
-   "lines": [
-    675,
-    685
-   ],
-   "description": "",
-   "calledBy": [
-    "vendor/dearrow/titleFormatter.js#forceKeepFormatting"
    ]
   },
   {
@@ -26060,106 +21733,6 @@
     "ui/panel/pages.js#buildMainPage"
    ]
   },
-  "enableReturnYouTubeDislike": {
-   "label": "Return YouTube Dislike",
-   "default": true,
-   "other": [
-    "dev/perf-mon.js#(top level)",
-    "ui/panel/pages.js#buildMainPage"
-   ],
-   "read": [
-    "features/return-dislike/bootstrap.js#bootstrapReturnDislike"
-   ]
-  },
-  "enableDeArrow": {
-   "label": "DeArrow",
-   "default": false,
-   "other": [
-    "features/adblock/constants.js#(top level)",
-    "features/adblock/flags.js#recomputeFilterFlags",
-    "features/dearrow/constants.js#(top level)"
-   ],
-   "read": [
-    "features/dearrow/index.js#onSettingsChange",
-    "features/dearrow/index.js#scheduleSweep",
-    "features/dearrow/lookup.js#pump",
-    "features/dearrow/lookup.js#resolve",
-    "ui/panel/pages.js#buildDeArrowPage.sync"
-   ],
-   "listen": [
-    "ui/panel/pages.js#buildDeArrowPage"
-   ]
-  },
-  "dearrowCrowdTitles": {
-   "label": "Crowdsourced titles",
-   "default": true,
-   "other": [
-    "features/dearrow/constants.js#(top level)",
-    "ui/panel/pages.js#buildDeArrowPage"
-   ],
-   "read": [
-    "features/dearrow/titles.js#crowdsourcedTitle"
-   ]
-  },
-  "dearrowTitleFormatting": {
-   "label": "Title formatting",
-   "default": "title_case",
-   "other": [
-    "features/dearrow/constants.js#(top level)",
-    "ui/panel/pages.js#buildDeArrowPage"
-   ],
-   "read": [
-    "features/dearrow/titles.js#formatTitle"
-   ]
-  },
-  "dearrowCleanEmojis": {
-   "label": "Remove emojis and fancy text",
-   "default": true,
-   "other": [
-    "features/dearrow/constants.js#(top level)",
-    "ui/panel/pages.js#buildDeArrowPage"
-   ],
-   "read": [
-    "features/dearrow/titles.js#formatTitle"
-   ]
-  },
-  "dearrowCrowdThumbnails": {
-   "label": "Crowdsourced thumbnails",
-   "default": true,
-   "other": [
-    "features/dearrow/constants.js#(top level)"
-   ],
-   "read": [
-    "features/dearrow/lookup.js#resolveThumb",
-    "ui/panel/pages.js#buildDeArrowPage.sync"
-   ],
-   "listen": [
-    "ui/panel/pages.js#buildDeArrowPage"
-   ]
-  },
-  "dearrowThumbnailFallback": {
-   "label": "Without a crowdsourced thumbnail",
-   "default": "random",
-   "other": [
-    "features/dearrow/constants.js#(top level)",
-    "ui/panel/pages.js#buildDeArrowPage"
-   ],
-   "read": [
-    "features/dearrow/lookup.js#resolveThumb"
-   ]
-  },
-  "dearrowShowBadge": {
-   "label": "Show the DeArrow logo on crowdsourced titles/thumbnails",
-   "default": true,
-   "other": [
-    "features/dearrow/constants.js#(top level)",
-    "ui/panel/pages.js#buildDeArrowPage"
-   ],
-   "read": [
-    "features/dearrow/sweep.js#sweepTiles",
-    "features/dearrow/tiles.js#applyToTile"
-   ]
-  },
   "enablePlaybackSpeed": {
    "label": "Playback Speed (experimental)",
    "default": false,
@@ -26180,7 +21753,6 @@
     "dev/perf-mon.js#(top level)",
     "features/adblock/constants.js#(top level)",
     "features/adblock/flags.js#recomputeFilterFlags",
-    "features/dearrow/constants.js#(top level)",
     "ui/panel/pages.js#buildMainPage"
    ],
    "listen": [
@@ -26188,7 +21760,6 @@
     "ui/panel/controls/cycle-row.js#createThumbnailQualityControl"
    ],
    "read": [
-    "features/dearrow/thumbs.js#copyWidth",
     "features/thumbnail-quality/state.js#(top level)",
     "ui/panel/controls/cycle-row.js#createThumbnailQualityControl.sync"
    ]
@@ -26196,16 +21767,14 @@
   "thumbnailQualityMode": {
    "label": "Thumbnail Strategy",
    "default": "safe",
-   "other": [
-    "features/dearrow/constants.js#(top level)",
-    "ui/panel/controls/cycle-row.js#createThumbnailQualityControl"
-   ],
    "listen": [
     "features/thumbnail-quality/index.js#(top level)"
    ],
    "read": [
-    "features/dearrow/thumbs.js#copyWidth",
     "features/thumbnail-quality/state.js#(top level)"
+   ],
+   "other": [
+    "ui/panel/controls/cycle-row.js#createThumbnailQualityControl"
    ]
   },
   "removeGlobalShorts": {
@@ -26678,14 +22247,12 @@
   "focusin": {
    "listen": [
     "features/comments-fix.js#(top level)",
-    "features/return-dislike/focus-tracking.js#attachListeners",
     "features/watch/index.js#Watch.setupGlobalListeners",
     "ui/panel/keyboard.js#createPanelKeyboard"
    ]
   },
   "focusout": {
    "listen": [
-    "features/return-dislike/focus-tracking.js#attachListeners",
     "ui/panel/keyboard.js#createPanelKeyboard"
    ]
   },
@@ -26707,8 +22274,6 @@
    ],
    "listen": [
     "dev/perf-mon.js#installRemote",
-    "features/dearrow/index.js#(top level)",
-    "features/return-dislike/focus-tracking.js#attachListeners",
     "features/thumbnail-quality/index.js#(top level)",
     "ui/panel/keyboard.js#createPanelKeyboard.attach",
     "ui/panel/keyboard.js#swallowUntilReleased",
@@ -26917,30 +22482,7 @@
   "THUMBNAIL_TILE": {
    "value": "ytlr-thumbnail-details",
    "note": "",
-   "usedBy": [
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
-  },
-  "TILE": {
-   "value": "ytlr-tile-renderer",
-   "note": "A tile of a shelf or grid, and the title text inside one (DeArrow).",
-   "usedBy": [
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
-  },
-  "TILE_METADATA": {
-   "value": "ytlr-tile-metadata-renderer",
-   "note": "",
-   "usedBy": [
-    "features/dearrow/sweep.js#sweepBadges"
-   ]
-  },
-  "TILE_TITLE": {
-   "value": "ytlr-tile-metadata-renderer yt-formatted-string",
-   "note": "",
-   "usedBy": [
-    "features/dearrow/sweep.js#sweepTiles"
-   ]
+   "usedBy": []
   },
   "THUMBNAIL_NODES": {
    "value": "ytlr-thumbnail-details, ytlr-surface-page, thumbnail image",
@@ -26966,7 +22508,6 @@
    "value": "zylon-focus",
    "note": "On whichever element holds focus.",
    "usedBy": [
-    "features/return-dislike/constants.js#(top level)",
     "ui/shortcuts/playback.js#controlsFocused"
    ]
   },
@@ -27122,10 +22663,7 @@
   "VIRTUAL_LIST": {
    "value": "yt-virtual-list",
    "note": "",
-   "usedBy": [
-    "features/return-dislike/injection.js#applyShift",
-    "features/return-dislike/injection.js#findHeaderRow"
-   ]
+   "usedBy": []
   },
   "BUTTON_CONTAINER": {
    "value": "yt-button-container",

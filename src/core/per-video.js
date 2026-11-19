@@ -1,5 +1,4 @@
-// One instance per watched video, shared by SponsorBlock and the dislike
-// counter: created when the watch page shows a video, kept across hash changes
+// One instance per watched video (SponsorBlock's): created when the watch page shows a video, kept across hash changes
 // within the same video, torn down when the video changes, off the watch page,
 // when its setting changes (and then recreated) and on unload.
 import { configAddChangeListener } from './config.js';

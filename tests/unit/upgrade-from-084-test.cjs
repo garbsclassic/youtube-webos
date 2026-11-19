@@ -61,17 +61,22 @@ const { sandbox, get } = loadSources(['text.js', 'config-options.js', 'config.js
 });
 const options = get('configOptions');
 
-const lost = Object.keys(stored084).filter((k) => !options.has(k));
-t('every setting 0.8.4 stored still exists', lost.length === 0, lost.join(', '));
+// Settings of the features this fork removed: read as gone, and dropped on the next write.
+const REMOVED = new Set(['enableReturnYouTubeDislike']);
+const lost = Object.keys(stored084).filter((k) => !options.has(k) && !REMOVED.has(k));
+t(
+  'every setting 0.8.4 stored still exists, but the removed ones',
+  lost.length === 0,
+  lost.join(', ')
+);
+const kept = Object.keys(stored084).filter((k) => options.has(k));
 
 /** What a 0.8.4 value reads as in this build: itself, or its option's upgrade of it. */
 const expected = (k) => {
   const upgrade = options.get(k).upgrade;
   return upgrade ? upgrade(stored084[k]) : stored084[k];
 };
-const changed = Object.keys(stored084).filter(
-  (k) => options.has(k) && sandbox.configRead(k) !== expected(k)
-);
+const changed = kept.filter((k) => sandbox.configRead(k) !== expected(k));
 t(
   'every stored value reads back as 0.8.4 left it',
   changed.length === 0,
@@ -129,11 +134,15 @@ t('every stored choice is one this build offers', unknown.length === 0, unknown.
 sandbox.configWrite('enableRowsAhead', false);
 for (const fn of listeners.pagehide || []) fn();
 const written = JSON.parse(store.get('ytaf-configuration'));
-const dropped = Object.keys(stored084).filter((k) => written[k] !== expected(k));
+const dropped = kept.filter((k) => written[k] !== expected(k));
 t(
   'the next write keeps every 0.8.4 value and adds the new one',
   dropped.length === 0 && written.enableRowsAhead === false,
   dropped.join(', ')
+);
+t(
+  'the next write drops the removed settings',
+  [...REMOVED].every((k) => !(k in written))
 );
 
 report.finish();

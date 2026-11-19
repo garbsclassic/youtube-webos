@@ -145,8 +145,9 @@ The rebuild inverts triage: each row is a fork change, judged against 0.8.5. RE-
 
 ### 4. Drop DeArrow and RYD (after 2)
 
-- [ ] Remove both features, their settings, keys, vendor code and tests (landmines 1, 3, 4)
-- [ ] Check: gate passes, settings panel has no orphan rows
+- [x] Remove both features, their settings, keys, vendor code and tests (landmines 1, 3, 4); the panel loses its DeArrow tab and the RYD row, and the description shortcut no longer pokes RYD
+- [x] Stored `enableReturnYouTubeDislike` and DeArrow keys are dropped on load and on the next write (`core/config.js` already does this; `upgrade-from-084-test` now checks it)
+- [x] Check: `pnpm test` passes every step; bundle 191,496 bytes, budget lowered from 255 to 200 KiB
 
 ### 5. Re-apply fork fixes (after 3 and 4)
 

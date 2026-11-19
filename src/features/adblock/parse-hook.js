@@ -3,7 +3,6 @@
 import { isShortsPage } from '../../core/page-state.js';
 import { isDebugEnabled } from '../../core/log.js';
 import { upgradeResponseThumbnails } from '../thumbnail-quality/index.js';
-import { applyDeArrow } from '../dearrow/index.js';
 import { raiseRowsAhead } from '../rows-ahead.js';
 import { IGNORE_ON_SHORTS } from './constants.js';
 import { detectResponseType } from '../../core/innertube.js';
@@ -112,8 +111,8 @@ function filterSafely(data, textLength, flags) {
 
 /**
  * Everything done to a parsed response, in order: the codec filter, Load Rows Ahead, the content
- * filters (by schema, the fallback search, or the guide's nav entries), then the thumbnail upgrade,
- * DeArrow and the emoji wrap.
+ * filters (by schema, the fallback search, or the guide's nav entries), then the thumbnail upgrade
+ * and the emoji wrap.
  */
 function filterResponse(data, textLength, flags) {
   // The codec filter first: a player response is also one the Shorts guard
@@ -154,8 +153,6 @@ function filterResponse(data, textLength, flags) {
   // already resolved above instead of detecting the shape a second time.
   // The thumbnail module keeps its own switch and returns at once when off.
   upgradeResponseThumbnails(data, responseType, textLength);
-  // After the thumbnail upgrade, so a DeArrow thumbnail is the one that sticks.
-  if (flags.enableDeArrow) applyDeArrow(data, responseType);
   wrapEmojiInFrameworkUpdates(data, flags);
 }
 
@@ -163,7 +160,7 @@ function filterResponse(data, textLength, flags) {
  * Installs the hook, once, for the life of the page.
  *
  * Every switch that lives on it (ads, Shorts, guest prompts, endcards,
- * trackingParams, the legacy emoji rewrite, the thumbnail upgrade, DeArrow) is a flag
+ * trackingParams, the legacy emoji rewrite, the thumbnail upgrade) is a flag
  * in flags.js, and filterResponse stops after the rows-ahead pass (its own
  * switch, Load Rows Ahead) while none of them is on; force-codec's offer filter runs inside it as well.
  */

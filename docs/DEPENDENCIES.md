@@ -16,11 +16,10 @@ webOS 22+ only.)
 | --- | --- | --- |
 | `tiny-sha256` | SponsorBlock's privacy hash of the video id | 1.0.2 |
 
-Two pieces of third-party code are not npm packages but copied into
-`src/vendor/` (0.8.5 build 2), so they change only when someone copies a new
-version in: DeArrow's title formatter (GPL-3.0) and the
-playback speed engine (GPL-3.0). Where each came from is
-in `src/vendor/README.md`.
+One piece of third-party code is not an npm package but copied into
+`src/vendor/` (0.8.5 build 2), so it changes only when someone copies a new
+version in: the playback speed engine (GPL-3.0). Where it came from is in
+`src/vendor/README.md`.
 
 It is pinned to an exact version on purpose: a routine `pnpm update` must not
 change TV code without a decision.

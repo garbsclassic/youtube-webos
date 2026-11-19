@@ -40,7 +40,7 @@ This fork builds once, for webOS 22 and newer (Chromium 87 or newer): `npm run b
 | `src/features/` | One folder (or file) per feature. A feature reads its settings, listens to page events and touches YouTube's page or responses. |
 | `src/ui/` | The options panel (`panel/`), the remote shortcuts (`shortcuts/`), the toasts (`toast/`), the theme classes on `<html>` (`styles/`). |
 | `src/dev/` | The perf monitor, a development tool (`npm run build:perf`). |
-| `src/vendor/` | Third-party code kept as its authors wrote it: DeArrow's title formatter and the playback speed engine. Origins and licenses in `src/vendor/README.md`; lint, Prettier and the code map's description check skip it. |
+| `src/vendor/` | Third-party code kept as its authors wrote it: the playback speed engine. Origins and licenses in `src/vendor/README.md`; lint, Prettier and the code map's description check skip it. |
 | `tools/` | Build helpers (the CSS collector, the bare-require check), the code map generator, the bundle snapshot. |
 | `tests/` | `run-all.mjs` runs everything: unit tests, behaviour tests on simulated webOS pages (jsdom, with a Chromium 87 profile), smoke tests on the built bundles, benchmarks. |
 
@@ -51,7 +51,7 @@ feature module registers its listeners while it is imported:
 
 ```mermaid
 flowchart TD
-  B[dev/perf-mon.js<br/>perf builds only] --> D[feature modules imported<br/>return-dislike, video-quality, ui, sponsorblock,<br/>screensaver-fix, comments-fix, watch,<br/>lang-settings-fix: each registers its listeners]
+  B[dev/perf-mon.js<br/>perf builds only] --> D[feature modules imported<br/>video-quality, ui, sponsorblock,<br/>screensaver-fix, comments-fix, watch,<br/>lang-settings-fix: each registers its listeners]
   D --> E[global hooks installed<br/>JSON.parse, JSON.stringify, codec hooks]
   E --> F[initLogoStyle, startTrackingBlock]
   F --> G[launch params: account-selector bypass<br/>webOSRelaunch listener]
@@ -68,7 +68,7 @@ flowchart TD
    parameters, and the `webOSRelaunch` listener (the app was opened again while
    running, for example from a voice search). A relaunch without a target
    (back from another app) leaves the page alone: going to `#/` would end
-   SponsorBlock and the dislike counter for the video still playing.
+   SponsorBlock for the video still playing.
 
 `src/ui/index.js` (imported among the features) makes sure a key opens the
 settings, sets the `<html>` theme classes and greets the user with a toast.
@@ -80,7 +80,7 @@ and the browser:
 
 | Hook | Installed by | Used for |
 | --- | --- | --- |
-| `JSON.parse` | `features/adblock/parse-hook.js` | Every InnerTube response YouTube parses: ad removal, the Shorts/Live/shelf filters, endcards, Load Rows Ahead, the codec filter, thumbnail upgrades, DeArrow, the emoji wrap; and, with Playback Speed on, YouTube's Speed button. |
+| `JSON.parse` | `features/adblock/parse-hook.js` | Every InnerTube response YouTube parses: ad removal, the Shorts/Live/shelf filters, endcards, Load Rows Ahead, the codec filter, thumbnail upgrades, the emoji wrap (a no-op here); and, with Playback Speed on, YouTube's Speed button. |
 | `JSON.stringify` | `features/adblock/stringify-hook.ts` | Outgoing player requests: marks them `isInlinePlaybackNoAd` while Ad Blocking is on. |
 | `window.fetch` | `hooks/fetch.ts` (`FetchRegistry`) | Listeners can see and cancel requests: Tracking Block cancels telemetry. Without listeners the original fetch is called directly. |
 | `window.fetch` (second wrapper) | `features/block-webos-cast.ts` | webOS 25: fails the request that wakes the cast receiver. A plain string check, not a registry listener, so other requests stay on the fast path. |
@@ -113,7 +113,7 @@ flowchart TD
   F3 --> F4{any filter on?}
   F4 -- no --> X
   F4 -- yes --> F5[content filters: by schema, else the fallback search,<br/>else the guide's nav entries]
-  F5 --> F6[thumbnail upgrade, DeArrow, emoji wrap]
+  F5 --> F6[thumbnail upgrade, emoji wrap]
   F6 --> X
 ```
 
@@ -126,13 +126,12 @@ recomputed when a setting changes rather than read on every parse.
   sets (`WEB_PAGE_TYPE_WATCH` and so on) and dispatches `ytaf-page-update` when
   the kind of page changes. `isWatchPage()`, `isShortsPage()` and
   `isSearchPage()` read the same state.
-- **Per-video instances** (`core/per-video.js`): SponsorBlock and Return
-  YouTube Dislike get one instance per watched video, created when the watch
+- **Per-video instances** (`core/per-video.js`): SponsorBlock gets one
+  instance per watched video, created when the watch
   page shows a video, kept across hash changes of the same video, destroyed
   when the video changes, off the watch page, on unload, and recreated when
-  their setting changes. The live instance is reachable through
-  `getSponsorBlock()` / `getReturnDislike()` and, for the TV's web inspector,
-  `window.sponsorblock` / `window.returnYouTubeDislike`.
+  its setting changes. The live instance is reachable through
+  `getSponsorBlock()` and, for the TV's web inspector, `window.sponsorblock`.
 - **Player state**: `features/video-quality` attaches to YouTube's player on
   the watch page and re-publishes its state changes as `yt-player-state-change`;
   the clock and SponsorBlock follow it. `core/player-state.js` names the states.

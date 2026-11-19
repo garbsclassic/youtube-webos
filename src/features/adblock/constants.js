@@ -45,8 +45,7 @@ export const CONFIG_KEYS = {
   EMOJI_FIX: 'enableLegacyEmojiFix',
   ENDCARDS: 'hideEndcards',
   THUMBNAILS: 'upgradeThumbnails',
-  ROWS_AHEAD: 'enableRowsAhead',
-  DEARROW: 'enableDeArrow'
+  ROWS_AHEAD: 'enableRowsAhead'
 };
 
 // Response types left untouched (no filtering, text fixes, thumbnails or nav

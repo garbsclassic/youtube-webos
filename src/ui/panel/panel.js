@@ -8,13 +8,7 @@ import logoBlueUrl from '../icons/logo-blue.png';
 import logoRedUrl from '../icons/logo-red.png';
 import logoDarkUrl from '../icons/logo-dark.png';
 import { createElement } from '../dom.js';
-import {
-  buildMainPage,
-  buildSponsorPage,
-  buildDeArrowPage,
-  buildShortcutsPage,
-  buildUITweaksPage
-} from './pages.js';
+import { buildMainPage, buildSponsorPage, buildShortcutsPage, buildUITweaksPage } from './pages.js';
 import { createPanelKeyboard, pageFocusables } from './keyboard.js';
 import { createFocusTrap } from './focus-trap.js';
 import { createLogger } from '../../core/log.js';
@@ -29,7 +23,6 @@ const log = createLogger('Panel');
 const PAGES = [
   { name: 'Main', build: buildMainPage },
   { name: 'SponsorBlock', build: buildSponsorPage, hasPopup: true },
-  { name: 'DeArrow', build: buildDeArrowPage },
   { name: 'Shortcuts', build: buildShortcutsPage },
   { name: 'UI Tweaks', build: buildUITweaksPage }
 ];

@@ -8,9 +8,7 @@ import {
   triggerInternal,
   announcePressed
 } from './helpers.js';
-import { getReturnDislike } from '../../features/return-dislike/bootstrap.js';
 import { SELECTORS } from '../../core/selectors.js';
-import { log } from './log.js';
 
 /** The first element a candidate selector finds, in the order given (a key press, a few lookups). */
 function firstMatch(selectors) {
@@ -80,24 +78,11 @@ function findDescriptionButton() {
   return generic ? generic.closest(SELECTORS.BUTTON_CONTAINER) : null;
 }
 
-/**
- * Opens or closes the description panel; once it is open, the dislike counter is asked to look for
- * it.
- */
+/** Opens or closes the description panel. */
 export function toggleDescription() {
   togglePanelButton({
     button: findDescriptionButton(),
-    name: 'Description',
-    onOpened: () => {
-      // The dislike counter wants the panel once it has mounted.
-      setTimeout(() => {
-        const ryd = getReturnDislike();
-        if (ryd) {
-          log.debug('Polling for the description panel');
-          ryd.pollForPanel();
-        }
-      }, 350);
-    }
+    name: 'Description'
   });
 }
 

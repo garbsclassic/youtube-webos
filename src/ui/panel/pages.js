@@ -1,14 +1,7 @@
-// The five pages of the options panel. Each builder returns its page element;
+// The four pages of the options panel. Each builder returns its page element;
 // the panel appends it and decides when it is built (Main up front, the rest
 // one per frame once the panel is on screen).
-import {
-  configRead,
-  configAddChangeListener,
-  dearrowTitleFormats,
-  dearrowThumbnailFallbacks,
-  clockModes
-} from '../../core/config.js';
-import { titleFormattingSupported } from '../../features/dearrow/index.js';
+import { configRead, configAddChangeListener, clockModes } from '../../core/config.js';
 import { playbackSpeedSupported } from '../../features/playback-speed/index.js';
 import { isGuestMode } from '../../core/guest-mode.js';
 import { getWebOSVersion } from '../../core/webos.js';
@@ -81,8 +74,7 @@ export function buildMainPage() {
     createSection('Video Player', [
       createConfigCheckbox('forceHighResVideo'),
       createVideoCodecControl(),
-      createConfigCheckbox('hideEndcards'),
-      createConfigCheckbox('enableReturnYouTubeDislike')
+      createConfigCheckbox('hideEndcards')
     ])
   );
   pageMain.appendChild(
@@ -134,58 +126,7 @@ export function buildSponsorPage() {
   return pageSponsor;
 }
 
-// --- Page 3: DeArrow ---
-/**
- * The DeArrow page: the switch and the logo, then the title and thumbnail options, greyed out while
- * it is off (and the thumbnail fallback while crowdsourced thumbnails are). Title formatting is in
- * the webOS 22+ build only (features/dearrow/titles.js): the legacy one gets no formatting rows.
- */
-export function buildDeArrowPage() {
-  const pageDeArrow = createElement('div', {
-    class: 'ytaf-settings-page',
-    id: 'ytaf-page-dearrow',
-    style: { display: 'none' }
-  });
-  pageDeArrow.appendChild(createConfigCheckbox('enableDeArrow'));
-  // The logo beside "4K" on every video DeArrow changed (features/dearrow/tiles.js).
-  const elBadge = createConfigCheckbox('dearrowShowBadge');
-  pageDeArrow.appendChild(elBadge);
-
-  // Formatting applies to every title shown, crowdsourced or YouTube's own.
-  const titleRows = [createConfigCheckbox('dearrowCrowdTitles')];
-  if (titleFormattingSupported) {
-    titleRows.push(
-      createChoiceControl('dearrowTitleFormatting', dearrowTitleFormats),
-      createConfigCheckbox('dearrowCleanEmojis')
-    );
-  }
-  const elFallback = createChoiceControl('dearrowThumbnailFallback', dearrowThumbnailFallbacks);
-  const elFallbackHelp = helpLine(
-    "Random frame: a frame DeArrow picks from the video. Start, middle and end frames: YouTube's own."
-  );
-  const thumbRows = [createConfigCheckbox('dearrowCrowdThumbnails'), elFallback, elFallbackHelp];
-  pageDeArrow.appendChild(createSection('Titles', titleRows));
-  pageDeArrow.appendChild(createSection('Thumbnails', thumbRows));
-  pageDeArrow.appendChild(
-    footNote('Crowdsourced titles and thumbnails, in place of clickbait - https://dearrow.ajay.app')
-  );
-
-  /** Greys out the rows while DeArrow is off, and the fallback while crowdsourced thumbnails are. */
-  const sync = () => {
-    const on = !!configRead('enableDeArrow');
-    const thumbsOn = !!configRead('dearrowCrowdThumbnails');
-    [elBadge].concat(titleRows, thumbRows).forEach((row) => {
-      const fallbackRow = row === elFallback || row === elFallbackHelp;
-      setUnavailable(row, !on || (fallbackRow && !thumbsOn));
-    });
-  };
-  configAddChangeListener('enableDeArrow', sync);
-  configAddChangeListener('dearrowCrowdThumbnails', sync);
-  sync();
-  return pageDeArrow;
-}
-
-// --- Page 4: Shortcuts ---
+// --- Page 3: Shortcuts ---
 /** The Shortcuts page: one row per configurable key. */
 export function buildShortcutsPage() {
   const pageShortcuts = createElement('div', {
@@ -199,7 +140,7 @@ export function buildShortcutsPage() {
   return pageShortcuts;
 }
 
-// --- Page 5: UI Tweaks ---
+// --- Page 4: UI Tweaks ---
 /**
  * The UI Tweaks page: shelf opacity, previews, titles, rows ahead, Liquid Glass, the theme, the
  * emoji fix on webOS 3/4, and playback speed where the TV can (webOS 23 and newer).

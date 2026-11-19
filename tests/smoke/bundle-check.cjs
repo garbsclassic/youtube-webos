@@ -24,12 +24,13 @@ const flavour = process.argv[3] || 'legacy';
 // budget: the size in bytes the built file must stay under.
 // iifeLimit: how many function expressions called on the spot may sit inside
 // another function (see the check below).
-// The webOS 22+ budget went from 175 to 255 KiB with 0.8.5 b2: the playback
-// speed engine (~45 KiB, src/vendor/playback-speed) and DeArrow's title
-// formatter (~33 KiB, src/vendor/dearrow) are in that build only.
+// The webOS 22+ budget went from 175 to 255 KiB with upstream 0.8.5 b2, for the
+// playback speed engine (~45 KiB, src/vendor/playback-speed) and DeArrow, which
+// this fork has since removed; with RYD gone too the bundle is about 187 KiB, so
+// the budget is 200 KiB.
 const FLAVOURS = {
   legacy: { ecmaVersion: 5, budget: 240 * 1024, iifeLimit: 40 },
-  modern: { ecmaVersion: 2022, budget: 255 * 1024, iifeLimit: 20 }
+  modern: { ecmaVersion: 2022, budget: 200 * 1024, iifeLimit: 20 }
 };
 
 const report = createReport();

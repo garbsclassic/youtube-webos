@@ -152,7 +152,7 @@ function createAlignedCycleControl(configKey, displayMap) {
 
 /**
  * A row among checkbox rows that cycles `configKey` through the values of
- * `displayMap` (value -> label): the DeArrow choices and the clock.
+ * `displayMap` (value -> label): the clock.
  */
 export const createChoiceControl = (configKey, displayMap) =>
   createAlignedCycleControl(configKey, displayMap);

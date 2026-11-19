@@ -63,7 +63,7 @@
 /* A page scrolls rather than clips if a future row ever overflows 95vh. The
    0.4vh at the top (taken from the tab menu's margin, so nothing moves) keeps
    the focus ring of a first row that is not in a section inside the scrolling
-   box: SponsorBlock's and DeArrow's switches. */
+   box: SponsorBlock's switch. */
 .ytaf-ui-container > div.ytaf-settings-page {
   padding: 0.4vh 3vh 2.2vh;
   overflow-y: auto;
