@@ -31,7 +31,8 @@
     "codemap": "node tools/codemap.mjs",
     "codemap:check": "node tools/codemap.mjs --check",
     "patch": "npm version patch",
-    "minor": "npm version minor"
+    "minor": "npm version minor",
+    "prepare": "husky"
   },
   "license": "GPL-3.0-only",
   "repository": "github:garbsclassic/youtube-webos",
@@ -59,7 +60,9 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-regexp": "^3.3.1",
     "globals": "^17.13.0",
+    "husky": "^9.1.7",
     "jsdom": "30.1.2",
+    "lint-staged": "^16.4.0",
     "postcss": "^8.5.29",
     "postcss-loader": "^8.2.1",
     "prettier": "^3.9.9",
@@ -70,5 +73,6 @@
   },
   "engines": {
     "node": "^22.22.3 || ^24.15.0 || >=26"
-  }
+  },
+  "packageManager": "pnpm@10.28.0"
 }
