@@ -161,14 +161,14 @@ One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't 
 - [ ] Lifecycle ownership fixes that reproduce
 - [ ] Settings panel invariants and width
 - [ ] Thumbnail and SponsorBlock resource invariants that profiling shows are missing
-- [ ] Response lookup depth
+- [x] Response lookup depth: ALREADY PRESENT. `core/bounded-search.js` never enumerates a node at `maxDepth` (`nextDepth > maxDepth` skips the queue), and `findObjects` keeps a first falsy match (`results[needle] === undefined`); `tests/unit/adblock-search-test.cjs` covers both
 
 ### 6. Docs and release prep (after 5)
 
-- [ ] `intent.md`: remove the playback-speed and description-navigation lines; add lines for anything this sync keeps that looks like a mistake
-- [ ] `fork-context.json`: `synced_to` = `0.8.5` / `e6840cc`, divergence rewritten for the new layout
-- [ ] `CHANGELOG.md` 0.3.0 entry: upstream 0.8.2–0.8.5 credit, dropped features, fork fixes
-- [ ] `plan-resource-usage.md` re-pointed at the new module paths
+- [x] `intent.md`: remove the playback-speed and description-navigation lines; add lines for anything this sync keeps that looks like a mistake
+- [x] `fork-context.json`: `synced_to` = `0.8.5` / `e6840cc`, divergence rewritten for the new layout
+- [x] `CHANGELOG.md` 0.3.0 entry: upstream 0.8.2–0.8.5 credit, dropped features, fork fixes
+- [x] `plan-resource-usage.md` re-pointed at the new module paths and counters; `tools/profile-resource.mjs` updated for the panel's `ytaf-active` tab class
 
 ### 7. Verify and land (after 6)
 

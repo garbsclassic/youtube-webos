@@ -1,27 +1,18 @@
 {
-  "description": "Fork of NicholasBly/youtube-webos (ad-free YouTube for LG webOS TVs), branched at upstream 0.8.1; upstream 0.8.2-0.8.4 ported on feat/upstream-sync-0.8.3 and feat/upstream-sync-0.8.4.",
+  "description": "Fork of NicholasBly/youtube-webos (ad-free YouTube for LG webOS TVs), rebuilt on upstream tag 0.8.5 with the fork's identity and fixes re-applied on top.",
   "upstream_url": "https://github.com/NicholasBly/youtube-webos.git",
   "synced_to": {
-    "version": "0.8.4",
-    "commit": "78a374a"
+    "version": "0.8.5",
+    "commit": "e6840cc"
   },
   "divergence": [
-    "Dropped the entire legacy webOS 3-6 / Chrome 38 / ES5 build; only the modern Chrome 87 target ships",
-    "Removed babel.config.js, legacy browserslist targets, core-js-pure, @babel/runtime-corejs3, regenerator-runtime, babel-plugin-polyfill-*, whatwg-fetch, and all polyfills",
-    "Deleted the twemoji emoji-fix code path entirely",
-    "Converted config.js to typed config.ts with a 200 ms debounced localStorage write flushed on pagehide",
-    "Bundles all icons, logos and fonts locally already",
-    "Added a node:test suite and CI; does not use ad-hoc .cjs bench harnesses",
-    "app_api already gates debug logs behind a flag with poll backoff and timeout",
-    "Fixed the back-button issue #159 independently with an isAtTopLevel guard",
-    "Already fixed the options-panel ReferenceError and shortcut debounce",
-    "Has its own README, repo.json and version numbering; nothing is distributed, so no migration shims are needed",
-    "config.ts configRead/configWrite throw on unknown keys, where upstream's config.js returns undefined; any upstream code reading a computed key (e.g. `${category}Color`) must check the key exists first",
-    "Ported upstream 0.8.4's comments-fix.js (#188) and RYD header shift; the RYD .TXB27d virtual-list override is gone",
-    "Ported SponsorBlock full-video labels and time-with-skips, plus exclusive_access in FETCH_CATEGORIES, which upstream omits so its Exclusive Access badge never shows",
-    "Keeps its own spatial-navigation.js; upstream's spatial-navigation-polyfill.js is legacy-build only",
-    "Upstream converted every file to CRLF in 0.8.4 and back to LF in 0.8.5; diff with --ignore-cr-at-eol -w across that range",
-    "Comments carry no history of earlier approaches; upstream's comment-trim passes apply where the fork carries the same text"
+    "Own README, CHANGELOG, repo.json, icons, version numbering and release/test/update-repo workflows; upstream's discussion workflow, test-build .ipks and build-local*.cmd are removed",
+    "pnpm with husky and lint-staged instead of npm",
+    "Legacy webOS 3-6 / Chrome 38 build dropped: src/polyfills, emoji-font, hooks/buffer-limit.js, the *-absent.js stubs, legacy tests and their dependencies are gone; legacy-only branches inside shared upstream modules are left as written (see intent.md)",
+    "DeArrow and Return YouTube Dislike removed, with their config keys; the settings panel has four tabs (Main, SponsorBlock, Shortcuts, UI Tweaks), so test tab indices differ from upstream",
+    "Bundle budget in tests/smoke/bundle-check.cjs lowered to 200 KiB",
+    "features/comments-fix.js overrides only the properties the closing rule collapses, per selector of a split list, instead of upstream's all-properties override",
+    "features/sponsorblock/overlay.js maps non-highlight segments across chapter gaps with chapterBarRanges; upstream's sibling-overlay positioning is kept"
   ],
   "known_live_bugs": []
 }

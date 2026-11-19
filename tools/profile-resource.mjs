@@ -91,7 +91,6 @@ try {
     result.open = await evaluate(`(() => {
       const before=document.querySelectorAll('.ytaf-settings-page').length,start=performance.now();
       window.ytaf_showOptionsPanel(true);
-      window.__spatialNavigation__?.setStartingPoint(null,null);
       return {before,after:document.querySelectorAll('.ytaf-settings-page').length,ms:performance.now()-start};
     })()`);
     await delay(600);
@@ -114,7 +113,7 @@ try {
         requestAnimationFrame(()=>{
           if(state.samples.length<120)state.samples.push({key:e.key,ms:performance.now()-start,
             rect:state.rect-rect,style:state.style-style,moved:document.activeElement!==origin,
-            tab:document.querySelector('.ytaf-tab-btn.active')?.textContent});
+            tab:document.querySelector('.ytaf-tab-btn.ytaf-active')?.textContent});
         });};
       state.expiry=setTimeout(state.stop,140000);
       window.addEventListener('keydown',state.listener,true);

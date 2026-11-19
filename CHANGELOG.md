@@ -4,86 +4,112 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.3.0] - 2026/09/06
+## [0.3.0] - Unreleased
 
-Ports everything upstream shipped in 0.8.2, 0.8.3 and 0.8.4 that still applies to this fork,
-plus the bugs found while porting it. Credit to the upstream project for the original work.
+Rebuilds the fork on upstream 0.8.5, the modular rewrite with an automated test suite, and
+carries everything upstream shipped in 0.8.2 through 0.8.5 that still applies here, plus the
+fork's own fixes. Credit to the upstream project, and to the contributors it credits, for the
+original work.
 
-Two behavior changes worth calling out: blocked telemetry requests now resolve as an empty
-200 instead of being aborted, and the `hideLogo` setting is gone -- the logo resets to the
-default wordmark until you pick Premium or Hidden under the new YouTube Logo setting.
+Behavior changes worth calling out: Return YouTube Dislike and DeArrow are gone, blocked
+telemetry requests now resolve as an empty 200 instead of being aborted, and the `hideLogo`
+setting is gone. The logo resets to the default wordmark until you pick Premium or Hidden
+under the new YouTube Logo setting.
 
 ### Added
 
-- **Force Video Codec** -- pin playback to AV1, VP9, AVC, HEVC, or "Avoid AV1" instead of
+- **Force Video Codec**: pin playback to AV1, VP9, AVC, HEVC, or "Avoid AV1" instead of
   accepting whatever the player and server negotiate. Some panels advertise AV1 through MSE
   and then stall on it; some decode VP9 in hardware and AV1 in software. Narrowing only: a
   codec the platform denies is refused with a message rather than a black screen, audio is
   never touched, and a video with no rendition in the chosen codec plays as it always did.
   Takes effect on reload, since the player probes codecs once at startup.
-- **YouTube Logo** -- Default, Premium, or Hidden. Replaces the `hideLogo` checkbox.
-- **Remove Live Videos (Global)** -- filters live streams out of every shelf, and removes
-  the Live tab from the left nav. The Shorts tab is now removed too when Remove Shorts is
-  on.
-- **Thumbnail Strategy** -- Original or Fast, tuning Max Thumbnail Quality. Original never
-  shows a grey placeholder; Fast upgrades immediately and corrects itself in the background.
-- **Bypass Nag Screens** -- the Auto Login setting now also suppresses the Premium upsell
+- **Playback Speed** (experimental, UI Tweaks, off by default, webOS 23 and newer): 0.25x to 2x with pitch kept,
+  from the player's Speed menu or the Playback Speed +, - and 1x button mappings. webOS
+  ignores the browser's playback rate, so the video timeline is rescaled and audio runs
+  through a time-stretching engine. Above 1.25x the video is held at 1080p. Restart the app
+  after turning it on.
+- **Load Rows Ahead** (UI Tweaks, on by default): the home screen, browse tabs and search
+  load the next rows four rows before the bottom, so fast scrolling doesn't land on empty
+  rows.
+- **YouTube Logo**: Default, Premium, or Hidden. Replaces the `hideLogo` checkbox.
+- **Remove Live Videos (Global)**: filters live streams out of every shelf and removes the
+  Live tab from the left nav. The Shorts tab is removed too when Remove Shorts is on.
+- **Thumbnail Strategy** for Max Thumbnail Quality: Original, Fast, or Smooth (SD). Original
+  never shows a grey placeholder; Fast upgrades immediately and corrects itself in the
+  background; Smooth shows the 640x480 image from the first frame so tiles never swap.
+- **Fix Search Results Font** (UI Tweaks, on by default): search titles use the TV's LG
+  Display font like every other page.
+- **UI Theme** row on the UI Tweaks page, so Blue and Classic Red can be switched with the
+  remote.
+- **Display Time in UI** is now Off, Time, or Date + Time, with the date in your TV
+  language's order.
+- **Bypass Nag Screens**: the Auto Login setting now also suppresses the Premium upsell
   interstitial. Same setting, renamed.
-- **Show an icon when a video is entirely an advertisement** -- a SponsorBlock badge before
-  the video title when the whole video is labelled Sponsor, Self Promo or Exclusive Access,
-  as the desktop extension shows it. Watch page only.
-- **Show time with skips removed** -- the duration under the seek bar gains a bracketed
+- **Show an icon when a video is entirely an advertisement**: a SponsorBlock badge before
+  the video title when the whole video is labelled Sponsor, Self Promo or Exclusive Access.
+  Watch page only.
+- **Show time with skips removed**: the duration under the seek bar gains a bracketed
   running time that subtracts every segment that will be skipped, counting overlaps once.
+- Back closes the settings panel, and the panel heading shows the version.
 
 ### Changed
 
 - Max Thumbnail Quality rewrites thumbnail URLs in the InnerTube response instead of
-  swapping them in the DOM. The app never requests the low-quality image, so upgraded tiles
-  cost one fetch instead of two and no longer pop in; off-screen tiles are upgraded too, and
-  search results are covered for the first time. Three permanent observers and a probe queue
-  are gone.
+  swapping them in the DOM, so the app never requests the low-quality image first. Search
+  results are covered, and checks pause briefly after each arrow press so they don't
+  compete with scrolling.
 - Blocked telemetry requests are re-pointed at an empty `data:` URL rather than aborted, so
   YouTube's queue settles instead of retrying. More telemetry paths are blocked
-  (`/pagead/*`, `/eligibility_check`).
-- The settings panel is relaid out: larger body text, Cosmetic Filtering in two columns, and
-  a scroll fallback so a row can never become unreachable.
-- Return YouTube Dislike shows an em dash until the count arrives, rather than a
-  placeholder 0.
-- The "Toggle OLED Care Mode" shortcut is now "Toggle OLED Black Overlay", so it no longer
-  reads as the OLED-Care Mode setting.
+  (`/pagead/*`, `/eligibility_check`). Reduce Telemetry & Tracking only runs while Ad
+  Blocking is on.
+- The settings panel is relaid out with larger body text, Cosmetic Filtering in two columns,
+  and its own arrow-key navigation in place of the spatial navigation polyfill.
+- SponsorBlock segment markers on a chaptered video follow the chapter gaps in the progress
+  bar instead of drifting from the segment times.
+- The "Toggle OLED Care Mode" shortcut is now "Toggle OLED Black Overlay". Opening the
+  settings takes the overlay down.
+- If no key opens the settings anymore, closing the panel binds Green back to Open/Close
+  Settings so you can't lock yourself out.
+- Bypass Nag Screens only auto-bypasses the account selector in the first 15 seconds after
+  launch, so opening "Who's watching" yourself later works.
 
 ### Fixed
 
 - Reopening the comments or description panel after closing it stacked every row at the top
   with zero height and trapped arrow navigation (a YouTube-side regression,
-  NicholasBly/youtube-webos#188). Scrolling some description panels was broken by the same
-  workaround Return YouTube Dislike used for it (#154).
+  NicholasBly/youtube-webos#188). The workaround now overrides only the properties YouTube's
+  closing rule collapses, so it no longer pins unrelated hidden elements open.
+- SponsorBlock turned off after switching to another app and back, and returning sent
+  YouTube to its start page underneath the video.
+- SponsorBlock: "Allow segments that mute audio" was broken; Non-Music Section was never
+  fetched; overlapping or nested segments jumped wrongly; a stalled server never fell back
+  to the second one; a malformed API entry broke the whole video; the segment bar lost the
+  progress bar when the video element was replaced; the overlay disappeared after replaying
+  from the endscreen; an overshot skip wedged the skip pipeline; manual-skip notifications
+  piled up.
+- Force Max Quality silently stopped after a year, left the app stuck at 4320p when turned
+  off, and gave up looking for the player after 10 seconds on slow TVs.
+- Search results never got higher quality thumbnails, a network error could lock a
+  thumbnail at low quality for good, and A/B-tested thumbnails showed the small test image.
+- The Premium logo reverted after the "Who's watching" screen or returning to the app.
+- The picture froze for about 20 seconds when pressing play after a video screensaver ran.
+- Reduce Telemetry & Tracking made Subscriptions and channel tabs show another channel's
+  videos.
 - A launch URL whose origin only _looked_ like youtube.com (e.g.
   `https://www.youtube.com.attacker.example/x`) passed the origin check and was navigated
   to.
-- Turning Ad Blocking off silently disabled Hide Endcards and Guest-Mode prompt hiding: they
-  share a hook that was gated on Ad Blocking alone.
-- Turning Force Max Quality off silently disabled the on-screen clock and all SponsorBlock
-  state handling.
-- The SponsorBlock overlay disappeared after replaying a video from the endscreen and never
-  came back, and recoloring a segment never redrew it.
-- A SponsorBlock skip that overshot its target from a dropped frame wedged the skip pipeline
-  for the rest of the video, and the frame-drop tolerance fired the manual-skip prompt for
-  segments already watched past.
-- SponsorBlock's manual-skip notifications piled up instead of being dismissed, and
-  seek-burst notification text never updated.
-- Return YouTube Dislike showed a permanent 0 when its request failed, with no retry, and
-  the dislike count appeared seconds after the panel rendered.
+- Turning Ad Blocking off silently disabled Hide Endcards and Guest-Mode prompt hiding, and
+  turning Force Max Quality off disabled the clock and SponsorBlock state handling.
 - A filtered shelf with no items left behind a ghost header and a row of grey skeleton
   tiles.
-- Pausing always took the hide-controls path, because the check looked for a CSS class the
-  TV UI had renamed.
-- The settings panel's focus highlight could desynchronise from the actual selection.
-- The Shorts screensaver keep-alive leaked a DOM reference on every 30-second tick.
+- Pausing with a shortcut hid the controls bar and clock, including for the rest of the
+  session on a Shorts page.
 
 ### Removed
 
-- `hideLogo` (replaced by `logoStyle`) and the unused `@twemoji/api` dependency.
+- Return YouTube Dislike and DeArrow, with their settings.
+- `hideLogo` (replaced by `logoStyle`).
 
 ## [0.2.0] - 2026/08/23
 
