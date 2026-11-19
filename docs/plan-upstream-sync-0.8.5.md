@@ -153,14 +153,15 @@ The rebuild inverts triage: each row is a fork change, judged against 0.8.5. RE-
 
 One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't reproduce is ticked as ALREADY PRESENT with the evidence. New tests are `.cjs` via the `tester` subagent.
 
-- [ ] Yellow key on window capture
+- [x] Yellow key on window capture: REPRODUCED on the B4 (trusted 405 never reached document capture, and 0.8.5 has no yellow binding). Router moved to window capture, ignores the mod's own keys, yellow added to `SHORTCUT_KEYS`
 - [x] `comments-fix` narrowed override: ported onto upstream's scanner, unit and bundle tests added; still to re-verify on the TV with the #188 repro
-- [x] SponsorBlock chapter-aware markers: `chapterBarRanges` in `overlay.js`, keeping upstream's sibling-overlay positioning (the fork's move of the overlay to `body` was not taken); unit and bar tests added; still to check on a chaptered video on the TV
-- [ ] Back #159, options-panel error, shortcut debounce
-- [ ] OLED layering and Back
-- [ ] Lifecycle ownership fixes that reproduce
-- [ ] Settings panel invariants and width
-- [ ] Thumbnail and SponsorBlock resource invariants that profiling shows are missing
+- [x] SponsorBlock chapter-aware markers: `chapterBarRanges` in `overlay.js`, keeping upstream's sibling-overlay positioning (the fork's move of the overlay to `body` was not taken); unit and bar tests added; the B4 showed it still linear, because 0.8.5 tracks the `segment` element; the chapter track is now looked up from it. Re-check pending
+- [x] Back #159, options-panel error, shortcut debounce: ALREADY PRESENT on the B4 (play/pause guards on `controlsFocused()`, no ReferenceError over many opens, double press fires once)
+- [x] OLED layering and Back: overlay wins `elementFromPoint`; Back REPRODUCED (navigated underneath). The router dismisses the overlay on Back/Escape
+- [x] Lifecycle ownership fixes that reproduce: none reproduced (no errors switching watch pages)
+- [x] Settings panel invariants and width: PASS on the B4 (every row fits in both themes at 800 px, tab and column wrap-around, Back closes)
+- [x] Thumbnail and SponsorBlock resource invariants that profiling shows are missing: none (no gray tiles in Original, Fast or Smooth; panel keydown callbacks 3.5-8 ms)
+- [x] Shortcut actions (missed in triage): the fork's 10 s and 30 s seeks (`seek_back`, `seek_fwd`, `_ex`) re-added by owner decision; a stored `chapter_skip_next` is renamed to `chapter_skip`
 - [x] Response lookup depth: ALREADY PRESENT. `core/bounded-search.js` never enumerates a node at `maxDepth` (`nextDepth > maxDepth` skips the queue), and `findObjects` keeps a first falsy match (`results[needle] === undefined`); `tests/unit/adblock-search-test.cjs` covers both
 
 ### 6. Docs and release prep (after 5)
@@ -173,7 +174,7 @@ One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't 
 ### 7. Verify and land (after 6)
 
 - [ ] Hardware pass on the B4 (Verification below)
-- [ ] `reviewer` subagent over `0.8.5..feat/upstream-sync-0.8.5`
+- [ ] `reviewer` subagent over `0.8.5..claude/project-thread-guo2ml`
 - [ ] Land on `main` per the history decision; `npm version minor` → 0.3.0 per [release.md](release.md), tag pushed only when asked
 
 ## Verification
