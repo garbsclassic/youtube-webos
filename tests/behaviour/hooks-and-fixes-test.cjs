@@ -7,7 +7,8 @@
  * legacy one leaves it out; fetch called on another object still works), the
  * legacy fetch polyfill sending a URLSearchParams body urlencoded, and the
  * comments-panel fix deriving its override
- * from YouTube's own stylesheet: at startup, and through its focus backstop
+ * from YouTube's own stylesheet (only the closing-class part of a merged rule,
+ * only what the rule collapses): at startup, and through its focus backstop
  * once the startup rescan has stopped.
  *
  * Run: node tests/behaviour/hooks-and-fixes-test.cjs [bundle] [legacy|modern]
@@ -327,6 +328,7 @@ function commentsFixPage() {
       html: `<!doctype html><html><head><style>
           .unrelated { height: 0px; }
           ytlr-animated-overlay.frHKed .RowList { height: 0px; }
+          .zylon-hidden,ytlr-animated-overlay.frHKed .AmQJbe { display: none; }
           @media (min-width: 1px) { .frHKed .Panel { display: none; } }
           .frHKed .Keep { color: red; }
         </style></head><body class="WEB_PAGE_TYPE_WATCH"><ytlr-app></ytlr-app></body></html>`
@@ -348,6 +350,22 @@ function commentsFixPage() {
     t(
       'rules that do not collapse, or do not use the closing class, are left alone',
       css.indexOf('.Keep') === -1 && css.indexOf('.unrelated') === -1
+    );
+    // A minifier merges rules with the same body into one selector list.
+    const lines = css.split('\n');
+    t(
+      'of a merged rule only the closing-class selector is overridden, never .zylon-hidden',
+      lines.includes(
+        'ytlr-animated-overlay.frHKed .AmQJbe { display: block !important; visibility: hidden !important; }'
+      ) && css.indexOf('zylon-hidden') === -1,
+      css
+    );
+    t(
+      'each override undoes only what its rule collapses: no width: auto to beat the inline width',
+      lines.includes(
+        'ytlr-animated-overlay.frHKed .RowList { height: auto !important; visibility: hidden !important; }'
+      ) && css.indexOf('width') === -1,
+      css
     );
   }
   {

@@ -52,24 +52,64 @@ function isZero(v) {
   return v === '0' || v === '0px' || v === '0rem';
 }
 
-/** Whether a style rule's selector names a closing class and its style collapses the element. */
-function collapses(rule) {
-  const sel = rule.selectorText;
-  let usesCloseClass = false;
+/** Whether a selector names one of the closing classes. */
+function namesCloseClass(sel) {
   for (let j = 0; j < CLOSE_CLASSES.length; j++) {
-    if (sel.indexOf('.' + CLOSE_CLASSES[j]) !== -1) {
-      usesCloseClass = true;
-      break;
-    }
+    if (sel.indexOf('.' + CLOSE_CLASSES[j]) !== -1) return true;
   }
-  if (!usesCloseClass) return false;
-  const s = rule.style;
-  return s.display === 'none' || isZero(s.height) || isZero(s.width) || isZero(s.maxHeight);
+  return false;
 }
 
-/** The selectors of every collapsing rule in every stylesheet, tested as they are met. */
-function findCollapsingSelectors() {
-  const sels = [];
+/**
+ * The declarations that undo what a rule collapses, only those: the element keeps every other
+ * value it has outside the closing state (`.AmQJbe` carries an inline width, measured on the TV,
+ * that a blanket `width: auto` would beat). Its normal display is block.
+ */
+function collapsedOverrides(style) {
+  const overrides = [];
+  if (style.display === 'none') overrides.push('display: block');
+  if (isZero(style.height)) overrides.push('height: auto');
+  if (isZero(style.width)) overrides.push('width: auto');
+  if (isZero(style.maxHeight)) overrides.push('max-height: none');
+  return overrides;
+}
+
+/** A selector list split on its top-level commas, leaving those inside `:is()`, `[attr]` and such. */
+export function splitSelectorList(selectorText) {
+  const parts = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < selectorText.length; i++) {
+    const ch = selectorText[i];
+    if (ch === '(' || ch === '[') depth++;
+    else if (ch === ')' || ch === ']') depth--;
+    else if (ch === ',' && depth === 0) {
+      parts.push(selectorText.slice(start, i).trim());
+      start = i + 1;
+    }
+  }
+  parts.push(selectorText.slice(start).trim());
+  return parts.filter(Boolean);
+}
+
+/**
+ * Every rule on a closing class that hides or zero-sizes something, as `{ selector, overrides }`.
+ * A minified sheet merges rules with identical bodies, so only the selectors of a list that name a
+ * closing class are kept: overriding the whole list pinned unrelated classes such as
+ * `.zylon-hidden` laid out.
+ */
+function findCollapsingRules() {
+  const found = [];
+  /** Adds a rule's closing-class selectors with the overrides its style needs. */
+  const consider = (rule) => {
+    if (!namesCloseClass(rule.selectorText)) return;
+    const overrides = collapsedOverrides(rule.style);
+    if (!overrides.length) return;
+    const parts = splitSelectorList(rule.selectorText);
+    for (let k = 0; k < parts.length; k++) {
+      if (namesCloseClass(parts[k])) found.push({ selector: parts[k], overrides });
+    }
+  };
 
   /**
    * Collects the selectors of the rules that collapse a closing panel, descending into @media and
@@ -80,7 +120,7 @@ function findCollapsingSelectors() {
     for (let i = 0; i < list.length; i++) {
       const r = list[i];
       if (r.selectorText) {
-        if (collapses(r)) sels.push(r.selectorText);
+        consider(r);
       } else if (r.cssRules) {
         walk(r.cssRules); // @media / @supports
       }
@@ -104,7 +144,20 @@ function findCollapsingSelectors() {
       }
     }
   }
-  return sels;
+  return found;
+}
+
+/** The override stylesheet for the rules found: each collapsed property undone, and hidden. */
+export function buildOverrideCss(rules) {
+  return rules
+    .map(({ selector, overrides }) => {
+      const body = overrides
+        .concat('visibility: hidden')
+        .map((d) => d + ' !important;')
+        .join(' ');
+      return `${selector} { ${body} }`;
+    })
+    .join('\n');
 }
 
 /**
@@ -119,7 +172,7 @@ function applyFix(fromStartup) {
     scans++;
   }
 
-  const sels = findCollapsingSelectors();
+  const rules = findCollapsingRules();
   if (!styleEl) {
     styleEl = document.createElement('style');
     styleEl.id = 'ytaf-comments-close-fix';
@@ -127,17 +180,10 @@ function applyFix(fromStartup) {
   }
 
   let css = FALLBACK_CSS;
-  if (sels.length) {
+  if (rules.length) {
     foundRules = true;
-    css = sels
-      .map(
-        (s) =>
-          s +
-          ' { display: block !important; height: auto !important; width: auto !important;' +
-          ' max-height: none !important; visibility: hidden !important; }'
-      )
-      .join('\n');
-    log.info('Close-collapse override applied to: ' + sels.join(' , '));
+    css = buildOverrideCss(rules);
+    log.info('Close-collapse override applied to: ' + rules.map((x) => x.selector).join(' , '));
   } else if (!fromStartup) {
     log.info(
       'No collapsing close rule found (scan ' + scans + '/' + MAX_SCANS + '), using fallback'

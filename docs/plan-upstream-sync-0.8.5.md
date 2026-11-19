@@ -154,7 +154,7 @@ The rebuild inverts triage: each row is a fork change, judged against 0.8.5. RE-
 One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't reproduce is ticked as ALREADY PRESENT with the evidence. New tests are `.cjs` via the `tester` subagent.
 
 - [ ] Yellow key on window capture
-- [ ] `comments-fix` narrowed override
+- [x] `comments-fix` narrowed override: ported onto upstream's scanner, unit and bundle tests added; still to re-verify on the TV with the #188 repro
 - [ ] SponsorBlock chapter-aware markers
 - [ ] Back #159, options-panel error, shortcut debounce
 - [ ] OLED layering and Back

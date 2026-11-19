@@ -1833,7 +1833,7 @@
   },
   {
    "path": "features/comments-fix.js",
-   "lines": 194,
+   "lines": 240,
    "header": "Comments panel fix - https://github.com/NicholasBly/youtube-webos/issues/188\n\nBug (YouTube-side, also happens on the stock app, started late Sept 2026): pressing Back on the comments panel adds a \"closing\" class to <ytlr-animated-overlay> (currently `frHKed`). YouTube's CSS for that class collapses the panel contents to 0x0 immediately, but the comment list stays mounted for ~350ms while the close animation runs. The list watches its rows with a ResizeObserver, so it records every row as 0 tall and saves that into the per-video list state. Reopening restores that state: all rows stack at the top with height 0 and arrow-key navigation gets stuck.\n\nThe same thing happens to the Description panel, which uses the same overlay.\n\nFix: for every YouTube CSS rule tied to the closing classes that hides or zero-sizes something, add an override that keeps the element laid out but invisible. The panel looks the same while it closes, the ResizeObserver never sees 0, and the saved state keeps the real heights.\n\nThe closing class is ALSO briefly present while a panel opens, and the Description panel's rows are built and measured during that moment - so the override has to be in place before the first panel ever opens. The rules are found by scanning the stylesheets at startup (every second while the set of stylesheets still changes, for at most STARTUP_MAX_TRIES), with a scan on panel focus as a backstop. A broad fallback is used until the real rule is found.\n\nThe closing classes, the overlay and the panel are in core/selectors.js (PANEL_CLOSING_CLASSES, ANIMATED_OVERLAY, OVERLAY_PANEL).",
    "imports": [
     {
@@ -1852,7 +1852,10 @@
    "importedBy": [
     "userScript.js"
    ],
-   "exports": [],
+   "exports": [
+    "splitSelectorList",
+    "buildOverrideCss"
+   ],
    "atLoad": {
     "calls": [
      "core/log.js#createLogger",
@@ -1873,9 +1876,13 @@
    },
    "functions": [
     "features/comments-fix.js#isZero",
-    "features/comments-fix.js#collapses",
-    "features/comments-fix.js#findCollapsingSelectors",
-    "features/comments-fix.js#findCollapsingSelectors.walk",
+    "features/comments-fix.js#namesCloseClass",
+    "features/comments-fix.js#collapsedOverrides",
+    "features/comments-fix.js#splitSelectorList",
+    "features/comments-fix.js#findCollapsingRules",
+    "features/comments-fix.js#findCollapsingRules.consider",
+    "features/comments-fix.js#findCollapsingRules.walk",
+    "features/comments-fix.js#buildOverrideCss",
     "features/comments-fix.js#applyFix",
     "features/comments-fix.js#onFocusIn",
     "features/comments-fix.js#startupScan"
@@ -11870,64 +11877,129 @@
    ],
    "description": "Whether a CSS length is zero ('0', '0px' or '0rem').",
    "calledBy": [
-    "features/comments-fix.js#collapses"
+    "features/comments-fix.js#collapsedOverrides"
    ]
   },
   {
-   "id": "features/comments-fix.js#collapses",
-   "name": "collapses",
+   "id": "features/comments-fix.js#namesCloseClass",
+   "name": "namesCloseClass",
    "kind": "function",
-   "params": "rule",
+   "params": "sel",
    "exported": false,
    "lines": [
     56,
-    68
+    61
    ],
-   "description": "Whether a style rule's selector names a closing class and its style collapses the element.",
-   "calls": [
-    "features/comments-fix.js#isZero"
-   ],
+   "description": "Whether a selector names one of the closing classes.",
    "selectors": [
     "PANEL_CLOSING_CLASSES"
    ],
    "calledBy": [
-    "features/comments-fix.js#findCollapsingSelectors.walk"
+    "features/comments-fix.js#findCollapsingRules.consider"
    ]
   },
   {
-   "id": "features/comments-fix.js#findCollapsingSelectors",
-   "name": "findCollapsingSelectors",
+   "id": "features/comments-fix.js#collapsedOverrides",
+   "name": "collapsedOverrides",
+   "kind": "function",
+   "params": "style",
+   "exported": false,
+   "lines": [
+    68,
+    75
+   ],
+   "description": "The declarations that undo what a rule collapses, only those: the element keeps every other value it has outside the closing state (`.AmQJbe` carries an inline width, measured on the TV, that a blanket `width: auto` would beat). Its normal display is block.",
+   "calls": [
+    "features/comments-fix.js#isZero"
+   ],
+   "calledBy": [
+    "features/comments-fix.js#findCollapsingRules.consider"
+   ]
+  },
+  {
+   "id": "features/comments-fix.js#splitSelectorList",
+   "name": "splitSelectorList",
+   "kind": "function",
+   "params": "selectorText",
+   "exported": true,
+   "lines": [
+    78,
+    93
+   ],
+   "description": "A selector list split on its top-level commas, leaving those inside `:is()`, `[attr]` and such.",
+   "calledBy": [
+    "features/comments-fix.js#findCollapsingRules.consider"
+   ]
+  },
+  {
+   "id": "features/comments-fix.js#findCollapsingRules",
+   "name": "findCollapsingRules",
    "kind": "function",
    "params": "",
    "exported": false,
    "lines": [
-    71,
-    108
+    101,
+    148
    ],
-   "description": "The selectors of every collapsing rule in every stylesheet, tested as they are met.",
+   "description": "Every rule on a closing class that hides or zero-sizes something, as `{ selector, overrides }`. A minified sheet merges rules with identical bodies, so only the selectors of a list that name a closing class are kept: overriding the whole list pinned unrelated classes such as `.zylon-hidden` laid out.",
    "calls": [
-    "features/comments-fix.js#findCollapsingSelectors.walk"
+    "features/comments-fix.js#findCollapsingRules.walk"
    ],
    "calledBy": [
     "features/comments-fix.js#applyFix"
    ]
   },
   {
-   "id": "features/comments-fix.js#findCollapsingSelectors.walk",
-   "name": "findCollapsingSelectors.walk",
+   "id": "features/comments-fix.js#findCollapsingRules.consider",
+   "name": "findCollapsingRules.consider",
+   "kind": "arrow",
+   "params": "rule",
+   "exported": false,
+   "lines": [
+    104,
+    112
+   ],
+   "description": "Adds a rule's closing-class selectors with the overrides its style needs.",
+   "calls": [
+    "features/comments-fix.js#collapsedOverrides",
+    "features/comments-fix.js#namesCloseClass",
+    "features/comments-fix.js#splitSelectorList"
+   ],
+   "calledBy": [
+    "features/comments-fix.js#findCollapsingRules.walk"
+   ]
+  },
+  {
+   "id": "features/comments-fix.js#findCollapsingRules.walk",
+   "name": "findCollapsingRules.walk",
    "kind": "arrow",
    "params": "list",
    "exported": false,
    "lines": [
-    78,
-    88
+    118,
+    128
    ],
    "description": "Collects the selectors of the rules that collapse a closing panel, descending into @media and @supports blocks.",
    "calls": [
-    "features/comments-fix.js#collapses"
+    "features/comments-fix.js#findCollapsingRules.consider"
    ],
    "calledBy": [
-    "features/comments-fix.js#findCollapsingSelectors"
+    "features/comments-fix.js#findCollapsingRules"
+   ]
+  },
+  {
+   "id": "features/comments-fix.js#buildOverrideCss",
+   "name": "buildOverrideCss",
+   "kind": "function",
+   "params": "rules",
+   "exported": true,
+   "lines": [
+    151,
+    161
+   ],
+   "description": "The override stylesheet for the rules found: each collapsed property undone, and hidden.",
+   "calledBy": [
+    "features/comments-fix.js#applyFix"
    ]
   },
   {
@@ -11937,12 +12009,13 @@
    "params": "fromStartup",
    "exported": false,
    "lines": [
-    115,
-    148
+    168,
+    194
    ],
    "description": "Writes the override that keeps a closing comments or description panel laid out but invisible, for the rules the scan found (a broad fallback rule while none are); a scan triggered by focus counts toward MAX_SCANS.",
    "calls": [
-    "features/comments-fix.js#findCollapsingSelectors"
+    "features/comments-fix.js#buildOverrideCss",
+    "features/comments-fix.js#findCollapsingRules"
    ],
    "calledBy": [
     "features/comments-fix.js#onFocusIn",
@@ -11956,8 +12029,8 @@
    "params": "e",
    "exported": false,
    "lines": [
-    159,
-    167
+    205,
+    213
    ],
    "description": "Runs the scan when the focus enters the comments panel; removes itself once the rules are found or the scans are used up.",
    "calls": [
@@ -11974,8 +12047,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    182,
-    191
+    228,
+    237
    ],
    "description": "Scans at start-up and again every STARTUP_RETRY_MS until the rules are found or the stylesheets stop changing.",
    "calls": [
@@ -22634,7 +22707,7 @@
    "note": "",
    "usedBy": [
     "features/comments-fix.js#(top level)",
-    "features/comments-fix.js#collapses"
+    "features/comments-fix.js#namesCloseClass"
    ]
   },
   "OVERLAY_PANEL": {

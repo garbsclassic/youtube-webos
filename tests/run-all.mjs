@@ -83,6 +83,7 @@ const full = [
   test(null, 'tests/unit/adblock-search-test.cjs'),
   test(null, 'tests/unit/adblock-flags-test.cjs'),
   test(null, 'tests/unit/fetch-registry-test.cjs'),
+  test(null, 'tests/unit/comments-fix-test.cjs'),
   test(null, 'tests/unit/toast-test.cjs'),
   test(null, 'tests/unit/shortcut-actions-test.cjs'),
   test(null, 'tests/unit/hide-controls-test.cjs'),

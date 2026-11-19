@@ -50,7 +50,7 @@ Wraps window.fetch so the request that wakes webOS's cast receiver fails like a 
 >
 > The closing classes, the overlay and the panel are in core/selectors.js (PANEL_CLOSING_CLASSES, ANIMATED_OVERLAY, OVERLAY_PANEL).
 
-194 lines · imports [core/log.js](core.md#mod-log-js), [core/selectors.js](core.md#mod-selectors-js) · imported by [userScript.js](app.md#mod-userscript-js)
+240 lines · imports [core/log.js](core.md#mod-log-js), [core/selectors.js](core.md#mod-selectors-js) · imported by [userScript.js](app.md#mod-userscript-js)
 
 **At load:**
 
@@ -63,43 +63,72 @@ Wraps window.fetch so the request that wakes webOS's cast receiver fails like a 
 
 Whether a CSS length is zero ('0', '0px' or '0rem').
 
-- **Called by:** [collapses](#fn-comments-fix-js-collapses)
+- **Called by:** [collapsedOverrides](#fn-comments-fix-js-collapsedoverrides)
 
-<a id="fn-comments-fix-js-collapses"></a>
-**`collapses(rule)`** · function · L56–68
+<a id="fn-comments-fix-js-namescloseclass"></a>
+**`namesCloseClass(sel)`** · function · L56–61
 
-Whether a style rule's selector names a closing class and its style collapses the element.
+Whether a selector names one of the closing classes.
 
-- **Calls:** [isZero](#fn-comments-fix-js-iszero)
-- **Called by:** [findCollapsingSelectors.walk](#fn-comments-fix-js-findcollapsingselectors-walk)
+- **Called by:** [findCollapsingRules.consider](#fn-comments-fix-js-findcollapsingrules-consider)
 - **Selectors:** `PANEL_CLOSING_CLASSES`
 
-<a id="fn-comments-fix-js-findcollapsingselectors"></a>
-**`findCollapsingSelectors()`** · function · L71–108
+<a id="fn-comments-fix-js-collapsedoverrides"></a>
+**`collapsedOverrides(style)`** · function · L68–75
 
-The selectors of every collapsing rule in every stylesheet, tested as they are met.
+The declarations that undo what a rule collapses, only those: the element keeps every other value it has outside the closing state (`.AmQJbe` carries an inline width, measured on the TV, that a blanket `width: auto` would beat). Its normal display is block.
 
-- **Calls:** [findCollapsingSelectors.walk](#fn-comments-fix-js-findcollapsingselectors-walk)
+- **Calls:** [isZero](#fn-comments-fix-js-iszero)
+- **Called by:** [findCollapsingRules.consider](#fn-comments-fix-js-findcollapsingrules-consider)
+
+<a id="fn-comments-fix-js-splitselectorlist"></a>
+**`splitSelectorList(selectorText)`** · function, exported · L78–93
+
+A selector list split on its top-level commas, leaving those inside `:is()`, `[attr]` and such.
+
+- **Called by:** [findCollapsingRules.consider](#fn-comments-fix-js-findcollapsingrules-consider)
+
+<a id="fn-comments-fix-js-findcollapsingrules"></a>
+**`findCollapsingRules()`** · function · L101–148
+
+Every rule on a closing class that hides or zero-sizes something, as `{ selector, overrides }`. A minified sheet merges rules with identical bodies, so only the selectors of a list that name a closing class are kept: overriding the whole list pinned unrelated classes such as `.zylon-hidden` laid out.
+
+- **Calls:** [findCollapsingRules.walk](#fn-comments-fix-js-findcollapsingrules-walk)
 - **Called by:** [applyFix](#fn-comments-fix-js-applyfix)
 
-<a id="fn-comments-fix-js-findcollapsingselectors-walk"></a>
-**`findCollapsingSelectors.walk(list)`** · arrow · L78–88
+<a id="fn-comments-fix-js-findcollapsingrules-consider"></a>
+**`findCollapsingRules.consider(rule)`** · arrow · L104–112
+
+Adds a rule's closing-class selectors with the overrides its style needs.
+
+- **Calls:** [collapsedOverrides](#fn-comments-fix-js-collapsedoverrides), [namesCloseClass](#fn-comments-fix-js-namescloseclass), [splitSelectorList](#fn-comments-fix-js-splitselectorlist)
+- **Called by:** [findCollapsingRules.walk](#fn-comments-fix-js-findcollapsingrules-walk)
+
+<a id="fn-comments-fix-js-findcollapsingrules-walk"></a>
+**`findCollapsingRules.walk(list)`** · arrow · L118–128
 
 Collects the selectors of the rules that collapse a closing panel, descending into @media and @supports blocks.
 
-- **Calls:** [collapses](#fn-comments-fix-js-collapses)
-- **Called by:** [findCollapsingSelectors](#fn-comments-fix-js-findcollapsingselectors)
+- **Calls:** [findCollapsingRules.consider](#fn-comments-fix-js-findcollapsingrules-consider)
+- **Called by:** [findCollapsingRules](#fn-comments-fix-js-findcollapsingrules)
+
+<a id="fn-comments-fix-js-buildoverridecss"></a>
+**`buildOverrideCss(rules)`** · function, exported · L151–161
+
+The override stylesheet for the rules found: each collapsed property undone, and hidden.
+
+- **Called by:** [applyFix](#fn-comments-fix-js-applyfix)
 
 <a id="fn-comments-fix-js-applyfix"></a>
-**`applyFix(fromStartup)`** · function · L115–148
+**`applyFix(fromStartup)`** · function · L168–194
 
 Writes the override that keeps a closing comments or description panel laid out but invisible, for the rules the scan found (a broad fallback rule while none are); a scan triggered by focus counts toward MAX_SCANS.
 
-- **Calls:** [findCollapsingSelectors](#fn-comments-fix-js-findcollapsingselectors)
+- **Calls:** [buildOverrideCss](#fn-comments-fix-js-buildoverridecss), [findCollapsingRules](#fn-comments-fix-js-findcollapsingrules)
 - **Called by:** [onFocusIn](#fn-comments-fix-js-onfocusin), [startupScan](#fn-comments-fix-js-startupscan)
 
 <a id="fn-comments-fix-js-onfocusin"></a>
-**`onFocusIn(e)`** · function · L159–167
+**`onFocusIn(e)`** · function · L205–213
 
 Runs the scan when the focus enters the comments panel; removes itself once the rules are found or the scans are used up.
 
@@ -107,7 +136,7 @@ Runs the scan when the focus enters the comments panel; removes itself once the 
 - **Called by:** [at load](#mod-comments-fix-js)
 
 <a id="fn-comments-fix-js-startupscan"></a>
-**`startupScan()`** · function · L182–191
+**`startupScan()`** · function · L228–237
 
 Scans at start-up and again every STARTUP_RETRY_MS until the rules are found or the stylesheets stop changing.
 
