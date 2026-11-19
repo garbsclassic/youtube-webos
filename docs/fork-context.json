@@ -1,5 +1,10 @@
 {
   "description": "Fork of NicholasBly/youtube-webos (ad-free YouTube for LG webOS TVs), branched at upstream 0.8.1; upstream 0.8.2-0.8.4 ported on feat/upstream-sync-0.8.3 and feat/upstream-sync-0.8.4.",
+  "upstream_url": "https://github.com/NicholasBly/youtube-webos.git",
+  "synced_to": {
+    "version": "0.8.4",
+    "commit": "78a374a"
+  },
   "divergence": [
     "Dropped the entire legacy webOS 3-6 / Chrome 38 / ES5 build; only the modern Chrome 87 target ships",
     "Removed babel.config.js, legacy browserslist targets, core-js-pure, @babel/runtime-corejs3, regenerator-runtime, babel-plugin-polyfill-*, whatwg-fetch, and all polyfills",
@@ -15,7 +20,7 @@
     "Ported upstream 0.8.4's comments-fix.js (#188) and RYD header shift; the RYD .TXB27d virtual-list override is gone",
     "Ported SponsorBlock full-video labels and time-with-skips, plus exclusive_access in FETCH_CATEGORIES, which upstream omits so its Exclusive Access badge never shows",
     "Keeps its own spatial-navigation.js; upstream's spatial-navigation-polyfill.js is legacy-build only",
-    "Upstream converted every file to CRLF in 0.8.4; diff with --ignore-cr-at-eol -w",
+    "Upstream converted every file to CRLF in 0.8.4 and back to LF in 0.8.5; diff with --ignore-cr-at-eol -w across that range",
     "Comments carry no history of earlier approaches; upstream's comment-trim passes apply where the fork carries the same text"
   ],
   "known_live_bugs": []

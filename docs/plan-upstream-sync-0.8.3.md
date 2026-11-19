@@ -19,6 +19,7 @@ Branch: `feat/upstream-sync-0.8.3` · Started: 2026-09-05
   - [7. ui.js cheap wins](#7-uijs-cheap-wins)
   - [8. New features](#8-new-features)
   - [9. Cleanup](#9-cleanup)
+  - [10. Fixes found in verification and review](#10-fixes-found-in-verification-and-review)
 - [Config schema changes](#config-schema-changes)
 - [Verification](#verification)
 - [Open questions](#open-questions)
@@ -153,8 +154,20 @@ Land as one batch — the new rows are what force the CSS relayout.
 - [x] Drop the dead `@twemoji/api` dependency — nothing under `src/` imports it since the emoji fix was deleted.
 - [x] Delete the unused `EventInstanceType` and `EventOptionsType` from `custom-event-target.ts` (`:13`, `:17`) — the one thing worth taking from upstream's version of that file.
 - [x] Optionally adopt `ares-package -n dist -o dist` plus the matching `tools/deploy.js` path, which fits the fork's untracked-`dist/` convention. See landmine 4 — `gen-manifest.cjs` and both workflows need updating in the same commit. (Superseded: `main`'s `4a60395` deleted `gen-manifest.cjs` as dead, so only `test.yml`, `release.yml` and `tools/deploy.js` read the path.)
-- [ ] Run `npm version patch` on `main` once the changeset is merged and committed, per the `fork-sync` skill — the `v*.*` tag is what drives `release.yml` and, through it, the regenerated `repo.json`.
+- [ ] Run `npm version patch` on `main` once the changeset is merged and committed, per [release.md](release.md) — the `v*.*` tag is what drives `release.yml` and, through it, the regenerated `repo.json`.
 - [x] Update `CHANGELOG.md` under a new `0.3.0` heading in the fork's Keep-a-Changelog style, crediting upstream 0.8.2 and 0.8.3, and noting the two behavior changes: telemetry requests resolve empty rather than aborting, and `hideLogo` is gone so the logo resets to the default wordmark.
+
+### 10. Fixes found in verification and review
+
+Work that landed after steps 1 to 9, found by the hardware pass and the branch review.
+
+- [x] Hardware pass on the B4: inline `display:block` was killing the panel's flex column, the dummy checkbox carried stray padding, and the density trim skipped cycle rows. All fixed and re-measured.
+- [x] Panel widened from 42vw to 54vw so every two-column Cosmetic Filtering label fits on one line (52vw measured as the threshold).
+- [x] Review: a document-wide observer leak in the SponsorBlock finder path, `enableTrackingBlock` missing from the parse-hook gate, the emptied-shelf drop firing on shelves YouTube shipped empty, and `vq=undefined` on an `intentParam`-less voice launch. All fixed.
+- [x] Rebased onto `main`, taking its release-tag guard, browserslist scoping and `gen-manifest` deletion. Landmine 4 now has three readers, not four.
+- [x] Yellow made bindable: the key handler moved to window capture, since YouTube's own handler stops propagation before `ui.js`'s document listener sees a trusted yellow. Burst actions now dedupe a same-press duplicate.
+- [x] `oled_toggle`'s screensaver keep-alive rewritten: `webOSDev` and `webOS` are undefined in this page, so the API branch was dead, and the overlay sat above the notification layer so its own toasts were never visible.
+- [x] OLED blackout raised above the clock and SponsorBlock layers. Back now dismisses it without also navigating, and the warning is reworded onto two lines.
 
 ## Config schema changes
 
