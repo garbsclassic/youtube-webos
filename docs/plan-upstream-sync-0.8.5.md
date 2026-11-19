@@ -173,8 +173,8 @@ One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't 
 
 ### 7. Verify and land (after 6)
 
-- [ ] Hardware pass on the B4 (Verification below)
-- [ ] `reviewer` subagent over `0.8.5..claude/project-thread-guo2ml`
+- [x] Hardware pass on the B4 (Verification below): `.local/resource-results/hw-pass-2026-11-19.md`; the Shorts keep-alive echo fix and the held-Back swallow are verified by tests only
+- [x] `reviewer` subagent over `0.8.5..claude/project-thread-guo2ml`: findings fixed in 9f8f2bd and b4ada0e
 - [ ] Land on `main` per the history decision; `npm version minor` → 0.3.0 per [release.md](release.md), tag pushed only when asked
 
 ## Verification
