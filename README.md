@@ -11,7 +11,7 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
 - Auto Login - bypasses account selection screen
 - Force Max Quality
 - Hide Endcards
-- Shortcuts - Programmable 0-9 key shortcuts during video playback
+- Shortcuts - Programmable 0-9 and colour key shortcuts during video playback
 - Guest Mode: Hides annoying "Sign in" prompts
 
 - SponsorBlock: Highlight feature added
@@ -23,7 +23,6 @@ An upgraded fork of webosbrew's youtube-webos with extended features and fixes.
   -- Skip Segments Once option
 
 - Toggle display on/off with red button on LG remote for OLED TVs + persistent keepalive
-- Return YouTube Dislike - added to description tab in video
 - Display Time in UI: Smart clock that hides during fullscreen and when description panel is open
 - YouTube app fixes - Full video description panel hack to restore visual elements and enable full navigation
 - Customizable YouTube UI fixes such as multiline titles and video shelf opacity for better visibility

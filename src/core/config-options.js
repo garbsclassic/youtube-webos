@@ -199,7 +199,7 @@ export const configOptions = new Map([
   ['disableNotifications', { default: false, desc: 'Disable Notifications' }]
 ]);
 
-/** The configurable shortcut keys: the digits and the four colour keys (ui/shortcuts/bindings.js). */
+/** The configurable shortcut keys: the digits and the colour keys (ui/shortcuts/bindings.js). */
 export const SHORTCUT_KEYS = [
   '0',
   '1',

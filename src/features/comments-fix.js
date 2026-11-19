@@ -74,7 +74,7 @@ function collapsedOverrides(style) {
   return overrides;
 }
 
-/** A selector list split on its top-level commas, leaving those inside `:is()`, `[attr]` and such. */
+/** A selector list split on its top-level commas, leaving those inside `:is()` or `[attr]`. */
 export function splitSelectorList(selectorText) {
   const parts = [];
   let depth = 0;

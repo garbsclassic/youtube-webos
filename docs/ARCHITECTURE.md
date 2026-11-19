@@ -206,8 +206,6 @@ These show up as comments across the source. Several exist for upstream's legacy
   rare case reaches (see `stringifyThenRestore`).
 - **No options object for `addEventListener`**: Chromium 38 reads it as
   `useCapture: true`. Pass `true`/`false`, and no `{ once: true }`.
-- **Babel helpers cost on the legacy build**: `for...of`, spread and array
-  destructuring become helper calls in ES5. Plain indexed loops on hot paths.
 - **Layout reads** (`getComputedStyle`, `getBoundingClientRect`, `offset*`)
   are cached or debounced; the code map's **Browser** line shows where they are.
 - **Debounce by intent**: focus and key traffic is coalesced (the clock checks

@@ -14,7 +14,7 @@ import { log } from './log.js';
 // Shortcut key name -> action name, kept current by the config listeners.
 export const shortcutCache = {};
 
-// Action names this fork stored before it was rebuilt on 0.8.5, and the action each is now.
+// Stored action names that were renamed, and the action each is now.
 const RENAMED_ACTIONS = { chapter_skip_next: 'chapter_skip' };
 
 /**

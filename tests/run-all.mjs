@@ -131,9 +131,8 @@ const full = [
 ];
 
 const scriptName = (script) => script.replace(/^tests\//, '').replace(/\.cjs$/, '');
-// A script on the webOS 22+ bundle, or on the legacy one under webOS 6, is
-// named for it; the runs of one script are told apart that way.
-const RUN_LABELS = { modern: ' (modern)', webos6: ' (webOS 6)' };
+// A script run on the bundle is named for it.
+const RUN_LABELS = { modern: ' (modern)' };
 const stepName = (step) => scriptName(step.test) + (RUN_LABELS[step.args[1]] || '');
 
 // Each script's time in the previous run, for starting the longest first.

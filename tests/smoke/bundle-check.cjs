@@ -2,14 +2,12 @@
  * The built bundle as a file: it parses at the syntax level its targets have,
  * and it stays within its size budget.
  *
- * The legacy flavour (webOS 3 to 6, Chromium 38) must be plain ES5, which is
- * what the Babel configuration promises and what nothing else verifies; the
- * modern flavour (Chrome 87) is parsed as ES2022 so a broken build is caught
+ * The bundle (Chrome 87) is parsed as ES2022 so a broken build is caught
  * before the smoke tests load it. The size is printed after every build and
  * fails the check above the budget, so growth is seen when it happens and not
  * on the TV.
  *
- * Run: node tests/smoke/bundle-check.cjs [bundle] [legacy|modern]
+ * Run: node tests/smoke/bundle-check.cjs [bundle] [modern]
  */
 const fs = require('fs');
 const path = require('path');
@@ -18,18 +16,15 @@ const { createReport } = require('../harness/report.cjs');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const bundlePath = process.argv[2] || path.join(ROOT, 'dist/webOSUserScripts/userScript.js');
-const flavour = process.argv[3] || 'legacy';
+const flavour = process.argv[3] || 'modern';
 
 // ecmaVersion: what the flavour's engine parses, as acorn is told to accept it.
 // budget: the size in bytes the built file must stay under.
 // iifeLimit: how many function expressions called on the spot may sit inside
 // another function (see the check below).
-// The webOS 22+ budget went from 175 to 255 KiB with upstream 0.8.5 b2, for the
-// playback speed engine (~45 KiB, src/vendor/playback-speed) and DeArrow, which
-// this fork has since removed; with RYD gone too the bundle is about 187 KiB, so
-// the budget is 200 KiB.
+// The bundle is about 190 KiB, about 45 of it the playback speed engine
+// (src/vendor/playback-speed).
 const FLAVOURS = {
-  legacy: { ecmaVersion: 5, budget: 240 * 1024, iifeLimit: 40 },
   modern: { ecmaVersion: 2022, budget: 200 * 1024, iifeLimit: 20 }
 };
 

@@ -52,6 +52,9 @@ under the new YouTube Logo setting.
 - **Show time with skips removed**: the duration under the seek bar gains a bracketed
   running time that subtracts every segment that will be skipped, counting overlaps once.
 - Back closes the settings panel, and the panel heading shows the version.
+- The yellow button can be bound to a shortcut. It stays None by default, so the TV's own
+  yellow (search) keeps working until you claim it.
+- 10 s and 30 s rewind and fast-forward shortcuts, alongside the 5 s one.
 
 ### Changed
 
@@ -68,7 +71,9 @@ under the new YouTube Logo setting.
 - SponsorBlock segment markers on a chaptered video follow the chapter gaps in the progress
   bar instead of drifting from the segment times.
 - The "Toggle OLED Care Mode" shortcut is now "Toggle OLED Black Overlay". Opening the
-  settings takes the overlay down.
+  settings or pressing Back takes the overlay down, and Back no longer navigates underneath it.
+- Default bindings for a fresh install: Red toggles the OLED black overlay and Blue does the
+  SponsorBlock manual skip, instead of 10 s rewind and fast forward. Saved bindings are kept.
 - If no key opens the settings anymore, closing the panel binds Green back to Open/Close
   Settings so you can't lock yourself out.
 - Bypass Nag Screens only auto-bypasses the account selector in the first 15 seconds after

@@ -25,11 +25,8 @@ export const SELECTORS = {
   WATCH_PLAYER: 'ytlr-watch-default',
   // Older player root, tried when PLAYER_ID is not on the page.
   HTML5_PLAYER_FALLBACK: '.html5-video-player',
-  THUMBNAIL_TILE: 'ytlr-thumbnail-details',
   // Everything that can carry a thumbnail image; thumbnail-quality rescans these.
   THUMBNAIL_NODES: 'ytlr-thumbnail-details, ytlr-surface-page, thumbnail image',
-  // The elements whose text can hold emoji, as localName values (emoji-font).
-  TEXT_HOST_TAGS: ['yt-formatted-string', 'yt-core-attributed-string'],
 
   // Transport controls and the progress bar
   CONTROLS: 'yt-focus-container[idomkey="controls"]',

@@ -100,7 +100,7 @@ const configs = [
 
   {
     // Ports of specifications and the dev tool are not split along these lines.
-    files: ['src/polyfills/**/*', 'src/dev/perf-mon.js'],
+    files: ['src/dev/perf-mon.js'],
     rules: {
       complexity: 'off',
       'max-lines-per-function': 'off'
