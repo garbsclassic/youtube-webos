@@ -21,7 +21,7 @@
   },
   {
    "path": "core/config-options.js",
-   "lines": 232,
+   "lines": 238,
    "header": "Every setting the app knows about, with its default and the label the options panel shows, plus the value tables the cycle controls choose from. An option's `upgrade(stored)` turns a value an older build stored into this build's (core/config.js applies it when the settings load).",
    "imports": [
     {
@@ -3193,7 +3193,7 @@
   },
   {
    "path": "features/sponsorblock/overlay.js",
-   "lines": 295,
+   "lines": 300,
    "header": "The coloured segment overlay beside the progress bar: the anchor it sits by, keeping its geometry in sync, and drawing the segments. Finding the bar is bar.js's job.",
    "imports": [
     {
@@ -5369,7 +5369,7 @@
   },
   {
    "path": "ui/shortcuts/actions.js",
-   "lines": 81,
+   "lines": 85,
    "header": "What each shortcut does. A `global` action runs anywhere, with nothing passed; the others run on a watch or Shorts page with a <video>, which `run` receives. `burst` marks the seeks, which batch rapid presses instead of being debounced.",
    "imports": [
     {
@@ -5472,7 +5472,7 @@
   },
   {
    "path": "ui/shortcuts/bindings.js",
-   "lines": 67,
+   "lines": 76,
    "header": "Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions.",
    "imports": [
     {
@@ -5648,7 +5648,8 @@
     }
    ],
    "importedBy": [
-    "ui/shortcuts/actions.js"
+    "ui/shortcuts/actions.js",
+    "ui/shortcuts/router.js"
    ],
    "exports": [
     "isOledOverlayActive",
@@ -5810,13 +5811,15 @@
   },
   {
    "path": "ui/shortcuts/router.js",
-   "lines": 83,
+   "lines": 100,
    "header": "The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.",
    "imports": [
     {
      "from": "core/remote.js",
      "names": [
-      "keyCodeOf"
+      "keyCodeOf",
+      "REMOTE_KEYS",
+      "SYNTHETIC_KEY_FLAG"
      ]
     },
     {
@@ -5851,6 +5854,13 @@
      "from": "ui/shortcuts/actions.js",
      "names": [
       "ACTIONS"
+     ]
+    },
+    {
+     "from": "ui/shortcuts/oled.js",
+     "names": [
+      "isOledOverlayActive",
+      "toggleOledOverlay"
      ]
     }
    ],
@@ -7538,7 +7548,8 @@
    ],
    "description": "The code of a key press. webOS 3 reports the alternate colour-key codes (REMOTE_KEYS.*.alt) in charCode with keyCode 0, so charCode wins when set.",
    "calledBy": [
-    "ui/shortcuts/router.js#keyNameOf"
+    "ui/shortcuts/router.js#keyNameOf",
+    "ui/shortcuts/router.js#onKeyDown"
    ]
   },
   {
@@ -14765,7 +14776,7 @@
    "exported": true,
    "lines": [
     189,
-    278
+    283
    ],
    "description": "Draws (or keeps) the overlay for the current segments and settings beside the tracked bar. False when the bar is gone from the document: the caller then looks for it again. True otherwise, including when nothing needs drawing.",
    "calls": [
@@ -14782,6 +14793,12 @@
      "(all)"
     ]
    },
+   "selectors": [
+    "PROGRESS_BAR_TRACK"
+   ],
+   "browser": [
+    "querySelector"
+   ],
    "calledBy": [
     "features/sponsorblock/bar.js#redrawOverlay"
    ]
@@ -14793,8 +14810,8 @@
    "params": "sb",
    "exported": true,
    "lines": [
-    285,
-    295
+    290,
+    300
    ],
    "description": "Gives every mark its category's colour as the settings have it now: a colour picked in the panel (one change per step of a drag) repaints the marks rather than rebuilding the overlay.",
    "calls": [
@@ -19208,8 +19225,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    54,
-    58
+    58,
+    62
    ],
    "description": "The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.",
    "calls": [
@@ -19230,8 +19247,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    65,
-    68
+    69,
+    72
    ],
    "description": "Jumps back to the start of the last SponsorBlock segment passed.",
    "calls": [
@@ -19246,8 +19263,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    72,
-    75
+    76,
+    79
    ],
    "description": "Skips the segment SponsorBlock is offering, or jumps to the highlight.",
    "calls": [
@@ -19262,10 +19279,10 @@
    "params": "key",
    "exported": false,
    "lines": [
-    22,
-    32
+    26,
+    40
    ],
-   "description": "Reads one binding. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.",
+   "description": "Reads one binding. A renamed action is stored under its new name. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.",
    "calls": [
     "core/config.js#configRead",
     "core/config.js#configWrite"
@@ -19286,8 +19303,8 @@
    "params": "announce",
    "exported": true,
    "lines": [
-    45,
-    52
+    53,
+    60
    ],
    "description": "The settings must stay reachable: with no key bound to the menu, Green is bound to it again, said with `announce`. The key that opens the menu, and whether Green was just bound to it. Run at the start and whenever the panel closes (a binding changed on it may have unbound the menu).",
    "calls": [
@@ -19311,8 +19328,8 @@
    "params": "code",
    "exported": true,
    "lines": [
-    55,
-    55
+    63,
+    63
    ],
    "description": "Colour-key code to name, alternates included, from REMOTE_KEYS in core/remote.js.",
    "calledBy": [
@@ -19431,7 +19448,8 @@
    ],
    "description": "Whether the black OLED overlay is showing.",
    "calledBy": [
-    "ui/shortcuts/actions.js#ACTIONS.config_menu.run"
+    "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
+    "ui/shortcuts/router.js#onKeyDown"
    ]
   },
   {
@@ -19455,7 +19473,8 @@
     "setTimeout"
    ],
    "calledBy": [
-    "ui/shortcuts/actions.js#ACTIONS.config_menu.run"
+    "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
+    "ui/shortcuts/router.js#onKeyDown"
    ]
   },
   {
@@ -19750,8 +19769,8 @@
    "params": "el",
    "exported": false,
    "lines": [
-    11,
-    14
+    12,
+    15
    ],
    "description": "Whether `el` takes typed text: a textarea, or an input other than a checkbox or a colour.",
    "calledBy": [
@@ -19765,8 +19784,8 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    17,
-    27
+    18,
+    28
    ],
    "description": "The shortcut key a keydown stands for ('red', '3', ...), or null.",
    "calls": [
@@ -19786,8 +19805,8 @@
    "params": "action",
    "exported": false,
    "lines": [
-    30,
-    32
+    31,
+    33
    ],
    "description": "Whether the action may run on the current page.",
    "calls": [
@@ -19805,13 +19824,16 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    39,
-    81
+    40,
+    95
    ],
    "description": "The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).",
    "calls": [
     "core/dom.js#getVideo",
+    "core/remote.js#keyCodeOf",
     "ui/panel/panel.js#isOptionsPanelVisible",
+    "ui/shortcuts/oled.js#isOledOverlayActive",
+    "ui/shortcuts/oled.js#toggleOledOverlay",
     "ui/shortcuts/router.js#inScope",
     "ui/shortcuts/router.js#keyNameOf"
    ],
@@ -22247,6 +22269,7 @@
     "shortcut_key_8",
     "shortcut_key_9",
     "shortcut_key_red",
+    "shortcut_key_yellow",
     "shortcut_key_blue"
    ],
    "listen": [
@@ -22643,6 +22666,7 @@
    "usedBy": [
     "features/sponsorblock/bar.js#(top level)",
     "features/sponsorblock/bar.js#narrowProgressBar",
+    "features/sponsorblock/overlay.js#drawOverlay",
     "ui/shortcuts/seek.js#getChapterEls"
    ]
   },

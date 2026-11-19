@@ -51,6 +51,10 @@ const ACTION_LABELS = [
   'Skip to Last SponsorBlock Segment',
   'Fast Forward (Burst)',
   'Rewind (Burst)',
+  'Fast Forward 10 s (Burst)',
+  'Rewind 10 s (Burst)',
+  'Fast Forward 30 s (Burst)',
+  'Rewind 30 s (Burst)',
   'Play/Pause',
   'Toggle Subtitles',
   'Toggle Comments',
@@ -156,7 +160,7 @@ function boot() {
     // shortcut rows (one per bindable key) prove.
     t(
       'Shortcuts page fully populated',
-      shortcuts && shortcuts.querySelectorAll('.ytaf-cycle-row').length >= 13,
+      shortcuts && shortcuts.querySelectorAll('.ytaf-cycle-row').length >= 14,
       shortcuts && String(shortcuts.querySelectorAll('.ytaf-cycle-row').length) + ' rows'
     );
 
@@ -421,11 +425,12 @@ function boot() {
       String(storedConfig(win).shortcut_key_1)
     );
     t(
-      'the rows cover the digits and the three colour keys',
+      'the rows cover the digits and the four colour keys',
       !!cycleRow(win, 'Key 0', '#ytaf-page-shortcuts') &&
         !!cycleRow(win, 'Key 9', '#ytaf-page-shortcuts') &&
         !!cycleRow(win, 'Red Button', '#ytaf-page-shortcuts') &&
         !!cycleRow(win, 'Green Button', '#ytaf-page-shortcuts') &&
+        !!cycleRow(win, 'Yellow Button', '#ytaf-page-shortcuts') &&
         !!cycleRow(win, 'Blue Button', '#ytaf-page-shortcuts')
     );
   }

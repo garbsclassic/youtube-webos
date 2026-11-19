@@ -1,11 +1,12 @@
 // The global keydown router: the remote key, the shortcut bound to it, the
 // page it may run on (any, for a global one), the debounce, the call.
-import { keyCodeOf } from '../../core/remote.js';
+import { keyCodeOf, REMOTE_KEYS, SYNTHETIC_KEY_FLAG } from '../../core/remote.js';
 import { isWatchPage, isShortsPage, isSearchPage } from '../../core/page-state.js';
 import { getVideo } from '../../core/dom.js';
 import { shortcutCache, getKeyColor, shortcutState } from './bindings.js';
 import { isOptionsPanelVisible } from '../panel/panel.js';
 import { ACTIONS } from './actions.js';
+import { isOledOverlayActive, toggleOledOverlay } from './oled.js';
 
 /** Whether `el` takes typed text: a textarea, or an input other than a checkbox or a colour. */
 function isTextBox(el) {
@@ -37,6 +38,19 @@ function inScope(action) {
  * the key that closes it).
  */
 function onKeyDown(evt) {
+  // A key this mod sends (the Shorts keep-alive's yellow, a seek) is meant for YouTube.
+  if (evt[SYNTHETIC_KEY_FLAG]) return;
+
+  // While the black overlay is up, Back only takes it down: the screen is black, so a page
+  // back underneath would go somewhere the user cannot see. 27 is the Escape webOS also sends.
+  const code = keyCodeOf(evt);
+  if ((code === REMOTE_KEYS.BACK.code || code === 27) && isOledOverlayActive()) {
+    toggleOledOverlay();
+    evt.preventDefault();
+    evt.stopPropagation();
+    return;
+  }
+
   const keyName = keyNameOf(evt);
   if (!keyName) return;
 
@@ -80,4 +94,7 @@ function onKeyDown(evt) {
   if (video) action.run(video);
 }
 
-document.addEventListener('keydown', onKeyDown, true);
+// On window, not document: YouTube's own key handler sits on window capture and stops the colour
+// keys it claims (yellow is search, Back navigates) before document sees the trusted press. The
+// userScript runs before YouTube's code, so this listener is registered ahead of theirs.
+window.addEventListener('keydown', onKeyDown, true);

@@ -1,12 +1,11 @@
 /**
  * Remote shortcuts and the clock, against the built bundle on both flavours: burst
- * seeking batches rapid presses into one jump (a reversed press keeps the part
- * not applied yet), chapter skip reads the progress bar (markers of no width
- * are no chapters), play/pause toggles the video, shortcuts respect their page scope, the
- * clock shows and hides with YouTube's player UI (its focus attribute at once,
- * with no fade, and the player state and focus), keeps the look of
- * the theme classes, and turning Display Time off at runtime destroys the
- * clock with its timers.
+ * seeking batches rapid presses into one jump (a reversed press keeps the part not
+ * applied yet; the 5, 10 and 30 s steps), chapter skip reads the progress bar (markers
+ * of no width are no chapters), play/pause toggles the video, shortcuts respect their
+ * page scope, the clock shows and hides with YouTube's player UI (its focus attribute at
+ * once, with no fade, and the player state and focus), keeps the look of the theme
+ * classes, and turning Display Time off at runtime destroys the clock with its timers.
  *
  * Run: node tests/behaviour/shortcuts-watch-test.cjs [bundle] [legacy|modern]
  */
@@ -149,6 +148,42 @@ function boot(cfg, bodyClass, timers) {
       'the toast counts the new direction from zero',
       toasts().some((m) => m === 'Skipped -5s'),
       toasts().join(' | ')
+    );
+  }
+  {
+    // The 10 s and 30 s seeks, bound to the digits the boot leaves free.
+    const { model, press, toasts } = boot(
+      {
+        shortcut_key_6: 'seek_fwd',
+        shortcut_key_7: 'seek_back',
+        shortcut_key_8: 'seek_fwd_ex',
+        shortcut_key_9: 'seek_back_ex'
+      },
+      'WEB_PAGE_TYPE_WATCH'
+    );
+    model.currentTime = 50;
+    press(DIGIT(8));
+    press(DIGIT(8));
+    t(
+      'two quick seek_fwd_ex presses are one burst of +60 s',
+      toasts().some((m) => m === 'Skipped +60s'),
+      toasts().join(' | ')
+    );
+    await waitFor(() => model.currentTime === 110);
+    t('and land as one seek of 60 s', model.currentTime === 110, String(model.currentTime));
+    press(DIGIT(9));
+    await waitFor(() => model.currentTime === 80);
+    t('seek_back_ex seeks back 30 s', model.currentTime === 80, String(model.currentTime));
+    press(DIGIT(7));
+    press(DIGIT(7));
+    await waitFor(() => model.currentTime === 60);
+    t('two seek_back presses land 20 s back', model.currentTime === 60, String(model.currentTime));
+    press(DIGIT(6));
+    await waitFor(() => model.currentTime === 70);
+    t(
+      'seek_fwd seeks forward 10 s, its toast counting from zero',
+      model.currentTime === 70 && toasts().some((m) => m === 'Skipped +10s'),
+      model.currentTime + ' / ' + toasts().join(' | ')
     );
   }
   {

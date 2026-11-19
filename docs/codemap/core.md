@@ -25,7 +25,7 @@ Visits every object under `root` (itself included) breadth first, down to `maxDe
 
 > Every setting the app knows about, with its default and the label the options panel shows, plus the value tables the cycle controls choose from. An option's `upgrade(stored)` turns a value an older build stored into this build's (core/config.js applies it when the settings load).
 
-232 lines · imports [core/text.js](#mod-text-js) · imported by [core/config.js](#mod-config-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js)
+238 lines · imports [core/text.js](#mod-text-js) · imported by [core/config.js](#mod-config-js), [ui/panel/pages.js](ui-panel.md#mod-pages-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js)
 
 **At load:**
 
@@ -600,7 +600,7 @@ The body class and the hash are settled half a second after the document is.
 
 The code of a key press. webOS 3 reports the alternate colour-key codes (REMOTE_KEYS.\*.alt) in charCode with keyCode 0, so charCode wins when set.
 
-- **Called by:** [ui/shortcuts/router.js › keyNameOf](ui-shortcuts.md#fn-router-js-keynameof)
+- **Called by:** [ui/shortcuts/router.js › keyNameOf](ui-shortcuts.md#fn-router-js-keynameof), [ui/shortcuts/router.js › onKeyDown](ui-shortcuts.md#fn-router-js-onkeydown)
 
 <a id="fn-remote-js-createdescriptor"></a>
 **`createDescriptor(val)`** · arrow · L48–48

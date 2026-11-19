@@ -47,6 +47,10 @@ export const ACTIONS = {
   chapter_skip_prev: { run: () => skipChapter('prev') },
   seek_15_fwd: { burst: true, run: (video) => performBurstSeek(5, video) },
   seek_15_back: { burst: true, run: (video) => performBurstSeek(-5, video) },
+  seek_fwd: { burst: true, run: (video) => performBurstSeek(10, video) },
+  seek_back: { burst: true, run: (video) => performBurstSeek(-10, video) },
+  seek_fwd_ex: { burst: true, run: (video) => performBurstSeek(30, video) },
+  seek_back_ex: { burst: true, run: (video) => performBurstSeek(-30, video) },
   play_pause: { run: (video) => playPause(video) },
   toggle_subs: {
     // The player lookup is here rather than in the router: only this action

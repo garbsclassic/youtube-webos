@@ -6,7 +6,8 @@
  * YouTube component's own onSelect() called as well, its failure reported),
  * the description button by its fallback selector, the live chat, the soft
  * reload on a browse page, the SponsorBlock
- * shortcuts without a handler, an unknown action name in the config, repeated
+ * shortcuts without a handler, an unknown action name in the config, a binding
+ * stored under an action's old name, repeated
  * key events, digits in a text box (a panel checkbox is none) and on the
  * search page, the colour keys with their alternate codes, the keys the open
  * panel keeps, the debounce and the forced Green binding when nothing opens
@@ -461,6 +462,24 @@ function fakePlayer(d) {
     );
   }
 
+  // ---- a binding stored under an action's old name ------------------------------------
+  {
+    const { win, press, warns, toasts } = boot({ shortcut_key_2: 'chapter_skip_next' });
+    await waitFor(() => storedConfig(win).shortcut_key_2 === 'chapter_skip');
+    t(
+      'a stored chapter_skip_next is stored back as chapter_skip, with no unknown-action warning',
+      storedConfig(win).shortcut_key_2 === 'chapter_skip' &&
+        !warns.some((w) => w.indexOf('chapter_skip_next') !== -1),
+      String(storedConfig(win).shortcut_key_2) + ' / ' + warns.join(' | ')
+    );
+    const evt = press(DIGIT(2));
+    t(
+      'and the key runs the chapter skip (no chapters yet: the player UI is forced for them)',
+      evt.defaultPrevented && toasts().some((m) => m === 'Loading chapters...'),
+      toasts().join(' | ')
+    );
+  }
+
   // ---- key events the router ignores -------------------------------------------------
   {
     const { win, d, press, model } = boot();
@@ -486,7 +505,7 @@ function fakePlayer(d) {
     const yellow = press(KEYS.YELLOW);
     const yellowAlt = press(ALT.YELLOW);
     t(
-      'yellow is not a configurable key: both its codes pass through untouched',
+      'yellow at its default (None): both its codes pass through untouched',
       !yellow.defaultPrevented && !yellowAlt.defaultPrevented && model.plays === 0
     );
   }

@@ -86,6 +86,10 @@ export const shortcutActions = {
   sb_skip_prev: 'Skip to Last SponsorBlock Segment',
   seek_15_fwd: 'Fast Forward (Burst)',
   seek_15_back: 'Rewind (Burst)',
+  seek_fwd: 'Fast Forward 10 s (Burst)',
+  seek_back: 'Rewind 10 s (Burst)',
+  seek_fwd_ex: 'Fast Forward 30 s (Burst)',
+  seek_back_ex: 'Rewind 30 s (Burst)',
   play_pause: 'Play/Pause',
   toggle_subs: 'Toggle Subtitles',
   toggle_comments: 'Toggle Comments',
@@ -195,7 +199,7 @@ export const configOptions = new Map([
   ['disableNotifications', { default: false, desc: 'Disable Notifications' }]
 ]);
 
-/** The configurable shortcut keys: the digits and the red, green and blue keys (ui/shortcuts/bindings.js). */
+/** The configurable shortcut keys: the digits and the four colour keys (ui/shortcuts/bindings.js). */
 export const SHORTCUT_KEYS = [
   '0',
   '1',
@@ -209,11 +213,13 @@ export const SHORTCUT_KEYS = [
   '9',
   'red',
   'green',
+  'yellow',
   'blue'
 ];
 
 // The shortcut bindings: 5 skips to the next chapter by default, red is the
-// OLED overlay, green this panel, blue the SponsorBlock skip.
+// OLED overlay, green this panel, blue the SponsorBlock skip. Yellow stays
+// None so the TV's own yellow (search) works until a binding claims it.
 const SHORTCUT_DEFAULTS = {
   5: 'chapter_skip',
   red: 'oled_toggle',

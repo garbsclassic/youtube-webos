@@ -10,7 +10,7 @@ Modules: [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/bindings.js](
 
 > What each shortcut does. A `global` action runs anywhere, with nothing passed; the others run on a watch or Shorts page with a &lt;video>, which `run` receives. `burst` marks the seeks, which batch rapid presses instead of being debounced.
 
-81 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [core/selectors.js](core.md#mod-selectors-js), [core/page-state.js](core.md#mod-page-state-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/seek.js](#mod-seek-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/panels.js](#mod-panels-js), [ui/shortcuts/page.js](#mod-page-js), [ui/shortcuts/oled.js](#mod-oled-js), [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js) · imported by [ui/shortcuts/router.js](#mod-router-js)
+85 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [core/selectors.js](core.md#mod-selectors-js), [core/page-state.js](core.md#mod-page-state-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/seek.js](#mod-seek-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/panels.js](#mod-panels-js), [ui/shortcuts/page.js](#mod-page-js), [ui/shortcuts/oled.js](#mod-oled-js), [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js) · imported by [ui/shortcuts/router.js](#mod-router-js)
 
 **At load:**
 
@@ -39,7 +39,7 @@ Soft-reloads the page, except on a player page, where it only says it cannot.
 - **Calls:** [core/page-state.js › isShortsPage](core.md#fn-page-state-js-isshortspage), [core/page-state.js › isWatchPage](core.md#fn-page-state-js-iswatchpage), [ui/shortcuts/page.js › refreshPage](#fn-page-js-refreshpage), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 
 <a id="fn-actions-js-actions-toggle-subs-run"></a>
-**`ACTIONS.toggle_subs.run()`** · property · L54–58
+**`ACTIONS.toggle_subs.run()`** · property · L58–62
 
 The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.
 
@@ -48,14 +48,14 @@ The player lookup is here rather than in the router: only this action needs it, 
 - **Browser:** `querySelector`
 
 <a id="fn-actions-js-actions-sb-skip-prev-run"></a>
-**`ACTIONS.sb_skip_prev.run()`** · property · L65–68
+**`ACTIONS.sb_skip_prev.run()`** · property · L69–72
 
 Jumps back to the start of the last SponsorBlock segment passed.
 
 - **Calls:** [withSponsorBlock](#fn-actions-js-withsponsorblock), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 
 <a id="fn-actions-js-actions-sb-manual-skip-run"></a>
-**`ACTIONS.sb_manual_skip.run()`** · property · L72–75
+**`ACTIONS.sb_manual_skip.run()`** · property · L76–79
 
 Skips the segment SponsorBlock is offering, or jumps to the highlight.
 
@@ -67,7 +67,7 @@ Skips the segment SponsorBlock is offering, or jumps to the highlight.
 
 > Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions.
 
-67 lines · imports [core/config.js](core.md#mod-config-js), [core/remote.js](core.md#mod-remote-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [core/config-options.js](core.md#mod-config-options-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/index.js](ui.md#mod-index-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/router.js](#mod-router-js)
+76 lines · imports [core/config.js](core.md#mod-config-js), [core/remote.js](core.md#mod-remote-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [core/config-options.js](core.md#mod-config-options-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/index.js](ui.md#mod-index-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/router.js](#mod-router-js)
 
 **At load:**
 
@@ -75,16 +75,16 @@ Skips the segment SponsorBlock is offering, or jumps to the highlight.
 - **Settings:** listens to `shortcut_key_*`
 
 <a id="fn-bindings-js-updateshortcutcache"></a>
-**`updateShortcutCache(key)`** · function · L22–32
+**`updateShortcutCache(key)`** · function · L26–40
 
-Reads one binding. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.
+Reads one binding. A renamed action is stored under its new name. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.
 
 - **Calls:** [core/config.js › configRead](core.md#fn-config-js-configread), [core/config.js › configWrite](core.md#fn-config-js-configwrite)
 - **Called by:** [at load](#mod-bindings-js)
 - **Settings:** uses `shortcut_key_*`
 
 <a id="fn-bindings-js-ensuremenukey"></a>
-**`ensureMenuKey(announce)`** · function, exported · L45–52
+**`ensureMenuKey(announce)`** · function, exported · L53–60
 
 The settings must stay reachable: with no key bound to the menu, Green is bound to it again, said with `announce`. The key that opens the menu, and whether Green was just bound to it. Run at the start and whenever the panel closes (a binding changed on it may have unbound the menu).
 
@@ -93,7 +93,7 @@ The settings must stay reachable: with no key bound to the menu, Green is bound 
 - **Settings:** writes `shortcut_key_green`
 
 <a id="fn-bindings-js-getkeycolor"></a>
-**`getKeyColor(code)`** · arrow, exported · L55–55
+**`getKeyColor(code)`** · arrow, exported · L63–63
 
 Colour-key code to name, alternates included, from REMOTE_KEYS in core/remote.js.
 
@@ -167,14 +167,14 @@ Clicks a YouTube button, and calls its component's onSelect() when it has one.
 
 > The OLED black overlay, with a keep-alive so the TV does not sleep under it.
 
-37 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [core/remote.js](core.md#mod-remote-js), [ui/dom.js](ui.md#mod-dom-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
+37 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [core/remote.js](core.md#mod-remote-js), [ui/dom.js](ui.md#mod-dom-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/router.js](#mod-router-js)
 
 <a id="fn-oled-js-isoledoverlayactive"></a>
 **`isOledOverlayActive()`** · function, exported · L13–15
 
 Whether the black OLED overlay is showing.
 
-- **Called by:** [ui/shortcuts/actions.js › ACTIONS.config_menu.run](#fn-actions-js-actions-config-menu-run)
+- **Called by:** [ui/shortcuts/actions.js › ACTIONS.config_menu.run](#fn-actions-js-actions-config-menu-run), [ui/shortcuts/router.js › onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-oled-js-toggleoledoverlay"></a>
 **`toggleOledOverlay()`** · function, exported · L18–37
@@ -182,7 +182,7 @@ Whether the black OLED overlay is showing.
 The OLED black overlay with its keep-alive, toggled by the oled_toggle shortcut.
 
 - **Calls:** [core/remote.js › sendKey](core.md#fn-remote-js-sendkey), [ui/dom.js › createElement](ui.md#fn-dom-js-createelement), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
-- **Called by:** [ui/shortcuts/actions.js › ACTIONS.config_menu.run](#fn-actions-js-actions-config-menu-run)
+- **Called by:** [ui/shortcuts/actions.js › ACTIONS.config_menu.run](#fn-actions-js-actions-config-menu-run), [ui/shortcuts/router.js › onKeyDown](#fn-router-js-onkeydown)
 - **Browser:** `setInterval`, `setTimeout`
 
 <a id="mod-page-js"></a>
@@ -326,7 +326,7 @@ Plays or pauses `video`, with a toast; after a pause the player controls are hid
 
 > The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.
 
-83 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js) · imported by [ui/index.js](ui.md#mod-index-js)
+100 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/oled.js](#mod-oled-js) · imported by [ui/index.js](ui.md#mod-index-js)
 
 **At load:**
 
@@ -334,14 +334,14 @@ Plays or pauses `video`, with a toast; after a pause the player controls are hid
 - **Events:** listens to `keydown`
 
 <a id="fn-router-js-istextbox"></a>
-**`isTextBox(el)`** · function · L11–14
+**`isTextBox(el)`** · function · L12–15
 
 Whether `el` takes typed text: a textarea, or an input other than a checkbox or a colour.
 
 - **Called by:** [keyNameOf](#fn-router-js-keynameof)
 
 <a id="fn-router-js-keynameof"></a>
-**`keyNameOf(evt)`** · function · L17–27
+**`keyNameOf(evt)`** · function · L18–28
 
 The shortcut key a keydown stands for ('red', '3', ...), or null.
 
@@ -349,7 +349,7 @@ The shortcut key a keydown stands for ('red', '3', ...), or null.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-inscope"></a>
-**`inScope(action)`** · function · L30–32
+**`inScope(action)`** · function · L31–33
 
 Whether the action may run on the current page.
 
@@ -357,11 +357,11 @@ Whether the action may run on the current page.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-onkeydown"></a>
-**`onKeyDown(evt)`** · function · L39–81
+**`onKeyDown(evt)`** · function · L40–95
 
 The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).
 
-- **Calls:** [core/dom.js › getVideo](core.md#fn-dom-js-getvideo), [ui/panel/panel.js › isOptionsPanelVisible](ui-panel.md#fn-panel-js-isoptionspanelvisible), [inScope](#fn-router-js-inscope), [keyNameOf](#fn-router-js-keynameof)
+- **Calls:** [core/dom.js › getVideo](core.md#fn-dom-js-getvideo), [core/remote.js › keyCodeOf](core.md#fn-remote-js-keycodeof), [ui/panel/panel.js › isOptionsPanelVisible](ui-panel.md#fn-panel-js-isoptionspanelvisible), [ui/shortcuts/oled.js › isOledOverlayActive](#fn-oled-js-isoledoverlayactive), [ui/shortcuts/oled.js › toggleOledOverlay](#fn-oled-js-toggleoledoverlay), [inScope](#fn-router-js-inscope), [keyNameOf](#fn-router-js-keynameof)
 - **Called by:** [at load](#mod-router-js)
 
 <a id="mod-seek-js"></a>

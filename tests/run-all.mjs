@@ -87,6 +87,7 @@ const full = [
   test(null, 'tests/unit/comments-fix-test.cjs'),
   test(null, 'tests/unit/toast-test.cjs'),
   test(null, 'tests/unit/shortcut-actions-test.cjs'),
+  test(null, 'tests/unit/shortcut-bindings-test.cjs'),
   test(null, 'tests/unit/hide-controls-test.cjs'),
   test(null, 'tests/unit/core-log-test.cjs'),
   test(null, 'tests/unit/playback-speed-test.cjs'),
@@ -103,6 +104,7 @@ const full = [
   test('modern', 'tests/behaviour/theme-oled-test.cjs'),
   test('modern', 'tests/behaviour/panel-test.cjs'),
   test('modern', 'tests/behaviour/shortcuts-router-test.cjs'),
+  test('modern', 'tests/behaviour/shortcuts-yellow-back-test.cjs'),
   test('modern', 'tests/behaviour/toast-test.cjs'),
   // The scripts whose features take a different path on Chrome 87 (the fetch
   // registry, requestIdleCallback, IntersectionObserver, no polyfills) run on
