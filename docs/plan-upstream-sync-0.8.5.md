@@ -155,7 +155,7 @@ One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't 
 
 - [x] Yellow key on window capture: REPRODUCED on the B4 (trusted 405 never reached document capture, and 0.8.5 has no yellow binding). Router moved to window capture, ignores the mod's own keys, yellow added to `SHORTCUT_KEYS`
 - [x] `comments-fix` narrowed override: ported onto upstream's scanner, unit and bundle tests added; still to re-verify on the TV with the #188 repro
-- [x] SponsorBlock chapter-aware markers: `chapterBarRanges` in `overlay.js`, keeping upstream's sibling-overlay positioning (the fork's move of the overlay to `body` was not taken); unit and bar tests added; the B4 showed it still linear, because 0.8.5 tracks the `segment` element; the chapter track is now looked up from it. Re-check pending
+- [x] SponsorBlock chapter-aware markers: `chapterBarRanges` in `overlay.js`, keeping upstream's sibling-overlay positioning (the fork's move of the overlay to `body` was not taken); unit and bar tests added; the B4 showed it still linear, because 0.8.5 tracks the `segment` element; the chapter track is now looked up from it; re-check on the B4 matched the predicted pieces to 0.1 px
 - [x] Back #159, options-panel error, shortcut debounce: ALREADY PRESENT on the B4 (play/pause guards on `controlsFocused()`, no ReferenceError over many opens, double press fires once)
 - [x] OLED layering and Back: overlay wins `elementFromPoint`; Back REPRODUCED (navigated underneath). The router dismisses the overlay on Back/Escape
 - [x] Lifecycle ownership fixes that reproduce: none reproduced (no errors switching watch pages)

@@ -5811,7 +5811,7 @@
   },
   {
    "path": "ui/shortcuts/router.js",
-   "lines": 100,
+   "lines": 111,
    "header": "The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.",
    "imports": [
     {
@@ -19805,8 +19805,8 @@
    "params": "action",
    "exported": false,
    "lines": [
-    31,
-    33
+    35,
+    37
    ],
    "description": "Whether the action may run on the current page.",
    "calls": [
@@ -19824,8 +19824,8 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    40,
-    95
+    44,
+    106
    ],
    "description": "The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).",
    "calls": [

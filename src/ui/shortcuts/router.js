@@ -27,6 +27,10 @@ function keyNameOf(evt) {
   return null;
 }
 
+// The last key this mod sent, so YouTube's unflagged re-send of it is not taken for a press.
+const SYNTHETIC_ECHO_MS = 100;
+const syntheticEcho = { key: null, time: 0 };
+
 /** Whether the action may run on the current page. */
 function inScope(action) {
   return action.global || isWatchPage() || isShortsPage();
@@ -39,7 +43,11 @@ function inScope(action) {
  */
 function onKeyDown(evt) {
   // A key this mod sends (the Shorts keep-alive's yellow, a seek) is meant for YouTube.
-  if (evt[SYNTHETIC_KEY_FLAG]) return;
+  if (evt[SYNTHETIC_KEY_FLAG]) {
+    syntheticEcho.key = keyNameOf(evt);
+    syntheticEcho.time = Date.now();
+    return;
+  }
 
   // While the black overlay is up, Back only takes it down: the screen is black, so a page
   // back underneath would go somewhere the user cannot see. 27 is the Escape webOS also sends.
@@ -53,6 +61,9 @@ function onKeyDown(evt) {
 
   const keyName = keyNameOf(evt);
   if (!keyName) return;
+  // YouTube re-sends a colour key under its alternate code (405 as 170), unflagged, a few ms
+  // later: the echo of one of this mod's keys is the mod's too.
+  if (keyName === syntheticEcho.key && Date.now() - syntheticEcho.time < SYNTHETIC_ECHO_MS) return;
 
   const actionName = shortcutCache[keyName];
   if (!actionName || actionName === 'none') return;

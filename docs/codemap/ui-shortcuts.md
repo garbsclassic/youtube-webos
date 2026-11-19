@@ -326,7 +326,7 @@ Plays or pauses `video`, with a toast; after a pause the player controls are hid
 
 > The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.
 
-100 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/oled.js](#mod-oled-js) · imported by [ui/index.js](ui.md#mod-index-js)
+111 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/oled.js](#mod-oled-js) · imported by [ui/index.js](ui.md#mod-index-js)
 
 **At load:**
 
@@ -349,7 +349,7 @@ The shortcut key a keydown stands for ('red', '3', ...), or null.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-inscope"></a>
-**`inScope(action)`** · function · L31–33
+**`inScope(action)`** · function · L35–37
 
 Whether the action may run on the current page.
 
@@ -357,7 +357,7 @@ Whether the action may run on the current page.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-onkeydown"></a>
-**`onKeyDown(evt)`** · function · L40–95
+**`onKeyDown(evt)`** · function · L44–106
 
 The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).
 

@@ -2,7 +2,8 @@
  * The yellow shortcut key and Back under the OLED overlay, against the built
  * bundle: a yellow binding runs on the watch page from both of its codes, a
  * yellow left at None is YouTube's, a yellow the mod sends itself (the Shorts
- * keep-alive's, through core/remote.js sendKey) runs no binding, Back and
+ * keep-alive's, through core/remote.js sendKey) runs no binding and neither
+ * does YouTube's unstamped re-send of it within 100 ms, Back and
  * Escape with the black overlay up take it down and reach nothing else,
  * without the overlay they are left alone, and a key the router handles on
  * window capture goes no further than the listeners on window itself.
@@ -19,7 +20,8 @@ const {
   press: pressOn,
   pressTrusted,
   toasts: toastsOf,
-  videoModel
+  videoModel,
+  clock
 } = require('../harness/fixtures.cjs');
 
 const report = createReport();
@@ -128,11 +130,39 @@ function bootShorts(cfg) {
       model.plays === 0 && !synthetic.defaultPrevented && keys.indexOf(KEYS.YELLOW) !== -1,
       `plays ${model.plays}, prevented ${synthetic.defaultPrevented}`
     );
+    // Past the 100 ms in which an unstamped press of the same key counts as YouTube's echo.
+    clock(win).offset += 150;
     const real = pressTrusted(win, KEYS.YELLOW, d.body);
     t(
-      'while a trusted press of the same key, unstamped, runs it',
+      'an unstamped trusted yellow 150 ms after a stamped one runs the binding',
       model.plays === 1 && real.defaultPrevented,
       `plays ${model.plays}`
+    );
+  }
+  {
+    // YouTube sends a colour key it receives again under its alternate code, unstamped, ~5 ms on.
+    const { win, d, model } = boot({ shortcut_key_yellow: 'play_pause' });
+    const c = clock(win);
+    pressTrusted(win, KEYS.YELLOW, d.body, true);
+    c.offset += 5;
+    const echo = pressTrusted(win, ALT.YELLOW, d.body);
+    t(
+      "a stamped 405 then an unstamped 170 5 ms later: the echo is the mod's, nothing runs",
+      model.plays === 0 && !echo.defaultPrevented,
+      `plays ${model.plays}, prevented ${echo.defaultPrevented}`
+    );
+  }
+  {
+    const { win, d, model } = boot({ shortcut_key_yellow: 'play_pause' });
+    const c = clock(win);
+    pressTrusted(win, KEYS.YELLOW, d.body, true);
+    c.offset += 5;
+    const green = pressTrusted(win, KEYS.GREEN, d.body);
+    const panel = d.querySelector('.ytaf-ui-container');
+    t(
+      'a stamped yellow does not hold back a different key: green 5 ms later opens the settings',
+      green.defaultPrevented && !!panel && panel.style.display === 'block' && model.plays === 0,
+      panel ? panel.style.display : 'no panel'
     );
   }
   {
