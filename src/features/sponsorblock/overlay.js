@@ -214,6 +214,11 @@ export function drawOverlay(sb) {
   const fragment = document.createDocumentFragment();
   const highlightMode = config.sbMode_highlight;
 
+  // The chapter pieces are children of the track, which the tracked bar (its segment) sits in.
+  const chapterTrack =
+    sb.progressBar.closest(SELECTORS.PROGRESS_BAR_TRACK) ||
+    sb.progressBar.querySelector(SELECTORS.PROGRESS_BAR_TRACK) ||
+    sb.progressBar;
   for (let i = 0; i < sb.segments.length; i++) {
     const segment = sb.segments[i];
     // A full-video label spans [0, 0] and would draw a zero-width bar.
@@ -245,7 +250,7 @@ export function drawOverlay(sb) {
 
     const opacity = segmentTypes[segment.category]?.opacity || '0.7';
     // The plain mapping when the bar has no chapters.
-    const ranges = chapterBarRanges(sb.progressBar, start, end, duration) || [
+    const ranges = chapterBarRanges(chapterTrack, start, end, duration) || [
       { left, width: ((end - start) / duration) * 100 }
     ];
     for (const range of ranges) {

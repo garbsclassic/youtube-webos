@@ -6,7 +6,7 @@
  * only that touches neither the bar nor the <video>, and the overlay's geometry
  * following the bar (hidden with it, no layout read while hidden, re-synced on
  * resize and on the bar's attributes), and the marks on a bar split into
- * chapters following the chapters. The popup and the labels are
+ * chapters following the chapters, with the track's segment element tracked too. The popup and the labels are
  * sponsorblock-ui-test.cjs.
  *
  * Run: node tests/behaviour/sponsorblock-bar-test.cjs [bundle]
@@ -380,6 +380,59 @@ const finderWaiting = (p) => {
     t(
       "the segment inside chapter 2 is shifted right by chapter 1's margin",
       marks.length === 3 && close(c.left, pct(204)) && close(c.width, pct(50)),
+      JSON.stringify(c)
+    );
+  }
+
+  // ---- the segment element tracked: the chapters are read from the track around it ----------
+  {
+    // The same chapters as above, with the [idomkey="segment"] element 0.8.5 tracks first beside
+    // them in the track; its own children are not chapter pieces.
+    const p = boot([seg('sponsor', 80, 130), seg('selfpromo', 200, 250)], {}, 0, {
+      duration: 400
+    });
+    const d = p.win.document;
+    const segment = d.createElement('div');
+    segment.setAttribute('idomkey', 'segment');
+    segment.appendChild(d.createElement('div'));
+    p.track().appendChild(segment);
+    for (const [key, css] of [
+      ['chapter-0', 'width: 100px; margin-right: 4px;'],
+      ['chapter-1', 'width: 300px;']
+    ]) {
+      const el = d.createElement('div');
+      el.setAttribute('idomkey', key);
+      el.style.cssText = css;
+      p.track().appendChild(el);
+    }
+    await p.ready();
+    await waitFor(() => p.sb().progressBar === segment);
+    t(
+      'setup: the segment element is the tracked bar',
+      p.sb().progressBar === segment,
+      p.sb().progressBar && p.sb().progressBar.getAttribute('idomkey')
+    );
+    const marks = () =>
+      [...d.querySelectorAll('#previewbar .previewbar')].map((m) => ({
+        left: parseFloat(m.style.left),
+        width: parseFloat(m.style.width)
+      }));
+    await waitFor(() => marks().length === 3);
+    const pct = (px) => (px * 100) / 404;
+    const close = (x, y) => Math.abs(x - y) < 1e-6;
+    const [a, b, c] = marks();
+    t(
+      'the segment across the chapter gap is drawn as two marks, stopping and resuming at the gap',
+      marks().length === 3 &&
+        close(a.left, pct(80)) &&
+        close(a.left + a.width, pct(100)) &&
+        close(b.left, pct(104)) &&
+        close(b.left + b.width, pct(134)),
+      JSON.stringify(marks())
+    );
+    t(
+      "and the segment inside chapter 2 is shifted right by chapter 1's margin",
+      marks().length === 3 && close(c.left, pct(204)) && close(c.width, pct(50)),
       JSON.stringify(c)
     );
   }
