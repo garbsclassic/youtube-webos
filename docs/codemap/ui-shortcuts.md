@@ -22,7 +22,7 @@ Modules: [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/bindings.js](
 Runs `fn` with the live SponsorBlock handler, or says there is none.
 
 - **Calls:** [features/sponsorblock/bootstrap.js › getSponsorBlock](features-sponsorblock.md#fn-bootstrap-js-getsponsorblock), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
-- **Called by:** [ACTIONS.sb_manual_skip.run](#fn-actions-js-actions-sb-manual-skip-run), [ACTIONS.sb_skip_prev.run](#fn-actions-js-actions-sb-skip-prev-run)
+- **Called by:** [ACTIONS.sb_skip_highlight.run](#fn-actions-js-actions-sb-manual-skip-run), [ACTIONS.sb_skip_prev.run](#fn-actions-js-actions-sb-skip-prev-run)
 
 <a id="fn-actions-js-actions-config-menu-run"></a>
 **`ACTIONS.config_menu.run()`** · property · L30–34
@@ -39,7 +39,7 @@ Soft-reloads the page, except on a player page, where it only says it cannot.
 - **Calls:** [core/page-state.js › isShortsPage](core.md#fn-page-state-js-isshortspage), [core/page-state.js › isWatchPage](core.md#fn-page-state-js-iswatchpage), [ui/shortcuts/page.js › refreshPage](#fn-page-js-refreshpage), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 
 <a id="fn-actions-js-actions-toggle-subs-run"></a>
-**`ACTIONS.toggle_subs.run()`** · property · L58–62
+**`ACTIONS.toggle_subtitles.run()`** · property · L58–62
 
 The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.
 
@@ -55,7 +55,7 @@ Jumps back to the start of the last SponsorBlock segment passed.
 - **Calls:** [withSponsorBlock](#fn-actions-js-withsponsorblock), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 
 <a id="fn-actions-js-actions-sb-manual-skip-run"></a>
-**`ACTIONS.sb_manual_skip.run()`** · property · L76–79
+**`ACTIONS.sb_skip_highlight.run()`** · property · L76–79
 
 Skips the segment SponsorBlock is offering, or jumps to the highlight.
 
@@ -179,7 +179,7 @@ Whether the black OLED overlay is showing.
 <a id="fn-oled-js-toggleoledoverlay"></a>
 **`toggleOledOverlay()`** · function, exported · L18–37
 
-The OLED black overlay with its keep-alive, toggled by the oled_toggle shortcut.
+The OLED black overlay with its keep-alive, toggled by the toggle_oled shortcut.
 
 - **Calls:** [core/remote.js › sendKey](core.md#fn-remote-js-sendkey), [ui/dom.js › createElement](ui.md#fn-dom-js-createelement), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 - **Called by:** [ui/shortcuts/actions.js › ACTIONS.config_menu.run](#fn-actions-js-actions-config-menu-run), [ui/shortcuts/router.js › onKeyDown](#fn-router-js-onkeydown)
@@ -282,7 +282,7 @@ Opens or closes the Save (Watch Later, playlists) dialog.
 Turns the captions on (the first track) or off through the player's API, or by pressing the captions button when the API has no answer; a toast says the result.
 
 - **Calls:** [ui/shortcuts/helpers.js › announcePressed](#fn-helpers-js-announcepressed), [ui/shortcuts/helpers.js › triggerInternal](#fn-helpers-js-triggerinternal), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
-- **Called by:** [ui/shortcuts/actions.js › ACTIONS.toggle_subs.run](#fn-actions-js-actions-toggle-subs-run)
+- **Called by:** [ui/shortcuts/actions.js › ACTIONS.toggle_subtitles.run](#fn-actions-js-actions-toggle-subs-run)
 - **Selectors:** `CAPTIONS_BUTTON`, `CAPTIONS_BUTTON_LEGACY`
 - **Browser:** `querySelector`
 

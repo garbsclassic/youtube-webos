@@ -169,7 +169,7 @@ function bootShorts(cfg) {
     );
   }
   {
-    const { d, keys } = bootShorts({ shortcut_key_yellow: 'oled_toggle' });
+    const { d, keys } = bootShorts({ shortcut_key_yellow: 'toggle_oled' });
     const pressed = await waitFor(
       () => keys.indexOf(KEYS.YELLOW) !== -1 && keys.indexOf(ALT.YELLOW) !== -1,
       3000
@@ -194,7 +194,7 @@ function bootShorts(cfg) {
     );
     t(
       'and the deactivation toast shows',
-      toasts().some((m) => m === 'OLED Mode Deactivated'),
+      toasts().some((m) => m === 'Black Overlay Deactivated'),
       toasts().join(' | ')
     );
     await wait(150); // past the debounce of the red press
@@ -238,7 +238,7 @@ function bootShorts(cfg) {
     );
     t(
       'and they raise nothing again: no overlay, one deactivation toast',
-      !overlay() && toasts().filter((m) => m === 'OLED Mode Deactivated').length === 1,
+      !overlay() && toasts().filter((m) => m === 'Black Overlay Deactivated').length === 1,
       toasts().join(' | ')
     );
     const up = release(KEYS.BACK);

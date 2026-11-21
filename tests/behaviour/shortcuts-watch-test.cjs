@@ -1,7 +1,7 @@
 /**
  * Remote shortcuts and the clock, against the built bundle on both flavours: burst
  * seeking batches rapid presses into one jump (a reversed press keeps the part not
- * applied yet; the 5, 10 and 30 s steps), chapter skip reads the progress bar (markers
+ * applied yet; the 5, 10 and 30s steps), chapter skip reads the progress bar (markers
  * of no width are no chapters), play/pause toggles the video, shortcuts respect their
  * page scope, the clock shows and hides with YouTube's player UI (its focus attribute at
  * once, with no fade, and the player state and focus), keeps the look of the theme
@@ -31,7 +31,7 @@ const report = createReport();
 const t = report.check;
 
 // The digit keys the shortcuts are bound to below. The seek_15_* actions
-// seek by 5 s per press (shortcuts/actions.js); the names are the stored keys.
+// seek by 5s per press (shortcuts/actions.js); the names are the stored keys.
 const KEY = {
   seekFwd: DIGIT(1),
   seekBack: DIGIT(2),
@@ -59,10 +59,10 @@ function boot(cfg, bodyClass, timers) {
     config: Object.assign(
       {
         showWatch: true,
-        shortcut_key_1: 'seek_15_fwd',
-        shortcut_key_2: 'seek_15_back',
+        shortcut_key_1: 'seek_fwd_15',
+        shortcut_key_2: 'seek_back_15',
         shortcut_key_3: 'play_pause',
-        shortcut_key_4: 'chapter_skip',
+        shortcut_key_4: 'chapter_skip_next',
         shortcut_key_5: 'chapter_skip_prev'
       },
       cfg
@@ -116,7 +116,7 @@ function boot(cfg, bodyClass, timers) {
     );
   }
   {
-    // Two presses 1.2 s apart (here 120 ms) are two bursts, not one. The
+    // Two presses 1.2s apart (here 120 ms) are two bursts, not one. The
     // burst's reset is set with its seek (20 ms here): a wait started once the
     // seek has landed is due after the reset, and Node runs timers in the
     // order they are due, however late the page handles the press.
@@ -151,13 +151,13 @@ function boot(cfg, bodyClass, timers) {
     );
   }
   {
-    // The 10 s and 30 s seeks, bound to the digits the boot leaves free.
+    // The 10s and 30s seeks, bound to the digits the boot leaves free.
     const { model, press, toasts } = boot(
       {
-        shortcut_key_6: 'seek_fwd',
-        shortcut_key_7: 'seek_back',
-        shortcut_key_8: 'seek_fwd_ex',
-        shortcut_key_9: 'seek_back_ex'
+        shortcut_key_6: 'seek_fwd_10',
+        shortcut_key_7: 'seek_back_10',
+        shortcut_key_8: 'seek_fwd_30',
+        shortcut_key_9: 'seek_back_30'
       },
       'WEB_PAGE_TYPE_WATCH'
     );
@@ -165,23 +165,27 @@ function boot(cfg, bodyClass, timers) {
     press(DIGIT(8));
     press(DIGIT(8));
     t(
-      'two quick seek_fwd_ex presses are one burst of +60 s',
+      'two quick seek_fwd_30 presses are one burst of +60s',
       toasts().some((m) => m === 'Skipped +60s'),
       toasts().join(' | ')
     );
     await waitFor(() => model.currentTime === 110);
-    t('and land as one seek of 60 s', model.currentTime === 110, String(model.currentTime));
+    t('and land as one seek of 60s', model.currentTime === 110, String(model.currentTime));
     press(DIGIT(9));
     await waitFor(() => model.currentTime === 80);
-    t('seek_back_ex seeks back 30 s', model.currentTime === 80, String(model.currentTime));
+    t('seek_back_30 seeks back 30s', model.currentTime === 80, String(model.currentTime));
     press(DIGIT(7));
     press(DIGIT(7));
     await waitFor(() => model.currentTime === 60);
-    t('two seek_back presses land 20 s back', model.currentTime === 60, String(model.currentTime));
+    t(
+      'two seek_back_10 presses land 20s back',
+      model.currentTime === 60,
+      String(model.currentTime)
+    );
     press(DIGIT(6));
     await waitFor(() => model.currentTime === 70);
     t(
-      'seek_fwd seeks forward 10 s, its toast counting from zero',
+      'seek_fwd_10 seeks forward 10s, its toast counting from zero',
       model.currentTime === 70 && toasts().some((m) => m === 'Skipped +10s'),
       model.currentTime + ' / ' + toasts().join(' | ')
     );
@@ -302,7 +306,7 @@ function boot(cfg, bodyClass, timers) {
     press(KEY.chapterPrev);
     await wait(150);
     t(
-      'chapter back within 3 s of a start goes to the previous chapter',
+      'chapter back within 3s of a start goes to the previous chapter',
       model.currentTime === 0 && toasts().some((m) => m === 'Previous Chapter'),
       String(model.currentTime)
     );
@@ -310,7 +314,7 @@ function boot(cfg, bodyClass, timers) {
     press(KEY.chapterPrev);
     await wait(150);
     t(
-      'chapter back more than 3 s in restarts the current chapter',
+      'chapter back more than 3s in restarts the current chapter',
       model.currentTime === 30,
       String(model.currentTime)
     );
@@ -402,7 +406,7 @@ function boot(cfg, bodyClass, timers) {
   }
   {
     // A global action runs anywhere, and without a video.
-    const { win, press } = boot({ shortcut_key_6: 'oled_toggle' }, 'WEB_PAGE_TYPE_BROWSE');
+    const { win, press } = boot({ shortcut_key_6: 'toggle_oled' }, 'WEB_PAGE_TYPE_BROWSE');
     press(DIGIT(6));
     t(
       'on a browse page a global shortcut runs (the OLED overlay goes up)',
@@ -641,7 +645,7 @@ function boot(cfg, bodyClass, timers) {
       // The wait to the next minute at a thousandth: under 60 ms.
       timers: { scale: 1000, from: 1000 },
       setup(w) {
-        // The page's clock stands 5 s before a minute.
+        // The page's clock stands 5s before a minute.
         const c = clock(w);
         c.offset = 60000 - (w.Date.now() % 60000) - 5000;
         const realInterval = w.setInterval;
@@ -660,7 +664,7 @@ function boot(cfg, bodyClass, timers) {
     const watch = d.querySelector('.ytaf-watch');
     await wait(150);
     t(
-      'each tick is aimed at the next minute, not a fixed 60 s interval a late tick would shift',
+      'each tick is aimed at the next minute, not a fixed 60s interval a late tick would shift',
       fixedIntervals === 0 && delays.some((ms) => ms > 4800 && ms <= 5000),
       'intervals ' + fixedIntervals + ', delays ' + delays.join(',')
     );
@@ -725,7 +729,7 @@ function boot(cfg, bodyClass, timers) {
         const RealIntl = win.Intl;
         win.Intl = Object.create(RealIntl, {
           DateTimeFormat: {
-            value: function (...args) {
+            value: (...args) => {
               const real = new RealIntl.DateTimeFormat(...args);
               return {
                 format: (date) => {

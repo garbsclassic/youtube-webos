@@ -2,17 +2,18 @@
 // passed; the others run on a watch or Shorts page with a <video>, which
 // `run` receives. `burst` marks the seeks, which batch rapid presses instead
 // of being debounced.
-import { showNotification } from '../toast/index.js';
+
+import { isShortsPage, isWatchPage } from '../../core/page-state.js';
 import { SELECTORS } from '../../core/selectors.js';
-import { isWatchPage, isShortsPage } from '../../core/page-state.js';
-import { showOptionsPanel, isOptionsPanelVisible } from '../panel/panel.js';
-import { skipChapter, performBurstSeek } from './seek.js';
-import { playPause, toggleSubtitles } from './playback.js';
-import { toggleComments, toggleDescription, saveToPlaylist } from './panels.js';
-import { refreshPage } from './page.js';
-import { toggleOledOverlay, isOledOverlayActive } from './oled.js';
+import { resetSpeed, stepSpeed } from '../../features/playback-speed/index.js';
 import { getSponsorBlock } from '../../features/sponsorblock/bootstrap.js';
-import { stepSpeed, resetSpeed } from '../../features/playback-speed/index.js';
+import { isOptionsPanelVisible, showOptionsPanel } from '../panel/panel.js';
+import { showNotification } from '../toast/index.js';
+import { isOledOverlayActive, toggleOledOverlay } from './oled.js';
+import { refreshPage } from './page.js';
+import { saveToPlaylist, toggleComments, toggleDescription } from './panels.js';
+import { playPause, toggleSubtitles } from './playback.js';
+import { performBurstSeek, skipChapter } from './seek.js';
 
 /** Runs `fn` with the live SponsorBlock handler, or says there is none. */
 function withSponsorBlock(fn) {
@@ -33,7 +34,7 @@ export const ACTIONS = {
       showOptionsPanel(!isOptionsPanelVisible());
     }
   },
-  oled_toggle: { global: true, run: toggleOledOverlay },
+  toggle_oled: { global: true, run: toggleOledOverlay },
   refresh_page: {
     // Global rather than browse-only, so the press on a player page is answered.
     global: true,
@@ -43,16 +44,16 @@ export const ACTIONS = {
       else refreshPage();
     }
   },
-  chapter_skip: { run: () => skipChapter('next') },
+  chapter_skip_next: { run: () => skipChapter('next') },
   chapter_skip_prev: { run: () => skipChapter('prev') },
-  seek_15_fwd: { burst: true, run: (video) => performBurstSeek(5, video) },
-  seek_15_back: { burst: true, run: (video) => performBurstSeek(-5, video) },
-  seek_fwd: { burst: true, run: (video) => performBurstSeek(10, video) },
-  seek_back: { burst: true, run: (video) => performBurstSeek(-10, video) },
-  seek_fwd_ex: { burst: true, run: (video) => performBurstSeek(30, video) },
-  seek_back_ex: { burst: true, run: (video) => performBurstSeek(-30, video) },
+  seek_fwd_10: { burst: true, run: (video) => performBurstSeek(10, video) },
+  seek_back_10: { burst: true, run: (video) => performBurstSeek(-10, video) },
+  seek_fwd_15: { burst: true, run: (video) => performBurstSeek(15, video) },
+  seek_back_15: { burst: true, run: (video) => performBurstSeek(-15, video) },
+  seek_fwd_30: { burst: true, run: (video) => performBurstSeek(30, video) },
+  seek_back_30: { burst: true, run: (video) => performBurstSeek(-30, video) },
   play_pause: { run: (video) => playPause(video) },
-  toggle_subs: {
+  toggle_subtitles: {
     // The player lookup is here rather than in the router: only this action
     // needs it, and the fallback is a full-document class-selector walk.
     run: () =>
@@ -71,7 +72,7 @@ export const ACTIONS = {
         if (!sb.skipToPreviousSegment()) showNotification('No previous segment found');
       })
   },
-  sb_manual_skip: {
+  sb_skip_highlight: {
     /** Skips the segment SponsorBlock is offering, or jumps to the highlight. */
     run: () =>
       withSponsorBlock((sb) => {

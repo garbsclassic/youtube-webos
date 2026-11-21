@@ -36,7 +36,7 @@ const t = report.check;
 
 // The bindings every watch-page boot starts from; a case overrides what it needs.
 const BINDINGS = {
-  shortcut_key_1: 'toggle_subs',
+  shortcut_key_1: 'toggle_subtitles',
   shortcut_key_2: 'none',
   shortcut_key_3: 'play_pause',
   shortcut_key_4: 'toggle_comments',
@@ -126,13 +126,13 @@ function fakePlayer(d) {
 }
 
 (async () => {
-  // ---- toggle_subs through the player API ----------------------------------------
+  // ---- toggle_subtitles through the player API ----------------------------------------
   {
     const { d, press, toasts } = boot();
     const player = fakePlayer(d);
     press(DIGIT(1));
     t(
-      'toggle_subs loads the captions module and sets the first track of the list',
+      'toggle_subtitles loads the captions module and sets the first track of the list',
       player.calls.indexOf('loadModule:captions') !== -1 &&
         player.calls.indexOf('setOption:captions:track') !== -1 &&
         player.track.languageCode === 'en',
@@ -152,7 +152,7 @@ function fakePlayer(d) {
     );
   }
 
-  // ---- toggle_subs on a video without captions ----------------------------------------
+  // ---- toggle_subtitles on a video without captions ----------------------------------------
   {
     const { d, press, toasts } = boot();
     fakePlayer(d);
@@ -168,7 +168,7 @@ function fakePlayer(d) {
     );
   }
 
-  // ---- toggle_subs through the captions button, the player API giving no answer ----------
+  // ---- toggle_subtitles through the captions button, the player API giving no answer ----------
   {
     const { d, press, toasts } = boot();
     const el = d.getElementById('ytlr-player__player-container-player');
@@ -412,9 +412,9 @@ function fakePlayer(d) {
   // ---- the SponsorBlock shortcuts without a handler --------------------------------
   {
     const { press, toasts } = boot();
-    press(KEYS.BLUE); // the default blue binding: sb_manual_skip
+    press(KEYS.BLUE); // the default blue binding: sb_skip_highlight
     t(
-      'sb_manual_skip with no SponsorBlock handler says it is not loaded',
+      'sb_skip_highlight with no SponsorBlock handler says it is not loaded',
       toasts().some((m) => m === 'SponsorBlock not loaded'),
       toasts().join(' | ')
     );
@@ -459,24 +459,6 @@ function fakePlayer(d) {
       'and the key is left to the app',
       !!evt && !evt.defaultPrevented && model.plays === 0,
       evt && String(evt.defaultPrevented)
-    );
-  }
-
-  // ---- a binding stored under an action's old name ------------------------------------
-  {
-    const { win, press, warns, toasts } = boot({ shortcut_key_2: 'chapter_skip_next' });
-    await waitFor(() => storedConfig(win).shortcut_key_2 === 'chapter_skip');
-    t(
-      'a stored chapter_skip_next is stored back as chapter_skip, with no unknown-action warning',
-      storedConfig(win).shortcut_key_2 === 'chapter_skip' &&
-        !warns.some((w) => w.indexOf('chapter_skip_next') !== -1),
-      String(storedConfig(win).shortcut_key_2) + ' / ' + warns.join(' | ')
-    );
-    const evt = press(DIGIT(2));
-    t(
-      'and the key runs the chapter skip (no chapters yet: the player UI is forced for them)',
-      evt.defaultPrevented && toasts().some((m) => m === 'Loading chapters...'),
-      toasts().join(' | ')
     );
   }
 
@@ -634,7 +616,7 @@ function fakePlayer(d) {
   // ---- the forced Green binding when nothing opens the settings -------------------------
   {
     // Every key defaults to something other than config_menu except Green,
-    // which this unbinds. The welcome toast (2 s) is shortened by the timer scale.
+    // which this unbinds. The welcome toast (2s) is shortened by the timer scale.
     const { win, press, warns, panel, toasts } = boot(
       { shortcut_key_green: 'none' },
       'WEB_PAGE_TYPE_BROWSE',
@@ -653,11 +635,11 @@ function fakePlayer(d) {
       stored.shortcut_key_green === 'config_menu',
       String(stored.shortcut_key_green)
     );
-    // The welcome toast comes 2 s after the start (200 ms here), on its own timer.
-    await waitFor(() => toasts().some((m) => m === 'Press [GREEN] to open the settings'));
+    // The welcome toast comes 2s after the start (200 ms here), on its own timer.
+    await waitFor(() => toasts().some((m) => m === 'Press [GREEN] to open settings'));
     t(
       'the welcome toast names Green as the menu key',
-      toasts().some((m) => m === 'Press [GREEN] to open the settings'),
+      toasts().some((m) => m === 'Press [GREEN] to open settings'),
       toasts().join(' | ')
     );
     press(KEYS.GREEN);
@@ -677,10 +659,10 @@ function fakePlayer(d) {
         stored.shortcut_key_green === 'none',
       String(stored.shortcut_key_green)
     );
-    await waitFor(() => toasts().some((m) => m === 'Press [7] to open the settings'));
+    await waitFor(() => toasts().some((m) => m === 'Press [7] to open settings'));
     t(
       'the welcome toast names that key',
-      toasts().some((m) => m === 'Press [7] to open the settings'),
+      toasts().some((m) => m === 'Press [7] to open settings'),
       toasts().join(' | ')
     );
     const green = press(KEYS.GREEN);
@@ -721,7 +703,7 @@ function fakePlayer(d) {
       'no key opens the settings any more: closing the panel binds Green again, and says so',
       toasts()
         .slice(before)
-        .some((m) => m === 'Press [GREEN] to open the settings'),
+        .some((m) => m === 'Press [GREEN] to open settings'),
       toasts().join(' | ')
     );
     await wait(120);

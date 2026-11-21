@@ -5347,106 +5347,72 @@
   },
   {
    "path": "ui/shortcuts/actions.js",
-   "lines": 85,
-   "header": "What each shortcut does. A `global` action runs anywhere, with nothing passed; the others run on a watch or Shorts page with a <video>, which `run` receives. `burst` marks the seeks, which batch rapid presses instead of being debounced.",
-   "imports": [
+  "lines": 85,
+  "header": "What each shortcut does. A `global` action runs anywhere, with nothing passed; the others run on a watch or Shorts page with a <video>, which `run` receives. `burst` marks the seeks, which batch rapid presses instead of being debounced.",
+  "imports": [
     {
-     "from": "ui/toast/index.js",
-     "names": [
-      "showNotification"
-     ]
+      "from": "ui/toast/index.js",
+      "names": ["showNotification"]
     },
     {
-     "from": "core/selectors.js",
-     "names": [
-      "SELECTORS"
-     ]
+      "from": "core/selectors.js",
+      "names": ["SELECTORS"]
     },
     {
-     "from": "core/page-state.js",
-     "names": [
-      "isWatchPage",
-      "isShortsPage"
-     ]
+      "from": "core/page-state.js",
+      "names": ["isWatchPage", "isShortsPage"]
     },
     {
-     "from": "ui/panel/panel.js",
-     "names": [
-      "showOptionsPanel",
-      "isOptionsPanelVisible"
-     ]
+      "from": "ui/panel/panel.js",
+      "names": ["showOptionsPanel", "isOptionsPanelVisible"]
     },
     {
-     "from": "ui/shortcuts/seek.js",
-     "names": [
-      "skipChapter",
-      "performBurstSeek"
-     ]
+      "from": "ui/shortcuts/seek.js",
+      "names": ["skipChapter", "performBurstSeek"]
     },
     {
-     "from": "ui/shortcuts/playback.js",
-     "names": [
-      "playPause",
-      "toggleSubtitles"
-     ]
+      "from": "ui/shortcuts/playback.js",
+      "names": ["playPause", "toggleSubtitles"]
     },
     {
-     "from": "ui/shortcuts/panels.js",
-     "names": [
-      "toggleComments",
-      "toggleDescription",
-      "saveToPlaylist"
-     ]
+      "from": "ui/shortcuts/panels.js",
+      "names": ["toggleComments", "toggleDescription", "saveToPlaylist"]
     },
     {
-     "from": "ui/shortcuts/page.js",
-     "names": [
-      "refreshPage"
-     ]
+      "from": "ui/shortcuts/page.js",
+      "names": ["refreshPage"]
     },
     {
-     "from": "ui/shortcuts/oled.js",
-     "names": [
-      "toggleOledOverlay",
-      "isOledOverlayActive"
-     ]
+      "from": "ui/shortcuts/oled.js",
+      "names": ["toggleOledOverlay", "isOledOverlayActive"]
     },
     {
-     "from": "features/sponsorblock/bootstrap.js",
-     "names": [
-      "getSponsorBlock"
-     ]
+      "from": "features/sponsorblock/bootstrap.js",
+      "names": ["getSponsorBlock"]
     },
     {
-     "from": "features/playback-speed/index.js",
-     "names": [
-      "stepSpeed",
-      "resetSpeed"
-     ]
+      "from": "features/playback-speed/index.js",
+      "names": ["stepSpeed", "resetSpeed"]
     }
-   ],
-   "importedBy": [
-    "ui/shortcuts/router.js"
-   ],
-   "exports": [
-    "ACTIONS"
-   ],
-   "atLoad": {
+  ],
+  "importedBy": ["ui/shortcuts/router.js"],
+  "exports": ["ACTIONS"],
+  "atLoad": {
     "calls": [
-     "ui/shortcuts/seek.js#skipChapter",
-     "ui/shortcuts/seek.js#performBurstSeek",
-     "ui/shortcuts/playback.js#playPause",
-     "features/playback-speed/index.js#stepSpeed"
+      "ui/shortcuts/seek.js#skipChapter",
+      "ui/shortcuts/seek.js#performBurstSeek",
+      "ui/shortcuts/playback.js#playPause",
+      "features/playback-speed/index.js#stepSpeed"
     ]
-   },
-   "functions": [
+  },
+  "functions": [
     "ui/shortcuts/actions.js#withSponsorBlock",
     "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
     "ui/shortcuts/actions.js#ACTIONS.refresh_page.run",
-    "ui/shortcuts/actions.js#ACTIONS.toggle_subs.run",
+    "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run",
     "ui/shortcuts/actions.js#ACTIONS.sb_skip_prev.run",
-    "ui/shortcuts/actions.js#ACTIONS.sb_manual_skip.run"
-   ]
+    "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run"
+  ]
   },
   {
    "path": "ui/shortcuts/bindings.js",
@@ -19131,23 +19097,20 @@
   },
   {
    "id": "ui/shortcuts/actions.js#withSponsorBlock",
-   "name": "withSponsorBlock",
-   "kind": "function",
-   "params": "fn",
-   "exported": false,
-   "lines": [
-    18,
-    22
-   ],
-   "description": "Runs `fn` with the live SponsorBlock handler, or says there is none.",
-   "calls": [
+  "name": "withSponsorBlock",
+  "kind": "function",
+  "params": "fn",
+  "exported": false,
+  "lines": [18, 22],
+  "description": "Runs `fn` with the live SponsorBlock handler, or says there is none.",
+  "calls": [
     "features/sponsorblock/bootstrap.js#getSponsorBlock",
     "ui/toast/index.js#showNotification"
-   ],
-   "calledBy": [
-    "ui/shortcuts/actions.js#ACTIONS.sb_manual_skip.run",
+  ],
+  "calledBy": [
+    "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run",
     "ui/shortcuts/actions.js#ACTIONS.sb_skip_prev.run"
-   ]
+  ]
   },
   {
    "id": "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
@@ -19186,26 +19149,16 @@
    ]
   },
   {
-   "id": "ui/shortcuts/actions.js#ACTIONS.toggle_subs.run",
-   "name": "ACTIONS.toggle_subs.run",
-   "kind": "property",
-   "params": "",
-   "exported": false,
-   "lines": [
-    58,
-    62
-   ],
-   "description": "The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.",
-   "calls": [
-    "ui/shortcuts/playback.js#toggleSubtitles"
-   ],
-   "selectors": [
-    "PLAYER_ID",
-    "HTML5_PLAYER_FALLBACK"
-   ],
-   "browser": [
-    "querySelector"
-   ]
+    "id": "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run",
+    "name": "ACTIONS.toggle_subtitles.run",
+    "kind": "property",
+    "params": "",
+    "exported": false,
+    "lines": [58, 62],
+    "description": "The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.",
+    "calls": ["ui/shortcuts/playback.js#toggleSubtitles"],
+    "selectors": ["PLAYER_ID", "HTML5_PLAYER_FALLBACK"],
+    "browser": ["querySelector"]
   },
   {
    "id": "ui/shortcuts/actions.js#ACTIONS.sb_skip_prev.run",
@@ -19224,20 +19177,14 @@
    ]
   },
   {
-   "id": "ui/shortcuts/actions.js#ACTIONS.sb_manual_skip.run",
-   "name": "ACTIONS.sb_manual_skip.run",
-   "kind": "property",
-   "params": "",
-   "exported": false,
-   "lines": [
-    76,
-    79
-   ],
-   "description": "Skips the segment SponsorBlock is offering, or jumps to the highlight.",
-   "calls": [
-    "ui/shortcuts/actions.js#withSponsorBlock",
-    "ui/toast/index.js#showNotification"
-   ]
+    "id": "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run",
+    "name": "ACTIONS.sb_skip_highlight.run",
+    "kind": "property",
+    "params": "",
+    "exported": false,
+    "lines": [76, 79],
+    "description": "Skips the segment SponsorBlock is offering, or jumps to the highlight.",
+    "calls": ["ui/shortcuts/actions.js#withSponsorBlock", "ui/toast/index.js#showNotification"]
   },
   {
    "id": "ui/shortcuts/bindings.js#updateShortcutCache",
@@ -19420,29 +19367,23 @@
    ]
   },
   {
-   "id": "ui/shortcuts/oled.js#toggleOledOverlay",
-   "name": "toggleOledOverlay",
-   "kind": "function",
-   "params": "",
-   "exported": true,
-   "lines": [
-    18,
-    37
-   ],
-   "description": "The OLED black overlay with its keep-alive, toggled by the oled_toggle shortcut.",
-   "calls": [
-    "core/remote.js#sendKey",
-    "ui/dom.js#createElement",
-    "ui/toast/index.js#showNotification"
-   ],
-   "browser": [
-    "setInterval",
-    "setTimeout"
-   ],
-   "calledBy": [
-    "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
-    "ui/shortcuts/router.js#onKeyDown"
-   ]
+    "id": "ui/shortcuts/oled.js#toggleOledOverlay",
+    "name": "toggleOledOverlay",
+    "kind": "function",
+    "params": "",
+    "exported": true,
+    "lines": [18, 37],
+    "description": "The OLED black overlay with its keep-alive, toggled by the toggle_oled shortcut.",
+    "calls": [
+      "core/remote.js#sendKey",
+      "ui/dom.js#createElement",
+      "ui/toast/index.js#showNotification"
+    ],
+    "browser": ["setInterval", "setTimeout"],
+    "calledBy": [
+      "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
+      "ui/shortcuts/router.js#onKeyDown"
+    ]
   },
   {
    "id": "ui/shortcuts/page.js#refreshPage",
@@ -19642,7 +19583,7 @@
     "querySelector"
    ],
    "calledBy": [
-    "ui/shortcuts/actions.js#ACTIONS.toggle_subs.run"
+    "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run"
    ]
   },
   {
@@ -20177,25 +20118,17 @@
   },
   {
    "id": "ui/toast/index.js#showNotification",
-   "name": "showNotification",
-   "kind": "function",
-   "params": "text, time, slot",
-   "exported": true,
-   "lines": [
-    102,
-    119
-   ],
-   "description": "Shows `text` for `time` ms (0 keeps it up); returns a handle with remove(). With a `slot`, the toast that holds it takes the new text, unless it is already fading out.",
-   "calls": [
-    "core/config.js#configRead",
-    "ui/toast/index.js#Toast.constructor"
-   ],
-   "settings": {
-    "read": [
-     "disableNotifications"
-    ]
-   },
-   "calledBy": [
+  "name": "showNotification",
+  "kind": "function",
+  "params": "text, time, slot",
+  "exported": true,
+  "lines": [102, 119],
+  "description": "Shows `text` for `time` ms (0 keeps it up); returns a handle with remove(). With a `slot`, the toast that holds it takes the new text, unless it is already fading out.",
+  "calls": ["core/config.js#configRead", "ui/toast/index.js#Toast.constructor"],
+  "settings": {
+    "read": ["disableNotifications"]
+  },
+  "calledBy": [
     "features/force-codec/index.js#applyMode",
     "features/playback-speed/index.js#stepSpeed",
     "features/sponsorblock/blue-key.js#jumpToHighlight",
@@ -20207,7 +20140,7 @@
     "features/video-quality/quality.js#notifyIfUpgraded",
     "ui/index.js#(top level)",
     "ui/shortcuts/actions.js#ACTIONS.refresh_page.run",
-    "ui/shortcuts/actions.js#ACTIONS.sb_manual_skip.run",
+    "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run",
     "ui/shortcuts/actions.js#ACTIONS.sb_skip_prev.run",
     "ui/shortcuts/actions.js#withSponsorBlock",
     "ui/shortcuts/bindings.js#ensureMenuKey",
@@ -20219,7 +20152,7 @@
     "ui/shortcuts/playback.js#toggleSubtitles",
     "ui/shortcuts/seek.js#doSkipChapter",
     "ui/shortcuts/seek.js#performBurstSeek"
-   ]
+  ]
   },
   {
    "id": "vendor/playback-speed/audio-engine.js#AudioEngine.constructor",
@@ -22551,7 +22484,7 @@
     "features/playback-speed/index.js#getPlayer",
     "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive",
     "features/video-quality/index.js#attachToPlayer",
-    "ui/shortcuts/actions.js#ACTIONS.toggle_subs.run"
+    "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run"
    ]
   },
   "PLAYER_CONTAINER": {
@@ -22574,7 +22507,7 @@
    "note": "Older player root, tried when PLAYER_ID is not on the page.",
    "usedBy": [
     "features/playback-speed/index.js#getPlayer",
-    "ui/shortcuts/actions.js#ACTIONS.toggle_subs.run"
+    "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run"
    ]
   },
   "THUMBNAIL_NODES": {

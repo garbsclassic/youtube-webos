@@ -2,8 +2,9 @@
 // router (shortcuts/), the <html> classes behind the themes (styles/), the
 // toasts (toast/). This file keeps the settings reachable and greets the user;
 // the features themselves start in userScript.js.
-import { showNotification } from './toast/index.js';
+
 import { ensureMenuKey } from './shortcuts/bindings.js';
+import { showNotification } from './toast/index.js';
 import './shortcuts/router.js';
 import { initHtmlClasses } from './styles/html-classes.js';
 import './styles/yt-fixes.css';
@@ -14,4 +15,4 @@ const menuKey = ensureMenuKey(false).key;
 
 initHtmlClasses();
 
-setTimeout(() => showNotification(`Press [${menuKey.toUpperCase()}] to open the settings`), 2000);
+setTimeout(() => showNotification(`Press [${menuKey.toUpperCase()}] to open settings`), 2000);

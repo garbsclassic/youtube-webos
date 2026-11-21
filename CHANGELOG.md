@@ -25,7 +25,7 @@ under the new YouTube Logo setting.
   never touched, and a video with no rendition in the chosen codec plays as it always did.
   Takes effect on reload, since the player probes codecs once at startup.
 - **Playback Speed** (experimental, UI Tweaks, off by default, webOS 23 and newer): 0.25x to 2x with pitch kept,
-  from the player's Speed menu or the Playback Speed +, - and 1x button mappings. webOS
+  from the player's Speed menu or the Playback Speed Up, Down and Reset button mappings. webOS
   ignores the browser's playback rate, so the video timeline is rescaled and audio runs
   through a time-stretching engine. Above 1.25x the video is held at 1080p. Restart the app
   after turning it on.
@@ -72,10 +72,11 @@ under the new YouTube Logo setting.
   checked boxes instead of grey.
 - SponsorBlock segment markers on a chaptered video follow the chapter gaps in the progress
   bar instead of drifting from the segment times.
-- The "Toggle OLED Care Mode" shortcut is now "Toggle OLED Black Overlay". Opening the
+- The "Toggle OLED Care Mode" shortcut is now "Toggle Black Overlay". Opening the
   settings or pressing Back takes the overlay down, and Back no longer navigates underneath it.
 - Default bindings for a fresh install: Red toggles the OLED black overlay and Blue does the
-  SponsorBlock manual skip, instead of 10s rewind and fast forward. Saved bindings are kept.
+  SponsorBlock segment skip, instead of 10s rewind and fast forward. Saved bindings
+  are kept, except that those of renamed actions reset to None.
 - If no key opens the settings anymore, closing the panel binds Green back to Open/Close
   Settings so you can't lock yourself out.
 - Bypass Nag Screens only auto-bypasses the account selector in the first 15 seconds after

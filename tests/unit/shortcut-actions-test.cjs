@@ -3,7 +3,7 @@
  * (core/config-options.js shortcutActions, None aside) has an entry in
  * ui/shortcuts/actions.js, and the table has no entry the panel cannot bind.
  * A binding stored by another build becomes None (bindings.js), so with this
- * the router needs no case for an action it does not know. The 10 s and 30 s
+ * the router needs no case for an action it does not know. The 10s and 30s
  * seeks are bursts of their own step.
  *
  * Run: node tests/unit/shortcut-actions-test.cjs
@@ -50,7 +50,7 @@ eq(
   ''
 );
 
-const STEPS = { seek_fwd: 10, seek_back: -10, seek_fwd_ex: 30, seek_back_ex: -30 };
+const STEPS = { seek_back_10: -10, seek_fwd_10: 10, seek_back_30: -30, seek_fwd_30: 30 };
 for (const [name, step] of Object.entries(STEPS)) {
   seeks.length = 0;
   const video = { id: name };

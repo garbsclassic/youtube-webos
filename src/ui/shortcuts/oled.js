@@ -1,8 +1,8 @@
 // The OLED black overlay, with a keep-alive so the TV does not sleep under it.
 import './oled.css';
-import { showNotification } from '../toast/index.js';
-import { sendKey, REMOTE_KEYS } from '../../core/remote.js';
+import { REMOTE_KEYS, sendKey } from '../../core/remote.js';
 import { createElement } from '../dom.js';
+import { showNotification } from '../toast/index.js';
 
 const OVERLAY_ID = 'ytaf-oled-overlay';
 const KEEP_ALIVE_MS = 30 * 60 * 1000;
@@ -14,7 +14,7 @@ export function isOledOverlayActive() {
   return !!document.getElementById(OVERLAY_ID);
 }
 
-/** The OLED black overlay with its keep-alive, toggled by the oled_toggle shortcut. */
+/** The OLED black overlay with its keep-alive, toggled by the toggle_oled shortcut. */
 export function toggleOledOverlay() {
   const overlay = document.getElementById(OVERLAY_ID);
   if (overlay) {
@@ -23,7 +23,7 @@ export function toggleOledOverlay() {
       clearInterval(keepAliveTimer);
       keepAliveTimer = null;
     }
-    showNotification('OLED Mode Deactivated');
+    showNotification('Black Overlay Deactivated');
     return;
   }
 
