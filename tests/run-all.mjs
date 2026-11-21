@@ -170,14 +170,18 @@ const results = [];
 let failed = false;
 const seconds = (ms) => `${(ms / 1000).toFixed(1)}s`;
 
-// Under `npm run`, npm_execpath is npm's own entry script, which node runs
-// directly. Otherwise the npm on PATH is a .cmd shim on Windows, which only a
-// shell resolves; the command goes in as one string because a shell with a
-// separate argument list is deprecated (DEP0190).
-const npmCommand = (script) =>
-  process.env.npm_execpath
-    ? [process.execPath, [process.env.npm_execpath, 'run', script], false]
-    : [`npm run ${script}`, [], true];
+// Under `npm run` or `pnpm run`, npm_execpath is the package manager's own entry: npm's is a
+// script, which node runs directly; pnpm 12's is a native binary, which runs on its own.
+// Otherwise the npm on PATH is a .cmd shim on Windows, which only a shell resolves; the
+// command goes in as one string because a shell with a separate argument list is deprecated
+// (DEP0190).
+const npmCommand = (script) => {
+  const exec = process.env.npm_execpath;
+  if (!exec) return [`npm run ${script}`, [], true];
+  return /\.[cm]?js$/.test(exec)
+    ? [process.execPath, [exec, 'run', script], false]
+    : [exec, ['run', script], false];
+};
 
 function kill(child) {
   if (process.platform === 'win32') {

@@ -10,6 +10,9 @@ repo.json
 # Test data kept as the build that wrote it left it
 tests/fixtures/
 
+# Private device notes and measurement output (untracked, git-excluded)
+.local/
+
 # Third-party code, kept as its authors wrote it (src/vendor/README.md)
 src/vendor/
 
