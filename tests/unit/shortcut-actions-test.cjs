@@ -56,8 +56,8 @@ for (const [name, step] of Object.entries(STEPS)) {
   const video = { id: name };
   if (actions[name]) actions[name].run(video);
   eq(
-    `${name} is a burst seek of ${step} s on the video it is given`,
-    JSON.stringify({ burst: !!(actions[name] && actions[name].burst), seeks }),
+    `${name} is a burst seek of ${step} sec on the video it is given`,
+    JSON.stringify({ burst: !!actions[name]?.burst, seeks }),
     JSON.stringify({ burst: true, seeks: [[step, video]] })
   );
 }

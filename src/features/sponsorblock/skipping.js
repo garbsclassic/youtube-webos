@@ -2,17 +2,17 @@
 // listener, the per-frame loop near a segment and the skip itself, which the
 // chain at the start (chain.js) takes too. The blue key is blue-key.js.
 import { configGetAll } from '../../core/config.js';
-import { showNotification } from '../../ui/toast/index.js';
 import { capitalize } from '../../core/text.js';
+import { showNotification } from '../../ui/toast/index.js';
 import { TIMING } from './constants.js';
+import { enterMutedSegment, leaveMutedSegment } from './mute.js';
+import { resyncOverlayThrottled } from './overlay.js';
 import {
-  findSegmentAtTime,
   findNextSegmentIndex,
+  findSegmentAtTime,
   rebuildSkipSegments,
   skipMessage
 } from './segments.js';
-import { resyncOverlayThrottled } from './overlay.js';
-import { enterMutedSegment, leaveMutedSegment } from './mute.js';
 
 // --- The timeupdate listener and the per-frame loop ---------------------------
 
@@ -256,7 +256,7 @@ function skipTo(sb, segmentIdx, currentTime, { jumpTarget, categories, indices }
   sb.requestAF(() => {
     showNotification(skipMessage(categories));
   });
-  sb.logger.debug(`Skipped to ${jumpTarget}`);
+  sb.logger.debug(`Jumped to ${jumpTarget}`);
 }
 
 /**

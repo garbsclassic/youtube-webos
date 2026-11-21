@@ -8,7 +8,7 @@ Modules: [features/screensaver-fix/decoder-stall.js](#mod-decoder-stall-js), [fe
 
 ## features/screensaver-fix/decoder-stall.js
 
-> Frozen video after a video screensaver. When a video sits paused long enough for the TV's screensaver to start, a video screensaver (Aerial, the gallery) can take the hardware decoder from the paused &lt;video> without the page hearing of it. Pressing play then fires 'playing' with data ready, but no frame decodes and the clock stands still, until YouTube's own stall watchdog rebuilds the player some 20 s later. A seek to where the video already is makes the stale pipeline fail at once, and YouTube rebuilds it within a few seconds.
+> Frozen video after a video screensaver. When a video sits paused long enough for the TV's screensaver to start, a video screensaver (Aerial, the gallery) can take the hardware decoder from the paused &lt;video> without the page hearing of it. Pressing play then fires 'playing' with data ready, but no frame decodes and the clock stands still, until YouTube's own stall watchdog rebuilds the player some 20s later. A seek to where the video already is makes the stale pipeline fail at once, and YouTube rebuilds it within a few seconds.
 >
 > Only a resume after a long pause is checked, once: first plays, short pauses, rebuffering and seeking are left alone, and the nudge's own 'playing' (after the seek) is not checked again, so it cannot loop. A pause or another 'playing' in the meantime cancels a pending check.
 
@@ -143,14 +143,14 @@ The page changed (or the &lt;video> was remounted): the keep-alive and the video
 
 ## features/screensaver-fix/shorts-keep-alive.js
 
-> On Shorts the player never fills the screen, so a synthetic YELLOW press every 30 s keeps the screensaver away while a video is actually playing.
+> On Shorts the player never fills the screen, so a synthetic YELLOW press every 30s keeps the screensaver away while a video is actually playing.
 
 56 lines · imports [core/selectors.js](core.md#mod-selectors-js), [core/remote.js](core.md#mod-remote-js), [features/screensaver-fix/log.js](#mod-log-js), [core/player-state.js](core.md#mod-player-state-js) · imported by [features/screensaver-fix/index.js](#mod-index-js)
 
 <a id="fn-shorts-keep-alive-js-setshortskeepalive"></a>
 **`setShortsKeepAlive(enable)`** · function, exported · L15–56
 
-Starts (or stops) the Shorts keep-alive: every 30 s while a Short plays, a yellow key press keeps the TV's screensaver away.
+Starts (or stops) the Shorts keep-alive: every 30s while a Short plays, a yellow key press keeps the TV's screensaver away.
 
 - **Calls:** [core/remote.js › sendKey](core.md#fn-remote-js-sendkey)
 - **Called by:** [features/screensaver-fix/index.js › updateState](#fn-index-js-updatestate)

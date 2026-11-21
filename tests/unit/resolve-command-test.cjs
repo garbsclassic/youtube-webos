@@ -2,7 +2,7 @@
  * hooks/resolve-command.ts as a unit, its TypeScript source loaded into a vm
  * sandbox with the timers and the clock in the test's hands: the poll for the
  * hook target backs off from 16 ms to 1 s, every caller shares it, it gives up
- * after 30 s on the monotonic clock (a wall clock set back does not stretch
+ * after 30s on the monotonic clock (a wall clock set back does not stretch
  * it), and the next getInstance() polls again. The hook in the bundle
  * is tests/behaviour/hooks-and-fixes-test.cjs.
  *
@@ -64,7 +64,7 @@ const t = report.check;
   while (timers.length && clock.now < 31000) step();
   await flush();
   t(
-    'past 30 s with no target it gives up with an error, and stops, the wall clock set back notwithstanding',
+    'past 30s with no target it gives up with an error, and stops, the wall clock set back notwithstanding',
     !!outcome &&
       !!outcome.e &&
       /No resolveCommand hook target/.test(outcome.e.message) &&
@@ -80,7 +80,7 @@ const t = report.check;
       return 'original';
     }
   };
-  const Target = function () {};
+  const Target = () => {};
   Target.instance = instance;
   win._yttv.Target = Target;
   const again = Registry.getInstance();

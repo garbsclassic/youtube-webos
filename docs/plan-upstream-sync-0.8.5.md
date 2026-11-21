@@ -161,7 +161,7 @@ One commit per row, in this order. Reproduce on 0.8.5 first; a row that doesn't 
 - [x] Lifecycle ownership fixes that reproduce: none reproduced (no errors switching watch pages)
 - [x] Settings panel invariants and width: PASS on the B4 (every row fits in both themes at 800 px, tab and column wrap-around, Back closes)
 - [x] Thumbnail and SponsorBlock resource invariants that profiling shows are missing: none (no gray tiles in Original, Fast or Smooth; panel keydown callbacks 3.5-8 ms)
-- [x] Shortcut actions (missed in triage): the fork's 10 s and 30 s seeks (`seek_back`, `seek_fwd`, `_ex`) re-added by owner decision; a stored `chapter_skip_next` is renamed to `chapter_skip`
+- [x] Shortcut actions (missed in triage): the fork's 10s and 30s seeks (`seek_back`, `seek_fwd`, `_ex`) re-added by owner decision; a stored `chapter_skip_next` is renamed to `chapter_skip`
 - [x] Response lookup depth: ALREADY PRESENT. `core/bounded-search.js` never enumerates a node at `maxDepth` (`nextDepth > maxDepth` skips the queue), and `findObjects` keeps a first falsy match (`results[needle] === undefined`); `tests/unit/adblock-search-test.cjs` covers both
 
 ### 6. Docs and release prep (after 5)

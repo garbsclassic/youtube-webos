@@ -433,7 +433,7 @@ Reads the chapters from the progress bar (showing the player UI first when they 
 <a id="fn-seek-js-performburstseek"></a>
 **`performBurstSeek(seconds, video)`** · function, exported · L153–178
 
-One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2 s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.
+One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.
 
 - **Calls:** [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 - **Called by:** [ui/shortcuts/actions.js (at load)](#mod-actions-js)

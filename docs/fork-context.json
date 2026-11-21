@@ -14,7 +14,7 @@
     "features/comments-fix.js overrides only the properties the closing rule collapses, per selector of a split list, instead of upstream's all-properties override",
     "features/sponsorblock/overlay.js maps non-highlight segments across chapter gaps with chapterBarRanges; upstream's sibling-overlay positioning is kept; drawOverlay passes the chapter track found from the tracked segment",
     "ui/shortcuts/router.js listens on window capture (YouTube stops trusted colour keys there), skips the mod's own synthetic keys and YouTube's unflagged re-send of them within 100 ms, and on Back dismisses the OLED overlay and swallows the held key until keyup; yellow is a bindable key",
-    "Extra shortcut actions seek_fwd/seek_back (10 s) and seek_fwd_ex/seek_back_ex (30 s); bindings.js renames a stored chapter_skip_next to chapter_skip"
+    "Extra shortcut actions seek_fwd_10/seek_back_10 (10s) and seek_fwd_30/seek_back_30 (30s)"
   ],
   "known_live_bugs": []
 }

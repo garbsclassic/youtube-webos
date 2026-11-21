@@ -41,7 +41,7 @@ async function boot(cfg, storage, bodyClass, more) {
     storage,
     raf: 'timeout',
     captureKeys: true,
-    // The settle before the bypass press (500 ms), the preview write (2.5 s)
+    // The settle before the bypass press (500 ms), the preview write (2.5s)
     // and the bypass cleanup (2 s) run at a tenth: 50, 250 and 200 ms. The
     // 250 ms between DOWN and ENTER in guest mode is under the threshold and
     // stays.
@@ -130,7 +130,7 @@ const read = (win, key) => {
     );
 
     t(
-      'inline playback is not written before the 2.5 s delay',
+      'inline playback is not written before the 2.5s delay',
       win.localStorage.getItem(INLINE) === null
     );
     await waitFor(() => read(win, INLINE) && read(win, INLINE).data === true);
@@ -144,7 +144,7 @@ const read = (win, key) => {
   // ---- previews disabled: nothing written --------------------------------------
   {
     const { win } = await boot({ forcePreviews: 'disabled' }, {});
-    // Past the 2.5 s delay (250 ms here).
+    // Past the 2.5s delay (250 ms here).
     await wait(300);
     t(
       'forcePreviews disabled leaves the inline-playback key alone',
@@ -204,7 +204,7 @@ const read = (win, key) => {
     await waitFor(() => keys.length >= 1);
     t('signed-in: a single ENTER selects the account', keys.join(',') === '13', keys.join(','));
     await waitFor(() => !hidingSelector(win));
-    t('the hiding rule goes about 2 s after the press', !hidingSelector(win));
+    t('the hiding rule goes about 2s after the press', !hidingSelector(win));
 
     // A second appearance in the same session is not bypassed again.
     win.document.body.className = 'WEB_PAGE_TYPE_BROWSE';
@@ -232,7 +232,7 @@ const read = (win, key) => {
     body.className = 'WEB_PAGE_TYPE_ACCOUNT_SELECTOR';
     await wait(150);
     t(
-      'after the 15 s start-up window the selector is left alone',
+      'after the 15s start-up window the selector is left alone',
       keys.length === 0,
       keys.join(',')
     );

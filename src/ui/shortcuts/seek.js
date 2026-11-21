@@ -1,11 +1,12 @@
 // Seeking: chapter skips read off the progress bar, and burst seeking that
 // batches rapid presses into one jump.
-import { showNotification } from '../toast/index.js';
-import { sendKey, REMOTE_KEYS } from '../../core/remote.js';
-import { isShortsPage } from '../../core/page-state.js';
+
 import { getVideo } from '../../core/dom.js';
-import { simulateBack } from './helpers.js';
+import { isShortsPage } from '../../core/page-state.js';
+import { REMOTE_KEYS, sendKey } from '../../core/remote.js';
 import { SELECTORS } from '../../core/selectors.js';
+import { showNotification } from '../toast/index.js';
+import { simulateBack } from './helpers.js';
 import { log } from './log.js';
 
 // The progress bar only carries the chapter markers once the player UI has
@@ -146,7 +147,7 @@ async function doSkipChapter(direction) {
  * One press of a burst: the toast shows the running total at once, the video
  * is moved by the pending part once the presses pause for 200 ms (a seek per
  * press froze the UI), and a change of direction starts the toast's total
- * over; the part not applied yet still counts. The reset 1.2 s later ends
+ * over; the part not applied yet still counts. The reset 1.2s later ends
  * only the toast's total: the part not applied yet is the seek timer's, and a
  * stalled event loop may run the two in either order.
  */
@@ -159,7 +160,7 @@ export function performBurstSeek(seconds, video) {
   if (seekResetTimer) clearTimeout(seekResetTimer);
 
   const directionSymbol = seekAccumulator > 0 ? '+' : '';
-  const msg = `Skipped ${directionSymbol}${seekAccumulator}s`;
+  const msg = `Seek ${directionSymbol}${seekAccumulator}`;
 
   showNotification(msg, 3000, 'seek');
 

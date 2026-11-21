@@ -324,7 +324,7 @@ Eats the held key's repeats.
 <a id="fn-keyboard-js-swallowuntilreleased-release"></a>
 **`swallowUntilReleased.release()`** · arrow · L30–34
 
-Stops swallowing: both listeners and the 2 s safety timer go.
+Stops swallowing: both listeners and the 2s safety timer go.
 
 - **Calls:** [swallowUntilReleased.onDown](#fn-keyboard-js-swallowuntilreleased-ondown), [swallowUntilReleased.onUp](#fn-keyboard-js-swallowuntilreleased-onup)
 - **Called by:** [swallowUntilReleased](#fn-keyboard-js-swallowuntilreleased), [swallowUntilReleased.onUp](#fn-keyboard-js-swallowuntilreleased-onup)

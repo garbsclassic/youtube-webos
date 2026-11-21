@@ -236,7 +236,7 @@ const t = report.check;
     const p = sponsorBlockPage([seg('sponsor', 0, 5), seg('selfpromo', 5.1, 12)], {}, 0);
     await p.ready();
     t(
-      'adjacent segments at 0 s are skipped as one chain on load',
+      'adjacent segments at 0s are skipped as one chain on load',
       p.model.currentTime === 12,
       String(p.model.currentTime)
     );
@@ -290,7 +290,7 @@ const t = report.check;
     p.seekTo(3);
     await wait(40);
     t(
-      'paused, a seek into the chain past its start (0.5 s) waits for playback',
+      'paused, a seek into the chain past its start (0.5s) waits for playback',
       p.model.currentTime === 3,
       String(p.model.currentTime)
     );
@@ -404,8 +404,8 @@ const t = report.check;
   // The player reports `seeked` after every jump, as on the TV, and the chain
   // runs again on each one.
   for (const [name, segments] of [
-    ['at 0 s', [seg('intro', 0, 8), seg('sponsor', 0, 60), seg('interaction', 0, 70)]],
-    ['just after 0 s', [seg('intro', 0, 8), seg('sponsor', 0.1, 60), seg('interaction', 0.3, 70)]]
+    ['at 0s', [seg('intro', 0, 8), seg('sponsor', 0, 60), seg('interaction', 0, 70)]],
+    ['just after 0s', [seg('intro', 0, 8), seg('sponsor', 0.1, 60), seg('interaction', 0.3, 70)]]
   ]) {
     const p = sponsorBlockPage(segments, { sbMode_interaction: 'manual_skip' }, 0, {
       seekedAfter: 5
@@ -436,7 +436,7 @@ const t = report.check;
     await p.ready();
     await wait(100);
     t(
-      'a manual segment just past the chain ends it: one jump, to 10 s',
+      'a manual segment just past the chain ends it: one jump, to 10s',
       p.seeks.join(',') === '10',
       p.seeks.join(',')
     );
@@ -461,7 +461,7 @@ const t = report.check;
   // Within a second of the next segment the handler checks the time every
   // frame, not only on timeupdate (four a second on the TV). Its frames are
   // counted by their callback; the page's frames run on 15 ms timers.
-  /** A page playing at 10 s towards a segment at 20 s, its loop's frames counted. */
+  /** A page playing at 10s towards a segment at 20s, its loop's frames counted. */
   const loopPage = async () => {
     const frames = { n: 0 };
     const p = sponsorBlockPage([seg('sponsor', 20, 30)], {}, 10, {
@@ -560,7 +560,7 @@ const t = report.check;
 
   // ---- a skip whose seeked never comes: the watchdog lets go ------------------------
   {
-    // No seeked from the player at all: after the watchdog (1.5 s, here 300
+    // No seeked from the player at all: after the watchdog (1.5s, here 300
     // ms) the next segment is skipped like any other.
     const p = sponsorBlockPage([seg('sponsor', 20, 30), seg('intro', 50, 60)], {}, 10);
     await p.ready();
@@ -701,7 +701,7 @@ const t = report.check;
     p.press(DIGIT(1));
     await wait(40);
     t(
-      'the key bound to sb_skip_prev seeks to the previous segment',
+      'the key bound to sb_skip_prev jumps to the previous segment',
       p.model.currentTime === 20 && p.toasts().some((m) => m === 'Seeked to Sponsored'),
       String(p.model.currentTime) + ' ' + p.toasts().join(' | ')
     );

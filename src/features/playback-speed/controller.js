@@ -3,11 +3,12 @@
 // position): the engine decides a MediaSource's speed once, when YouTube
 // creates its buffers (vendor/playback-speed/mse-hook.js). Rapid changes
 // within RELOAD_DELAY_MS are one reload.
+
+import { configRead } from '../../core/config.js';
+import { PLAYER_STATE } from '../../core/player-state.js';
+import { setQualityCappedBySpeed } from '../../core/speed-cap.js';
 import { AudioEngine } from '../../vendor/playback-speed/audio-engine.js';
 import { isSupportedSpeed, SUPPORTED_SPEEDS } from '../../vendor/playback-speed/mse-hook.js';
-import { configRead } from '../../core/config.js';
-import { setQualityCappedBySpeed } from '../../core/speed-cap.js';
-import { PLAYER_STATE } from '../../core/player-state.js';
 import { log } from './log.js';
 
 // How long a burst of changes settles before the one reload.
@@ -136,7 +137,7 @@ export function createSpeedController({ getPlayer, notify, isOn, isSupported }) 
     const videoData = player.getVideoData && player.getVideoData();
     if (!videoData || !videoData.video_id) return;
     lastReloadAt = Date.now();
-    log.info(`Reloading at ${currentSpeed}x from ${at.toFixed(1)} s`);
+    log.info(`Reloading at ${currentSpeed}x from ${at.toFixed(1)} sec`);
     player.loadVideoById(videoData.video_id, at);
     restorePosition(player, at, () => currentSpeed > CAP_ABOVE);
     // YouTube's own menu shows what the player was told: keep it in line.

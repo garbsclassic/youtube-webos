@@ -30,7 +30,7 @@ const t = report.check;
 
 const PLAYER_ID = 'ytlr-player__player-container-player';
 const OVERLAY_ID = 'ytaf-oled-overlay';
-// The Shorts keep-alive's 30 s interval at a hundredth, 300 ms; the 250 ms
+// The Shorts keep-alive's 30s interval at a hundredth, 300 ms; the 250 ms
 // between its two presses at 2.5 ms.
 const FAST_TIMERS = { scale: 100, from: 200 };
 
@@ -38,7 +38,7 @@ const FAST_TIMERS = { scale: 100, from: 200 };
  * A watch page with a paused <video> over a playback model, `cfg` over the
  * harness's configuration, and every keydown that reaches the document
  * recorded in `keys` (a document capture listener, behind the router's).
- * `timers` goes to createPage, to shorten the router's 2 s Back hold.
+ * `timers` goes to createPage, to shorten the router's 2s Back hold.
  */
 function boot(cfg, timers) {
   let model;
@@ -211,7 +211,7 @@ function bootShorts(cfg) {
 
   // ---- a held Back after it took the overlay down ----------------------------------------
   {
-    // The 2 s hold at a twentieth, 100 ms; the 100 ms key debounce and the toasts' shorter
+    // The 2s hold at a twentieth, 100 ms; the 100 ms key debounce and the toasts' shorter
     // timers keep their length.
     const { win, d, keys, press, toasts, overlay } = boot({}, { scale: 20, from: 1500 });
     const ups = [];
@@ -261,7 +261,7 @@ function bootShorts(cfg) {
     );
   }
   {
-    // A TV that never sends the keyup: the hold ends on its own after 2 s (100 ms here).
+    // A TV that never sends the keyup: the hold ends on its own after 2s (100 ms here).
     const { keys, press, overlay } = boot({}, { scale: 20, from: 1500 });
     press(KEYS.RED);
     press(KEYS.ESCAPE);

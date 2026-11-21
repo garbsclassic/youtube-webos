@@ -5,7 +5,7 @@
  * (and a longer duration later gives them their end back), a skip never
  * touches playback, a `mute` segment mutes and unmutes, a disabled category
  * is neither drawn nor skipped, the setting off and toggled while watching,
- * the API having nothing, failing (asked again after 2 s and 4 s), never
+ * the API having nothing, failing (asked again after 2s and 4s), never
  * answering or stalling in the middle of its body, a teardown during the
  * fetch, a <video> replaced (its listeners gone, the bar still watched) or
  * mounting late (the highlight jump waiting for it), and a handler that is
@@ -36,16 +36,12 @@ const legacy = flavour === 'legacy';
 (async () => {
   // ---- the player state events: pause, resume, replay --------------------------------------
   {
-    // The 3 s toast at a 25th: the first chain toast is gone within 150 ms.
+    // The 3s toast at a 25th: the first chain toast is gone within 150 ms.
     const p = sponsorBlockPage([seg('sponsor', 0, 5), seg('intro', 100, 110)], {}, 0, {
       timers: { scale: 25, from: 500 }
     });
     await p.ready();
-    t(
-      'the chain at 0 s is skipped on load',
-      p.model.currentTime === 5,
-      String(p.model.currentTime)
-    );
+    t('the chain at 0s is skipped on load', p.model.currentTime === 5, String(p.model.currentTime));
     p.seeked();
     p.state(2); // paused
     p.timeupdate(101);
@@ -74,7 +70,7 @@ const legacy = flavour === 'legacy';
     p.state(1);
     await wait(40);
     t(
-      'a replay skips the chain at 0 s again',
+      'a replay skips the chain at 0s again',
       p.model.currentTime === 5,
       String(p.model.currentTime)
     );
@@ -96,7 +92,7 @@ const legacy = flavour === 'legacy';
     const width = () => parseFloat(p.overlay().children[0].style.width);
     if (legacy) {
       report.near(
-        'webOS 3 to 6: a segment reaching the end is clamped 0.3 s short of it',
+        'webOS 3 to 6: a segment reaching the end is clamped 0.3s short of it',
         end(),
         249.7
       );
@@ -124,7 +120,7 @@ const legacy = flavour === 'legacy';
     await wait(40);
     if (legacy) {
       report.near(
-        'webOS 3 to 6: the skip stops where the clamp put the segment end, 0.3 s short',
+        'webOS 3 to 6: the skip stops where the clamp put the segment end, 0.3s short',
         p.model.currentTime,
         219.7
       );
@@ -189,7 +185,7 @@ const legacy = flavour === 'legacy';
     t('a longer duration later restores the end the API gave', end() === 180, String(end()));
     const mark = p.overlay() && p.overlay().children[0];
     t(
-      'and the mark is drawn at its full width again (60 s of 600)',
+      'and the mark is drawn at its full width again (60s of 600)',
       !!mark && Math.abs(parseFloat(mark.style.width) - 10) < 0.01,
       mark ? mark.style.width : 'no mark'
     );
@@ -223,7 +219,7 @@ const legacy = flavour === 'legacy';
     await wait(40);
     if (legacy) {
       report.near(
-        'webOS 3 to 6: the end segment is left 0.3 s before the end',
+        'webOS 3 to 6: the end segment is left 0.3s before the end',
         p.model.currentTime,
         299.7
       );
@@ -387,7 +383,7 @@ const legacy = flavour === 'legacy';
   }
   {
     // A 200 whose body is not the list the endpoint returns. The retries
-    // after 2 s and 4 s at a 20th.
+    // after 2s and 4s at a 20th.
     const p = sponsorBlockPage([seg('sponsor', 20, 30)], {}, 40, {
       body: { message: 'not a list' },
       timers: { scale: 20, from: 500 }
@@ -401,7 +397,7 @@ const legacy = flavour === 'legacy';
     );
   }
   {
-    // The retries after 2 s and 4 s at a 20th. The timers are recorded
+    // The retries after 2s and 4s at a 20th. The timers are recorded
     // unscaled, each with the number of API requests made before it.
     const timers = [];
     let asked = 0;
@@ -431,7 +427,7 @@ const legacy = flavour === 'legacy';
     );
     const after = (n, ms) => timers.some((x) => x.asked === n && x.ms === ms);
     t(
-      'the second round waits 2 s and the third 4 s',
+      'the second round waits 2s and the third 4s',
       after(2, 2000) && after(4, 4000),
       timers.map((x) => x.asked + ':' + x.ms).join(',')
     );
@@ -460,7 +456,7 @@ const legacy = flavour === 'legacy';
     );
   }
   {
-    // Leaving the page during the wait for a retry. The 2 s timer after the
+    // Leaving the page during the wait for a retry. The 2s timer after the
     // first round is held (it never runs by itself), so the teardown always
     // lands inside the wait.
     let asked = 0;
@@ -506,7 +502,7 @@ const legacy = flavour === 'legacy';
     });
     await p.ready();
     t('one request is pending', p.pending.length === 1 && !!p.sb(), String(p.pending.length));
-    // The 5 s timeout, at a 20th (250 ms): at a 50th it could run out before
+    // The 5s timeout, at a 20th (250 ms): at a 50th it could run out before
     // the check above under a loaded machine.
     await waitFor(() => p.pending.length === 2);
     t(
@@ -536,7 +532,7 @@ const legacy = flavour === 'legacy';
 
   // ---- the primary answers and stalls in the middle of the body ----
   {
-    // The 5 s timeout at a twentieth: the body read is inside it too.
+    // The 5s timeout at a twentieth: the body read is inside it too.
     const p = sponsorBlockPage([seg('sponsor', 20, 30)], {}, 10, {
       stallBody: 1,
       timers: { scale: 20, from: 500 }
@@ -551,7 +547,7 @@ const legacy = flavour === 'legacy';
 
   // ---- a teardown during the fetch --------------------------------------------------------
   {
-    // The 5 s timeout at a twentieth, 250 ms: the teardown lands well before
+    // The 5s timeout at a twentieth, 250 ms: the teardown lands well before
     // it even on a loaded machine, and the wait below goes past it.
     const p = sponsorBlockPage([seg('sponsor', 20, 30)], {}, 40, {
       hang: true,
@@ -680,7 +676,7 @@ const legacy = flavour === 'legacy';
     );
   }
   {
-    // The <video> mounts after the wait for it gave up (10 s, here 500 ms): the
+    // The <video> mounts after the wait for it gave up (10s, here 500 ms): the
     // next PLAYING state binds it.
     const p = sponsorBlockPage([seg('sponsor', 20, 30)], {}, 10, {
       noVideo: true,

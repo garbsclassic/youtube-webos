@@ -26,7 +26,7 @@ function swallowUntilReleased(keyCode) {
     evt.preventDefault();
     evt.stopPropagation();
   };
-  /** Stops swallowing: both listeners and the 2 s safety timer go. */
+  /** Stops swallowing: both listeners and the 2s safety timer go. */
   const release = () => {
     document.removeEventListener('keydown', onDown, true);
     document.removeEventListener('keyup', onUp, true);

@@ -137,8 +137,8 @@ function sponsorBlockPage(segments, cfg, currentTime, options) {
     url: 'https://www.youtube.com/tv#/watch?v=' + VIDEO,
     config: Object.assign({ enableSponsorBlock: true }, cfg),
     raf: 'timeout',
-    // The handler starts 500 ms after load, its skip watchdog is 1.5 s and the
-    // API timeout 5 s: all at a fifth, so a boot settles in a few hundred ms.
+    // The handler starts 500 ms after load, its skip watchdog is 1.5s and the
+    // API timeout 5s: all at a fifth, so a boot settles in a few hundred ms.
     timers: o.timers || { scale: 5, from: 500 },
     fetch: api.fetch,
     allowErrors: o.allowErrors,
