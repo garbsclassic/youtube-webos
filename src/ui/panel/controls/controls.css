@@ -1,9 +1,9 @@
 /* Controls built by panel/controls: the cycle rows' label and value side, the
    colour picker and the greyed-out state. Row metrics (size, padding, margins)
-   are in pages.css; the red-theme variants in styles/theme-red.css. */
+   are in pages.css; the colours are panel.css's --ytaf-* variables. */
 
 .ytaf-cycle-label {
-  color: #b8e6f5;
+  color: var(--ytaf-cycle-label);
 }
 
 /* A cycle row among checkbox rows: the label is indented by one checkbox,
@@ -22,7 +22,7 @@
 }
 
 .ytaf-cycle-value .ytaf-arrow {
-  color: #00d4ff;
+  color: var(--ytaf-accent);
   font-weight: bold;
   font-size: 2.22vh;
   user-select: none;
@@ -46,9 +46,9 @@
 }
 
 .ytaf-color-reset {
-  background: rgba(0, 100, 150, 0.5);
+  background: var(--ytaf-color-reset-bg);
   color: #ffffff;
-  border: 0.09vh solid rgba(0, 150, 200, 0.5);
+  border: 0.09vh solid var(--ytaf-color-reset-border);
   border-radius: 0.4vh;
   padding: 0.2vh 0.75vh;
   margin-right: 0.75vh;
@@ -61,7 +61,7 @@
   appearance: none;
   width: 3.7vh;
   height: 2.22vh;
-  border: 0.09vh solid rgba(0, 150, 200, 0.5);
+  border: 0.09vh solid var(--ytaf-color-input-border);
   border-radius: 0.4vh;
   background-color: transparent;
   cursor: pointer;

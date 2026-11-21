@@ -66,8 +66,10 @@ under the new YouTube Logo setting.
   YouTube's queue settles instead of retrying. More telemetry paths are blocked
   (`/pagead/*`, `/eligibility_check`). Reduce Telemetry & Tracking only runs while Ad
   Blocking is on.
-- The settings panel is relaid out with larger body text, Cosmetic Filtering in two columns,
-  and its own arrow-key navigation in place of the spatial navigation polyfill.
+- The settings panel is relaid out with larger body text and its own arrow-key navigation in
+  place of the spatial navigation polyfill. Its accent colors are new: teal (#47d1cf) for
+  Blue and amber (#f4ad5d) for Classic Red, and OLED Care Mode keeps the theme's accent on
+  checked boxes instead of grey.
 - SponsorBlock segment markers on a chaptered video follow the chapter gaps in the progress
   bar instead of drifting from the segment times.
 - The "Toggle OLED Care Mode" shortcut is now "Toggle OLED Black Overlay". Opening the

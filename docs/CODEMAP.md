@@ -126,7 +126,7 @@ How to read it:
 | [ui/panel/controls/color-picker.js](codemap/ui-panel.md#mod-controls-color-picker-js) | 45 | 1 | The colour picker beside a SponsorBlock category row: a reset button and the native colour input, bound to the category's colour key. |
 | [ui/panel/controls/cycle-row.js](codemap/ui-panel.md#mod-controls-cycle-row-js) | 238 | 22 | The left/right cycle rows, each bound to a config key, and the rows built from them for particular settings. |
 | [ui/panel/controls/index.js](codemap/ui-panel.md#mod-controls-index-js) | 17 | 0 | The building blocks of the options panel: checkboxes, sections, the left/right cycle rows and the colour picker, each bound to a config key. |
-| [ui/panel/controls/section.js](codemap/ui-panel.md#mod-controls-section-js) | 18 | 1 | A titled group of rows. |
+| [ui/panel/controls/section.js](codemap/ui-panel.md#mod-controls-section-js) | 9 | 1 | A titled group of rows. |
 | [ui/panel/focus-trap.js](codemap/ui-panel.md#mod-focus-trap-js) | 40 | 4 | Keeps focus inside the options panel while it is open: a focus that lands outside it (the app's own focus traffic) is sent back to the last place it was inside, or to the tab of the open page. |
 | [ui/panel/keyboard.js](codemap/ui-panel.md#mod-keyboard-js) | 297 | 21 | Keyboard navigation inside the options panel: the arrows move focus between the tab buttons and the controls of the open page by where they sit on screen, Enter clicks, Back and Escape close. |
 | [ui/panel/pages.js](codemap/ui-panel.md#mod-pages-js) | 190 | 7 | The four pages of the options panel. |

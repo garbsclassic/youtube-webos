@@ -52,7 +52,7 @@ export function buildMainPage() {
   );
   if (isGuestMode()) cosmeticGroup.push(createConfigCheckbox('hideGuestSignInPrompts'));
 
-  pageMain.appendChild(createSection('Cosmetic Filtering', cosmeticGroup, 'ytaf-section-2col'));
+  pageMain.appendChild(createSection('Cosmetic Filtering', cosmeticGroup));
 
   // Tracking Block and the cosmetic filters ride on the same hooks as Ad
   // Blocking and do nothing while it is off.

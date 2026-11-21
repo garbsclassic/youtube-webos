@@ -7,9 +7,8 @@
  *
  * jsdom has no layout, so getBoundingClientRect is stubbed with a deterministic
  * grid from data-x/data-y/data-w/data-h attributes that the test assigns to the
- * panel's controls: the tab buttons in one row, the two-column section in two
- * columns, every other row full width, and a checkbox a small square at the
- * left of its label row, as on the TV.
+ * panel's controls: the tab buttons in one row, every other row full width,
+ * and a checkbox a small square at the left of its label row, as on the TV.
  *
  * Run: node tests/behaviour/panel-navigation-test.cjs [bundle] [legacy|modern]
  */
@@ -31,13 +30,12 @@ const d = win.document;
 const press = (code, target) => pressOn(win, code, target);
 
 /**
- * Lays a page out: two-column rows side by side, everything else full width.
+ * Lays a page out: one full-width row per control.
  * A checkbox's row is its label; the box itself is 18 px square at the row's left.
  */
 function layoutPage(page) {
   const controls = page.querySelectorAll('input, .ytaf-cycle-row, button');
   let row = 0;
-  let col = 0;
   const placeRow = (el, x, y, w) => {
     const label = el.tagName === 'INPUT' ? el.closest('label') : null;
     if (!label) {
@@ -50,18 +48,8 @@ function layoutPage(page) {
   for (let i = 0; i < controls.length; i++) {
     const el = controls[i];
     if (el.tabIndex === -1) continue;
-    if (el.closest('.ytaf-section-2col')) {
-      placeRow(el, col * 400, 100 + row * 100, 380);
-      if (col === 1) row++;
-      col = 1 - col;
-    } else {
-      if (col === 1) {
-        row++;
-        col = 0;
-      }
-      placeRow(el, 0, 100 + row * 100, 780);
-      row++;
-    }
+    placeRow(el, 0, 100 + row * 100, 780);
+    row++;
   }
 }
 
@@ -122,27 +110,32 @@ function expectFocus(what, expected) {
     d.querySelector('#ytaf-page-main').style.display !== 'none'
   );
 
-  // ---- into the page and around the two-column section ----------------------------
+  // ---- into the page and down the Cosmetic Filtering section ----------------------
   press(KEYS.DOWN);
   expectFocus('Down from the Main tab', 'Ad Blocking');
   press(KEYS.RIGHT);
-  expectFocus('Right in the first two-column row', 'Reduce Telemetry & Tracking');
+  expectFocus('Right on a checkbox row stays put', 'Ad Blocking');
   press(KEYS.LEFT);
-  expectFocus('Left back again', 'Ad Blocking');
+  expectFocus('Left on a checkbox row stays put', 'Ad Blocking');
   press(KEYS.DOWN);
-  expectFocus('Down in the first column', 'Remove Shorts (Global)');
-  press(KEYS.RIGHT);
+  expectFocus('Down to the next row', 'Reduce Telemetry & Tracking');
   press(KEYS.DOWN);
-  expectFocus('Down in the second column', 'Remove "Most Relevant" Shelf');
-  press(KEYS.RIGHT);
-  expectFocus('Right at the end of a row stays put', 'Remove "Most Relevant" Shelf');
+  expectFocus('Down again', 'Remove Shorts (Global)');
   press(KEYS.DOWN);
-  expectFocus('Down from the second column onto a full-width row', 'Force Max Quality');
+  press(KEYS.DOWN);
+  press(KEYS.DOWN);
+  expectFocus('Down to the last row of the section', 'Remove "Most Relevant" Shelf');
+  press(KEYS.DOWN);
+  expectFocus('Down out of the section', 'Force Max Quality');
   press(KEYS.UP);
-  expectFocus('Up from a full-width row prefers the nearer column', 'Remove Top Live Games');
+  expectFocus('Up back into the section', 'Remove "Most Relevant" Shelf');
+  press(KEYS.UP);
+  expectFocus('Up once more', 'Remove Top Live Games');
   press(KEYS.UP);
   press(KEYS.UP);
-  expectFocus('Up twice more climbs the column', 'Ad Blocking');
+  press(KEYS.UP);
+  press(KEYS.UP);
+  expectFocus('Up four times more climbs to the first row', 'Ad Blocking');
   press(KEYS.UP);
   expectFocus('Up from the first row lands on the open tab', 'tab Main');
 

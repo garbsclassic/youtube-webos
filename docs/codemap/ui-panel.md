@@ -245,14 +245,14 @@ The shelf opacity applies under OLED-Care Mode only (ui/styles/html-classes.js).
 
 ## ui/panel/controls/section.js
 
-> A titled group of rows. `variant` is an extra class on the section, used to opt a section into the two-column layout; sizing and spacing live in pages.css so the whole panel can be retuned in one place.
+> A titled group of rows. Sizing and spacing live in pages.css so the whole panel can be retuned in one place.
 
-18 lines · imports [ui/dom.js](ui.md#mod-dom-js)
+9 lines · imports [ui/dom.js](ui.md#mod-dom-js)
 
 <a id="fn-controls-section-js-createsection"></a>
-**`createSection(title, elements, variant)`** · function, exported · L10–18
+**`createSection(title, elements)`** · function, exported · L6–9
 
-A titled group of rows; `variant` adds a class (ytaf-section-2col lays the rows out in two columns).
+A titled group of rows.
 
 - **Calls:** [ui/dom.js › createElement](ui.md#fn-dom-js-createelement)
 - **Called by:** [ui/panel/pages.js › buildMainPage](#fn-pages-js-buildmainpage), [ui/panel/pages.js › buildUITweaksPage](#fn-pages-js-builduitweakspage)

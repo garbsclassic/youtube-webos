@@ -12,7 +12,7 @@
 
 .ytaf-toast {
   background: #002840;
-  border: 0.09vh solid rgba(0, 212, 255, 0.4);
+  border: 0.09vh solid rgba(71, 209, 207, 0.4);
   color: white;
   padding: 1.5vh 1.85vh;
   margin-bottom: 1.1vh;
@@ -23,7 +23,7 @@
     transform 0.3s ease;
   opacity: 1;
   transform: translateX(0);
-  border-left: 0.37vh solid #00d4ff;
+  border-left: 0.37vh solid #47d1cf;
   font-weight: 500;
   line-height: 1.4;
 }

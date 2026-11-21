@@ -5074,8 +5074,8 @@
   },
   {
    "path": "ui/panel/controls/section.js",
-   "lines": 18,
-   "header": "A titled group of rows. `variant` is an extra class on the section, used to opt a section into the two-column layout; sizing and spacing live in pages.css so the whole panel can be retuned in one place.",
+   "lines": 9,
+   "header": "A titled group of rows. Sizing and spacing live in pages.css so the whole panel can be retuned in one place.",
    "imports": [
     {
      "from": "ui/dom.js",
@@ -18219,13 +18219,13 @@
    "id": "ui/panel/controls/section.js#createSection",
    "name": "createSection",
    "kind": "function",
-   "params": "title, elements, variant",
+   "params": "title, elements",
    "exported": true,
    "lines": [
-    10,
-    18
+    6,
+    9
    ],
-   "description": "A titled group of rows; `variant` adds a class (ytaf-section-2col lays the rows out in two columns).",
+   "description": "A titled group of rows.",
    "calls": [
     "ui/dom.js#createElement"
    ],
