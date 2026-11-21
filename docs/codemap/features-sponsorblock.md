@@ -844,7 +844,7 @@ Clamps the segments to the video's duration, and short of it on the legacy engin
 
 > Playback-time behaviour: aiming at the next segment, the timeupdate listener, the per-frame loop near a segment and the skip itself, which the chain at the start (chain.js) takes too. The blue key is blue-key.js.
 
-316 lines · imports [core/config.js](core.md#mod-config-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [core/text.js](core.md#mod-text-js), [features/sponsorblock/constants.js](#mod-constants-js), [features/sponsorblock/segments.js](#mod-segments-js), [features/sponsorblock/overlay.js](#mod-overlay-js), [features/sponsorblock/mute.js](#mod-mute-js) · imported by [features/sponsorblock/blue-key.js](#mod-blue-key-js), [features/sponsorblock/chain.js](#mod-chain-js), [features/sponsorblock/index.js](#mod-index-js), [features/sponsorblock/video-events.js](#mod-video-events-js)
+316 lines · imports [core/config.js](core.md#mod-config-js), [core/text.js](core.md#mod-text-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [features/sponsorblock/constants.js](#mod-constants-js), [features/sponsorblock/mute.js](#mod-mute-js), [features/sponsorblock/overlay.js](#mod-overlay-js), [features/sponsorblock/segments.js](#mod-segments-js) · imported by [features/sponsorblock/blue-key.js](#mod-blue-key-js), [features/sponsorblock/chain.js](#mod-chain-js), [features/sponsorblock/index.js](#mod-index-js), [features/sponsorblock/video-events.js](#mod-video-events-js)
 
 <a id="fn-skipping-js-attachtimelistener"></a>
 **`attachTimeListener(sb)`** · function · L20–24

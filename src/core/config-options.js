@@ -81,25 +81,25 @@ export const clockModes = {
 export const shortcutActions = {
   none: 'None',
   refresh_page: 'Refresh Page',
-  chapter_skip: 'Skip to Next Chapter',
-  chapter_skip_prev: 'Skip to Previous Chapter',
-  sb_skip_prev: 'Skip to Last SponsorBlock Segment',
-  seek_15_fwd: 'Fast Forward (Burst)',
-  seek_15_back: 'Rewind (Burst)',
-  seek_fwd: 'Fast Forward 10 s (Burst)',
-  seek_back: 'Rewind 10 s (Burst)',
-  seek_fwd_ex: 'Fast Forward 30 s (Burst)',
-  seek_back_ex: 'Rewind 30 s (Burst)',
   play_pause: 'Play/Pause',
-  toggle_subs: 'Toggle Subtitles',
-  toggle_comments: 'Toggle Comments',
+  toggle_oled: 'Toggle Black Overlay',
+  seek_back_10: 'Rewind 10s',
+  seek_back_15: 'Rewind 15s',
+  seek_back_30: 'Rewind 30s',
+  seek_fwd_10: 'Fast Forward 10s',
+  seek_fwd_15: 'Fast Forward 15s',
+  seek_fwd_30: 'Fast Forward 30s',
+  chapter_skip_prev: 'Previous Chapter',
+  chapter_skip_next: 'Next Chapter',
+  sb_skip_prev: 'Previous SponsorBlock Segment',
+  sb_skip_highlight: 'Skip SB Segment / Jump to Highlight',
+  speed_down: 'Playback Speed Down',
+  speed_up: 'Playback Speed Up',
+  speed_reset: 'Playback Speed Reset',
   toggle_description: 'Toggle Description',
-  save_to_playlist: 'Save / Watch Later',
-  oled_toggle: 'Toggle OLED Black Overlay',
-  sb_manual_skip: 'Manual Skip / Jump to Highlight',
-  speed_up: 'Playback Speed +',
-  speed_down: 'Playback Speed -',
-  speed_reset: 'Playback Speed 1x',
+  toggle_comments: 'Toggle Comments',
+  toggle_subtitles: 'Toggle Subtitles',
+  save_to_playlist: 'Save to Playlist',
   config_menu: 'Open/Close Settings'
 };
 
@@ -221,10 +221,10 @@ export const SHORTCUT_KEYS = [
 // OLED overlay, green this panel, blue the SponsorBlock skip. Yellow stays
 // None so the TV's own yellow (search) works until a binding claims it.
 const SHORTCUT_DEFAULTS = {
-  5: 'chapter_skip',
-  red: 'oled_toggle',
+  5: 'chapter_skip_next',
+  red: 'toggle_oled',
   green: 'config_menu',
-  blue: 'sb_manual_skip'
+  blue: 'sb_skip_highlight'
 };
 for (const key of SHORTCUT_KEYS) {
   configOptions.set(`shortcut_key_${key}`, {

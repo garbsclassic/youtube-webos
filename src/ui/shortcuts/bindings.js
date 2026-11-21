@@ -1,36 +1,28 @@
 // Which remote key runs which shortcut: the configurable bindings, the
 // colour-key lookup and the debounce state shared with the actions.
 import {
+  configAddChangeListener,
   configRead,
   configWrite,
-  configAddChangeListener,
   shortcutActions
 } from '../../core/config.js';
+import { SHORTCUT_KEYS } from '../../core/config-options.js';
 import { COLOR_CODE_MAP } from '../../core/remote.js';
 import { showNotification } from '../toast/index.js';
-import { SHORTCUT_KEYS } from '../../core/config-options.js';
 import { log } from './log.js';
 
 // Shortcut key name -> action name, kept current by the config listeners.
 export const shortcutCache = {};
 
-// Stored action names that were renamed, and the action each is now.
-const RENAMED_ACTIONS = { chapter_skip_next: 'chapter_skip' };
-
 /**
- * Reads one binding. A renamed action is stored under its new name. An action
- * this build does not have (a binding stored by an older one) becomes None, in
- * the cache and in the config, so the key is the app's again and the panel
- * shows a value it knows; warned once, here.
+ * Reads one binding. An action this build does not have (a binding stored by
+ * an older one) becomes None, in the cache and in the config, so the key is the
+ * app's again and the panel shows a value it knows; warned once, here.
  */
 function updateShortcutCache(key) {
   const configKey = `shortcut_key_${key}`;
-  let action = configRead(configKey);
-  if (Object.prototype.hasOwnProperty.call(RENAMED_ACTIONS, action)) {
-    action = RENAMED_ACTIONS[action];
-    configWrite(configKey, action);
-  }
-  if (Object.prototype.hasOwnProperty.call(shortcutActions, action)) {
+  const action = configRead(configKey);
+  if (Object.hasOwn(shortcutActions, action)) {
     shortcutCache[key] = action;
     return;
   }
@@ -55,7 +47,7 @@ export function ensureMenuKey(announce) {
   if (key) return { key, rebound: false };
   log.warn('No menu keybind found. Forcing Green button to Open Settings.');
   configWrite('shortcut_key_green', 'config_menu');
-  if (announce) showNotification('Press [GREEN] to open the settings');
+  if (announce) showNotification('Press [GREEN] to open settings');
   return { key: 'green', rebound: true };
 }
 
@@ -69,8 +61,3 @@ export const shortcutState = {
   lastKey: null,
   debounceMs: 100
 };
-
-// The action names (config-options.js shortcutActions) are stored in the
-// user's config, so they stay as they are even where they misdescribe the step:
-// seek_15_fwd and seek_15_back seek by 5 s per press, seek_fwd and seek_back by
-// 10 s, the _ex pair by 30 s (shortcuts/actions.js).

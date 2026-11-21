@@ -1,9 +1,8 @@
 /**
  * The shortcut bindings as a unit: ui/shortcuts/bindings.js over a fake config
  * store, with the key and action tables of core/config-options.js. The yellow
- * key is configurable and starts at None, a binding stored under an action's
- * old name (chapter_skip_next) is read and stored under its new one at the
- * start and when it is written later, and an unknown action still becomes None.
+ * key is configurable and starts at None, and an unknown action still becomes
+ * None.
  *
  * Run: node tests/unit/shortcut-bindings-test.cjs
  */
@@ -84,33 +83,6 @@ eq(
 {
   const { cache } = load({ shortcut_key_yellow: 'play_pause' });
   eq('a stored yellow binding is read into the cache', cache.yellow, 'play_pause');
-}
-
-// ---- the renamed action --------------------------------------------------------
-{
-  const { cache, store, writes, warns } = load({ shortcut_key_4: 'chapter_skip_next' });
-  eq('a stored chapter_skip_next is read as chapter_skip', cache['4'], 'chapter_skip');
-  eq(
-    'and written back under the new name at the start',
-    writes.join(','),
-    'shortcut_key_4=chapter_skip'
-  );
-  eq('the store holds the new name', store.shortcut_key_4, 'chapter_skip');
-  eq('with no warning: it is not an unknown action', warns.join(' | '), '');
-}
-{
-  const { cache, store, writes, warns, fire } = load({});
-  store.shortcut_key_7 = 'chapter_skip_next';
-  fire('shortcut_key_7');
-  eq('the old name written later is renamed by the change listener', cache['7'], 'chapter_skip');
-  eq('and stored renamed', writes.join(','), 'shortcut_key_7=chapter_skip');
-  eq('still without a warning', warns.join(' | '), '');
-}
-{
-  const { cache, writes, warns } = load({ shortcut_key_2: 'bogus_action' });
-  eq('an unknown action is still set to None', cache['2'], 'none');
-  eq('and stored as None', writes.join(','), 'shortcut_key_2=none');
-  eq('with one warning', warns.length, 1);
 }
 
 report.finish();

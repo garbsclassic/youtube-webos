@@ -4,15 +4,16 @@
  * changed, tests/fixtures/config-0.8.4.json) loads into this build with every
  * value kept (through the option's upgrade where this build changed a
  * setting's values: Display Time in UI was a checkbox), the settings added
- * since then read their defaults, and the next write keeps the user's values. Every value the fixture holds for a choice
- * setting is one this build still offers, so no binding is reset.
+ * since then read their defaults, and the next write keeps the user's values. Every value the
+ * fixture holds for a choice setting is one this build still offers, but the bindings of the
+ * actions renamed since: ui/shortcuts/bindings.js resets those to None.
  *
  * Run: node tests/unit/upgrade-from-084-test.cjs
  */
 const fs = require('fs');
 const path = require('path');
 const { createReport } = require('../harness/report.cjs');
-const { CORE } = require('../harness/stubs.cjs');
+const { CORE, SRC } = require('../harness/stubs.cjs');
 const { loadSources } = require('../harness/sandbox.cjs');
 
 const report = createReport();
@@ -87,7 +88,6 @@ t(
   "the user's non-default choices survive (a sample)",
   sandbox.configRead('uiTheme') === 'classic-red' &&
     sandbox.configRead('thumbnailQualityMode') === 'eager' &&
-    sandbox.configRead('shortcut_key_3') === 'toggle_subs' &&
     sandbox.configRead('shortcut_key_red') === 'none' &&
     sandbox.configRead('sbMode_sponsor') === 'manual_skip' &&
     sandbox.configRead('sponsorColor') === '#123456' &&
@@ -128,15 +128,39 @@ for (const k of Object.keys(stored084)) {
 const unknown = Object.entries(choices)
   .filter(([k, table]) => !(expected(k) in table))
   .map(([k]) => `${k}=${expected(k)}`);
-t('every stored choice is one this build offers', unknown.length === 0, unknown.join(', '));
+t(
+  'every stored choice is one this build offers, but the renamed actions',
+  unknown.join(', ') ===
+    'shortcut_key_3=toggle_subs, shortcut_key_5=chapter_skip, shortcut_key_blue=sb_manual_skip',
+  unknown.join(', ')
+);
+
+loadSources([path.join(SRC, 'ui', 'shortcuts', 'bindings.js')], {
+  configRead: sandbox.configRead,
+  configWrite: sandbox.configWrite,
+  configAddChangeListener: sandbox.configAddChangeListener,
+  shortcutActions: get('shortcutActions'),
+  SHORTCUT_KEYS: get('SHORTCUT_KEYS'),
+  COLOR_CODE_MAP: new Map(),
+  showNotification: () => {},
+  log: { warn() {}, debug() {}, info() {} }
+});
+const RESET = new Set(['shortcut_key_3', 'shortcut_key_5', 'shortcut_key_blue']);
+const afterBindings = (k) => (RESET.has(k) ? 'none' : expected(k));
+const rebound = kept.filter((k) => sandbox.configRead(k) !== afterBindings(k));
+t(
+  'the bindings of renamed actions become None, every other setting stays',
+  rebound.length === 0,
+  rebound.map((k) => `${k}=${sandbox.configRead(k)}`).join(', ')
+);
 
 // A change through the panel writes the whole configuration back.
 sandbox.configWrite('enableRowsAhead', false);
 for (const fn of listeners.pagehide || []) fn();
 const written = JSON.parse(store.get('ytaf-configuration'));
-const dropped = kept.filter((k) => written[k] !== expected(k));
+const dropped = kept.filter((k) => written[k] !== afterBindings(k));
 t(
-  'the next write keeps every 0.8.4 value and adds the new one',
+  'the next write keeps every other 0.8.4 value and adds the new one',
   dropped.length === 0 && written.enableRowsAhead === false,
   dropped.join(', ')
 );

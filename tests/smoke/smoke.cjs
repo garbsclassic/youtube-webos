@@ -59,9 +59,7 @@ try {
     setup(win) {
       nativeMatches = win.Element.prototype.matches;
       win.MediaSource = class {};
-      nativeAddSourceBuffer = function () {
-        return {};
-      };
+      nativeAddSourceBuffer = () => ({});
       win.MediaSource.prototype.addSourceBuffer = nativeAddSourceBuffer;
       // What force-codec wraps once, for the life of the page.
       nativeIsTypeSupported = () => true;
@@ -263,10 +261,7 @@ function hasBareRequire(src) {
   // The deferred work (frames, timers, microtasks) runs before the report's
   // own check that no page logged an error: the welcome toast (2s after load,
   // 200 ms here) is the last of the startup timers.
-  const welcomed = await waitFor(
-    () => toasts(win).some((m) => /to open the settings/.test(m)),
-    2000
-  );
+  const welcomed = await waitFor(() => toasts(win).some((m) => /to open settings/.test(m)), 2000);
   t('the startup timers ran: the welcome toast is up', !!welcomed, toasts(win).join(' | '));
   await wait(50);
   report.finish();

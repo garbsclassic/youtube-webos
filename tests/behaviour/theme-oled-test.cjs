@@ -2,7 +2,7 @@
  * Theme and OLED against the built legacy bundle: the red theme and OLED-care
  * mode mark the document (ui/styles/html-classes.js), the panel's logo follows
  * the marks, the shelf opacity is written as a rule, the UI tweaks set their
- * <html> classes through the panel, and the oled_toggle shortcut puts up and
+ * <html> classes through the panel, and the toggle_oled shortcut puts up and
  * takes down the black overlay (no toast for it, the deactivation has one),
  * which the menu key ends, with its keep-alive presses underneath.
  *
@@ -60,7 +60,7 @@ function boot(cfg, more) {
     await wait(50);
     t(
       'red theme: the toasts are in the ytaf-toasts container',
-      toasts().some((m) => m === 'OLED Mode Deactivated'),
+      toasts().some((m) => m === 'Black Overlay Deactivated'),
       toasts().join(' | ')
     );
     await showPanel(win, pump);
@@ -141,7 +141,7 @@ function boot(cfg, more) {
     await wait(50);
     t('red: the black overlay is on the page', !!d.getElementById('ytaf-oled-overlay'));
     // The welcome toast (2 s, here 200 ms) may come meanwhile on a loaded machine.
-    const own = toasts().filter((m) => !/to open the settings/.test(m));
+    const own = toasts().filter((m) => !/to open settings/.test(m));
     t('red: no toast, which the overlay would cover anyway', own.length === 0, own.join(' | '));
     await wait(150); // past the repeated-key debounce
     press(KEYS.RED);
@@ -149,7 +149,7 @@ function boot(cfg, more) {
     t('red again: the overlay is gone', !d.getElementById('ytaf-oled-overlay'));
     t(
       'red again: the toast says the mode is off',
-      toasts().some((m) => m === 'OLED Mode Deactivated'),
+      toasts().some((m) => m === 'Black Overlay Deactivated'),
       toasts().join(' | ')
     );
 

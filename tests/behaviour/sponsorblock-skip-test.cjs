@@ -174,7 +174,7 @@ const t = report.check;
     );
   }
 
-  // ---- manual skip and the blue button ----------------------------------------
+  // ---- segment skip and the blue button ----------------------------------------
   {
     const p = sponsorBlockPage(
       [seg('intro', 10, 20), seg('sponsor', 20.5, 25)],
@@ -690,7 +690,7 @@ const t = report.check;
     const p = sponsorBlockPage(
       [seg('sponsor', 20, 30), seg('intro', 50, 60), seg('poi_highlight', 200, 200)],
       {
-        shortcut_key_blue: 'sb_manual_skip',
+        shortcut_key_blue: 'sb_skip_highlight',
         shortcut_key_1: 'sb_skip_prev',
         sbMode_intro: 'manual_skip',
         sbMode_highlight: 'ask'
@@ -741,7 +741,7 @@ const t = report.check;
   {
     const p = sponsorBlockPage(
       [seg('sponsor', 20, 30)],
-      { shortcut_key_blue: 'sb_manual_skip' },
+      { shortcut_key_blue: 'sb_skip_highlight' },
       40
     );
     await p.ready();

@@ -33,11 +33,11 @@ const TOAST_MS = 3000 / SCALE;
 
 /**
  * A watch page with a paused video and no SponsorBlock handler: Blue, the
- * default sb_manual_skip binding, shows 'SponsorBlock not loaded' on every
+ * default sb_skip_highlight binding, shows 'SponsorBlock not loaded' on every
  * press; key 3 is play/pause. The bundle's own welcome toast ('Press [GREEN]
- * to open the settings', 2 s after load) shows up in every page, so the
- * checks look at a toast by its text. `scale` divides the timers of 1 s and
- * more, SCALE unless given.
+ * to open settings', 2 s after load) shows up in every page, so the checks look
+ * at a toast by its text. `scale` divides the timers of 1 s and more, SCALE
+ * unless given.
  */
 function boot(cfg, scale) {
   let model;
@@ -147,7 +147,7 @@ const NOT_LOADED = 'SponsorBlock not loaded';
         p.toasts().indexOf('Skipped Segment') !== -1
     );
     t(
-      'the manual skip takes the prompt down and announces the skip',
+      'the segment skip takes the prompt down and announces the skip',
       p.model.currentTime === 30 &&
         prompts().every(hidden) &&
         p.toasts().filter((m) => m === 'Skipped Segment').length === 1,
