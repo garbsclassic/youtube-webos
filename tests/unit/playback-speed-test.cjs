@@ -233,7 +233,7 @@ function fakePlayer() {
     'above 1.25x the video is held at 1080p, and the flag Force Max Quality reads is up',
     player.calls.some((c) => c[0] === 'quality' && c[1] === 'hd1080') && capped() === true
   );
-  // The reloaded video started 20 s early; once it plays it goes back.
+  // The reloaded video started 20s early; once it plays it goes back.
   player.state = 1;
   clock.advance(250);
   t(
@@ -294,7 +294,7 @@ function fakePlayer() {
 {
   const { get } = load();
   const map = new (get('SpeedTimeMap'))(1.5);
-  t('the time map: element time 10 s is content time 15 s at 1.5x', map.toContent(10) === 15);
+  t('the time map: element time 10s is content time 15s at 1.5x', map.toContent(10) === 15);
   t('and back', map.toElement(15) === 10);
   let threw = false;
   try {

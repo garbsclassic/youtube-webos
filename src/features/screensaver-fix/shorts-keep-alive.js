@@ -1,15 +1,16 @@
 // On Shorts the player never fills the screen, so a synthetic YELLOW press
-// every 30 s keeps the screensaver away while a video is actually playing.
-import { SELECTORS } from '../../core/selectors.js';
-import { sendKey, REMOTE_KEYS } from '../../core/remote.js';
-import { log } from './log.js';
+// every 30s keeps the screensaver away while a video is actually playing.
+
 import { PLAYER_STATE } from '../../core/player-state.js';
+import { REMOTE_KEYS, sendKey } from '../../core/remote.js';
+import { SELECTORS } from '../../core/selectors.js';
+import { log } from './log.js';
 
 let shortsKeepAliveTimer = null;
 let shortsBufferTimer = null;
 
 /**
- * Starts (or stops) the Shorts keep-alive: every 30 s while a Short plays, a yellow key press keeps
+ * Starts (or stops) the Shorts keep-alive: every 30s while a Short plays, a yellow key press keeps
  * the TV's screensaver away.
  */
 export function setShortsKeepAlive(enable) {

@@ -2439,39 +2439,32 @@
    ]
   },
   {
-   "path": "features/screensaver-fix/decoder-stall.js",
-   "lines": 75,
-   "header": "Frozen video after a video screensaver. When a video sits paused long enough for the TV's screensaver to start, a video screensaver (Aerial, the gallery) can take the hardware decoder from the paused <video> without the page hearing of it. Pressing play then fires 'playing' with data ready, but no frame decodes and the clock stands still, until YouTube's own stall watchdog rebuilds the player some 20 s later. A seek to where the video already is makes the stale pipeline fail at once, and YouTube rebuilds it within a few seconds.\n\nOnly a resume after a long pause is checked, once: first plays, short pauses, rebuffering and seeking are left alone, and the nudge's own 'playing' (after the seek) is not checked again, so it cannot loop. A pause or another 'playing' in the meantime cancels a pending check.",
-   "imports": [
-    {
-     "from": "features/screensaver-fix/log.js",
-     "names": [
-      "log"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/screensaver-fix/index.js"
-   ],
-   "exports": [],
-   "atLoad": {
-    "calls": [
-     "features/screensaver-fix/decoder-stall.js#onPause",
-     "features/screensaver-fix/decoder-stall.js#onPlaying"
+    "path": "features/screensaver-fix/decoder-stall.js",
+    "lines": 75,
+    "header": "Frozen video after a video screensaver. When a video sits paused long enough for the TV's screensaver to start, a video screensaver (Aerial, the gallery) can take the hardware decoder from the paused <video> without the page hearing of it. Pressing play then fires 'playing' with data ready, but no frame decodes and the clock stands still, until YouTube's own stall watchdog rebuilds the player some 20s later. A seek to where the video already is makes the stale pipeline fail at once, and YouTube rebuilds it within a few seconds.\n\nOnly a resume after a long pause is checked, once: first plays, short pauses, rebuffering and seeking are left alone, and the nudge's own 'playing' (after the seek) is not checked again, so it cannot loop. A pause or another 'playing' in the meantime cancels a pending check.",
+    "imports": [
+      {
+        "from": "features/screensaver-fix/log.js",
+        "names": ["log"]
+      }
     ],
-    "events": {
-     "listen": [
-      "pause",
-      "playing"
-     ]
-    }
-   },
-   "functions": [
-    "features/screensaver-fix/decoder-stall.js#cancelPending",
-    "features/screensaver-fix/decoder-stall.js#onPause",
-    "features/screensaver-fix/decoder-stall.js#checkFrozen",
-    "features/screensaver-fix/decoder-stall.js#onPlaying"
-   ]
+    "importedBy": ["features/screensaver-fix/index.js"],
+    "exports": [],
+    "atLoad": {
+      "calls": [
+        "features/screensaver-fix/decoder-stall.js#onPause",
+        "features/screensaver-fix/decoder-stall.js#onPlaying"
+      ],
+      "events": {
+        "listen": ["pause", "playing"]
+      }
+    },
+    "functions": [
+      "features/screensaver-fix/decoder-stall.js#cancelPending",
+      "features/screensaver-fix/decoder-stall.js#onPause",
+      "features/screensaver-fix/decoder-stall.js#checkFrozen",
+      "features/screensaver-fix/decoder-stall.js#onPlaying"
+    ]
   },
   {
    "path": "features/screensaver-fix/index.js",
@@ -2578,46 +2571,31 @@
    "functions": []
   },
   {
-   "path": "features/screensaver-fix/shorts-keep-alive.js",
-   "lines": 56,
-   "header": "On Shorts the player never fills the screen, so a synthetic YELLOW press every 30 s keeps the screensaver away while a video is actually playing.",
-   "imports": [
-    {
-     "from": "core/selectors.js",
-     "names": [
-      "SELECTORS"
-     ]
-    },
-    {
-     "from": "core/remote.js",
-     "names": [
-      "sendKey",
-      "REMOTE_KEYS"
-     ]
-    },
-    {
-     "from": "features/screensaver-fix/log.js",
-     "names": [
-      "log"
-     ]
-    },
-    {
-     "from": "core/player-state.js",
-     "names": [
-      "PLAYER_STATE"
-     ]
-    }
-   ],
-   "importedBy": [
-    "features/screensaver-fix/index.js"
-   ],
-   "exports": [
-    "setShortsKeepAlive"
-   ],
-   "atLoad": {},
-   "functions": [
-    "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive"
-   ]
+    "path": "features/screensaver-fix/shorts-keep-alive.js",
+    "lines": 56,
+    "header": "On Shorts the player never fills the screen, so a synthetic YELLOW press every 30s keeps the screensaver away while a video is actually playing.",
+    "imports": [
+      {
+        "from": "core/selectors.js",
+        "names": ["SELECTORS"]
+      },
+      {
+        "from": "core/remote.js",
+        "names": ["sendKey", "REMOTE_KEYS"]
+      },
+      {
+        "from": "features/screensaver-fix/log.js",
+        "names": ["log"]
+      },
+      {
+        "from": "core/player-state.js",
+        "names": ["PLAYER_STATE"]
+      }
+    ],
+    "importedBy": ["features/screensaver-fix/index.js"],
+    "exports": ["setShortsKeepAlive"],
+    "atLoad": {},
+    "functions": ["features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive"]
   },
   {
    "path": "features/sponsorblock/api.js",
@@ -11662,7 +11640,7 @@
     22,
     30
    ],
-   "description": "Applies Force Previews 2.5 s after start, once YouTube's own start-up has written its value.",
+   "description": "Applies Force Previews 2.5s after start, once YouTube's own start-up has written its value.",
    "calls": [
     "core/config.js#configRead",
     "features/auto-login/previews.js#setInlinePlayback"
@@ -12457,7 +12435,7 @@
     31,
     50
    ],
-   "description": "On webOS 25 loadVideoById(id, at) starts up to ~25 s before `at`, even at 1x: once the reloaded video plays it is sent back to `at`. When `capped()` the 1080p cap is set again then too: the reload drops it, and YouTube then falls to 480p on a 60 fps video (the frames a 60 Hz screen cannot show count as dropped).",
+   "description": "On webOS 25 loadVideoById(id, at) starts up to ~25s before `at`, even at 1x: once the reloaded video plays it is sent back to `at`. When `capped()` the 1080p cap is set again then too: the reload drops it, and YouTube then falls to 480p on a 60 fps video (the frames a 60 Hz screen cannot show count as dropped).",
    "browser": [
     "setInterval"
    ],
@@ -13258,29 +13236,17 @@
    ]
   },
   {
-   "id": "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive",
-   "name": "setShortsKeepAlive",
-   "kind": "function",
-   "params": "enable",
-   "exported": true,
-   "lines": [
-    15,
-    56
-   ],
-   "description": "Starts (or stops) the Shorts keep-alive: every 30 s while a Short plays, a yellow key press keeps the TV's screensaver away.",
-   "calls": [
-    "core/remote.js#sendKey"
-   ],
-   "selectors": [
-    "PLAYER_ID"
-   ],
-   "browser": [
-    "setInterval",
-    "setTimeout"
-   ],
-   "calledBy": [
-    "features/screensaver-fix/index.js#updateState"
-   ]
+    "id": "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive",
+    "name": "setShortsKeepAlive",
+    "kind": "function",
+    "params": "enable",
+    "exported": true,
+    "lines": [15, 56],
+    "description": "Starts (or stops) the Shorts keep-alive: every 30s while a Short plays, a yellow key press keeps the TV's screensaver away.",
+    "calls": ["core/remote.js#sendKey"],
+    "selectors": ["PLAYER_ID"],
+    "browser": ["setInterval", "setTimeout"],
+    "calledBy": ["features/screensaver-fix/index.js#updateState"]
   },
   {
    "id": "features/sponsorblock/api.js#isWellFormedSegment",
@@ -18346,24 +18312,21 @@
    ]
   },
   {
-   "id": "ui/panel/keyboard.js#swallowUntilReleased.release",
-   "name": "swallowUntilReleased.release",
-   "kind": "arrow",
-   "params": "",
-   "exported": false,
-   "lines": [
-    30,
-    34
-   ],
-   "description": "Stops swallowing: both listeners and the 2 s safety timer go.",
-   "calls": [
-    "ui/panel/keyboard.js#swallowUntilReleased.onDown",
-    "ui/panel/keyboard.js#swallowUntilReleased.onUp"
-   ],
-   "calledBy": [
-    "ui/panel/keyboard.js#swallowUntilReleased",
-    "ui/panel/keyboard.js#swallowUntilReleased.onUp"
-   ]
+    "id": "ui/panel/keyboard.js#swallowUntilReleased.release",
+    "name": "swallowUntilReleased.release",
+    "kind": "arrow",
+    "params": "",
+    "exported": false,
+    "lines": [30, 34],
+    "description": "Stops swallowing: both listeners and the 2s safety timer go.",
+    "calls": [
+      "ui/panel/keyboard.js#swallowUntilReleased.onDown",
+      "ui/panel/keyboard.js#swallowUntilReleased.onUp"
+    ],
+    "calledBy": [
+      "ui/panel/keyboard.js#swallowUntilReleased",
+      "ui/panel/keyboard.js#swallowUntilReleased.onUp"
+    ]
   },
   {
    "id": "ui/panel/keyboard.js#swallowUntilReleased.onUp",
@@ -19986,25 +19949,16 @@
    ]
   },
   {
-   "id": "ui/shortcuts/seek.js#performBurstSeek",
-   "name": "performBurstSeek",
-   "kind": "function",
-   "params": "seconds, video",
-   "exported": true,
-   "lines": [
-    153,
-    178
-   ],
-   "description": "One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2 s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.",
-   "calls": [
-    "ui/toast/index.js#showNotification"
-   ],
-   "browser": [
-    "setTimeout"
-   ],
-   "calledBy": [
-    "ui/shortcuts/actions.js#(top level)"
-   ]
+    "id": "ui/shortcuts/seek.js#performBurstSeek",
+    "name": "performBurstSeek",
+    "kind": "function",
+    "params": "seconds, video",
+    "exported": true,
+    "lines": [153, 178],
+    "description": "One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.",
+    "calls": ["ui/toast/index.js#showNotification"],
+    "browser": ["setTimeout"],
+    "calledBy": ["ui/shortcuts/actions.js#(top level)"]
   },
   {
    "id": "ui/styles/html-classes.js#read",

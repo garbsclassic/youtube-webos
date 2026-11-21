@@ -21,7 +21,7 @@
 // longest first, by the times of the previous run (kept in
 // node_modules/.cache), so a slow script does not start last and hold the end
 // of the run. A script is killed after three times its previous run, at least
-// 30 s, and a build after 120 s, and counts as failed; so does a test script that exits without its summary line
+// 30s, and a build after 120s, and counts as failed; so does a test script that exits without its summary line
 // (harness/verdict.cjs). The exit code is 1 when a check, a build or a script
 // fails, or when --only matches no script. dist/ is left holding the webOS 22+ bundle, which
 // is what `npm run package` packages. The benches are separate: `npm run
@@ -29,7 +29,7 @@
 import { spawn } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { cpus, tmpdir } from 'node:os';
-import { resolve, dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import verdict from './harness/verdict.cjs';
 
@@ -144,8 +144,8 @@ try {
   // No earlier run: plan order.
 }
 const expectedMs = (step) => previousMs[stepName(step)] ?? Number.MAX_SAFE_INTEGER;
-// Three times the previous run, at least 30 s: a script that has grown to
-// 20 s is not killed by a loaded machine.
+// Three times the previous run, at least 30s: a script that has grown to
+// 20s is not killed by a loaded machine.
 const scriptTimeout = (step) => Math.max(minScriptTimeout, 3 * (previousMs[stepName(step)] || 0));
 const longestFirst = (steps) => steps.slice().sort((a, b) => expectedMs(b) - expectedMs(a));
 
@@ -247,7 +247,7 @@ function record(result) {
 // Why a step failed before its own output is worth showing: killed by the
 // timeout, or never started.
 const failureNote = ({ error, timedOut, ms }) => {
-  if (timedOut) return `timed out after ${Math.round(ms / 1000)}s`;
+  if (timedOut) return `timed out after ${Math.round(ms / 1000)} sec`;
   return error ? error.message : null;
 };
 

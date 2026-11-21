@@ -3,7 +3,7 @@
 // gallery) can take the hardware decoder from the paused <video> without the
 // page hearing of it. Pressing play then fires 'playing' with data ready, but
 // no frame decodes and the clock stands still, until YouTube's own stall
-// watchdog rebuilds the player some 20 s later. A seek to where the video
+// watchdog rebuilds the player some 20s later. A seek to where the video
 // already is makes the stale pipeline fail at once, and YouTube rebuilds it
 // within a few seconds.
 //

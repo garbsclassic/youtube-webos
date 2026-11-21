@@ -81,7 +81,7 @@ How to read it:
 | [features/screensaver-fix/decoder-stall.js](codemap/features-screensaver-fix.md#mod-decoder-stall-js) | 75 | 4 | Frozen video after a video screensaver. |
 | [features/screensaver-fix/index.js](codemap/features-screensaver-fix.md#mod-index-js) | 177 | 8 | Keeps the screensaver off. |
 | [features/screensaver-fix/log.js](codemap/features-screensaver-fix.md#mod-log-js) | 4 | 0 | The logger of the feature's modules: their messages carry [ScreensaverFix] (core/log.js). |
-| [features/screensaver-fix/shorts-keep-alive.js](codemap/features-screensaver-fix.md#mod-shorts-keep-alive-js) | 56 | 1 | On Shorts the player never fills the screen, so a synthetic YELLOW press every 30 s keeps the screensaver away while a video is actually playing. |
+| [features/screensaver-fix/shorts-keep-alive.js](codemap/features-screensaver-fix.md#mod-shorts-keep-alive-js) | 56 | 1 | On Shorts the player never fills the screen, so a synthetic YELLOW press every 30s keeps the screensaver away while a video is actually playing. |
 | [features/sponsorblock/api.js](codemap/features-sponsorblock.md#mod-api-js) | 100 | 5 | Fetching a video's segments from the SponsorBlock API, primary server then fallback, and picking that video's own out of the hash-prefix answer. |
 | [features/sponsorblock/bar.js](codemap/features-sponsorblock.md#mod-bar-js) | 356 | 20 | The progress bar: finding it, watching the player chrome for it being built, torn down and rebuilt, and the bounded poll while it is missing. |
 | [features/sponsorblock/blue-key.js](codemap/features-sponsorblock.md#mod-blue-key-js) | 62 | 3 | The blue key: the manual skip of an offered segment, the jump to the highlight, and the seek back to the previous segment. |

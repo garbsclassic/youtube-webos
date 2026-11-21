@@ -346,7 +346,7 @@ const HOLD_IDLE = { scale: 0.1, from: 1200, to: 1201 };
     );
   }
   {
-    // An image that never settles: the probe timeout (5 s, here at a hundredth)
+    // An image that never settles: the probe timeout (5s, here at a hundredth)
     // learned nothing. Smooth keeps the sddefault it drew, this session does
     // not ask again, and the next session asks afresh.
     const srcs = [];

@@ -54,7 +54,7 @@ try {
     raf: 'timeout',
     xhr: 'error',
     // The startup timers (the per-video start at 500 ms, the welcome toast at
-    // 2 s) at a tenth, so they run inside the script's window.
+    // 2s) at a tenth, so they run inside the script's window.
     timers: { scale: 10, from: 400 },
     setup(win) {
       nativeMatches = win.Element.prototype.matches;
@@ -261,7 +261,7 @@ function hasBareRequire(src) {
   }
 
   // The deferred work (frames, timers, microtasks) runs before the report's
-  // own check that no page logged an error: the welcome toast (2 s after load,
+  // own check that no page logged an error: the welcome toast (2s after load,
   // 200 ms here) is the last of the startup timers.
   const welcomed = await waitFor(
     () => toasts(win).some((m) => /to open the settings/.test(m)),

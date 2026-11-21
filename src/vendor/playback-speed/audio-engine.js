@@ -413,8 +413,8 @@ export class AudioEngine {
     // - a real jump (seek without events, stall) is one reading beyond 500 ms, or
     //   two in a row beyond 250 ms on the same side (the noise stays under ~90 ms):
     //   hard resync;
-    // - otherwise only the MEAN of ~1.5 s of readings counts, at most one soft
-    //   correction every 1.5 s, and only 70% of it (damped, never oscillating).
+    // - otherwise only the MEAN of ~1.5s of readings counts, at most one soft
+    //   correction every 1.5s, and only 70% of it (damped, never oscillating).
     this.drifts = this.drifts || [];
     this.drifts.push(drift);
     if (this.drifts.length > DRIFT_WINDOW) this.drifts.shift();

@@ -4,7 +4,7 @@
  * frame per burst of style writes, a hidden or parked player is left alone,
  * and the observer follows the page: a <video> remounted on the same page, or
  * mounting after the wait for it ran out, is bound, leaving the page unbinds. On Shorts a synthetic YELLOW press (and its
- * alternate code a quarter second later) every 30 s keeps the screensaver
+ * alternate code a quarter second later) every 30s keeps the screensaver
  * away while the player reports PLAYING, nothing is pressed while paused, and
  * the keep-alive stops with the page change and restarts on the next Shorts.
  *
@@ -18,7 +18,7 @@ const report = createReport();
 const t = report.check;
 
 const PLAYER_ID = 'ytlr-player__player-container-player';
-// GAP_TIMERS: the 30 s keep-alive interval at a fiftieth, 600 ms, and the
+// GAP_TIMERS: the 30s keep-alive interval at a fiftieth, 600 ms, and the
 // 250 ms between the two halves of the press kept, for the cases about that
 // gap; the interval leaves room on both sides of it on a loaded machine.
 // FAST_TIMERS: the interval at a hundredth, 300 ms, the gap at 2.5 ms.
@@ -266,7 +266,7 @@ function bootShorts(initialState, timers) {
   }
 
   {
-    // The wait for the <video> runs out (30 s, here 300 ms); one that mounts
+    // The wait for the <video> runs out (30s, here 300 ms); one that mounts
     // later is bound on the next watch-to-watch navigation.
     const { win, pump } = createPage({ layout: true, timers: { scale: 100, from: 30000 } });
     await wait(50);
@@ -292,17 +292,17 @@ function bootShorts(initialState, timers) {
     );
   }
 
-  // ---- Shorts: YELLOW every 30 s while playing, nothing while paused ---------------
+  // ---- Shorts: YELLOW every 30s while playing, nothing while paused ---------------
   {
     // The interval is 300 ms here, the alternate code 250 ms after each press.
     const { keys, player } = bootShorts(1, GAP_TIMERS);
     await wait(300);
-    t('Shorts: nothing is pressed before the first 30 s pass', keys.length === 0, keys.join(','));
+    t('Shorts: nothing is pressed before the first 30s pass', keys.length === 0, keys.join(','));
     // Timers run late under load, never early: the lower bounds are fixed
     // waits, the presses that are due are waited for.
     await waitFor(() => keys.length >= 1, 2000);
     t(
-      'Shorts, playing: a YELLOW press after 30 s',
+      'Shorts, playing: a YELLOW press after 30s',
       keys.length === 1 && keys[0] === KEYS.YELLOW,
       keys.join(',')
     );
@@ -315,7 +315,7 @@ function bootShorts(initialState, timers) {
     player.state = 2;
     // A whole interval passes paused.
     await wait(700);
-    t('Shorts, paused: the next 30 s pass without a press', keys.length === 2, keys.join(','));
+    t('Shorts, paused: the next 30s pass without a press', keys.length === 2, keys.join(','));
     player.state = 1;
     await waitFor(() => keys.length >= 4, 2000);
     t(
@@ -384,7 +384,7 @@ function bootShorts(initialState, timers) {
 
   // ---- a frozen picture after a video screensaver: one seek in place ---------------
   {
-    // The 2 s check at a twentieth (100 ms); Date.now() is the test's own clock.
+    // The 2s check at a twentieth (100 ms); Date.now() is the test's own clock.
     let now = 1e12;
     const { win } = createPage({
       page: 'watch',
@@ -395,7 +395,7 @@ function bootShorts(initialState, timers) {
     });
     await wait(50);
     const d = win.document;
-    // A <video> standing at 5 s (or moving, with `moving`), with `readyState`; counts the seeks.
+    // A <video> standing at 5s (or moving, with `moving`), with `readyState`; counts the seeks.
     const makeVideo = ({ moving = false, readyState = 4 } = {}) => {
       const v = d.createElement('video');
       d.body.appendChild(v);
@@ -426,7 +426,7 @@ function bootShorts(initialState, timers) {
     };
 
     t('a first play is left alone', (await resume(null)).seeks.length === 0);
-    t('a resume after a short pause (5 s) is left alone', (await resume(5000)).seeks.length === 0);
+    t('a resume after a short pause (5s) is left alone', (await resume(5000)).seeks.length === 0);
     const frozen = await resume(120000);
     t(
       'a resume after a long pause that stands still: one seek, to where it stands',

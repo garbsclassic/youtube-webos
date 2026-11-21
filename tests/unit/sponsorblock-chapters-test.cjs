@@ -38,21 +38,17 @@ function child(key, width, ml, mr) {
   };
 }
 const track = (...children) => ({ children });
-
-// ---- no chapters ----
-{
-  eq('a track without children gives null', chapterBarRanges(track(), 10, 20, 100), null);
-  eq(
-    'children that are not chapters give null',
-    chapterBarRanges(track(child('segment', 50), child('slider', 10)), 10, 20, 100),
-    null
-  );
-  eq(
-    'chapter children that are all zero wide give null',
-    chapterBarRanges(track(child('chapter-0', 0), child('chapter-1', '0px')), 10, 20, 100),
-    null
-  );
-}
+eq('a track without children gives null', chapterBarRanges(track(), 10, 20, 100), null);
+eq(
+  'children that are not chapters give null',
+  chapterBarRanges(track(child('segment', 50), child('slider', 10)), 10, 20, 100),
+  null
+);
+eq(
+  'chapter children that are all zero wide give null',
+  chapterBarRanges(track(child('chapter-0', 0), child('chapter-1', '0px')), 10, 20, 100),
+  null
+);
 
 // ---- one chapter, no margins: the plain mapping ----
 {
@@ -92,7 +88,7 @@ const track = (...children) => ({ children });
   near('the first range ends at the end of chapter 1', across[0].left + across[0].width, pct(100));
   near('the second starts at the start of chapter 2, past the gap', across[1].left, pct(104));
   near(
-    'together they cover exactly the segment, 50 s at 1px per second',
+    'together they cover exactly the segment, 50s at 1px per second',
     across[0].width + across[1].width,
     pct(50)
   );
