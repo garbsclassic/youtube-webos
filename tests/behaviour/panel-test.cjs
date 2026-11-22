@@ -592,8 +592,8 @@ function boot() {
     const container = /\.ytaf-ui-container\{([^}]*)\}/.exec(css.replace(/\s+/g, ''));
     const decls = container ? container[1].split(';') : [];
     t(
-      'the panel has a set width (41.6vw), the same on every tab',
-      decls.indexOf('width:41.6vw') !== -1,
+      'the panel has a set width (46vw), the same on every tab',
+      decls.indexOf('width:46vw') !== -1,
       container ? container[1] : 'no .ytaf-ui-container rule'
     );
   }

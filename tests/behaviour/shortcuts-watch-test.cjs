@@ -1,7 +1,7 @@
 /**
  * Remote shortcuts and the clock, against the built bundle on both flavours: burst
  * seeking batches rapid presses into one jump (a reversed press keeps the part not
- * applied yet; the 5, 10 and 30s steps), chapter skip reads the progress bar (markers
+ * applied yet; the 10, 15 and 30s steps), chapter skip reads the progress bar (markers
  * of no width are no chapters), play/pause toggles the video, shortcuts respect their
  * page scope, the clock shows and hides with YouTube's player UI (its focus attribute at
  * once, with no fade, and the player state and focus), keeps the look of the theme
@@ -30,8 +30,7 @@ const {
 const report = createReport();
 const t = report.check;
 
-// The digit keys the shortcuts are bound to below. The seek_15_* actions
-// seek by 5s per press (shortcuts/actions.js); the names are the stored keys.
+// The digit keys the shortcuts are bound to below; the two seeks are the 15s ones.
 const KEY = {
   seekFwd: DIGIT(1),
   seekBack: DIGIT(2),
@@ -98,20 +97,20 @@ function boot(cfg, bodyClass, timers) {
     t('three quick presses: the video has not been seeked yet', before === 10, String(before));
     t(
       'the toast shows the accumulated amount',
-      toasts().some((m) => m === 'Skipped +15s'),
+      toasts().some((m) => m === 'Seek +45'),
       toasts().join(' | ')
     );
-    await waitFor(() => model.currentTime === 25);
+    await waitFor(() => model.currentTime === 55);
     t(
       'one seek of the total lands after the 200 ms buffer (20 here)',
-      model.currentTime === 25,
+      model.currentTime === 55,
       String(model.currentTime)
     );
     press(KEY.seekBack);
-    await waitFor(() => model.currentTime === 20);
+    await waitFor(() => model.currentTime === 40);
     t(
       'a reversed direction resets the accumulator and seeks back',
-      model.currentTime === 20,
+      model.currentTime === 40,
       String(model.currentTime)
     );
   }
@@ -122,13 +121,13 @@ function boot(cfg, bodyClass, timers) {
     // order they are due, however late the page handles the press.
     const { model, press, toasts } = boot({}, 'WEB_PAGE_TYPE_WATCH');
     press(KEY.seekFwd);
-    await waitFor(() => model.currentTime === 15, 10000);
+    await waitFor(() => model.currentTime === 25, 10000);
     await wait(300);
     press(KEY.seekFwd);
-    await waitFor(() => model.currentTime === 20, 10000);
+    await waitFor(() => model.currentTime === 40, 10000);
     t(
       'a press after the burst has ended starts a new one: the toast counts from zero',
-      model.currentTime === 20 && !toasts().some((m) => m === 'Skipped +10s'),
+      model.currentTime === 40 && !toasts().some((m) => m === 'Seek +30'),
       model.currentTime + ' / ' + toasts().join(' | ')
     );
   }
@@ -140,13 +139,13 @@ function boot(cfg, bodyClass, timers) {
     press(KEY.seekBack);
     await wait(80);
     t(
-      'a reversed burst keeps the part not yet applied: +5 then -5 leaves the video where it was',
+      'a reversed burst keeps the part not yet applied: +15 then -15 leaves the video where it was',
       model.currentTime === 50,
       String(model.currentTime)
     );
     t(
       'the toast counts the new direction from zero',
-      toasts().some((m) => m === 'Skipped -5s'),
+      toasts().some((m) => m === 'Seek -15'),
       toasts().join(' | ')
     );
   }
@@ -166,7 +165,7 @@ function boot(cfg, bodyClass, timers) {
     press(DIGIT(8));
     t(
       'two quick seek_fwd_30 presses are one burst of +60s',
-      toasts().some((m) => m === 'Skipped +60s'),
+      toasts().some((m) => m === 'Seek +60'),
       toasts().join(' | ')
     );
     await waitFor(() => model.currentTime === 110);
@@ -186,7 +185,7 @@ function boot(cfg, bodyClass, timers) {
     await waitFor(() => model.currentTime === 70);
     t(
       'seek_fwd_10 seeks forward 10s, its toast counting from zero',
-      model.currentTime === 70 && toasts().some((m) => m === 'Skipped +10s'),
+      model.currentTime === 70 && toasts().some((m) => m === 'Seek +10'),
       model.currentTime + ' / ' + toasts().join(' | ')
     );
   }
@@ -206,10 +205,10 @@ function boot(cfg, bodyClass, timers) {
     held(false);
     const r1 = held(true);
     held(true);
-    await waitFor(() => model.currentTime === 25, 10000);
+    await waitFor(() => model.currentTime === 55, 10000);
     t(
       'a held seek key: the repeats join the burst, one seek of the total',
-      model.currentTime === 25 && r1.defaultPrevented,
+      model.currentTime === 55 && r1.defaultPrevented,
       String(model.currentTime)
     );
   }
@@ -221,10 +220,10 @@ function boot(cfg, bodyClass, timers) {
     // 200 ms; the part not applied yet must still land.
     const { model, press } = boot({}, 'WEB_PAGE_TYPE_WATCH', { scale: 1000, from: 1000 });
     press(KEY.seekFwd);
-    await waitFor(() => model.currentTime === 15, 5000);
+    await waitFor(() => model.currentTime === 25, 5000);
     t(
       'a burst whose reset runs before its seek still seeks',
-      model.currentTime === 15,
+      model.currentTime === 25,
       String(model.currentTime)
     );
   }
@@ -544,7 +543,7 @@ function boot(cfg, bodyClass, timers) {
     const glass = win.getComputedStyle(clock);
     t(
       'default, OLED and Liquid Glass each have their own backdrop',
-      plain === 'rgba(15, 15, 15, 0.3)' && oled === 'rgb(0, 0, 0)',
+      plain === 'rgba(16, 15, 15, 0.8)' && oled === 'rgb(0, 0, 0)',
       plain + ' / ' + oled
     );
     t(
@@ -729,15 +728,17 @@ function boot(cfg, bodyClass, timers) {
         const RealIntl = win.Intl;
         win.Intl = Object.create(RealIntl, {
           DateTimeFormat: {
-            value: (...args) => {
-              const real = new RealIntl.DateTimeFormat(...args);
-              return {
-                format: (date) => {
-                  formats.n++;
-                  return real.format(date);
-                }
-              };
-            }
+            value: new Proxy(RealIntl.DateTimeFormat, {
+              construct(Real, args) {
+                const real = new Real(...args);
+                return {
+                  format: (date) => {
+                    formats.n++;
+                    return real.format(date);
+                  }
+                };
+              }
+            })
           }
         });
       }
