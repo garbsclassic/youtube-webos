@@ -10,10 +10,10 @@ Modules: [features/playback-speed/controller.js](#mod-controller-js), [features/
 
 > The playback speed: what it is, changing it, and the audio engine that plays the sound at it. A change reloads the video (loadVideoById at the current position): the engine decides a MediaSource's speed once, when YouTube creates its buffers (vendor/playback-speed/mse-hook.js). Rapid changes within RELOAD_DELAY_MS are one reload.
 
-239 lines · imports [vendor/playback-speed/audio-engine.js](vendor-playback-speed.md#mod-audio-engine-js), [vendor/playback-speed/mse-hook.js](vendor-playback-speed.md#mod-mse-hook-js), [core/config.js](core.md#mod-config-js), [core/speed-cap.js](core.md#mod-speed-cap-js), [core/player-state.js](core.md#mod-player-state-js), [features/playback-speed/log.js](#mod-log-js) · imported by [features/playback-speed/index.js](#mod-index-js)
+240 lines · imports [core/config.js](core.md#mod-config-js), [core/player-state.js](core.md#mod-player-state-js), [core/speed-cap.js](core.md#mod-speed-cap-js), [vendor/playback-speed/audio-engine.js](vendor-playback-speed.md#mod-audio-engine-js), [vendor/playback-speed/mse-hook.js](vendor-playback-speed.md#mod-mse-hook-js), [features/playback-speed/log.js](#mod-log-js) · imported by [features/playback-speed/index.js](#mod-index-js)
 
 <a id="fn-controller-js-restoreposition"></a>
-**`restorePosition(player, at, capped)`** · function · L31–50
+**`restorePosition(player, at, capped)`** · function · L32–51
 
 On webOS 25 loadVideoById(id, at) starts up to ~25 s before `at`, even at 1x: once the reloaded video plays it is sent back to `at`. When `capped()` the 1080p cap is set again then too: the reload drops it, and YouTube then falls to 480p on a 60 fps video (the frames a 60 Hz screen cannot show count as dropped).
 
@@ -21,21 +21,21 @@ On webOS 25 loadVideoById(id, at) starts up to ~25 s before `at`, even at 1x: on
 - **Browser:** `setInterval`
 
 <a id="fn-controller-js-createaudiosinks"></a>
-**`createAudioSinks(onError)`** · function · L58–90
+**`createAudioSinks(onError)`** · function · L59–91
 
 The audio engines, one at a time: `create({ speed, element })` starts one for a new MediaSource at `speed`, playing along with `element` (its volume and mute followed), and stops the previous one; `release()` stops it. `onError` is the engine's: a video it cannot play.
 
 - **Called by:** [createSpeedController](#fn-controller-js-createspeedcontroller)
 
 <a id="fn-controller-js-createaudiosinks-release"></a>
-**`createAudioSinks.release()`** · arrow · L62–67
+**`createAudioSinks.release()`** · arrow · L63–68
 
 Stops the engine of the previous MediaSource, if one is playing.
 
 - **Called by:** [createAudioSinks.create](#fn-controller-js-createaudiosinks-create)
 
 <a id="fn-controller-js-createaudiosinks-create"></a>
-**`createAudioSinks.create({ speed, element })`** · arrow · L70–84
+**`createAudioSinks.create({ speed, element })`** · arrow · L71–85
 
 A new engine for a MediaSource at `speed`, following `element`'s volume.
 
@@ -43,19 +43,19 @@ A new engine for a MediaSource at `speed`, following `element`'s volume.
 - **Events:** listens to `volumechange`
 
 <a id="fn-controller-js-createaudiosinks-create-listener"></a>
-**`createAudioSinks.create.listener()`** · arrow · L77–77
+**`createAudioSinks.create.listener()`** · arrow · L78–78
 
 Follows the &lt;video>'s volume and mute.
 
 - **Called by:** [createAudioSinks.create](#fn-controller-js-createaudiosinks-create)
 
 <a id="fn-controller-js-createaudiosinks-current"></a>
-**`createAudioSinks.current()`** · arrow · L87–87
+**`createAudioSinks.current()`** · arrow · L88–88
 
 The engine playing, or null.
 
 <a id="fn-controller-js-createspeedcontroller"></a>
-**`createSpeedController({ getPlayer, notify, isOn, isSupported })`** · function, exported · L97–239
+**`createSpeedController({ getPlayer, notify, isOn, isSupported })`** · function, exported · L98–240
 
 The controller: `getPlayer()` is YouTube's player element (or null), `notify(text)` shows a toast, `isOn()` whether the setting is on, and `isSupported()` whether this TV can (WebCodecs' AudioDecoder).
 
@@ -63,12 +63,12 @@ The controller: `getPlayer()` is YouTube's player element (or null), `notify(tex
 - **Called by:** [features/playback-speed/index.js › install](#fn-index-js-install)
 
 <a id="fn-controller-js-createspeedcontroller-getspeed"></a>
-**`createSpeedController.getSpeed()`** · arrow · L105–105
+**`createSpeedController.getSpeed()`** · arrow · L106–106
 
 The speed in effect: 1 while the setting is off or the TV cannot.
 
 <a id="fn-controller-js-createspeedcontroller-setcurrent"></a>
-**`createSpeedController.setCurrent(speed)`** · function · L108–111
+**`createSpeedController.setCurrent(speed)`** · function · L109–112
 
 Records a new speed, and whether it holds the video at 1080p (core/speed-cap.js).
 
@@ -76,14 +76,14 @@ Records a new speed, and whether it holds the video at 1080p (core/speed-cap.js)
 - **Called by:** [createSpeedController.onError](#fn-controller-js-createspeedcontroller-onerror), [createSpeedController.setSpeed](#fn-controller-js-createspeedcontroller-setspeed), [createSpeedController.stop](#fn-controller-js-createspeedcontroller-stop)
 
 <a id="fn-controller-js-createspeedcontroller-position"></a>
-**`createSpeedController.position(player)`** · function · L114–120
+**`createSpeedController.position(player)`** · function · L115–121
 
 The player's position in seconds, 0 when it cannot say.
 
 - **Called by:** [createSpeedController.scheduleReload](#fn-controller-js-createspeedcontroller-schedulereload)
 
 <a id="fn-controller-js-createspeedcontroller-applyreload"></a>
-**`createSpeedController.applyReload({ position: at, fromSpeed })`** · function · L123–153
+**`createSpeedController.applyReload({ position: at, fromSpeed })`** · function · L124–154
 
 Reloads the video at the new speed, unless the burst came back to where it started.
 
@@ -93,7 +93,7 @@ Reloads the video at the new speed, unless the burst came back to where it start
 - **Browser:** `setTimeout`
 
 <a id="fn-controller-js-createspeedcontroller-schedulereload"></a>
-**`createSpeedController.scheduleReload(fromSpeed, immediate)`** · function · L156–172
+**`createSpeedController.scheduleReload(fromSpeed, immediate)`** · function · L157–173
 
 Reloads RELOAD_DELAY_MS from now (at once with `immediate`), keeping the burst's start.
 
@@ -102,7 +102,7 @@ Reloads RELOAD_DELAY_MS from now (at once with `immediate`), keeping the burst's
 - **Browser:** `setTimeout`
 
 <a id="fn-controller-js-createspeedcontroller-setspeed"></a>
-**`createSpeedController.setSpeed(speed, { immediate = false })`** · function · L179–193
+**`createSpeedController.setSpeed(speed, { immediate = false })`** · function · L180–194
 
 Plays at `speed` (one of SUPPORTED_SPEEDS): says so, and reloads (at once with `immediate`, for a pick from YouTube's menu). Says why not when the setting is off or the TV cannot.
 
@@ -110,28 +110,28 @@ Plays at `speed` (one of SUPPORTED_SPEEDS): says so, and reloads (at once with `
 - **Called by:** [createSpeedController.reset](#fn-controller-js-createspeedcontroller-reset), [createSpeedController.step](#fn-controller-js-createspeedcontroller-step)
 
 <a id="fn-controller-js-createspeedcontroller-step"></a>
-**`createSpeedController.step(dir)`** · function · L196–201
+**`createSpeedController.step(dir)`** · function · L197–202
 
 One step up (dir >= 0) or down the speeds, stopping at the ends.
 
 - **Calls:** [createSpeedController.setSpeed](#fn-controller-js-createspeedcontroller-setspeed)
 
 <a id="fn-controller-js-createspeedcontroller-reset"></a>
-**`createSpeedController.reset()`** · function · L204–206
+**`createSpeedController.reset()`** · function · L205–207
 
 Back to 1x.
 
 - **Calls:** [createSpeedController.setSpeed](#fn-controller-js-createspeedcontroller-setspeed)
 
 <a id="fn-controller-js-createspeedcontroller-stop"></a>
-**`createSpeedController.stop()`** · function · L209–214
+**`createSpeedController.stop()`** · function · L210–215
 
 The setting was turned off: back to 1x at once, not on the next video.
 
 - **Calls:** [createSpeedController.scheduleReload](#fn-controller-js-createspeedcontroller-schedulereload), [createSpeedController.setCurrent](#fn-controller-js-createspeedcontroller-setcurrent)
 
 <a id="fn-controller-js-createspeedcontroller-onerror"></a>
-**`createSpeedController.onError(e)`** · function · L217–224
+**`createSpeedController.onError(e)`** · function · L218–225
 
 The engine cannot play this video (an audio codec WebCodecs lacks): back to 1x.
 
@@ -139,7 +139,7 @@ The engine cannot play this video (an audio codec WebCodecs lacks): back to 1x.
 - **Called by:** [createSpeedController](#fn-controller-js-createspeedcontroller)
 
 <a id="fn-controller-js-createspeedcontroller-lastreloadat"></a>
-**`createSpeedController.lastReloadAt()`** · property · L237–237
+**`createSpeedController.lastReloadAt()`** · property · L238–238
 
 When the last speed change reloaded the video (Date.now()), 0 before any.
 
