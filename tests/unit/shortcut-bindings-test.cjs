@@ -85,4 +85,12 @@ eq(
   eq('a stored yellow binding is read into the cache', cache.yellow, 'play_pause');
 }
 
+// ---- an action this build does not have --------------------------------------------
+{
+  const { cache, writes, warns } = load({ shortcut_key_2: 'bogus_action' });
+  eq('an unknown action is set to None', cache['2'], 'none');
+  eq('and stored as None', writes.join(','), 'shortcut_key_2=none');
+  eq('with one warning', warns.length, 1);
+}
+
 report.finish();
