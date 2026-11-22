@@ -8,7 +8,7 @@ Modules: [features/watch/index.js](#mod-index-js)
 
 ## features/watch/index.js
 
-> The clock in the top right corner (Display Time in UI): the time, or the date and time, in the TV's language and its date order ("10/27 12:49 AM" in American English, "27/10 00:49" in British English).
+> The clock in the top right corner (Display Time in UI): the time, or the date and time, in the TV's language and its date order ("Oct 27 12:49 AM" in American English, "27 Oct 00:49" in British English).
 >
 > On the watch page it comes and goes with YouTube's own player UI. YouTube switches between the video alone and the video with its controls by setting hybridnavfocusable="true" on the player shell (ytlr-watch-default) while the video holds the focus; the clock watches that attribute with a MutationObserver, so it shows and hides in the same task YouTube does, at once (no fade). Focus, player-state and page events cover the rest: a side panel opening over the player, the focus resting on the player itself or nowhere, and a player that mounts after the page changes.
 >
@@ -32,7 +32,7 @@ A formatter for `options` in the TV's language. Intl is in Chrome 24+, so webOS 
 <a id="fn-index-js-createclocktext"></a>
 **`createClockText(mode)`** · function · L59–64
 
-The clock's text for `mode` ('time' or 'datetime'), as a function of a Date. The date is its own short format (month and day, in the language's order) joined to the time by a space: formatted together, most languages put a comma between them ("10/27, 12:49 AM").
+The clock's text for `mode` ('time' or 'datetime'), as a function of a Date. The date is its own short format (month and day, in the language's order) joined to the time by a space: formatted together, most languages put a comma between them ("Oct 27, 12:49 AM").
 
 - **Calls:** [createFormatter](#fn-index-js-createformatter)
 - **Called by:** [Watch.startClock](#fn-index-js-watch-startclock)

@@ -594,15 +594,15 @@ function boot(cfg, bodyClass, timers) {
       return { page, text: el && el.textContent };
     };
     const us = clockIn('en-US', 'datetime').text;
-    t('Date + Time in American English: "10/27 12:49 AM"', us === '10/27 12:49 AM', us);
+    t('Date + Time in American English: "Oct 27 12:49 AM"', us === 'Oct 27 12:49 AM', us);
     const gb = clockIn('en-GB', 'datetime').text;
     t(
-      'Date + Time in British English: day first, 24-hour: "27/10 00:49"',
-      gb === '27/10 00:49',
+      'Date + Time in British English: day first, 24-hour: "27 Oct 00:49"',
+      gb === '27 Oct 00:49',
       gb
     );
     const de = clockIn('de-DE', 'datetime').text;
-    t('Date + Time in German: "27.10. 00:49"', de === '27.10. 00:49', de);
+    t('Date + Time in German: "27. Okt. 00:49"', de === '27. Okt. 00:49', de);
     const time = clockIn('en-US', 'time').text;
     t('Time alone: "12:49 AM"', time === '12:49 AM', time);
 
@@ -622,7 +622,7 @@ function boot(cfg, bodyClass, timers) {
     const clocks = w.document.querySelectorAll('.ytaf-watch');
     t(
       'switched to Date + Time in the panel: one clock, now with the date',
-      clocks.length === 1 && clocks[0].textContent === '10/27 12:49 AM',
+      clocks.length === 1 && clocks[0].textContent === 'Oct 27 12:49 AM',
       clocks.length + ' ' + (clocks[0] && clocks[0].textContent)
     );
     pressOn(w, KEYS.RIGHT, row);

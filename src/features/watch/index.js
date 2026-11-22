@@ -1,6 +1,6 @@
 // The clock in the top right corner (Display Time in UI): the time, or the
-// date and time, in the TV's language and its date order ("10/27 12:49 AM"
-// in American English, "27/10 00:49" in British English).
+// date and time, in the TV's language and its date order ("Oct 27 12:49 AM"
+// in American English, "27 Oct 00:49" in British English).
 //
 // On the watch page it comes and goes with YouTube's own player UI. YouTube
 // switches between the video alone and the video with its controls by setting
@@ -54,12 +54,12 @@ function createFormatter(options) {
  * The clock's text for `mode` ('time' or 'datetime'), as a function of a Date.
  * The date is its own short format (month and day, in the language's order)
  * joined to the time by a space: formatted together, most languages put a
- * comma between them ("10/27, 12:49 AM").
+ * comma between them ("Oct 27, 12:49 AM").
  */
 function createClockText(mode) {
   const time = createFormatter({ hour: 'numeric', minute: 'numeric' });
   if (mode !== 'datetime') return (now) => time.format(now);
-  const date = createFormatter({ month: 'numeric', day: 'numeric' });
+  const date = createFormatter({ month: 'short', day: 'numeric' });
   return (now) => date.format(now) + ' ' + time.format(now);
 }
 
