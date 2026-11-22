@@ -523,10 +523,7 @@ function fakePlayer(d) {
     t('and the standard red code takes it down again', !d.getElementById('ytaf-oled-overlay'));
     await wait(150);
     press(ALT.GREEN);
-    t(
-      'the alternate green code opens the settings',
-      !!panel() && panel().style.display === 'block'
-    );
+    t('the alternate green code opens the settings', !!panel() && panel().style.display === 'flex');
     // The panel ignores toggles for 500 ms (50 here) after its first build,
     // and the router takes Green again only past its 100 ms debounce.
     await waitFor(() => win.ytaf_panelTakesToggles(), 10000);
@@ -550,13 +547,13 @@ function fakePlayer(d) {
   {
     const { page, press, model, panel, d } = boot({ shortcut_key_red: 'none' });
     openPanel(page);
-    t('setup: the panel is open', !!panel() && panel().style.display === 'block');
+    t('setup: the panel is open', !!panel() && panel().style.display === 'flex');
     const digit = press(DIGIT(3));
     const blue = press(KEYS.BLUE);
     const red = press(KEYS.RED);
     t(
       'an unbound colour key is swallowed by the open panel too',
-      red.defaultPrevented && panel().style.display === 'block'
+      red.defaultPrevented && panel().style.display === 'flex'
     );
     t(
       'with the panel open a digit shortcut is swallowed, not run',
@@ -643,7 +640,7 @@ function fakePlayer(d) {
       toasts().join(' | ')
     );
     press(KEYS.GREEN);
-    t('and Green opens the settings', !!panel() && panel().style.display === 'block');
+    t('and Green opens the settings', !!panel() && panel().style.display === 'flex');
   }
   {
     const { win, press, warns, panel, toasts } = boot(
@@ -668,7 +665,7 @@ function fakePlayer(d) {
     const green = press(KEYS.GREEN);
     t('an unbound Green does nothing', !panel() && !green.defaultPrevented);
     press(DIGIT(7));
-    t('and the bound digit opens the settings', !!panel() && panel().style.display === 'block');
+    t('and the bound digit opens the settings', !!panel() && panel().style.display === 'flex');
 
     // A checkbox of the panel is no text box: the menu digit closes the panel from it.
     const box = panel().querySelector('#ytaf-page-main input[type="checkbox"]');
@@ -684,7 +681,7 @@ function fakePlayer(d) {
     // The digit unbound from the panel: closing it gives the menu back to Green.
     await wait(120);
     press(DIGIT(7));
-    t('setup: open again', panel().style.display === 'block');
+    t('setup: open again', panel().style.display === 'flex');
     // The Shortcuts tab (Main, SponsorBlock, Shortcuts, UI Tweaks).
     win.document.querySelectorAll('.ytaf-tab-btn')[2].click();
     const row = Array.from(win.document.querySelectorAll('.ytaf-cycle-row')).find(
@@ -708,7 +705,7 @@ function fakePlayer(d) {
     );
     await wait(120);
     press(KEYS.GREEN);
-    t('and Green opens the settings', panel().style.display === 'block');
+    t('and Green opens the settings', panel().style.display === 'flex');
   }
 
   report.finish();

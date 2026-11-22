@@ -164,19 +164,19 @@ function boot(cfg, more) {
     await wait(50);
     t(
       'the menu key opens the panel and takes the overlay down',
-      panel() && panel().style.display === 'block' && !d.getElementById('ytaf-oled-overlay'),
+      panel() && panel().style.display === 'flex' && !d.getElementById('ytaf-oled-overlay'),
       toasts().join(' | ')
     );
     // Past the toggle guard of the build the menu key started.
     await wait(60);
     win.ytaf_showOptionsPanel(false);
     pump();
-    t('setup: the panel closed', panel().style.display !== 'block', panel().style.display);
+    t('setup: the panel closed', panel().style.display === 'none', panel().style.display);
     await wait(60);
 
     // While the options panel is open, the shortcuts are the panel's, not the overlay's.
     await showPanel(win, pump);
-    t('setup: the panel is open', panel() && panel().style.display === 'block');
+    t('setup: the panel is open', panel() && panel().style.display === 'flex');
     await wait(150);
     press(KEYS.RED);
     await wait(50);
