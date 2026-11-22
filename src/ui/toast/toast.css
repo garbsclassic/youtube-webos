@@ -4,31 +4,33 @@
 .ytaf-toasts {
   position: fixed;
   top: 1.85vh;
-  right: 1.85vh;
-  font-size: 1.48vh;
+  right: 2vh;
+  min-width: 12vh;
+  max-width: 40vh;
   z-index: 1200;
-  max-width: 37vh;
 }
 
 .ytaf-toast {
-  background: #002840;
-  border: 0.09vh solid rgba(71, 209, 207, 0.4);
-  color: white;
-  padding: 1.5vh 1.85vh;
-  margin-bottom: 1.1vh;
-  border-radius: 1.1vh;
-  box-shadow: 0 0.5vh 1.4vh rgba(0, 0, 0, 0.5);
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
-  opacity: 1;
   transform: translateX(0);
+  opacity: 1;
+  box-shadow: 0 0.5vh 1.4vh rgba(16, 15, 15, 0.5);
+  background: rgba(16, 15, 15, 0.75);
+  border: 0.18vh solid rgba(71, 209, 207, 0.5);
   border-left: 0.37vh solid #47d1cf;
-  font-weight: 500;
+  margin-bottom: 1.1vh;
+  border-radius: 1.1vh;
+  padding: 0.8vh 1.6vh 0.6vh;
+  font-size: 2.5vh;
+  font-weight: 400;
+  color: #e6e4d9;
   line-height: 1.4;
+  text-align: end;
 }
 
 .ytaf-toast.ytaf-toast-hidden {
   opacity: 0;
-  transform: translateX(1.85vh);
+  transform: translateX(2vh);
 }

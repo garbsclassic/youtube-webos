@@ -2,15 +2,15 @@
 
 .sb-segments-popup {
   position: fixed;
-  top: 5%;
-  right: 5%;
+  top: 4%;
+  right: 6%;
 
   background-color: #000000;
   border: 0.05vw solid red;
   border-radius: 0.83vw;
   padding: 1.04vw;
 
-  width: 39.06vw;
+  width: 36vw;
   max-height: 85vh;
   overflow-y: auto;
 

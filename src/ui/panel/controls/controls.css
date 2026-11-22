@@ -2,37 +2,31 @@
    colour picker and the greyed-out state. Row metrics (size, padding, margins)
    are in pages.css; the colours are panel.css's --ytaf-* variables. */
 
-.ytaf-cycle-label {
-  color: var(--ytaf-cycle-label);
-}
-
 /* A cycle row among checkbox rows: the label is indented by one checkbox,
-   1.85vh wide plus its 1.1vh margin, plus the 0.75vh side padding a checkbox
-   row has and a cycle row does not (pages.css), and takes the row's text
-   colour like the checkbox labels around it instead of the shortcut tint. */
+   1.85vh wide plus its 0.5vh margin, plus the 0.75vh side padding a checkbox
+   row has and a cycle row does not (pages.css). */
 .ytaf-ui-container .ytaf-cycle-row.ytaf-aligned .ytaf-cycle-label {
-  color: inherit;
-  padding-left: 3.7vh;
+  padding-left: 3.1vh;
 }
 
 .ytaf-cycle-value {
   display: flex;
   align-items: center;
-  color: #ffffff;
+  color: var(--ytaf-text);
 }
 
 .ytaf-cycle-value .ytaf-arrow {
   color: var(--ytaf-accent);
-  font-weight: bold;
-  font-size: 2.22vh;
+  font-weight: 500;
+  font-size: 2.33vh;
   user-select: none;
 }
 
 .ytaf-cycle-value .ytaf-value {
-  margin: 0 1.1vh;
+  margin: 0 1vh;
   min-width: 14vh;
+  font-size: 2.33vh;
   text-align: center;
-  font-weight: 500;
 }
 
 /* A row whose setting does nothing right now (controls/checkbox.js setUnavailable). */

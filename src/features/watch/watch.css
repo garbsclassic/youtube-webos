@@ -9,11 +9,13 @@
   position: fixed;
   right: 0;
   top: 0;
-  margin: 1rem 2rem;
-  background-color: rgba(15, 15, 15, 0.3);
+  margin: 1rem 1.2rem;
+  background-color: rgba(16, 15, 15, 0.8);
   border-radius: 0.5rem;
-  padding: 0.4rem;
-  font-size: 1.2rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 1.23rem;
+  font-weight: 300;
+  color: #dad8ce;
   letter-spacing: 0.05rem;
   z-index: 1199;
   pointer-events: none;
