@@ -22,7 +22,7 @@ export const shortcutCache = {};
 function updateShortcutCache(key) {
   const configKey = `shortcut_key_${key}`;
   const action = configRead(configKey);
-  if (Object.hasOwn(shortcutActions, action)) {
+  if (Object.prototype.hasOwnProperty.call(shortcutActions, action)) {
     shortcutCache[key] = action;
     return;
   }
