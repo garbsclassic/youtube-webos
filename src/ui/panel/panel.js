@@ -254,7 +254,7 @@ export function showOptionsPanel(visible) {
     }
 
     log.debug('shown');
-    panel.element.style.display = 'block';
+    panel.element.style.display = 'flex';
     panel.buildDeferredPages();
     panel.syncPopup();
 

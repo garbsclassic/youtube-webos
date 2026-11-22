@@ -164,7 +164,7 @@ function bootShorts(cfg) {
     const panel = d.querySelector('.ytaf-ui-container');
     t(
       'a stamped yellow does not hold back a different key: green 5 ms later opens the settings',
-      green.defaultPrevented && !!panel && panel.style.display === 'block' && model.plays === 0,
+      green.defaultPrevented && !!panel && panel.style.display === 'flex' && model.plays === 0,
       panel ? panel.style.display : 'no panel'
     );
   }

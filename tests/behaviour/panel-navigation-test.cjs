@@ -82,7 +82,7 @@ function expectFocus(what, expected) {
   press(KEYS.GREEN, d.body);
   for (let i = 0; i < 20; i++) pump();
   const panel = d.querySelector('.ytaf-ui-container');
-  t('the panel opens on the menu key', !!panel && panel.style.display === 'block');
+  t('the panel opens on the menu key', !!panel && panel.style.display === 'flex');
   const tabs = panel.querySelectorAll('.ytaf-tab-btn');
   for (let i = 0; i < tabs.length; i++) place(tabs[i], i * 200, 0, 180, 80);
   const pages = panel.querySelectorAll('.ytaf-settings-page');
@@ -263,7 +263,7 @@ function expectFocus(what, expected) {
   // jsdom never clears focus from a hidden element; the close has to.
   t('closing takes the focus out of the panel', !panel.contains(d.activeElement), focused());
   press(KEYS.GREEN, d.body);
-  t('the menu key opens it again', panel.style.display === 'block');
+  t('the menu key opens it again', panel.style.display === 'flex');
   press(KEYS.ESCAPE);
   t('Escape closes it too', panel.style.display === 'none');
 
@@ -271,7 +271,7 @@ function expectFocus(what, expected) {
   // The same shortcut key twice within 100 ms is one press: the menu key waits it out.
   await wait(120);
   press(KEYS.GREEN, d.body);
-  t('setup: the menu key opens it again', panel.style.display === 'block');
+  t('setup: the menu key opens it again', panel.style.display === 'flex');
   const seen = [];
   const youtube = (e) => seen.push(e.keyCode);
   // YouTube listens in the bubble phase.
@@ -322,7 +322,7 @@ function expectFocus(what, expected) {
   // ---- keys this mod sends (the Shorts keep-alive, the webOS 25 kick) ----
   await wait(120);
   press(KEYS.GREEN, d.body);
-  t('setup: the panel is open again', panel.style.display === 'block');
+  t('setup: the panel is open again', panel.style.display === 'flex');
   seen.length = 0;
   const synthetic = (code) => {
     const e = new win.KeyboardEvent('keydown', { keyCode: code, bubbles: true, cancelable: true });

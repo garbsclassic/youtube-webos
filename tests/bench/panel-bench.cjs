@@ -35,7 +35,7 @@ setTimeout(async () => {
 
   const panel = win.document.querySelector('.ytaf-ui-container');
   console.log('=== opening the options panel ===');
-  console.log(`panel visible after the keypress : ${!!panel && panel.style.display === 'block'}`);
+  console.log(`panel visible after the keypress : ${!!panel && panel.style.display === 'flex'}`);
   console.log(`createElement calls IN the handler: ${inHandler}`);
   console.log(`handler wall time                 : ${openMs.toFixed(2)} ms`);
 

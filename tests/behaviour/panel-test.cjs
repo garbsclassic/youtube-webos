@@ -244,7 +244,7 @@ function boot() {
     t('setup: the panel closed', panel.style.display === 'none');
     await wait(150); // past the repeated-key debounce of the shortcut router
     press(win, KEYS.GREEN, win.document.body);
-    t('setup: the panel reopened', panel.style.display === 'block');
+    t('setup: the panel reopened', panel.style.display === 'flex');
     for (let i = 0; i < 20; i++) pump();
     t(
       'reopen does not duplicate the panel',
@@ -586,7 +586,22 @@ function boot() {
       adBlocking.checked === false && storedConfig(win).enableAdBlock === false,
       JSON.stringify(storedConfig(win).enableAdBlock)
     );
-    t('a settings page can scroll rather than clip', /overflow-y:\s*auto/.test(css));
+    // The page is the flexible part of a flex column; in a block it would grow past the panel.
+    const panelStyle = win.getComputedStyle(win.document.querySelector('.ytaf-ui-container'));
+    const pageStyle = win.getComputedStyle(main);
+    t(
+      'a settings page can scroll rather than clip',
+      panelStyle.display === 'flex' &&
+        panelStyle.flexDirection === 'column' &&
+        pageStyle.overflowY === 'auto' &&
+        pageStyle.minHeight === '0px',
+      [
+        panelStyle.display,
+        panelStyle.flexDirection,
+        pageStyle.overflowY,
+        pageStyle.minHeight
+      ].join()
+    );
     // A width of its own: shrink-to-fit made the panel change width, and
     // recentre, with every tab.
     const container = /\.ytaf-ui-container\{([^}]*)\}/.exec(css.replace(/\s+/g, ''));
