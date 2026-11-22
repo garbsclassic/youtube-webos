@@ -151,6 +151,19 @@ ares-setup-device -a webos -i "username=root" -i "privatekey=id_rsa" -i "passphr
 npm run deploy
 ```
 
+To build, package, install and launch in one step:
+
+```sh
+npm run tv                  # production build
+npm run tv -- --dev         # development build
+npm run tv -- --skip-build  # reuse dist/
+npm run tv -- --help        # all options
+```
+
+It uses the default `ares-cli` device. To pick another one, set `TV_DEVICE` (or pass `--device NAME`).
+If `ares-install` fails and `TV_HOST` is set, it copies the `.ipk` over `scp` and installs it with
+`luna-send` on the TV (`TV_USER`, `TV_SSH_PORT` and `TV_SSH_KEY` are optional).
+
 ## Launching
 
 - The app will be available in the TV's app list. You can also launch it using the webOS CLI tools.
