@@ -1,4 +1,4 @@
 allowBuilds:
-  '@webos-tools/cli': true
-  cpu-features: true
-  ssh2: true
+  '@webos-tools/cli': false
+  cpu-features: false
+  ssh2: false

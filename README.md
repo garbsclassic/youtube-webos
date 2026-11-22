@@ -106,7 +106,7 @@ git clone https://github.com/garbsclassic/youtube-webos.git
 cd youtube-webos
 
 # Install dependencies (need to do this only when updating local repository / package.json is changed)
-npm install
+pnpm install
 
 npm run build && npm run package
 ```

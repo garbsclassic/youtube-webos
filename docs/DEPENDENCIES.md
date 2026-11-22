@@ -99,8 +99,9 @@ the kind of change to look at before a release.
 - No package that ships to the TV has a known vulnerability.
 - Install scripts: only `@webos-tools/cli` and two of its own dependencies
   (ssh2, cpu-features: an optional native SSH binding). CI installs with
-  `pnpm install --frozen-lockfile`, which runs only the build scripts allowed in
-  `pnpm-workspace.yaml`.
+  `pnpm install --frozen-lockfile --ignore-scripts`, since the build, tests and
+  packaging need none of them; `allowBuilds` in `pnpm-workspace.yaml` blocks them
+  in a local install, which still runs this project's own `prepare` (husky).
 - `npm audit signatures` verifies the registry signatures of everything
   installed; run it on your computer after updating.
 - The PHP "php2shell" vulnerabilities of October 2026 (CVE-2026-109618,
