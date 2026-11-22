@@ -3,26 +3,22 @@
    its --ytaf-* colour variables (ui/panel/panel.css): only those are overridden
    here, plus the logo; the accent stays the theme's. YouTube's own surfaces are
    in global.css, the clock in features/watch/watch.css, the black overlay of
-   the oled_toggle shortcut in shortcuts/oled.css. */
+   the toggle_oled shortcut in shortcuts/oled.css. */
 
 html.ytaf-oled .ytaf-ui-container {
   --ytaf-bg: #000000;
-  --ytaf-bg-image: none;
-  --ytaf-border: rgba(var(--ytaf-accent-rgb), 0.4);
-  --ytaf-checkbox-bg: #000;
-  --ytaf-checkbox-border: #555;
 }
 
 .ytaf-oled .ytaf-toast {
-  background: #000000;
-  border: 0.09vh solid #47d1cf;
-  border-left: 0.37vh solid #47d1cf;
-  box-shadow: none;
-  color: #cccccc;
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(58, 166, 164, 0.5);
+  border-left-color: #3aa6a4;
+  box-shadow: 0 0.5vh 1.4vh rgba(0, 0, 0, 0.4);
 }
 
 .ytaf-oled.ytaf-theme-red .ytaf-toast {
-  border-color: #f4ad5d;
+  border-color: rgba(208, 152, 88, 0.5);
+  border-left-color: #d09858;
 }
 
 /* The panel logo: the dark one, whatever the theme. */

@@ -12,49 +12,45 @@
    (styles/theme-red.css, styles/theme-oled.css) override these variables and
    nothing else of the panel's look, bar the logo.
 
-   --ytaf-accent-rgb is the accent as an rgb triplet, for the translucent
-   tints: rgba(var(--ytaf-accent-rgb), 0.3). Keep it in step with
-   --ytaf-accent.
+   --ytaf-accent-rgb and --ytaf-accent2-rgb are the accents as rgb triplets,
+   for the translucent tints: rgba(var(--ytaf-accent-rgb), 0.3). Keep each in
+   step with its accent.
    --------------------------------------------------------------------------- */
 
 .ytaf-ui-container {
   --ytaf-accent: #47d1cf;
   --ytaf-accent-rgb: 71, 209, 207;
-  /* The scrollbar thumb and a checked checkbox. */
-  --ytaf-accent-fill: #3aa6a4;
+  --ytaf-accent2: #3aa6a4;
+  --ytaf-accent2-rgb: 58, 166, 164;
 
-  --ytaf-text: #ffffff;
-  --ytaf-bg: #001a2e;
-  --ytaf-bg-image:
-    linear-gradient(rgba(var(--ytaf-accent-rgb), 0.15) 0.09vh, transparent 0.09vh),
-    linear-gradient(90deg, rgba(var(--ytaf-accent-rgb), 0.15) 0.09vh, transparent 0.09vh);
-  --ytaf-border: rgba(var(--ytaf-accent-rgb), 0.4);
+  --ytaf-text: #dad8ce;
+  --ytaf-text2: #cecdc3;
+  --ytaf-bg: #100f0f;
+  --ytaf-border: var(--ytaf-accent2);
+
   /* Under the heading and the tab menu. */
-  --ytaf-divider: rgba(var(--ytaf-accent-rgb), 0.3);
+  --ytaf-divider: #575653;
   --ytaf-scrollbar-track: rgba(var(--ytaf-accent-rgb), 0.05);
 
-  --ytaf-checkbox-bg: rgba(0, 50, 80, 0.8);
-  --ytaf-checkbox-border: rgba(0, 150, 200, 0.5);
-  --ytaf-checkbox-focus-border: var(--ytaf-checkbox-border);
+  --ytaf-checkbox-bg: #1c1b1a;
+  --ytaf-checkbox-border: #61605c;
 
-  --ytaf-row-focus-bg: rgba(var(--ytaf-accent-rgb), 0.2);
-  --ytaf-row-focus-ring: var(--ytaf-accent);
+  --ytaf-row-focus-bg: rgba(var(--ytaf-accent2-rgb), 0.15);
+  --ytaf-row-focus-ring: var(--ytaf-accent2);
 
-  --ytaf-tab-text: #5599aa;
-  --ytaf-tab-active-bg: rgba(var(--ytaf-accent-rgb), 0.15);
+  --ytaf-tab-text: var(--ytaf-accent2);
+  --ytaf-tab-active-bg: rgba(var(--ytaf-accent-rgb), 0.2);
   --ytaf-tab-focus-bg: rgba(var(--ytaf-accent-rgb), 0.3);
 
   /* pages.css */
-  --ytaf-section-border: #444;
-  --ytaf-section-title: #aaa;
-  --ytaf-help-text: #aaa;
-  --ytaf-blockquote-bg: rgba(var(--ytaf-accent-rgb), 0.05);
-  --ytaf-blockquote-text: #e0e0e0;
-  --ytaf-small-text: #888888;
-  --ytaf-small-border: rgba(var(--ytaf-accent-rgb), 0.2);
+  --ytaf-section-border: #403e3c;
+  --ytaf-section-title: var(--ytaf-text2);
+  --ytaf-help-text: #878580;
+  --ytaf-blockquote-bg: rgba(var(--ytaf-accent2-rgb), 0.04);
+  --ytaf-small-text: #61605c;
+  --ytaf-small-border: #343331;
 
   /* controls/controls.css */
-  --ytaf-cycle-label: #b8e6f5;
   --ytaf-color-reset-bg: rgba(0, 100, 150, 0.5);
   --ytaf-color-reset-border: rgba(0, 150, 200, 0.5);
   --ytaf-color-input-border: rgba(0, 150, 200, 0.5);
@@ -66,35 +62,31 @@
 
 .ytaf-ui-container {
   position: fixed;
-  top: 5vh;
-  left: 30%;
+  top: 4%;
+  left: 29%;
   transform: translateX(-50%);
   /* A width of its own: sized to its content the panel changed width, and
      recentred, with every tab. */
-  width: 41.6vw;
+  width: 46vw;
   max-height: 95vh;
   color: var(--ytaf-text);
   /* The TV has none of the first three and draws Roboto; the webOS TV
      Simulator on Windows draws Segoe UI, as the README screenshots show. */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 4.44vh;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background-color: var(--ytaf-bg);
-  background-image: var(--ytaf-bg-image);
-  background-size: 3.7vh 3.7vh;
-  background-position: -0.09vh -0.09vh;
-  border: 0.09vh solid var(--ytaf-border);
+  border: 0.18vh solid var(--ytaf-border);
   border-radius: 1.5vh;
 }
 
 .ytaf-ui-container h1 {
   margin: 0;
-  padding: 1.5vh 3vh 1.1vh;
+  padding: 1.2vh 3vh 0.8vh;
   text-align: center;
-  font-size: 3.89vh;
+  font-size: 3.67vh;
   font-weight: 600;
   border-bottom: 0.09vh solid var(--ytaf-divider);
   color: var(--ytaf-accent);
@@ -107,10 +99,10 @@
 /* The logo in the heading: the blue one here, the red and dark ones under
    their theme classes (theme-red.css, theme-oled.css). */
 .ytaf-ui-container .ytaf-logo {
-  width: 5.55vh;
-  height: 5.55vh;
+  width: 4vh;
+  height: 4vh;
   object-fit: contain;
-  margin-left: 1.1vh;
+  margin-left: 1.2vh;
 }
 
 .ytaf-ui-container .ytaf-logo-red,
@@ -123,7 +115,7 @@
    the focus ring of a first row that is not in a section inside the scrolling
    box: SponsorBlock's switch. */
 .ytaf-ui-container > div.ytaf-settings-page {
-  padding: 0.4vh 3vh 2.2vh;
+  padding: 0.4vh 2.4vh 1.6vh;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
@@ -139,7 +131,7 @@
 }
 
 .ytaf-ui-container > div::-webkit-scrollbar-thumb {
-  background: var(--ytaf-accent-fill);
+  background: var(--ytaf-accent2);
   border-radius: 0.4vh;
 }
 
@@ -147,26 +139,24 @@
   width: 1.85vh;
   height: 1.85vh;
   margin: 0;
-  margin-right: 1.1vh;
+  margin-right: 0.5vh;
   appearance: none;
   background: var(--ytaf-checkbox-bg);
-  border: 0.19vh solid var(--ytaf-checkbox-border);
+  border: 0.18vh solid var(--ytaf-checkbox-border);
   border-radius: 0.4vh;
   position: relative;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-/* Before :checked, so a checked box keeps its accent border when focused. */
 .ytaf-ui-container input[type='checkbox']:focus {
-  outline: 0.19vh solid var(--ytaf-accent);
-  outline-offset: 0.19vh;
-  border-color: var(--ytaf-checkbox-focus-border);
+  outline: 0.18vh solid var(--ytaf-accent);
+  outline-offset: 0.18vh;
 }
 
 .ytaf-ui-container input[type='checkbox']:checked {
-  background: var(--ytaf-accent-fill);
-  border-color: var(--ytaf-accent);
+  background: rgba(var(--ytaf-accent2-rgb), 0.5);
+  border-color: var(--ytaf-accent2);
 }
 
 .ytaf-ui-container input[type='checkbox']:checked::after {
@@ -186,7 +176,7 @@
 .ytaf-ui-container .ytaf-cycle-row:focus,
 .ytaf-ui-container label.ytaf-focused {
   background: var(--ytaf-row-focus-bg);
-  box-shadow: 0 0 0 0.19vh var(--ytaf-row-focus-ring);
+  box-shadow: 0 0 0 0.18vh var(--ytaf-row-focus-ring);
   outline: none;
 }
 
@@ -195,7 +185,7 @@
   display: flex;
   justify-content: center;
   background: rgba(0, 0, 0, 0.2);
-  border-bottom: 0.19vh solid var(--ytaf-divider);
+  border-bottom: 0.18vh solid var(--ytaf-divider);
   padding: 0.5vh 1vh;
   flex-shrink: 0;
   margin-bottom: 0.6vh;
@@ -209,15 +199,15 @@
   background: transparent;
   border: none;
   color: var(--ytaf-tab-text);
-  font-size: 2.1vh;
+  font-size: 2.33vh;
   font-weight: 600;
   white-space: nowrap;
-  padding: 1vh 1.2vh;
+  padding: 0.6vh 1vh;
   border-radius: 0.75vh;
   cursor: pointer;
   outline: none;
   /* No transition: each tab move would repaint both buttons for a dozen
-     frames, over the panel's gradient grid, on the slowest TVs. */
+     frames on the slowest TVs. */
   font-family: inherit;
 }
 
@@ -228,6 +218,6 @@
 
 .ytaf-tab-btn:focus {
   background: var(--ytaf-tab-focus-bg);
-  box-shadow: 0 0 0 0.19vh var(--ytaf-accent);
+  box-shadow: 0 0 0 0.18vh var(--ytaf-accent);
   color: var(--ytaf-text);
 }

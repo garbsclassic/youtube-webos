@@ -25,7 +25,7 @@ ytlr-video-title-tray [idomkey='title-text']::before {
   line-height: 1.65;
   white-space: nowrap;
 
-  margin-right: 0.5em;
+  margin-right: 0.52em;
   /* Left padding leaves room for the icon, which rides as a background image so
      one pseudo-element can carry both the icon and the text. */
   padding: 0.1em 0.7em 0.1em 1.9em;

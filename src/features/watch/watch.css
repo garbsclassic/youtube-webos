@@ -9,12 +9,14 @@
   position: fixed;
   right: 0;
   top: 0;
-  margin: 1rem 2rem;
-  background-color: rgba(15, 15, 15, 0.3);
+  margin: 1rem 1.2rem;
+  background-color: rgba(16, 15, 15, 0.7);
   border-radius: 0.5rem;
-  padding: 0.4rem;
-  font-size: 1.2rem;
-  letter-spacing: 0.05rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 1.22rem;
+  font-weight: 300;
+  color: #dad8ce;
+  letter-spacing: 0.02rem;
   z-index: 1199;
   pointer-events: none;
 }
@@ -25,7 +27,7 @@
 }
 
 html.ytaf-oled .ytaf-watch {
-  background-color: #000;
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 /* WEB_PAGE_TYPE_WATCH: YouTube's own body class for the watch page (SELECTORS.WATCH_PAGE_CLASS). */

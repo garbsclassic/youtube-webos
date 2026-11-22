@@ -6,36 +6,17 @@
 html.ytaf-theme-red .ytaf-ui-container {
   --ytaf-accent: #f4ad5d;
   --ytaf-accent-rgb: 244, 173, 93;
-  --ytaf-accent-fill: #d09858;
+  --ytaf-accent2: #d09858;
+  --ytaf-accent2-rgb: 208, 152, 88;
 
-  --ytaf-bg: #1a1a1a;
-  --ytaf-bg-image: none;
-  --ytaf-border: #3f3f3f;
-  --ytaf-divider: #3f3f3f;
-  --ytaf-scrollbar-track: rgba(255, 255, 255, 0.05);
-
-  --ytaf-checkbox-bg: #2a2a2a;
-  --ytaf-checkbox-border: #4a4a4a;
-  --ytaf-checkbox-focus-border: var(--ytaf-accent);
-
-  --ytaf-row-focus-bg: rgba(var(--ytaf-accent-rgb), 0.1);
-  --ytaf-row-focus-ring: rgba(var(--ytaf-accent-rgb), 0.5);
-
-  --ytaf-tab-text: #aaaaaa;
-
-  --ytaf-section-title: #bbb;
-  --ytaf-small-border: #3f3f3f;
-
-  --ytaf-cycle-label: #e0e0e0;
   --ytaf-color-reset-bg: #4f4f4f;
   --ytaf-color-reset-border: #666666;
   --ytaf-color-input-border: #4a4a4a;
 }
 
 .ytaf-theme-red .ytaf-toast {
-  background: #1a1a1a;
-  border-color: #3f3f3f;
-  border-left-color: #f4ad5d;
+  border-color: rgba(244, 173, 93, 0.5);
+  border-left-color: var(--ytaf-accent);
 }
 
 /* The panel logo: the red one (OLED mode shows the dark one instead). */
