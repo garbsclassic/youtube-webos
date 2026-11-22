@@ -10,36 +10,36 @@ Modules: [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/bindings.js](
 
 > What each shortcut does. A `global` action runs anywhere, with nothing passed; the others run on a watch or Shorts page with a &lt;video>, which `run` receives. `burst` marks the seeks, which batch rapid presses instead of being debounced.
 
-85 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [core/selectors.js](core.md#mod-selectors-js), [core/page-state.js](core.md#mod-page-state-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/seek.js](#mod-seek-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/panels.js](#mod-panels-js), [ui/shortcuts/page.js](#mod-page-js), [ui/shortcuts/oled.js](#mod-oled-js), [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js) · imported by [ui/shortcuts/router.js](#mod-router-js)
+86 lines · imports [core/page-state.js](core.md#mod-page-state-js), [core/selectors.js](core.md#mod-selectors-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js), [features/sponsorblock/bootstrap.js](features-sponsorblock.md#mod-bootstrap-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/oled.js](#mod-oled-js), [ui/shortcuts/page.js](#mod-page-js), [ui/shortcuts/panels.js](#mod-panels-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/seek.js](#mod-seek-js) · imported by [ui/shortcuts/router.js](#mod-router-js)
 
 **At load:**
 
 - **Calls:** [ui/shortcuts/seek.js › skipChapter](#fn-seek-js-skipchapter), [ui/shortcuts/seek.js › performBurstSeek](#fn-seek-js-performburstseek), [ui/shortcuts/playback.js › playPause](#fn-playback-js-playpause), [features/playback-speed/index.js › stepSpeed](features-playback-speed.md#fn-index-js-stepspeed)
 
 <a id="fn-actions-js-withsponsorblock"></a>
-**`withSponsorBlock(fn)`** · function · L18–22
+**`withSponsorBlock(fn)`** · function · L19–23
 
 Runs `fn` with the live SponsorBlock handler, or says there is none.
 
 - **Calls:** [features/sponsorblock/bootstrap.js › getSponsorBlock](features-sponsorblock.md#fn-bootstrap-js-getsponsorblock), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
-- **Called by:** [ACTIONS.sb_skip_highlight.run](#fn-actions-js-actions-sb-manual-skip-run), [ACTIONS.sb_skip_prev.run](#fn-actions-js-actions-sb-skip-prev-run)
+- **Called by:** [ACTIONS.sb_skip_highlight.run](#fn-actions-js-actions-sb-skip-highlight-run), [ACTIONS.sb_skip_prev.run](#fn-actions-js-actions-sb-skip-prev-run)
 
 <a id="fn-actions-js-actions-config-menu-run"></a>
-**`ACTIONS.config_menu.run()`** · property · L30–34
+**`ACTIONS.config_menu.run()`** · property · L31–35
 
 Opens or closes the options panel, ending the OLED overlay first (it would cover the panel).
 
 - **Calls:** [ui/panel/panel.js › isOptionsPanelVisible](ui-panel.md#fn-panel-js-isoptionspanelvisible), [ui/panel/panel.js › showOptionsPanel](ui-panel.md#fn-panel-js-showoptionspanel), [ui/shortcuts/oled.js › isOledOverlayActive](#fn-oled-js-isoledoverlayactive), [ui/shortcuts/oled.js › toggleOledOverlay](#fn-oled-js-toggleoledoverlay)
 
 <a id="fn-actions-js-actions-refresh-page-run"></a>
-**`ACTIONS.refresh_page.run()`** · property · L41–44
+**`ACTIONS.refresh_page.run()`** · property · L42–45
 
 Soft-reloads the page, except on a player page, where it only says it cannot.
 
 - **Calls:** [core/page-state.js › isShortsPage](core.md#fn-page-state-js-isshortspage), [core/page-state.js › isWatchPage](core.md#fn-page-state-js-iswatchpage), [ui/shortcuts/page.js › refreshPage](#fn-page-js-refreshpage), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 
-<a id="fn-actions-js-actions-toggle-subs-run"></a>
-**`ACTIONS.toggle_subtitles.run()`** · property · L58–62
+<a id="fn-actions-js-actions-toggle-subtitles-run"></a>
+**`ACTIONS.toggle_subtitles.run()`** · property · L59–63
 
 The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.
 
@@ -48,14 +48,14 @@ The player lookup is here rather than in the router: only this action needs it, 
 - **Browser:** `querySelector`
 
 <a id="fn-actions-js-actions-sb-skip-prev-run"></a>
-**`ACTIONS.sb_skip_prev.run()`** · property · L69–72
+**`ACTIONS.sb_skip_prev.run()`** · property · L70–73
 
 Jumps back to the start of the last SponsorBlock segment passed.
 
 - **Calls:** [withSponsorBlock](#fn-actions-js-withsponsorblock), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
 
-<a id="fn-actions-js-actions-sb-manual-skip-run"></a>
-**`ACTIONS.sb_skip_highlight.run()`** · property · L76–79
+<a id="fn-actions-js-actions-sb-skip-highlight-run"></a>
+**`ACTIONS.sb_skip_highlight.run()`** · property · L77–80
 
 Skips the segment SponsorBlock is offering, or jumps to the highlight.
 
@@ -67,7 +67,7 @@ Skips the segment SponsorBlock is offering, or jumps to the highlight.
 
 > Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions.
 
-76 lines · imports [core/config.js](core.md#mod-config-js), [core/remote.js](core.md#mod-remote-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [core/config-options.js](core.md#mod-config-options-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/index.js](ui.md#mod-index-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/router.js](#mod-router-js)
+63 lines · imports [core/config.js](core.md#mod-config-js), [core/config-options.js](core.md#mod-config-options-js), [core/remote.js](core.md#mod-remote-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/index.js](ui.md#mod-index-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/router.js](#mod-router-js)
 
 **At load:**
 
@@ -75,16 +75,16 @@ Skips the segment SponsorBlock is offering, or jumps to the highlight.
 - **Settings:** listens to `shortcut_key_*`
 
 <a id="fn-bindings-js-updateshortcutcache"></a>
-**`updateShortcutCache(key)`** · function · L26–40
+**`updateShortcutCache(key)`** · function · L22–32
 
-Reads one binding. A renamed action is stored under its new name. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.
+Reads one binding. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.
 
 - **Calls:** [core/config.js › configRead](core.md#fn-config-js-configread), [core/config.js › configWrite](core.md#fn-config-js-configwrite)
 - **Called by:** [at load](#mod-bindings-js)
 - **Settings:** uses `shortcut_key_*`
 
 <a id="fn-bindings-js-ensuremenukey"></a>
-**`ensureMenuKey(announce)`** · function, exported · L53–60
+**`ensureMenuKey(announce)`** · function, exported · L45–52
 
 The settings must stay reachable: with no key bound to the menu, Green is bound to it again, said with `announce`. The key that opens the menu, and whether Green was just bound to it. Run at the start and whenever the panel closes (a binding changed on it may have unbound the menu).
 
@@ -93,7 +93,7 @@ The settings must stay reachable: with no key bound to the menu, Green is bound 
 - **Settings:** writes `shortcut_key_green`
 
 <a id="fn-bindings-js-getkeycolor"></a>
-**`getKeyColor(code)`** · arrow, exported · L63–63
+**`getKeyColor(code)`** · arrow, exported · L55–55
 
 Colour-key code to name, alternates included, from REMOTE_KEYS in core/remote.js.
 
@@ -167,7 +167,7 @@ Clicks a YouTube button, and calls its component's onSelect() when it has one.
 
 > The OLED black overlay, with a keep-alive so the TV does not sleep under it.
 
-37 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [core/remote.js](core.md#mod-remote-js), [ui/dom.js](ui.md#mod-dom-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/router.js](#mod-router-js)
+37 lines · imports [core/remote.js](core.md#mod-remote-js), [ui/dom.js](ui.md#mod-dom-js), [ui/toast/index.js](ui-toast.md#mod-index-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/router.js](#mod-router-js)
 
 <a id="fn-oled-js-isoledoverlayactive"></a>
 **`isOledOverlayActive()`** · function, exported · L13–15
@@ -282,7 +282,7 @@ Opens or closes the Save (Watch Later, playlists) dialog.
 Turns the captions on (the first track) or off through the player's API, or by pressing the captions button when the API has no answer; a toast says the result.
 
 - **Calls:** [ui/shortcuts/helpers.js › announcePressed](#fn-helpers-js-announcepressed), [ui/shortcuts/helpers.js › triggerInternal](#fn-helpers-js-triggerinternal), [ui/toast/index.js › showNotification](ui-toast.md#fn-index-js-shownotification)
-- **Called by:** [ui/shortcuts/actions.js › ACTIONS.toggle_subtitles.run](#fn-actions-js-actions-toggle-subs-run)
+- **Called by:** [ui/shortcuts/actions.js › ACTIONS.toggle_subtitles.run](#fn-actions-js-actions-toggle-subtitles-run)
 - **Selectors:** `CAPTIONS_BUTTON`, `CAPTIONS_BUTTON_LEGACY`
 - **Browser:** `querySelector`
 
@@ -379,10 +379,10 @@ Ends a swallowed Back hold; its keyup does not reach YouTube either.
 
 > Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump.
 
-178 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [core/selectors.js](core.md#mod-selectors-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
+179 lines · imports [core/dom.js](core.md#mod-dom-js), [core/page-state.js](core.md#mod-page-state-js), [core/remote.js](core.md#mod-remote-js), [core/selectors.js](core.md#mod-selectors-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
 
 <a id="fn-seek-js-getchapterels"></a>
-**`getChapterEls()`** · function · L27–37
+**`getChapterEls()`** · function · L28–38
 
 The chapter markers on the progress bar, empty until the player UI has drawn them; the track's other children (the playhead, the buffer) are left out.
 
@@ -391,7 +391,7 @@ The chapter markers on the progress bar, empty until the player UI has drawn the
 - **Browser:** `querySelector`
 
 <a id="fn-seek-js-dismissforcedui"></a>
-**`dismissForcedUI()`** · arrow · L40–40
+**`dismissForcedUI()`** · arrow · L41–41
 
 The player UI was forced open for the markers; close it again once the seek is in.
 
@@ -400,7 +400,7 @@ The player UI was forced open for the markers; close it again once the seek is i
 - **Browser:** `setTimeout`
 
 <a id="fn-seek-js-skipchapter"></a>
-**`skipChapter(direction)`** · function, async, exported · L48–56
+**`skipChapter(direction)`** · function, async, exported · L49–57
 
 Skips to the next or previous chapter; one skip at a time, never on Shorts.
 
@@ -408,21 +408,21 @@ Skips to the next or previous chapter; one skip at a time, never on Shorts.
 - **Called by:** [ui/shortcuts/actions.js (at load)](#mod-actions-js)
 
 <a id="fn-seek-js-readchapters"></a>
-**`readChapters(chapterEls)`** · function · L59–68
+**`readChapters(chapterEls)`** · function · L60–69
 
 The chapter widths off the bar's markers, and their sum (0 when none has a width).
 
 - **Called by:** [doSkipChapter](#fn-seek-js-doskipchapter)
 
 <a id="fn-seek-js-pickchaptertarget"></a>
-**`pickChapterTarget(chapters, duration, currentTime, direction)`** · function · L75–95
+**`pickChapterTarget(chapters, duration, currentTime, direction)`** · function · L76–96
 
 Where the skip lands, or -1: forward, the first chapter starting more than a second past the playhead; back, the start of the current chapter, or of the one before it within the first three seconds of the current one.
 
 - **Called by:** [doSkipChapter](#fn-seek-js-doskipchapter)
 
 <a id="fn-seek-js-doskipchapter"></a>
-**`doSkipChapter(direction)`** · function, async · L101–143
+**`doSkipChapter(direction)`** · function, async · L102–144
 
 Reads the chapters from the progress bar (showing the player UI first when they are not rendered), then seeks to the next or previous one.
 
@@ -431,7 +431,7 @@ Reads the chapters from the progress bar (showing the player UI first when they 
 - **Browser:** `setTimeout`
 
 <a id="fn-seek-js-performburstseek"></a>
-**`performBurstSeek(seconds, video)`** · function, exported · L153–178
+**`performBurstSeek(seconds, video)`** · function, exported · L154–179
 
 One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.
 

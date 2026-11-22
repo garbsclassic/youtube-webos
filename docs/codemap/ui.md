@@ -51,7 +51,7 @@ Hides them for `ms` (a second call extends the window); returns showControls.
 
 > The settings UI and remote shortcuts: the panel (panel/), the shortcut router (shortcuts/), the &lt;html> classes behind the themes (styles/), the toasts (toast/). This file keeps the settings reachable and greets the user; the features themselves start in userScript.js.
 
-17 lines · imports [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/shortcuts/router.js](ui-shortcuts.md#mod-router-js), [ui/styles/html-classes.js](ui-styles.md#mod-html-classes-js) · imported by [userScript.js](app.md#mod-userscript-js)
+18 lines · imports [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/router.js](ui-shortcuts.md#mod-router-js), [ui/styles/html-classes.js](ui-styles.md#mod-html-classes-js) · imported by [userScript.js](app.md#mod-userscript-js)
 
 **At load:**
 

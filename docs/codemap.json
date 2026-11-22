@@ -2181,9 +2181,27 @@
   },
   {
    "path": "features/playback-speed/controller.js",
-   "lines": 239,
+   "lines": 240,
    "header": "The playback speed: what it is, changing it, and the audio engine that plays the sound at it. A change reloads the video (loadVideoById at the current position): the engine decides a MediaSource's speed once, when YouTube creates its buffers (vendor/playback-speed/mse-hook.js). Rapid changes within RELOAD_DELAY_MS are one reload.",
    "imports": [
+    {
+     "from": "core/config.js",
+     "names": [
+      "configRead"
+     ]
+    },
+    {
+     "from": "core/player-state.js",
+     "names": [
+      "PLAYER_STATE"
+     ]
+    },
+    {
+     "from": "core/speed-cap.js",
+     "names": [
+      "setQualityCappedBySpeed"
+     ]
+    },
     {
      "from": "vendor/playback-speed/audio-engine.js",
      "names": [
@@ -2195,24 +2213,6 @@
      "names": [
       "isSupportedSpeed",
       "SUPPORTED_SPEEDS"
-     ]
-    },
-    {
-     "from": "core/config.js",
-     "names": [
-      "configRead"
-     ]
-    },
-    {
-     "from": "core/speed-cap.js",
-     "names": [
-      "setQualityCappedBySpeed"
-     ]
-    },
-    {
-     "from": "core/player-state.js",
-     "names": [
-      "PLAYER_STATE"
      ]
     },
     {
@@ -2439,32 +2439,39 @@
    ]
   },
   {
-    "path": "features/screensaver-fix/decoder-stall.js",
-    "lines": 75,
-    "header": "Frozen video after a video screensaver. When a video sits paused long enough for the TV's screensaver to start, a video screensaver (Aerial, the gallery) can take the hardware decoder from the paused <video> without the page hearing of it. Pressing play then fires 'playing' with data ready, but no frame decodes and the clock stands still, until YouTube's own stall watchdog rebuilds the player some 20s later. A seek to where the video already is makes the stale pipeline fail at once, and YouTube rebuilds it within a few seconds.\n\nOnly a resume after a long pause is checked, once: first plays, short pauses, rebuffering and seeking are left alone, and the nudge's own 'playing' (after the seek) is not checked again, so it cannot loop. A pause or another 'playing' in the meantime cancels a pending check.",
-    "imports": [
-      {
-        "from": "features/screensaver-fix/log.js",
-        "names": ["log"]
-      }
+   "path": "features/screensaver-fix/decoder-stall.js",
+   "lines": 75,
+   "header": "Frozen video after a video screensaver. When a video sits paused long enough for the TV's screensaver to start, a video screensaver (Aerial, the gallery) can take the hardware decoder from the paused <video> without the page hearing of it. Pressing play then fires 'playing' with data ready, but no frame decodes and the clock stands still, until YouTube's own stall watchdog rebuilds the player some 20s later. A seek to where the video already is makes the stale pipeline fail at once, and YouTube rebuilds it within a few seconds.\n\nOnly a resume after a long pause is checked, once: first plays, short pauses, rebuffering and seeking are left alone, and the nudge's own 'playing' (after the seek) is not checked again, so it cannot loop. A pause or another 'playing' in the meantime cancels a pending check.",
+   "imports": [
+    {
+     "from": "features/screensaver-fix/log.js",
+     "names": [
+      "log"
+     ]
+    }
+   ],
+   "importedBy": [
+    "features/screensaver-fix/index.js"
+   ],
+   "exports": [],
+   "atLoad": {
+    "calls": [
+     "features/screensaver-fix/decoder-stall.js#onPause",
+     "features/screensaver-fix/decoder-stall.js#onPlaying"
     ],
-    "importedBy": ["features/screensaver-fix/index.js"],
-    "exports": [],
-    "atLoad": {
-      "calls": [
-        "features/screensaver-fix/decoder-stall.js#onPause",
-        "features/screensaver-fix/decoder-stall.js#onPlaying"
-      ],
-      "events": {
-        "listen": ["pause", "playing"]
-      }
-    },
-    "functions": [
-      "features/screensaver-fix/decoder-stall.js#cancelPending",
-      "features/screensaver-fix/decoder-stall.js#onPause",
-      "features/screensaver-fix/decoder-stall.js#checkFrozen",
-      "features/screensaver-fix/decoder-stall.js#onPlaying"
-    ]
+    "events": {
+     "listen": [
+      "pause",
+      "playing"
+     ]
+    }
+   },
+   "functions": [
+    "features/screensaver-fix/decoder-stall.js#cancelPending",
+    "features/screensaver-fix/decoder-stall.js#onPause",
+    "features/screensaver-fix/decoder-stall.js#checkFrozen",
+    "features/screensaver-fix/decoder-stall.js#onPlaying"
+   ]
   },
   {
    "path": "features/screensaver-fix/index.js",
@@ -2571,31 +2578,46 @@
    "functions": []
   },
   {
-    "path": "features/screensaver-fix/shorts-keep-alive.js",
-    "lines": 56,
-    "header": "On Shorts the player never fills the screen, so a synthetic YELLOW press every 30s keeps the screensaver away while a video is actually playing.",
-    "imports": [
-      {
-        "from": "core/selectors.js",
-        "names": ["SELECTORS"]
-      },
-      {
-        "from": "core/remote.js",
-        "names": ["sendKey", "REMOTE_KEYS"]
-      },
-      {
-        "from": "features/screensaver-fix/log.js",
-        "names": ["log"]
-      },
-      {
-        "from": "core/player-state.js",
-        "names": ["PLAYER_STATE"]
-      }
-    ],
-    "importedBy": ["features/screensaver-fix/index.js"],
-    "exports": ["setShortsKeepAlive"],
-    "atLoad": {},
-    "functions": ["features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive"]
+   "path": "features/screensaver-fix/shorts-keep-alive.js",
+   "lines": 57,
+   "header": "On Shorts the player never fills the screen, so a synthetic YELLOW press every 30s keeps the screensaver away while a video is actually playing.",
+   "imports": [
+    {
+     "from": "core/player-state.js",
+     "names": [
+      "PLAYER_STATE"
+     ]
+    },
+    {
+     "from": "core/remote.js",
+     "names": [
+      "REMOTE_KEYS",
+      "sendKey"
+     ]
+    },
+    {
+     "from": "core/selectors.js",
+     "names": [
+      "SELECTORS"
+     ]
+    },
+    {
+     "from": "features/screensaver-fix/log.js",
+     "names": [
+      "log"
+     ]
+    }
+   ],
+   "importedBy": [
+    "features/screensaver-fix/index.js"
+   ],
+   "exports": [
+    "setShortsKeepAlive"
+   ],
+   "atLoad": {},
+   "functions": [
+    "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive"
+   ]
   },
   {
    "path": "features/sponsorblock/api.js",
@@ -4822,19 +4844,19 @@
   },
   {
    "path": "ui/index.js",
-   "lines": 17,
+   "lines": 18,
    "header": "The settings UI and remote shortcuts: the panel (panel/), the shortcut router (shortcuts/), the <html> classes behind the themes (styles/), the toasts (toast/). This file keeps the settings reachable and greets the user; the features themselves start in userScript.js.",
    "imports": [
-    {
-     "from": "ui/toast/index.js",
-     "names": [
-      "showNotification"
-     ]
-    },
     {
      "from": "ui/shortcuts/bindings.js",
      "names": [
       "ensureMenuKey"
+     ]
+    },
+    {
+     "from": "ui/toast/index.js",
+     "names": [
+      "showNotification"
      ]
     },
     {
@@ -5347,85 +5369,125 @@
   },
   {
    "path": "ui/shortcuts/actions.js",
-  "lines": 85,
-  "header": "What each shortcut does. A `global` action runs anywhere, with nothing passed; the others run on a watch or Shorts page with a <video>, which `run` receives. `burst` marks the seeks, which batch rapid presses instead of being debounced.",
-  "imports": [
+   "lines": 86,
+   "header": "What each shortcut does. A `global` action runs anywhere, with nothing passed; the others run on a watch or Shorts page with a <video>, which `run` receives. `burst` marks the seeks, which batch rapid presses instead of being debounced.",
+   "imports": [
     {
-      "from": "ui/toast/index.js",
-      "names": ["showNotification"]
+     "from": "core/page-state.js",
+     "names": [
+      "isShortsPage",
+      "isWatchPage"
+     ]
     },
     {
-      "from": "core/selectors.js",
-      "names": ["SELECTORS"]
+     "from": "core/selectors.js",
+     "names": [
+      "SELECTORS"
+     ]
     },
     {
-      "from": "core/page-state.js",
-      "names": ["isWatchPage", "isShortsPage"]
+     "from": "features/playback-speed/index.js",
+     "names": [
+      "resetSpeed",
+      "stepSpeed"
+     ]
     },
     {
-      "from": "ui/panel/panel.js",
-      "names": ["showOptionsPanel", "isOptionsPanelVisible"]
+     "from": "features/sponsorblock/bootstrap.js",
+     "names": [
+      "getSponsorBlock"
+     ]
     },
     {
-      "from": "ui/shortcuts/seek.js",
-      "names": ["skipChapter", "performBurstSeek"]
+     "from": "ui/panel/panel.js",
+     "names": [
+      "isOptionsPanelVisible",
+      "showOptionsPanel"
+     ]
     },
     {
-      "from": "ui/shortcuts/playback.js",
-      "names": ["playPause", "toggleSubtitles"]
+     "from": "ui/toast/index.js",
+     "names": [
+      "showNotification"
+     ]
     },
     {
-      "from": "ui/shortcuts/panels.js",
-      "names": ["toggleComments", "toggleDescription", "saveToPlaylist"]
+     "from": "ui/shortcuts/oled.js",
+     "names": [
+      "isOledOverlayActive",
+      "toggleOledOverlay"
+     ]
     },
     {
-      "from": "ui/shortcuts/page.js",
-      "names": ["refreshPage"]
+     "from": "ui/shortcuts/page.js",
+     "names": [
+      "refreshPage"
+     ]
     },
     {
-      "from": "ui/shortcuts/oled.js",
-      "names": ["toggleOledOverlay", "isOledOverlayActive"]
+     "from": "ui/shortcuts/panels.js",
+     "names": [
+      "saveToPlaylist",
+      "toggleComments",
+      "toggleDescription"
+     ]
     },
     {
-      "from": "features/sponsorblock/bootstrap.js",
-      "names": ["getSponsorBlock"]
+     "from": "ui/shortcuts/playback.js",
+     "names": [
+      "playPause",
+      "toggleSubtitles"
+     ]
     },
     {
-      "from": "features/playback-speed/index.js",
-      "names": ["stepSpeed", "resetSpeed"]
+     "from": "ui/shortcuts/seek.js",
+     "names": [
+      "performBurstSeek",
+      "skipChapter"
+     ]
     }
-  ],
-  "importedBy": ["ui/shortcuts/router.js"],
-  "exports": ["ACTIONS"],
-  "atLoad": {
+   ],
+   "importedBy": [
+    "ui/shortcuts/router.js"
+   ],
+   "exports": [
+    "ACTIONS"
+   ],
+   "atLoad": {
     "calls": [
-      "ui/shortcuts/seek.js#skipChapter",
-      "ui/shortcuts/seek.js#performBurstSeek",
-      "ui/shortcuts/playback.js#playPause",
-      "features/playback-speed/index.js#stepSpeed"
+     "ui/shortcuts/seek.js#skipChapter",
+     "ui/shortcuts/seek.js#performBurstSeek",
+     "ui/shortcuts/playback.js#playPause",
+     "features/playback-speed/index.js#stepSpeed"
     ]
-  },
-  "functions": [
+   },
+   "functions": [
     "ui/shortcuts/actions.js#withSponsorBlock",
     "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
     "ui/shortcuts/actions.js#ACTIONS.refresh_page.run",
     "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run",
     "ui/shortcuts/actions.js#ACTIONS.sb_skip_prev.run",
     "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run"
-  ]
+   ]
   },
   {
    "path": "ui/shortcuts/bindings.js",
-   "lines": 76,
+   "lines": 63,
    "header": "Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions.",
    "imports": [
     {
      "from": "core/config.js",
      "names": [
+      "configAddChangeListener",
       "configRead",
       "configWrite",
-      "configAddChangeListener",
       "shortcutActions"
+     ]
+    },
+    {
+     "from": "core/config-options.js",
+     "names": [
+      "SHORTCUT_KEYS"
      ]
     },
     {
@@ -5438,12 +5500,6 @@
      "from": "ui/toast/index.js",
      "names": [
       "showNotification"
-     ]
-    },
-    {
-     "from": "core/config-options.js",
-     "names": [
-      "SHORTCUT_KEYS"
      ]
     },
     {
@@ -5572,22 +5628,22 @@
      "names": []
     },
     {
-     "from": "ui/toast/index.js",
-     "names": [
-      "showNotification"
-     ]
-    },
-    {
      "from": "core/remote.js",
      "names": [
-      "sendKey",
-      "REMOTE_KEYS"
+      "REMOTE_KEYS",
+      "sendKey"
      ]
     },
     {
      "from": "ui/dom.js",
      "names": [
       "createElement"
+     ]
+    },
+    {
+     "from": "ui/toast/index.js",
+     "names": [
+      "showNotification"
      ]
     }
    ],
@@ -5834,20 +5890,13 @@
   },
   {
    "path": "ui/shortcuts/seek.js",
-   "lines": 178,
+   "lines": 179,
    "header": "Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump.",
    "imports": [
     {
-     "from": "ui/toast/index.js",
+     "from": "core/dom.js",
      "names": [
-      "showNotification"
-     ]
-    },
-    {
-     "from": "core/remote.js",
-     "names": [
-      "sendKey",
-      "REMOTE_KEYS"
+      "getVideo"
      ]
     },
     {
@@ -5857,21 +5906,28 @@
      ]
     },
     {
-     "from": "core/dom.js",
+     "from": "core/remote.js",
      "names": [
-      "getVideo"
-     ]
-    },
-    {
-     "from": "ui/shortcuts/helpers.js",
-     "names": [
-      "simulateBack"
+      "REMOTE_KEYS",
+      "sendKey"
      ]
     },
     {
      "from": "core/selectors.js",
      "names": [
       "SELECTORS"
+     ]
+    },
+    {
+     "from": "ui/toast/index.js",
+     "names": [
+      "showNotification"
+     ]
+    },
+    {
+     "from": "ui/shortcuts/helpers.js",
+     "names": [
+      "simulateBack"
      ]
     },
     {
@@ -11606,7 +11662,7 @@
     22,
     30
    ],
-   "description": "Applies Force Previews 2.5s after start, once YouTube's own start-up has written its value.",
+   "description": "Applies Force Previews 2.5 s after start, once YouTube's own start-up has written its value.",
    "calls": [
     "core/config.js#configRead",
     "features/auto-login/previews.js#setInlinePlayback"
@@ -12398,10 +12454,10 @@
    "params": "player, at, capped",
    "exported": false,
    "lines": [
-    31,
-    50
+    32,
+    51
    ],
-   "description": "On webOS 25 loadVideoById(id, at) starts up to ~25s before `at`, even at 1x: once the reloaded video plays it is sent back to `at`. When `capped()` the 1080p cap is set again then too: the reload drops it, and YouTube then falls to 480p on a 60 fps video (the frames a 60 Hz screen cannot show count as dropped).",
+   "description": "On webOS 25 loadVideoById(id, at) starts up to ~25 s before `at`, even at 1x: once the reloaded video plays it is sent back to `at`. When `capped()` the 1080p cap is set again then too: the reload drops it, and YouTube then falls to 480p on a 60 fps video (the frames a 60 Hz screen cannot show count as dropped).",
    "browser": [
     "setInterval"
    ],
@@ -12416,8 +12472,8 @@
    "params": "onError",
    "exported": false,
    "lines": [
-    58,
-    90
+    59,
+    91
    ],
    "description": "The audio engines, one at a time: `create({ speed, element })` starts one for a new MediaSource at `speed`, playing along with `element` (its volume and mute followed), and stops the previous one; `release()` stops it. `onError` is the engine's: a video it cannot play.",
    "calledBy": [
@@ -12431,8 +12487,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    62,
-    67
+    63,
+    68
    ],
    "description": "Stops the engine of the previous MediaSource, if one is playing.",
    "calledBy": [
@@ -12446,8 +12502,8 @@
    "params": "{ speed, element }",
    "exported": false,
    "lines": [
-    70,
-    84
+    71,
+    85
    ],
    "description": "A new engine for a MediaSource at `speed`, following `element`'s volume.",
    "calls": [
@@ -12468,8 +12524,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    77,
-    77
+    78,
+    78
    ],
    "description": "Follows the <video>'s volume and mute.",
    "calledBy": [
@@ -12483,8 +12539,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    87,
-    87
+    88,
+    88
    ],
    "description": "The engine playing, or null."
   },
@@ -12495,8 +12551,8 @@
    "params": "{ getPlayer, notify, isOn, isSupported }",
    "exported": true,
    "lines": [
-    97,
-    239
+    98,
+    240
    ],
    "description": "The controller: `getPlayer()` is YouTube's player element (or null), `notify(text)` shows a toast, `isOn()` whether the setting is on, and `isSupported()` whether this TV can (WebCodecs' AudioDecoder).",
    "calls": [
@@ -12514,8 +12570,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    105,
-    105
+    106,
+    106
    ],
    "description": "The speed in effect: 1 while the setting is off or the TV cannot."
   },
@@ -12526,8 +12582,8 @@
    "params": "speed",
    "exported": false,
    "lines": [
-    108,
-    111
+    109,
+    112
    ],
    "description": "Records a new speed, and whether it holds the video at 1080p (core/speed-cap.js).",
    "calls": [
@@ -12546,8 +12602,8 @@
    "params": "player",
    "exported": false,
    "lines": [
-    114,
-    120
+    115,
+    121
    ],
    "description": "The player's position in seconds, 0 when it cannot say.",
    "calledBy": [
@@ -12561,8 +12617,8 @@
    "params": "{ position: at, fromSpeed }",
    "exported": false,
    "lines": [
-    123,
-    153
+    124,
+    154
    ],
    "description": "Reloads the video at the new speed, unless the burst came back to where it started.",
    "calls": [
@@ -12588,8 +12644,8 @@
    "params": "fromSpeed, immediate",
    "exported": false,
    "lines": [
-    156,
-    172
+    157,
+    173
    ],
    "description": "Reloads RELOAD_DELAY_MS from now (at once with `immediate`), keeping the burst's start.",
    "calls": [
@@ -12612,8 +12668,8 @@
    "params": "speed, { immediate = false }",
    "exported": false,
    "lines": [
-    179,
-    193
+    180,
+    194
    ],
    "description": "Plays at `speed` (one of SUPPORTED_SPEEDS): says so, and reloads (at once with `immediate`, for a pick from YouTube's menu). Says why not when the setting is off or the TV cannot.",
    "calls": [
@@ -12633,8 +12689,8 @@
    "params": "dir",
    "exported": false,
    "lines": [
-    196,
-    201
+    197,
+    202
    ],
    "description": "One step up (dir >= 0) or down the speeds, stopping at the ends.",
    "calls": [
@@ -12648,8 +12704,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    204,
-    206
+    205,
+    207
    ],
    "description": "Back to 1x.",
    "calls": [
@@ -12663,8 +12719,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    209,
-    214
+    210,
+    215
    ],
    "description": "The setting was turned off: back to 1x at once, not on the next video.",
    "calls": [
@@ -12679,8 +12735,8 @@
    "params": "e",
    "exported": false,
    "lines": [
-    217,
-    224
+    218,
+    225
    ],
    "description": "The engine cannot play this video (an audio codec WebCodecs lacks): back to 1x.",
    "calls": [
@@ -12698,8 +12754,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    237,
-    237
+    238,
+    238
    ],
    "description": "When the last speed change reloaded the video (Date.now()), 0 before any."
   },
@@ -13202,17 +13258,29 @@
    ]
   },
   {
-    "id": "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive",
-    "name": "setShortsKeepAlive",
-    "kind": "function",
-    "params": "enable",
-    "exported": true,
-    "lines": [15, 56],
-    "description": "Starts (or stops) the Shorts keep-alive: every 30s while a Short plays, a yellow key press keeps the TV's screensaver away.",
-    "calls": ["core/remote.js#sendKey"],
-    "selectors": ["PLAYER_ID"],
-    "browser": ["setInterval", "setTimeout"],
-    "calledBy": ["features/screensaver-fix/index.js#updateState"]
+   "id": "features/screensaver-fix/shorts-keep-alive.js#setShortsKeepAlive",
+   "name": "setShortsKeepAlive",
+   "kind": "function",
+   "params": "enable",
+   "exported": true,
+   "lines": [
+    16,
+    57
+   ],
+   "description": "Starts (or stops) the Shorts keep-alive: every 30s while a Short plays, a yellow key press keeps the TV's screensaver away.",
+   "calls": [
+    "core/remote.js#sendKey"
+   ],
+   "selectors": [
+    "PLAYER_ID"
+   ],
+   "browser": [
+    "setInterval",
+    "setTimeout"
+   ],
+   "calledBy": [
+    "features/screensaver-fix/index.js#updateState"
+   ]
   },
   {
    "id": "features/sponsorblock/api.js#isWellFormedSegment",
@@ -18278,21 +18346,24 @@
    ]
   },
   {
-    "id": "ui/panel/keyboard.js#swallowUntilReleased.release",
-    "name": "swallowUntilReleased.release",
-    "kind": "arrow",
-    "params": "",
-    "exported": false,
-    "lines": [30, 34],
-    "description": "Stops swallowing: both listeners and the 2s safety timer go.",
-    "calls": [
-      "ui/panel/keyboard.js#swallowUntilReleased.onDown",
-      "ui/panel/keyboard.js#swallowUntilReleased.onUp"
-    ],
-    "calledBy": [
-      "ui/panel/keyboard.js#swallowUntilReleased",
-      "ui/panel/keyboard.js#swallowUntilReleased.onUp"
-    ]
+   "id": "ui/panel/keyboard.js#swallowUntilReleased.release",
+   "name": "swallowUntilReleased.release",
+   "kind": "arrow",
+   "params": "",
+   "exported": false,
+   "lines": [
+    30,
+    34
+   ],
+   "description": "Stops swallowing: both listeners and the 2s safety timer go.",
+   "calls": [
+    "ui/panel/keyboard.js#swallowUntilReleased.onDown",
+    "ui/panel/keyboard.js#swallowUntilReleased.onUp"
+   ],
+   "calledBy": [
+    "ui/panel/keyboard.js#swallowUntilReleased",
+    "ui/panel/keyboard.js#swallowUntilReleased.onUp"
+   ]
   },
   {
    "id": "ui/panel/keyboard.js#swallowUntilReleased.onUp",
@@ -19097,20 +19168,23 @@
   },
   {
    "id": "ui/shortcuts/actions.js#withSponsorBlock",
-  "name": "withSponsorBlock",
-  "kind": "function",
-  "params": "fn",
-  "exported": false,
-  "lines": [18, 22],
-  "description": "Runs `fn` with the live SponsorBlock handler, or says there is none.",
-  "calls": [
+   "name": "withSponsorBlock",
+   "kind": "function",
+   "params": "fn",
+   "exported": false,
+   "lines": [
+    19,
+    23
+   ],
+   "description": "Runs `fn` with the live SponsorBlock handler, or says there is none.",
+   "calls": [
     "features/sponsorblock/bootstrap.js#getSponsorBlock",
     "ui/toast/index.js#showNotification"
-  ],
-  "calledBy": [
+   ],
+   "calledBy": [
     "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run",
     "ui/shortcuts/actions.js#ACTIONS.sb_skip_prev.run"
-  ]
+   ]
   },
   {
    "id": "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
@@ -19119,8 +19193,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    30,
-    34
+    31,
+    35
    ],
    "description": "Opens or closes the options panel, ending the OLED overlay first (it would cover the panel).",
    "calls": [
@@ -19137,8 +19211,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    41,
-    44
+    42,
+    45
    ],
    "description": "Soft-reloads the page, except on a player page, where it only says it cannot.",
    "calls": [
@@ -19149,16 +19223,26 @@
    ]
   },
   {
-    "id": "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run",
-    "name": "ACTIONS.toggle_subtitles.run",
-    "kind": "property",
-    "params": "",
-    "exported": false,
-    "lines": [58, 62],
-    "description": "The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.",
-    "calls": ["ui/shortcuts/playback.js#toggleSubtitles"],
-    "selectors": ["PLAYER_ID", "HTML5_PLAYER_FALLBACK"],
-    "browser": ["querySelector"]
+   "id": "ui/shortcuts/actions.js#ACTIONS.toggle_subtitles.run",
+   "name": "ACTIONS.toggle_subtitles.run",
+   "kind": "property",
+   "params": "",
+   "exported": false,
+   "lines": [
+    59,
+    63
+   ],
+   "description": "The player lookup is here rather than in the router: only this action needs it, and the fallback is a full-document class-selector walk.",
+   "calls": [
+    "ui/shortcuts/playback.js#toggleSubtitles"
+   ],
+   "selectors": [
+    "PLAYER_ID",
+    "HTML5_PLAYER_FALLBACK"
+   ],
+   "browser": [
+    "querySelector"
+   ]
   },
   {
    "id": "ui/shortcuts/actions.js#ACTIONS.sb_skip_prev.run",
@@ -19167,8 +19251,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    69,
-    72
+    70,
+    73
    ],
    "description": "Jumps back to the start of the last SponsorBlock segment passed.",
    "calls": [
@@ -19177,14 +19261,20 @@
    ]
   },
   {
-    "id": "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run",
-    "name": "ACTIONS.sb_skip_highlight.run",
-    "kind": "property",
-    "params": "",
-    "exported": false,
-    "lines": [76, 79],
-    "description": "Skips the segment SponsorBlock is offering, or jumps to the highlight.",
-    "calls": ["ui/shortcuts/actions.js#withSponsorBlock", "ui/toast/index.js#showNotification"]
+   "id": "ui/shortcuts/actions.js#ACTIONS.sb_skip_highlight.run",
+   "name": "ACTIONS.sb_skip_highlight.run",
+   "kind": "property",
+   "params": "",
+   "exported": false,
+   "lines": [
+    77,
+    80
+   ],
+   "description": "Skips the segment SponsorBlock is offering, or jumps to the highlight.",
+   "calls": [
+    "ui/shortcuts/actions.js#withSponsorBlock",
+    "ui/toast/index.js#showNotification"
+   ]
   },
   {
    "id": "ui/shortcuts/bindings.js#updateShortcutCache",
@@ -19193,10 +19283,10 @@
    "params": "key",
    "exported": false,
    "lines": [
-    26,
-    40
+    22,
+    32
    ],
-   "description": "Reads one binding. A renamed action is stored under its new name. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.",
+   "description": "Reads one binding. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.",
    "calls": [
     "core/config.js#configRead",
     "core/config.js#configWrite"
@@ -19217,8 +19307,8 @@
    "params": "announce",
    "exported": true,
    "lines": [
-    53,
-    60
+    45,
+    52
    ],
    "description": "The settings must stay reachable: with no key bound to the menu, Green is bound to it again, said with `announce`. The key that opens the menu, and whether Green was just bound to it. Run at the start and whenever the panel closes (a binding changed on it may have unbound the menu).",
    "calls": [
@@ -19242,8 +19332,8 @@
    "params": "code",
    "exported": true,
    "lines": [
-    63,
-    63
+    55,
+    55
    ],
    "description": "Colour-key code to name, alternates included, from REMOTE_KEYS in core/remote.js.",
    "calledBy": [
@@ -19367,23 +19457,29 @@
    ]
   },
   {
-    "id": "ui/shortcuts/oled.js#toggleOledOverlay",
-    "name": "toggleOledOverlay",
-    "kind": "function",
-    "params": "",
-    "exported": true,
-    "lines": [18, 37],
-    "description": "The OLED black overlay with its keep-alive, toggled by the toggle_oled shortcut.",
-    "calls": [
-      "core/remote.js#sendKey",
-      "ui/dom.js#createElement",
-      "ui/toast/index.js#showNotification"
-    ],
-    "browser": ["setInterval", "setTimeout"],
-    "calledBy": [
-      "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
-      "ui/shortcuts/router.js#onKeyDown"
-    ]
+   "id": "ui/shortcuts/oled.js#toggleOledOverlay",
+   "name": "toggleOledOverlay",
+   "kind": "function",
+   "params": "",
+   "exported": true,
+   "lines": [
+    18,
+    37
+   ],
+   "description": "The OLED black overlay with its keep-alive, toggled by the toggle_oled shortcut.",
+   "calls": [
+    "core/remote.js#sendKey",
+    "ui/dom.js#createElement",
+    "ui/toast/index.js#showNotification"
+   ],
+   "browser": [
+    "setInterval",
+    "setTimeout"
+   ],
+   "calledBy": [
+    "ui/shortcuts/actions.js#ACTIONS.config_menu.run",
+    "ui/shortcuts/router.js#onKeyDown"
+   ]
   },
   {
    "id": "ui/shortcuts/page.js#refreshPage",
@@ -19777,8 +19873,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    27,
-    37
+    28,
+    38
    ],
    "description": "The chapter markers on the progress bar, empty until the player UI has drawn them; the track's other children (the playhead, the buffer) are left out.",
    "selectors": [
@@ -19799,8 +19895,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    40,
-    40
+    41,
+    41
    ],
    "description": "The player UI was forced open for the markers; close it again once the seek is in.",
    "calls": [
@@ -19820,8 +19916,8 @@
    "params": "direction",
    "exported": true,
    "lines": [
-    48,
-    56
+    49,
+    57
    ],
    "description": "Skips to the next or previous chapter; one skip at a time, never on Shorts.",
    "calls": [
@@ -19839,8 +19935,8 @@
    "params": "chapterEls",
    "exported": false,
    "lines": [
-    59,
-    68
+    60,
+    69
    ],
    "description": "The chapter widths off the bar's markers, and their sum (0 when none has a width).",
    "calledBy": [
@@ -19854,8 +19950,8 @@
    "params": "chapters, duration, currentTime, direction",
    "exported": false,
    "lines": [
-    75,
-    95
+    76,
+    96
    ],
    "description": "Where the skip lands, or -1: forward, the first chapter starting more than a second past the playhead; back, the start of the current chapter, or of the one before it within the first three seconds of the current one.",
    "calledBy": [
@@ -19869,8 +19965,8 @@
    "params": "direction",
    "exported": false,
    "lines": [
-    101,
-    143
+    102,
+    144
    ],
    "description": "Reads the chapters from the progress bar (showing the player UI first when they are not rendered), then seeks to the next or previous one.",
    "calls": [
@@ -19890,16 +19986,25 @@
    ]
   },
   {
-    "id": "ui/shortcuts/seek.js#performBurstSeek",
-    "name": "performBurstSeek",
-    "kind": "function",
-    "params": "seconds, video",
-    "exported": true,
-    "lines": [153, 178],
-    "description": "One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.",
-    "calls": ["ui/toast/index.js#showNotification"],
-    "browser": ["setTimeout"],
-    "calledBy": ["ui/shortcuts/actions.js#(top level)"]
+   "id": "ui/shortcuts/seek.js#performBurstSeek",
+   "name": "performBurstSeek",
+   "kind": "function",
+   "params": "seconds, video",
+   "exported": true,
+   "lines": [
+    154,
+    179
+   ],
+   "description": "One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.",
+   "calls": [
+    "ui/toast/index.js#showNotification"
+   ],
+   "browser": [
+    "setTimeout"
+   ],
+   "calledBy": [
+    "ui/shortcuts/actions.js#(top level)"
+   ]
   },
   {
    "id": "ui/styles/html-classes.js#read",
@@ -20118,17 +20223,25 @@
   },
   {
    "id": "ui/toast/index.js#showNotification",
-  "name": "showNotification",
-  "kind": "function",
-  "params": "text, time, slot",
-  "exported": true,
-  "lines": [102, 119],
-  "description": "Shows `text` for `time` ms (0 keeps it up); returns a handle with remove(). With a `slot`, the toast that holds it takes the new text, unless it is already fading out.",
-  "calls": ["core/config.js#configRead", "ui/toast/index.js#Toast.constructor"],
-  "settings": {
-    "read": ["disableNotifications"]
-  },
-  "calledBy": [
+   "name": "showNotification",
+   "kind": "function",
+   "params": "text, time, slot",
+   "exported": true,
+   "lines": [
+    102,
+    119
+   ],
+   "description": "Shows `text` for `time` ms (0 keeps it up); returns a handle with remove(). With a `slot`, the toast that holds it takes the new text, unless it is already fading out.",
+   "calls": [
+    "core/config.js#configRead",
+    "ui/toast/index.js#Toast.constructor"
+   ],
+   "settings": {
+    "read": [
+     "disableNotifications"
+    ]
+   },
+   "calledBy": [
     "features/force-codec/index.js#applyMode",
     "features/playback-speed/index.js#stepSpeed",
     "features/sponsorblock/blue-key.js#jumpToHighlight",
@@ -20152,7 +20265,7 @@
     "ui/shortcuts/playback.js#toggleSubtitles",
     "ui/shortcuts/seek.js#doSkipChapter",
     "ui/shortcuts/seek.js#performBurstSeek"
-  ]
+   ]
   },
   {
    "id": "vendor/playback-speed/audio-engine.js#AudioEngine.constructor",

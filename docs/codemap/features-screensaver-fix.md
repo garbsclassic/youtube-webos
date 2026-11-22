@@ -145,10 +145,10 @@ The page changed (or the &lt;video> was remounted): the keep-alive and the video
 
 > On Shorts the player never fills the screen, so a synthetic YELLOW press every 30s keeps the screensaver away while a video is actually playing.
 
-56 lines · imports [core/selectors.js](core.md#mod-selectors-js), [core/remote.js](core.md#mod-remote-js), [features/screensaver-fix/log.js](#mod-log-js), [core/player-state.js](core.md#mod-player-state-js) · imported by [features/screensaver-fix/index.js](#mod-index-js)
+57 lines · imports [core/player-state.js](core.md#mod-player-state-js), [core/remote.js](core.md#mod-remote-js), [core/selectors.js](core.md#mod-selectors-js), [features/screensaver-fix/log.js](#mod-log-js) · imported by [features/screensaver-fix/index.js](#mod-index-js)
 
 <a id="fn-shorts-keep-alive-js-setshortskeepalive"></a>
-**`setShortsKeepAlive(enable)`** · function, exported · L15–56
+**`setShortsKeepAlive(enable)`** · function, exported · L16–57
 
 Starts (or stops) the Shorts keep-alive: every 30s while a Short plays, a yellow key press keeps the TV's screensaver away.
 
