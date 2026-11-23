@@ -6016,7 +6016,7 @@
   },
   {
    "path": "ui/toast/index.js",
-   "lines": 119,
+   "lines": 130,
    "header": "Toast notifications in the top right corner. The container is created on the first showNotification(); the theme and OLED looks come from the <html> classes (ui/styles/html-classes.js); the config is read for Disable Notifications only.",
    "imports": [
     {
@@ -6063,6 +6063,7 @@
     "ui/toast/index.js#Toast.arm",
     "ui/toast/index.js#Toast.unkey",
     "ui/toast/index.js#Toast.update",
+    "ui/toast/index.js#Toast.holdWidth",
     "ui/toast/index.js#Toast.remove",
     "ui/toast/index.js#showNotification"
    ]
@@ -20231,12 +20232,31 @@
    "exported": false,
    "lines": [
     67,
-    80
+    81
    ],
    "description": "New text, or the same text with a fresh timer; false once the toast is fading out.",
    "calls": [
     "ui/toast/index.js#Toast.arm",
+    "ui/toast/index.js#Toast.holdWidth",
     "ui/toast/index.js#Toast.unkey"
+   ]
+  },
+  {
+   "id": "ui/toast/index.js#Toast.holdWidth",
+   "name": "Toast.holdWidth",
+   "kind": "method",
+   "params": "",
+   "exported": false,
+   "lines": [
+    88,
+    91
+   ],
+   "description": "Keeps the toast at least as wide as it is now, so new text that is shorter (\"Seek +240\" turning into \"Seek -15\") does not shrink it while it is on screen. The width is read before the text changes, once per change.",
+   "browser": [
+    "offsetWidth"
+   ],
+   "calledBy": [
+    "ui/toast/index.js#Toast.update"
    ]
   },
   {
@@ -20246,8 +20266,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    83,
-    91
+    94,
+    102
    ],
    "description": "Fades the toast out and removes it a second later; frees its slot and its text.",
    "calls": [
@@ -20267,8 +20287,8 @@
    "params": "text, time, slot",
    "exported": true,
    "lines": [
-    102,
-    119
+    113,
+    130
    ],
    "description": "Shows `text` for `time` ms (0 keeps it up); returns a handle with remove(). With a `slot`, the toast that holds it takes the new text, unless it is already fading out.",
    "calls": [

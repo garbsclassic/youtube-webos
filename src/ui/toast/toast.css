@@ -5,15 +5,31 @@
   position: fixed;
   top: 1.85vh;
   right: 2vh;
-  min-width: 12vh;
   max-width: 40vh;
   z-index: 1200;
+  /* Each toast as wide as its own text, against the right edge: as a block in
+     a shrink-to-fit container, every toast took the widest one's width and
+     they all resized whenever a longer one came or went. */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .ytaf-toast {
   transition:
     opacity 0.3s ease,
-    transform 0.3s ease;
+    transform 0.3s ease,
+    max-height 0.3s ease,
+    margin-bottom 0.3s ease,
+    padding 0.3s ease;
+  box-sizing: border-box;
+  min-width: 12vh;
+  max-width: 100%;
+  /* The bound for the fade's collapse; a toast is a line or two. */
+  max-height: 20vh;
+  overflow: hidden;
+  /* Digits of one width, so a running count ("Seek +15" to "+30") does not jitter. */
+  font-variant-numeric: tabular-nums;
   transform: translateX(0);
   opacity: 1;
   box-shadow: 0 0.5vh 1.4vh rgba(16, 15, 15, 0.4);
@@ -30,7 +46,14 @@
   text-align: end;
 }
 
+/* A toast fading out also folds away, so the ones below slide up into its
+   place instead of jumping there when it is removed a second later. A new
+   toast unfolds the same way at the bottom, where it moves nothing. */
 .ytaf-toast.ytaf-toast-hidden {
   opacity: 0;
   transform: translateX(2vh);
+  max-height: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }

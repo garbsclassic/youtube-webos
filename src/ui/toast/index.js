@@ -71,12 +71,23 @@ class Toast {
       return true;
     }
     this.unkey();
+    this.holdWidth();
     this.text = text;
     this.inner.textContent = text;
     this.inner.classList.remove('ytaf-toast-hidden');
     liveToasts.set(text, this);
     this.arm(time);
     return true;
+  }
+
+  /**
+   * Keeps the toast at least as wide as it is now, so new text that is shorter
+   * ("Seek +240" turning into "Seek -15") does not shrink it while it is on
+   * screen. The width is read before the text changes, once per change.
+   */
+  holdWidth() {
+    const width = this.inner.offsetWidth;
+    if (width > 0) this.inner.style.minWidth = width + 'px';
   }
 
   /** Fades the toast out and removes it a second later; frees its slot and its text. */

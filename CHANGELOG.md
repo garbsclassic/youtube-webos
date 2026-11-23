@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   doubles the jump, so a 15s seek runs 15, 30, 60, 120 and 240 seconds in total. Holding the
   key keeps the jump steady instead. A burst stops a second short of the end, so it doesn't
   end the video and start the next one.
+- **Toasts keep their size on screen**: each toast is as wide as its own text, instead of all of
+  them taking the widest one's width. A toast whose text changes in place, such as the seek
+  total, never gets narrower while it is showing. Digits are a fixed width, so a running count
+  doesn't jitter. A toast that fades out folds away, so the ones below slide up instead of
+  jumping.
 
 ### Fixed
 
