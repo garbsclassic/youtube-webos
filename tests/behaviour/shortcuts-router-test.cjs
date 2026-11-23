@@ -559,7 +559,7 @@ function fakePlayer(d) {
   }
 
   {
-    // Blue's three codes spread over 70 ms, each within 50 ms of the one before: one press.
+    // Blue's three codes spread over 70 ms, as the B4 delivers them: one press.
     const { model, press, toasts } = boot({ shortcut_key_blue: 'seek_fwd_15' });
     press(KEYS.BLUE);
     await wait(35);
@@ -569,7 +569,22 @@ function fakePlayer(d) {
     await waitFor(() => model.currentTime !== 10, 10000);
     await wait(50);
     t(
-      'the window slides with each code of the press: a third code 70 ms on is still that press',
+      'codes of one press 35 and 70 ms after the first are still that press',
+      model.currentTime === 25 && !toasts().some((m) => m === 'Seek +30'),
+      model.currentTime + ' / ' + toasts().join(' | ')
+    );
+  }
+
+  {
+    // The B4 also delivered a press's second code 74 ms after its first.
+    const { model, press, toasts } = boot({ shortcut_key_blue: 'seek_fwd_15' });
+    press(KEYS.BLUE);
+    await wait(80);
+    press(ALT.BLUE[0]);
+    await waitFor(() => model.currentTime !== 10, 10000);
+    await wait(50);
+    t(
+      'a second code 80 ms after the first is still the same press',
       model.currentTime === 25 && !toasts().some((m) => m === 'Seek +30'),
       model.currentTime + ' / ' + toasts().join(' | ')
     );

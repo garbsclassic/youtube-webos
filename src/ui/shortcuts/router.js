@@ -35,8 +35,9 @@ const syntheticEcho = { key: null, time: 0 };
 // few ms apart. The debounce swallows the second for every action but the seeks, which take
 // rapid presses; for them a different code of the same key this soon after the last code of the
 // press is the same press. The window slides with each swallowed code: on the B4 a blue press's
-// third code came 76 ms after its first, 34 ms after its second.
-const SAME_PRESS_MS = 50;
+// alternate codes arrived up to 74 ms after the first. Only a code other than the one that
+// counted is swallowed, so a real second press (which starts with the same code) still counts.
+const SAME_PRESS_MS = 120;
 const lastBurst = { key: null, code: 0, time: 0 };
 
 // The Back code that took the OLED overlay down, swallowed until its keyup.

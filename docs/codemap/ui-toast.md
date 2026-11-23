@@ -10,7 +10,7 @@ Modules: [ui/toast/index.js](#mod-index-js)
 
 > Toast notifications in the top right corner. The container is created on the first showNotification(); the theme and OLED looks come from the &lt;html> classes (ui/styles/html-classes.js); the config is read for Disable Notifications only.
 
-130 lines · imports [core/config.js](core.md#mod-config-js), [ui/dom.js](ui.md#mod-dom-js) · imported by [features/force-codec/index.js](features-force-codec.md#mod-index-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js), [features/sponsorblock/blue-key.js](features-sponsorblock.md#mod-blue-key-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/sponsorblock/skipping.js](features-sponsorblock.md#mod-skipping-js), [features/video-quality/quality.js](features-video-quality.md#mod-quality-js), [ui/index.js](ui.md#mod-index-js), [ui/shortcuts/actions.js](ui-shortcuts.md#mod-actions-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/shortcuts/helpers.js](ui-shortcuts.md#mod-helpers-js), [ui/shortcuts/oled.js](ui-shortcuts.md#mod-oled-js), [ui/shortcuts/panels.js](ui-shortcuts.md#mod-panels-js), [ui/shortcuts/playback.js](ui-shortcuts.md#mod-playback-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js)
+131 lines · imports [core/config.js](core.md#mod-config-js), [ui/dom.js](ui.md#mod-dom-js) · imported by [features/force-codec/index.js](features-force-codec.md#mod-index-js), [features/playback-speed/index.js](features-playback-speed.md#mod-index-js), [features/sponsorblock/blue-key.js](features-sponsorblock.md#mod-blue-key-js), [features/sponsorblock/index.js](features-sponsorblock.md#mod-index-js), [features/sponsorblock/skipping.js](features-sponsorblock.md#mod-skipping-js), [features/video-quality/quality.js](features-video-quality.md#mod-quality-js), [ui/index.js](ui.md#mod-index-js), [ui/shortcuts/actions.js](ui-shortcuts.md#mod-actions-js), [ui/shortcuts/bindings.js](ui-shortcuts.md#mod-bindings-js), [ui/shortcuts/helpers.js](ui-shortcuts.md#mod-helpers-js), [ui/shortcuts/oled.js](ui-shortcuts.md#mod-oled-js), [ui/shortcuts/panels.js](ui-shortcuts.md#mod-panels-js), [ui/shortcuts/playback.js](ui-shortcuts.md#mod-playback-js), [ui/shortcuts/seek.js](ui-shortcuts.md#mod-seek-js)
 
 <a id="fn-index-js-ensurecontainer"></a>
 **`ensureContainer()`** · function · L12–17
@@ -58,15 +58,15 @@ New text, or the same text with a fresh timer; false once the toast is fading ou
 - **Calls:** [Toast.arm](#fn-index-js-toast-arm), [Toast.holdWidth](#fn-index-js-toast-holdwidth), [Toast.unkey](#fn-index-js-toast-unkey)
 
 <a id="fn-index-js-toast-holdwidth"></a>
-**`Toast.holdWidth()`** · method · L88–91
+**`Toast.holdWidth()`** · method · L88–92
 
 Keeps the toast at least as wide as it is now, so new text that is shorter ("Seek +240" turning into "Seek -15") does not shrink it while it is on screen. The width is read before the text changes, once per change.
 
 - **Called by:** [Toast.update](#fn-index-js-toast-update)
-- **Browser:** `offsetWidth`
+- **Browser:** `getBoundingClientRect`
 
 <a id="fn-index-js-toast-remove"></a>
-**`Toast.remove()`** · method · L94–102
+**`Toast.remove()`** · method · L95–103
 
 Fades the toast out and removes it a second later; frees its slot and its text.
 
@@ -75,7 +75,7 @@ Fades the toast out and removes it a second later; frees its slot and its text.
 - **Browser:** `setTimeout`
 
 <a id="fn-index-js-shownotification"></a>
-**`showNotification(text, time, slot)`** · function, exported · L113–130
+**`showNotification(text, time, slot)`** · function, exported · L114–131
 
 Shows `text` for `time` ms (0 keeps it up); returns a handle with remove(). With a `slot`, the toast that holds it takes the new text, unless it is already fading out.
 

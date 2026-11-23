@@ -5811,7 +5811,7 @@
   },
   {
    "path": "ui/shortcuts/router.js",
-   "lines": 164,
+   "lines": 165,
    "header": "The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.",
    "imports": [
     {
@@ -5890,7 +5890,7 @@
   },
   {
    "path": "ui/shortcuts/seek.js",
-   "lines": 231,
+   "lines": 233,
    "header": "Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump.",
    "imports": [
     {
@@ -6016,7 +6016,7 @@
   },
   {
    "path": "ui/toast/index.js",
-   "lines": 130,
+   "lines": 131,
    "header": "Toast notifications in the top right corner. The container is created on the first showNotification(); the theme and OLED looks come from the <html> classes (ui/styles/html-classes.js); the config is read for Disable Notifications only.",
    "imports": [
     {
@@ -19814,8 +19814,8 @@
    "params": "action",
    "exported": false,
    "lines": [
-    47,
-    49
+    48,
+    50
    ],
    "description": "Whether the action may run on the current page.",
    "calls": [
@@ -19833,8 +19833,8 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    56,
-    149
+    57,
+    150
    ],
    "description": "The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).",
    "calls": [
@@ -19860,8 +19860,8 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    157,
-    162
+    158,
+    163
    ],
    "description": "Ends a swallowed Back hold; its keyup does not reach YouTube either.",
    "calls": [
@@ -20013,7 +20013,7 @@
    "exported": false,
    "lines": [
     172,
-    188
+    190
    ],
    "description": "Moves the video by the part not applied yet, clamped to the video.",
    "calls": [
@@ -20030,8 +20030,8 @@
    "params": "seconds, repeat",
    "exported": true,
    "lines": [
-    201,
-    231
+    203,
+    233
    ],
    "description": "One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the run over (toast total, press count and step); the part not applied yet still counts. From the third press of a run the step doubles (nextSeekStep); another seek key in the same direction adds to the total but starts its own doubling over. The reset 1.2s later ends only the run: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.",
    "calls": [
@@ -20249,11 +20249,11 @@
    "exported": false,
    "lines": [
     88,
-    91
+    92
    ],
    "description": "Keeps the toast at least as wide as it is now, so new text that is shorter (\"Seek +240\" turning into \"Seek -15\") does not shrink it while it is on screen. The width is read before the text changes, once per change.",
    "browser": [
-    "offsetWidth"
+    "getBoundingClientRect"
    ],
    "calledBy": [
     "ui/toast/index.js#Toast.update"
@@ -20266,8 +20266,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    94,
-    102
+    95,
+    103
    ],
    "description": "Fades the toast out and removes it a second later; frees its slot and its text.",
    "calls": [
@@ -20287,8 +20287,8 @@
    "params": "text, time, slot",
    "exported": true,
    "lines": [
-    113,
-    130
+    114,
+    131
    ],
    "description": "Shows `text` for `time` ms (0 keeps it up); returns a handle with remove(). With a `slot`, the toast that holds it takes the new text, unless it is already fading out.",
    "calls": [

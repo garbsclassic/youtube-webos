@@ -326,7 +326,7 @@ Plays or pauses `video`, with a toast; after a pause the player controls are hid
 
 > The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.
 
-164 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/oled.js](#mod-oled-js) · imported by [ui/index.js](ui.md#mod-index-js)
+165 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/oled.js](#mod-oled-js) · imported by [ui/index.js](ui.md#mod-index-js)
 
 **At load:**
 
@@ -349,7 +349,7 @@ The shortcut key a keydown stands for ('red', '3', ...), or null.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-inscope"></a>
-**`inScope(action)`** · function · L47–49
+**`inScope(action)`** · function · L48–50
 
 Whether the action may run on the current page.
 
@@ -357,7 +357,7 @@ Whether the action may run on the current page.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-onkeydown"></a>
-**`onKeyDown(evt)`** · function · L56–149
+**`onKeyDown(evt)`** · function · L57–150
 
 The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).
 
@@ -366,7 +366,7 @@ The shortcut router (capture phase, before YouTube): runs the action bound to th
 - **Browser:** `setTimeout`
 
 <a id="fn-router-js-onkeyup"></a>
-**`onKeyUp(evt)`** · function · L157–162
+**`onKeyUp(evt)`** · function · L158–163
 
 Ends a swallowed Back hold; its keyup does not reach YouTube either.
 
@@ -379,7 +379,7 @@ Ends a swallowed Back hold; its keyup does not reach YouTube either.
 
 > Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump.
 
-231 lines · imports [core/dom.js](core.md#mod-dom-js), [core/page-state.js](core.md#mod-page-state-js), [core/remote.js](core.md#mod-remote-js), [core/selectors.js](core.md#mod-selectors-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
+233 lines · imports [core/dom.js](core.md#mod-dom-js), [core/page-state.js](core.md#mod-page-state-js), [core/remote.js](core.md#mod-remote-js), [core/selectors.js](core.md#mod-selectors-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
 
 <a id="fn-seek-js-getchapterels"></a>
 **`getChapterEls()`** · function · L43–53
@@ -438,7 +438,7 @@ The size of the next press's jump: the bound step for the first two presses of a
 - **Called by:** [performBurstSeek](#fn-seek-js-performburstseek)
 
 <a id="fn-seek-js-applypendingseek"></a>
-**`applyPendingSeek()`** · function · L172–188
+**`applyPendingSeek()`** · function · L172–190
 
 Moves the video by the part not applied yet, clamped to the video.
 
@@ -446,7 +446,7 @@ Moves the video by the part not applied yet, clamped to the video.
 - **Called by:** [performBurstSeek](#fn-seek-js-performburstseek)
 
 <a id="fn-seek-js-performburstseek"></a>
-**`performBurstSeek(seconds, repeat)`** · function, exported · L201–231
+**`performBurstSeek(seconds, repeat)`** · function, exported · L203–233
 
 One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the run over (toast total, press count and step); the part not applied yet still counts. From the third press of a run the step doubles (nextSeekStep); another seek key in the same direction adds to the total but starts its own doubling over. The reset 1.2s later ends only the run: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.
 

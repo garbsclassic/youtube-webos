@@ -217,12 +217,12 @@ const t = report.check;
       );
     }
     {
-      // jsdom lays nothing out: each toast reports a width of 20 px per character.
+      // jsdom lays nothing out: each toast reports a width of 20.5 px per character, unrounded.
       const { d, raw, pump, els } = loadToast();
       const proto = Object.getPrototypeOf(d.createElement('div'));
-      Object.defineProperty(proto, 'offsetWidth', {
-        get() {
-          return this.textContent.length * 20;
+      Object.defineProperty(proto, 'getBoundingClientRect', {
+        value() {
+          return { width: this.textContent.length * 20.5 };
         },
         configurable: true
       });
@@ -231,14 +231,14 @@ const t = report.check;
       t('a new toast has no width held', els()[0].style.minWidth === '', els()[0].style.minWidth);
       raw('Seek -15', 3000, 'seek');
       t(
-        'new, shorter text keeps the width the toast had (9 characters, 180 px)',
-        els()[0].style.minWidth === '180px' && els()[0].textContent === 'Seek -15',
+        'new, shorter text keeps the width the toast had, unrounded (9 characters, 184.5 px)',
+        els()[0].style.minWidth === '184.5px' && els()[0].textContent === 'Seek -15',
         els()[0].style.minWidth
       );
       toast.update('Seek -15');
       t(
         'the same text again reads no width and changes nothing',
-        els()[0].style.minWidth === '180px'
+        els()[0].style.minWidth === '184.5px'
       );
     }
   }

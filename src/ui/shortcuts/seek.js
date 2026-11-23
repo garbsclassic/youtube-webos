@@ -184,7 +184,9 @@ function applyPendingSeek() {
     // Never backwards: already inside the margin, a forward seek stays put.
     target = Math.max(current, Math.min(target, duration - END_MARGIN_S));
   }
-  video.currentTime = Math.max(0, target);
+  target = Math.max(0, target);
+  // Setting the same time still starts a seek that never settles on the B4.
+  if (target !== current) video.currentTime = target;
 }
 
 /**

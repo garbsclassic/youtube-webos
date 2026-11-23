@@ -86,7 +86,8 @@ class Toast {
    * screen. The width is read before the text changes, once per change.
    */
   holdWidth() {
-    const width = this.inner.offsetWidth;
+    // Unrounded, so the held width is not a fraction of a pixel narrower.
+    const width = this.inner.getBoundingClientRect().width;
     if (width > 0) this.inner.style.minWidth = width + 'px';
   }
 
