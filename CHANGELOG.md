@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Seek shortcuts speed up when pressed repeatedly**: from the third quick press, each press
   doubles the jump, so a 15s seek runs 15, 30, 60, 120 and 240 seconds in total. Holding the
-  key keeps the jump steady instead. A burst stops a second short of the end, so it doesn't
+  key keeps the jump steady instead. A forward burst stops five seconds short of the end, so it doesn't
   end the video and start the next one.
 - **Toasts keep their size on screen**: every toast is at least wide enough for a three-digit
   seek ("Seek +240"), so most toasts in a row line up, and a longer one is as wide as its own

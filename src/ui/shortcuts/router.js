@@ -33,7 +33,9 @@ const syntheticEcho = { key: null, time: 0 };
 
 // A colour button sends two codes for one press (red 403 and 166, blue 406, 167 and 191), a
 // few ms apart. The debounce swallows the second for every action but the seeks, which take
-// rapid presses; for them a different code of the same key this soon is the same press.
+// rapid presses; for them a different code of the same key this soon after the last code of the
+// press is the same press. The window slides with each swallowed code: on the B4 a blue press's
+// third code came 76 ms after its first, 34 ms after its second.
 const SAME_PRESS_MS = 50;
 const lastBurst = { key: null, code: 0, time: 0 };
 
@@ -105,6 +107,7 @@ function onKeyDown(evt) {
     lastBurst.code !== code &&
     now - lastBurst.time < SAME_PRESS_MS
   ) {
+    lastBurst.time = now;
     evt.preventDefault();
     evt.stopPropagation();
     return;

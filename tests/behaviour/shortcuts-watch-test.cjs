@@ -130,16 +130,27 @@ function boot(cfg, bodyClass, timers) {
     t('and the video lands 240s on', model.currentTime === 240, String(model.currentTime));
   }
   {
-    // A burst past the end stops a second short of it, so the video does not end.
+    // A burst past the end stops 5s short of it; one past the start lands on 0.
     const { model, press } = boot({}, 'WEB_PAGE_TYPE_WATCH');
     model.currentTime = 80;
     for (let i = 0; i < 4; i++) press(KEY.seekFwd);
-    await waitFor(() => model.currentTime === 99);
+    await waitFor(() => model.currentTime === 95);
     t(
-      'a burst past the end lands 1s before it',
-      model.currentTime === 99,
+      'a burst past the end lands 5s before it, so a playing video does not end',
+      model.currentTime === 95,
       String(model.currentTime)
     );
+    // The run's reset is 120 ms here: let it pass so the next press starts a new run.
+    await wait(200);
+    model.currentTime = 97;
+    press(KEY.seekFwd);
+    await wait(80);
+    t(
+      'inside those 5s a forward seek stays put rather than going back',
+      model.currentTime === 97,
+      String(model.currentTime)
+    );
+    await wait(200);
     for (let i = 0; i < 4; i++) press(KEY.seekBack);
     await waitFor(() => model.currentTime === 0);
     t('and one past the start lands on 0', model.currentTime === 0, String(model.currentTime));

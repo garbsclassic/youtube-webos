@@ -29,9 +29,10 @@ let seekApplyTimer = null;
 // The presses of one run that keep the bound step: from the next one on, each
 // press doubles the step, so a 15s seek runs 15, 30, 60, 120, 240 in total.
 const PLAIN_PRESSES = 2;
-// The seek stops this far short of the end, so a long burst does not end the
-// video and start the next one.
-const END_MARGIN_S = 1;
+// A forward burst stops this far short of the end, so a long one does not
+// end a playing video and start the next one before the user can react (1s
+// was measured on the B4 to end it a second after the seek landed).
+const END_MARGIN_S = 5;
 const SEEK_APPLY_MS = 200;
 const SEEK_RESET_MS = 1200;
 
@@ -177,9 +178,11 @@ function applyPendingSeek() {
   const offset = pendingSeekOffset;
   pendingSeekOffset = 0;
   const duration = video.duration;
-  let target = video.currentTime + offset;
-  if (duration > 0 && isFinite(duration)) {
-    target = Math.min(target, Math.max(0, duration - END_MARGIN_S));
+  const current = video.currentTime;
+  let target = current + offset;
+  if (offset > 0 && duration > 0 && isFinite(duration)) {
+    // Never backwards: already inside the margin, a forward seek stays put.
+    target = Math.max(current, Math.min(target, duration - END_MARGIN_S));
   }
   video.currentTime = Math.max(0, target);
 }

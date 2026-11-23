@@ -21,7 +21,8 @@
     transform 0.3s ease,
     max-height 0.3s ease,
     margin-bottom 0.3s ease,
-    padding 0.3s ease;
+    padding 0.3s ease,
+    border-width 0.3s ease;
   box-sizing: border-box;
   /* Wide enough for a three-digit seek ("Seek +240"): nine characters of
      tabular digits plus the padding and borders, so most toasts in a row
@@ -60,4 +61,7 @@
   margin-bottom: 0;
   padding-top: 0;
   padding-bottom: 0;
+  /* Or the two borders keep 2px, which the toast below drops when it goes. */
+  border-top-width: 0;
+  border-bottom-width: 0;
 }

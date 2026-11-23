@@ -558,6 +558,23 @@ function fakePlayer(d) {
     );
   }
 
+  {
+    // Blue's three codes spread over 70 ms, each within 50 ms of the one before: one press.
+    const { model, press, toasts } = boot({ shortcut_key_blue: 'seek_fwd_15' });
+    press(KEYS.BLUE);
+    await wait(35);
+    press(ALT.BLUE[0]);
+    await wait(35);
+    press(ALT.BLUE[1]);
+    await waitFor(() => model.currentTime !== 10, 10000);
+    await wait(50);
+    t(
+      'the window slides with each code of the press: a third code 70 ms on is still that press',
+      model.currentTime === 25 && !toasts().some((m) => m === 'Seek +30'),
+      model.currentTime + ' / ' + toasts().join(' | ')
+    );
+  }
+
   // ---- the open panel keeps the keys, apart from the menu key -------------------------
   {
     const { page, press, model, panel, d } = boot({ shortcut_key_red: 'none' });

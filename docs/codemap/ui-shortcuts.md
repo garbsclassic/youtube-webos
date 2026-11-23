@@ -326,7 +326,7 @@ Plays or pauses `video`, with a toast; after a pause the player controls are hid
 
 > The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.
 
-161 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/oled.js](#mod-oled-js) · imported by [ui/index.js](ui.md#mod-index-js)
+164 lines · imports [core/remote.js](core.md#mod-remote-js), [core/page-state.js](core.md#mod-page-state-js), [core/dom.js](core.md#mod-dom-js), [ui/shortcuts/bindings.js](#mod-bindings-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/actions.js](#mod-actions-js), [ui/shortcuts/oled.js](#mod-oled-js) · imported by [ui/index.js](ui.md#mod-index-js)
 
 **At load:**
 
@@ -349,7 +349,7 @@ The shortcut key a keydown stands for ('red', '3', ...), or null.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-inscope"></a>
-**`inScope(action)`** · function · L45–47
+**`inScope(action)`** · function · L47–49
 
 Whether the action may run on the current page.
 
@@ -357,7 +357,7 @@ Whether the action may run on the current page.
 - **Called by:** [onKeyDown](#fn-router-js-onkeydown)
 
 <a id="fn-router-js-onkeydown"></a>
-**`onKeyDown(evt)`** · function · L54–146
+**`onKeyDown(evt)`** · function · L56–149
 
 The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).
 
@@ -366,7 +366,7 @@ The shortcut router (capture phase, before YouTube): runs the action bound to th
 - **Browser:** `setTimeout`
 
 <a id="fn-router-js-onkeyup"></a>
-**`onKeyUp(evt)`** · function · L154–159
+**`onKeyUp(evt)`** · function · L157–162
 
 Ends a swallowed Back hold; its keyup does not reach YouTube either.
 
@@ -379,10 +379,10 @@ Ends a swallowed Back hold; its keyup does not reach YouTube either.
 
 > Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump.
 
-228 lines · imports [core/dom.js](core.md#mod-dom-js), [core/page-state.js](core.md#mod-page-state-js), [core/remote.js](core.md#mod-remote-js), [core/selectors.js](core.md#mod-selectors-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
+231 lines · imports [core/dom.js](core.md#mod-dom-js), [core/page-state.js](core.md#mod-page-state-js), [core/remote.js](core.md#mod-remote-js), [core/selectors.js](core.md#mod-selectors-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/helpers.js](#mod-helpers-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/shortcuts/actions.js](#mod-actions-js)
 
 <a id="fn-seek-js-getchapterels"></a>
-**`getChapterEls()`** · function · L42–52
+**`getChapterEls()`** · function · L43–53
 
 The chapter markers on the progress bar, empty until the player UI has drawn them; the track's other children (the playhead, the buffer) are left out.
 
@@ -391,7 +391,7 @@ The chapter markers on the progress bar, empty until the player UI has drawn the
 - **Browser:** `querySelector`
 
 <a id="fn-seek-js-dismissforcedui"></a>
-**`dismissForcedUI()`** · arrow · L55–55
+**`dismissForcedUI()`** · arrow · L56–56
 
 The player UI was forced open for the markers; close it again once the seek is in.
 
@@ -400,7 +400,7 @@ The player UI was forced open for the markers; close it again once the seek is i
 - **Browser:** `setTimeout`
 
 <a id="fn-seek-js-skipchapter"></a>
-**`skipChapter(direction)`** · function, async, exported · L63–71
+**`skipChapter(direction)`** · function, async, exported · L64–72
 
 Skips to the next or previous chapter; one skip at a time, never on Shorts.
 
@@ -408,21 +408,21 @@ Skips to the next or previous chapter; one skip at a time, never on Shorts.
 - **Called by:** [ui/shortcuts/actions.js (at load)](#mod-actions-js)
 
 <a id="fn-seek-js-readchapters"></a>
-**`readChapters(chapterEls)`** · function · L74–83
+**`readChapters(chapterEls)`** · function · L75–84
 
 The chapter widths off the bar's markers, and their sum (0 when none has a width).
 
 - **Called by:** [doSkipChapter](#fn-seek-js-doskipchapter)
 
 <a id="fn-seek-js-pickchaptertarget"></a>
-**`pickChapterTarget(chapters, duration, currentTime, direction)`** · function · L90–110
+**`pickChapterTarget(chapters, duration, currentTime, direction)`** · function · L91–111
 
 Where the skip lands, or -1: forward, the first chapter starting more than a second past the playhead; back, the start of the current chapter, or of the one before it within the first three seconds of the current one.
 
 - **Called by:** [doSkipChapter](#fn-seek-js-doskipchapter)
 
 <a id="fn-seek-js-doskipchapter"></a>
-**`doSkipChapter(direction)`** · function, async · L116–158
+**`doSkipChapter(direction)`** · function, async · L117–159
 
 Reads the chapters from the progress bar (showing the player UI first when they are not rendered), then seeks to the next or previous one.
 
@@ -431,14 +431,14 @@ Reads the chapters from the progress bar (showing the player UI first when they 
 - **Browser:** `setTimeout`
 
 <a id="fn-seek-js-nextseekstep"></a>
-**`nextSeekStep(seconds, presses, lastStep, repeat)`** · function, exported · L165–168
+**`nextSeekStep(seconds, presses, lastStep, repeat)`** · function, exported · L166–169
 
 The size of the next press's jump: the bound step for the first two presses of a run, double the last one from the third on. A held key's repeat keeps the step it has, so holding a key never runs away to the end of the video.
 
 - **Called by:** [performBurstSeek](#fn-seek-js-performburstseek)
 
 <a id="fn-seek-js-applypendingseek"></a>
-**`applyPendingSeek()`** · function · L171–185
+**`applyPendingSeek()`** · function · L172–188
 
 Moves the video by the part not applied yet, clamped to the video.
 
@@ -446,7 +446,7 @@ Moves the video by the part not applied yet, clamped to the video.
 - **Called by:** [performBurstSeek](#fn-seek-js-performburstseek)
 
 <a id="fn-seek-js-performburstseek"></a>
-**`performBurstSeek(seconds, repeat)`** · function, exported · L198–228
+**`performBurstSeek(seconds, repeat)`** · function, exported · L201–231
 
 One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the run over (toast total, press count and step); the part not applied yet still counts. From the third press of a run the step doubles (nextSeekStep); another seek key in the same direction adds to the total but starts its own doubling over. The reset 1.2s later ends only the run: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.
 
