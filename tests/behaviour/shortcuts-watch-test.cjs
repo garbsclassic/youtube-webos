@@ -543,12 +543,12 @@ function boot(cfg, bodyClass, timers) {
     const glass = win.getComputedStyle(clock);
     t(
       'default, OLED and Liquid Glass each have their own backdrop',
-      plain === 'rgba(16, 15, 15, 0.8)' && oled === 'rgb(0, 0, 0)',
+      plain === 'rgba(16, 15, 15, 0.7)' && oled === 'rgba(0, 0, 0, 0.7)',
       plain + ' / ' + oled
     );
     t(
-      'Liquid Glass off the watch page: no glass (here the OLED black it was)',
-      browseGlass === 'rgb(0, 0, 0)',
+      'Liquid Glass off the watch page: no glass (here the OLED backdrop it was)',
+      browseGlass === 'rgba(0, 0, 0, 0.7)',
       browseGlass
     );
     t(
