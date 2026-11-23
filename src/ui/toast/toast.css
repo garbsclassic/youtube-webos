@@ -23,7 +23,10 @@
     margin-bottom 0.3s ease,
     padding 0.3s ease;
   box-sizing: border-box;
-  min-width: 12vh;
+  /* Wide enough for a three-digit seek ("Seek +240"): nine characters of
+     tabular digits plus the padding and borders, so most toasts in a row
+     come out the same width. */
+  min-width: calc(9.5ch + 3.8vh);
   max-width: 100%;
   /* The bound for the fade's collapse; a toast is a line or two. */
   max-height: 20vh;
@@ -43,6 +46,7 @@
   font-weight: 400;
   color: #e6e4d9;
   line-height: 1.4;
+  letter-spacing: 0.01rem;
   text-align: end;
 }
 
