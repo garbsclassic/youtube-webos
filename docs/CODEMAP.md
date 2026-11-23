@@ -2,7 +2,7 @@
 
 Generated from the source by `tools/codemap.mjs`; do not edit it by hand. After changing code, run `npm run codemap` (`npm test` fails while the map is out of date). A function's description is the comment right above it in the source: improve it there.
 
-**127 modules, 829 named functions**, 612 of them described (the perf monitor in `src/dev/` is a development tool, not in release builds, and is listed in short form). This page is the index; each folder has a page in [codemap/](codemap/) with every function of its modules. The overview (boot order, the hooks, how a response flows through the filters) is [ARCHITECTURE.md](ARCHITECTURE.md); the same data for scripts is [codemap.json](codemap.json).
+**127 modules, 831 named functions**, 614 of them described (the perf monitor in `src/dev/` is a development tool, not in release builds, and is listed in short form). This page is the index; each folder has a page in [codemap/](codemap/) with every function of its modules. The overview (boot order, the hooks, how a response flows through the filters) is [ARCHITECTURE.md](ARCHITECTURE.md); the same data for scripts is [codemap.json](codemap.json).
 
 How to read it:
 
@@ -139,8 +139,8 @@ How to read it:
 | [ui/shortcuts/page.js](codemap/ui-shortcuts.md#mod-page-js) | 41 | 1 | The page itself: a soft reload through the app's own command bus. |
 | [ui/shortcuts/panels.js](codemap/ui-shortcuts.md#mod-panels-js) | 99 | 7 | The watch-page side panels: comments (or live chat), description and the save dialog, each toggled like the remote would: Back when it is open, its button when it is not. |
 | [ui/shortcuts/playback.js](codemap/ui-shortcuts.md#mod-playback-js) | 100 | 5 | Playback: play/pause with the controls bar kept out of the way, and the subtitles toggle through the player API with a UI fallback. |
-| [ui/shortcuts/router.js](codemap/ui-shortcuts.md#mod-router-js) | 137 | 5 | The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call. |
-| [ui/shortcuts/seek.js](codemap/ui-shortcuts.md#mod-seek-js) | 179 | 7 | Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump. |
+| [ui/shortcuts/router.js](codemap/ui-shortcuts.md#mod-router-js) | 161 | 5 | The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call. |
+| [ui/shortcuts/seek.js](codemap/ui-shortcuts.md#mod-seek-js) | 228 | 9 | Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump. |
 | [ui/styles/html-classes.js](codemap/ui-styles.md#mod-html-classes-js) | 72 | 4 | The state of the UI as classes on &lt;html>: the theme, OLED-care mode and the UI tweaks, each driven by a setting. |
 | [ui/toast/index.js](codemap/ui-toast.md#mod-index-js) | 119 | 8 | Toast notifications in the top right corner. |
 | [userScript.js](codemap/app.md#mod-userscript-js) | 79 | 0 | The script webOS runs inside YouTube's TV site (built as webOSUserScripts/userScript.js). |

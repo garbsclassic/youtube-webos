@@ -31,7 +31,7 @@ for (const m of fs.readFileSync(ACTIONS_FILE, 'utf8').matchAll(/^import \{([^}]+
 }
 // The burst seeks are told apart by the step they hand to performBurstSeek.
 const seeks = [];
-imported.performBurstSeek = (seconds, video) => seeks.push([seconds, video]);
+imported.performBurstSeek = (seconds, repeat) => seeks.push([seconds, repeat]);
 const actions = loadSources([ACTIONS_FILE], imported).get('ACTIONS');
 
 const bindable = Object.keys(options)
@@ -54,11 +54,20 @@ const STEPS = { seek_back_10: -10, seek_fwd_10: 10, seek_back_30: -30, seek_fwd_
 for (const [name, step] of Object.entries(STEPS)) {
   seeks.length = 0;
   const video = { id: name };
-  if (actions[name]) actions[name].run(video);
+  if (actions[name]) {
+    actions[name].run(video, { repeat: false });
+    actions[name].run(video, { repeat: true });
+  }
   eq(
-    `${name} is a burst seek of ${step} sec on the video it is given`,
+    `${name} is a burst seek of ${step} sec, told whether the press is a held key's repeat`,
     JSON.stringify({ burst: !!actions[name]?.burst, seeks }),
-    JSON.stringify({ burst: true, seeks: [[step, video]] })
+    JSON.stringify({
+      burst: true,
+      seeks: [
+        [step, false],
+        [step, true]
+      ]
+    })
   );
 }
 

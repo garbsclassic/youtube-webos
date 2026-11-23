@@ -46,12 +46,12 @@ export const ACTIONS = {
   },
   chapter_skip_next: { run: () => skipChapter('next') },
   chapter_skip_prev: { run: () => skipChapter('prev') },
-  seek_fwd_10: { burst: true, run: (video) => performBurstSeek(10, video) },
-  seek_back_10: { burst: true, run: (video) => performBurstSeek(-10, video) },
-  seek_fwd_15: { burst: true, run: (video) => performBurstSeek(15, video) },
-  seek_back_15: { burst: true, run: (video) => performBurstSeek(-15, video) },
-  seek_fwd_30: { burst: true, run: (video) => performBurstSeek(30, video) },
-  seek_back_30: { burst: true, run: (video) => performBurstSeek(-30, video) },
+  seek_fwd_10: { burst: true, run: (video, evt) => performBurstSeek(10, !!(evt && evt.repeat)) },
+  seek_back_10: { burst: true, run: (video, evt) => performBurstSeek(-10, !!(evt && evt.repeat)) },
+  seek_fwd_15: { burst: true, run: (video, evt) => performBurstSeek(15, !!(evt && evt.repeat)) },
+  seek_back_15: { burst: true, run: (video, evt) => performBurstSeek(-15, !!(evt && evt.repeat)) },
+  seek_fwd_30: { burst: true, run: (video, evt) => performBurstSeek(30, !!(evt && evt.repeat)) },
+  seek_back_30: { burst: true, run: (video, evt) => performBurstSeek(-30, !!(evt && evt.repeat)) },
   play_pause: { run: (video) => playPause(video) },
   toggle_subtitles: {
     // The player lookup is here rather than in the router: only this action

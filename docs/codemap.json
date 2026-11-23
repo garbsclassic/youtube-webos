@@ -5811,7 +5811,7 @@
   },
   {
    "path": "ui/shortcuts/router.js",
-   "lines": 137,
+   "lines": 161,
    "header": "The global keydown router: the remote key, the shortcut bound to it, the page it may run on (any, for a global one), the debounce, the call.",
    "imports": [
     {
@@ -5890,7 +5890,7 @@
   },
   {
    "path": "ui/shortcuts/seek.js",
-   "lines": 179,
+   "lines": 228,
    "header": "Seeking: chapter skips read off the progress bar, and burst seeking that batches rapid presses into one jump.",
    "imports": [
     {
@@ -5942,6 +5942,7 @@
    ],
    "exports": [
     "skipChapter",
+    "nextSeekStep",
     "performBurstSeek"
    ],
    "atLoad": {},
@@ -5952,6 +5953,8 @@
     "ui/shortcuts/seek.js#readChapters",
     "ui/shortcuts/seek.js#pickChapterTarget",
     "ui/shortcuts/seek.js#doSkipChapter",
+    "ui/shortcuts/seek.js#nextSeekStep",
+    "ui/shortcuts/seek.js#applyPendingSeek",
     "ui/shortcuts/seek.js#performBurstSeek"
    ]
   },
@@ -6824,6 +6827,7 @@
     "features/sponsorblock/index.js#SponsorBlockHandler.bindOrWaitForVideo",
     "features/sponsorblock/index.js#SponsorBlockHandler.updateLabels",
     "ui/shortcuts/router.js#onKeyDown",
+    "ui/shortcuts/seek.js#applyPendingSeek",
     "ui/shortcuts/seek.js#doSkipChapter"
    ]
   },
@@ -19809,8 +19813,8 @@
    "params": "action",
    "exported": false,
    "lines": [
-    39,
-    41
+    45,
+    47
    ],
    "description": "Whether the action may run on the current page.",
    "calls": [
@@ -19828,8 +19832,8 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    48,
-    122
+    54,
+    146
    ],
    "description": "The shortcut router (capture phase, before YouTube): runs the action bound to the key, drops a repeat of the same press, and leaves the keys to the options panel while it is open (apart from the key that closes it).",
    "calls": [
@@ -19855,8 +19859,8 @@
    "params": "evt",
    "exported": false,
    "lines": [
-    130,
-    135
+    154,
+    159
    ],
    "description": "Ends a swallowed Back hold; its keyup does not reach YouTube either.",
    "calls": [
@@ -19873,8 +19877,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    28,
-    38
+    42,
+    52
    ],
    "description": "The chapter markers on the progress bar, empty until the player UI has drawn them; the track's other children (the playhead, the buffer) are left out.",
    "selectors": [
@@ -19895,8 +19899,8 @@
    "params": "",
    "exported": false,
    "lines": [
-    41,
-    41
+    55,
+    55
    ],
    "description": "The player UI was forced open for the markers; close it again once the seek is in.",
    "calls": [
@@ -19916,8 +19920,8 @@
    "params": "direction",
    "exported": true,
    "lines": [
-    49,
-    57
+    63,
+    71
    ],
    "description": "Skips to the next or previous chapter; one skip at a time, never on Shorts.",
    "calls": [
@@ -19935,8 +19939,8 @@
    "params": "chapterEls",
    "exported": false,
    "lines": [
-    60,
-    69
+    74,
+    83
    ],
    "description": "The chapter widths off the bar's markers, and their sum (0 when none has a width).",
    "calledBy": [
@@ -19950,8 +19954,8 @@
    "params": "chapters, duration, currentTime, direction",
    "exported": false,
    "lines": [
-    76,
-    96
+    90,
+    110
    ],
    "description": "Where the skip lands, or -1: forward, the first chapter starting more than a second past the playhead; back, the start of the current chapter, or of the one before it within the first three seconds of the current one.",
    "calledBy": [
@@ -19965,8 +19969,8 @@
    "params": "direction",
    "exported": false,
    "lines": [
-    102,
-    144
+    116,
+    158
    ],
    "description": "Reads the chapters from the progress bar (showing the player UI first when they are not rendered), then seeks to the next or previous one.",
    "calls": [
@@ -19986,17 +19990,52 @@
    ]
   },
   {
+   "id": "ui/shortcuts/seek.js#nextSeekStep",
+   "name": "nextSeekStep",
+   "kind": "function",
+   "params": "seconds, presses, lastStep, repeat",
+   "exported": true,
+   "lines": [
+    165,
+    168
+   ],
+   "description": "The size of the next press's jump: the bound step for the first two presses of a run, double the last one from the third on. A held key's repeat keeps the step it has, so holding a key never runs away to the end of the video.",
+   "calledBy": [
+    "ui/shortcuts/seek.js#performBurstSeek"
+   ]
+  },
+  {
+   "id": "ui/shortcuts/seek.js#applyPendingSeek",
+   "name": "applyPendingSeek",
+   "kind": "function",
+   "params": "",
+   "exported": false,
+   "lines": [
+    171,
+    185
+   ],
+   "description": "Moves the video by the part not applied yet, clamped to the video.",
+   "calls": [
+    "core/dom.js#getVideo"
+   ],
+   "calledBy": [
+    "ui/shortcuts/seek.js#performBurstSeek"
+   ]
+  },
+  {
    "id": "ui/shortcuts/seek.js#performBurstSeek",
    "name": "performBurstSeek",
    "kind": "function",
-   "params": "seconds, video",
+   "params": "seconds, repeat",
    "exported": true,
    "lines": [
-    154,
-    179
+    198,
+    228
    ],
-   "description": "One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the toast's total over; the part not applied yet still counts. The reset 1.2s later ends only the toast's total: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.",
+   "description": "One press of a burst: the toast shows the running total at once, the video is moved by the pending part once the presses pause for 200 ms (a seek per press froze the UI), and a change of direction starts the run over (toast total, press count and step); the part not applied yet still counts. From the third press of a run the step doubles (nextSeekStep); another seek key in the same direction adds to the total but starts its own doubling over. The reset 1.2s later ends only the run: the part not applied yet is the seek timer's, and a stalled event loop may run the two in either order.",
    "calls": [
+    "ui/shortcuts/seek.js#applyPendingSeek",
+    "ui/shortcuts/seek.js#nextSeekStep",
     "ui/toast/index.js#showNotification"
    ],
    "browser": [

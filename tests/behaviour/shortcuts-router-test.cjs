@@ -543,6 +543,21 @@ function fakePlayer(d) {
     );
   }
 
+  // ---- a seek on a colour key: its two codes are one press ---------------------------
+  {
+    const { model, press, toasts } = boot({ shortcut_key_red: 'seek_fwd_15' });
+    press(KEYS.RED);
+    const alt = press(ALT.RED);
+    t('the alternate code of the same press is swallowed', alt.defaultPrevented);
+    await waitFor(() => model.currentTime !== 10, 10000);
+    await wait(50);
+    t(
+      'a colour key bound to a seek seeks once per press',
+      model.currentTime === 25 && !toasts().some((m) => m === 'Seek +30'),
+      model.currentTime + ' / ' + toasts().join(' | ')
+    );
+  }
+
   // ---- the open panel keeps the keys, apart from the menu key -------------------------
   {
     const { page, press, model, panel, d } = boot({ shortcut_key_red: 'none' });

@@ -15,11 +15,25 @@ import { log } from './log.js';
 let chaptersForcedFor = '';
 
 // The burst seek: the total shown in the toast, the part not applied to the
-// video yet, and the toast and its two timers.
+// video yet, the step the next press adds, how many presses the run has had,
+// and the two timers.
 let seekAccumulator = 0;
 let pendingSeekOffset = 0;
+let seekStep = 0;
+let seekPresses = 0;
+// The bound step of the run (10, -15, ...): another seek key starts its doubling over.
+let seekBase = 0;
 let seekResetTimer = null;
 let seekApplyTimer = null;
+
+// The presses of one run that keep the bound step: from the next one on, each
+// press doubles the step, so a 15s seek runs 15, 30, 60, 120, 240 in total.
+const PLAIN_PRESSES = 2;
+// The seek stops this far short of the end, so a long burst does not end the
+// video and start the next one.
+const END_MARGIN_S = 1;
+const SEEK_APPLY_MS = 200;
+const SEEK_RESET_MS = 1200;
 
 /**
  * The chapter markers on the progress bar, empty until the player UI has drawn
@@ -144,36 +158,71 @@ async function doSkipChapter(direction) {
 }
 
 /**
+ * The size of the next press's jump: the bound step for the first two presses
+ * of a run, double the last one from the third on. A held key's repeat keeps
+ * the step it has, so holding a key never runs away to the end of the video.
+ */
+export function nextSeekStep(seconds, presses, lastStep, repeat) {
+  if (presses < PLAIN_PRESSES || lastStep === 0) return seconds;
+  return repeat ? lastStep : lastStep * 2;
+}
+
+/** Moves the video by the part not applied yet, clamped to the video. */
+function applyPendingSeek() {
+  seekApplyTimer = null;
+  if (pendingSeekOffset === 0) return;
+  // Looked up now, not at the press: YouTube can swap the <video> between them.
+  const video = getVideo();
+  if (!video) return;
+  const offset = pendingSeekOffset;
+  pendingSeekOffset = 0;
+  const duration = video.duration;
+  let target = video.currentTime + offset;
+  if (duration > 0 && isFinite(duration)) {
+    target = Math.min(target, Math.max(0, duration - END_MARGIN_S));
+  }
+  video.currentTime = Math.max(0, target);
+}
+
+/**
  * One press of a burst: the toast shows the running total at once, the video
  * is moved by the pending part once the presses pause for 200 ms (a seek per
- * press froze the UI), and a change of direction starts the toast's total
- * over; the part not applied yet still counts. The reset 1.2s later ends
- * only the toast's total: the part not applied yet is the seek timer's, and a
- * stalled event loop may run the two in either order.
+ * press froze the UI), and a change of direction starts the run over (toast
+ * total, press count and step); the part not applied yet still counts. From
+ * the third press of a run the step doubles (nextSeekStep); another seek key
+ * in the same direction adds to the total but starts its own doubling over.
+ * The reset 1.2s
+ * later ends only the run: the part not applied yet is the seek timer's, and
+ * a stalled event loop may run the two in either order.
  */
-export function performBurstSeek(seconds, video) {
+export function performBurstSeek(seconds, repeat = false) {
   if ((seekAccumulator > 0 && seconds < 0) || (seekAccumulator < 0 && seconds > 0)) {
     seekAccumulator = 0;
+    seekPresses = 0;
+    seekStep = 0;
   }
-  seekAccumulator += seconds;
-  pendingSeekOffset += seconds;
+  if (seconds !== seekBase) {
+    seekBase = seconds;
+    seekPresses = 0;
+    seekStep = 0;
+  }
+  seekStep = nextSeekStep(seconds, seekPresses, seekStep, repeat);
+  seekPresses++;
+  seekAccumulator += seekStep;
+  pendingSeekOffset += seekStep;
   if (seekResetTimer) clearTimeout(seekResetTimer);
 
   const directionSymbol = seekAccumulator > 0 ? '+' : '';
-  const msg = `Seek ${directionSymbol}${seekAccumulator}`;
-
-  showNotification(msg, 3000, 'seek');
+  showNotification(`Seek ${directionSymbol}${seekAccumulator}`, 3000, 'seek');
 
   if (seekApplyTimer) clearTimeout(seekApplyTimer);
-  seekApplyTimer = setTimeout(() => {
-    if (pendingSeekOffset !== 0) {
-      video.currentTime += pendingSeekOffset;
-      pendingSeekOffset = 0;
-    }
-  }, 200);
+  seekApplyTimer = setTimeout(applyPendingSeek, SEEK_APPLY_MS);
 
   seekResetTimer = setTimeout(() => {
     seekAccumulator = 0;
+    seekPresses = 0;
+    seekStep = 0;
+    seekBase = 0;
     seekResetTimer = null;
-  }, 1200);
+  }, SEEK_RESET_MS);
 }

@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- **Seek shortcuts speed up when pressed repeatedly**: from the third quick press, each press
+  doubles the jump, so a 15s seek runs 15, 30, 60, 120 and 240 seconds in total. Holding the
+  key keeps the jump steady instead. A burst stops a second short of the end, so it doesn't
+  end the video and start the next one.
+
+### Fixed
+
+- A seek pressed while YouTube is swapping the video player is no longer dropped.
+- A seek bound to a colour button jumps once per press. These buttons send two key codes, and
+  both were counted.
+
 ## [0.4.0] - 2026/11/23
 
 ### Changed

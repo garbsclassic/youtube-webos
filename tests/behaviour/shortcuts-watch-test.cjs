@@ -96,20 +96,67 @@ function boot(cfg, bodyClass, timers) {
     await tick();
     t('three quick presses: the video has not been seeked yet', before === 10, String(before));
     t(
-      'the toast shows the accumulated amount',
-      toasts().some((m) => m === 'Seek +45'),
+      'the toast shows the accumulated amount, the third press doubling the step (15, 15, 30)',
+      toasts().some((m) => m === 'Seek +60'),
       toasts().join(' | ')
     );
-    await waitFor(() => model.currentTime === 55);
+    await waitFor(() => model.currentTime === 70);
     t(
       'one seek of the total lands after the 200 ms buffer (20 here)',
-      model.currentTime === 55,
+      model.currentTime === 70,
       String(model.currentTime)
     );
     press(KEY.seekBack);
-    await waitFor(() => model.currentTime === 40);
+    await waitFor(() => model.currentTime === 55);
     t(
       'a reversed direction resets the accumulator and seeks back',
+      model.currentTime === 55,
+      String(model.currentTime)
+    );
+  }
+  {
+    // Each press from the third doubles the step: 15, 30, 60, 120, 240 in total.
+    const { model, press, toasts } = boot({}, 'WEB_PAGE_TYPE_WATCH');
+    model.duration = 1000;
+    model.currentTime = 0;
+    for (let i = 0; i < 5; i++) press(KEY.seekFwd);
+    const shown = toasts().join(' | ');
+    t(
+      'five quick presses: the toast runs 15, 30, 60, 120, 240',
+      toasts().some((m) => m === 'Seek +240'),
+      shown
+    );
+    await waitFor(() => model.currentTime === 240);
+    t('and the video lands 240s on', model.currentTime === 240, String(model.currentTime));
+  }
+  {
+    // A burst past the end stops a second short of it, so the video does not end.
+    const { model, press } = boot({}, 'WEB_PAGE_TYPE_WATCH');
+    model.currentTime = 80;
+    for (let i = 0; i < 4; i++) press(KEY.seekFwd);
+    await waitFor(() => model.currentTime === 99);
+    t(
+      'a burst past the end lands 1s before it',
+      model.currentTime === 99,
+      String(model.currentTime)
+    );
+    for (let i = 0; i < 4; i++) press(KEY.seekBack);
+    await waitFor(() => model.currentTime === 0);
+    t('and one past the start lands on 0', model.currentTime === 0, String(model.currentTime));
+  }
+  {
+    // A seek pressed while YouTube has no <video> up still counts, and lands on the one there
+    // when the batched seek is applied.
+    const { win, model, press } = boot({}, 'WEB_PAGE_TYPE_WATCH');
+    const video = win.document.querySelector('video');
+    const parent = video.parentNode;
+    video.remove();
+    press(KEY.seekFwd);
+    parent.appendChild(video);
+    press(KEY.seekFwd);
+    await waitFor(() => model.currentTime === 40);
+    t(
+      'a press with no <video> on the page is part of the burst',
       model.currentTime === 40,
       String(model.currentTime)
     );
@@ -160,6 +207,8 @@ function boot(cfg, bodyClass, timers) {
       },
       'WEB_PAGE_TYPE_WATCH'
     );
+    // Long enough that no seek here is held back from the end.
+    model.duration = 300;
     model.currentTime = 50;
     press(DIGIT(8));
     press(DIGIT(8));

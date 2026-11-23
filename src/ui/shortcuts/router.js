@@ -31,6 +31,12 @@ function keyNameOf(evt) {
 const SYNTHETIC_ECHO_MS = 100;
 const syntheticEcho = { key: null, time: 0 };
 
+// A colour button sends two codes for one press (red 403 and 166, blue 406, 167 and 191), a
+// few ms apart. The debounce swallows the second for every action but the seeks, which take
+// rapid presses; for them a different code of the same key this soon is the same press.
+const SAME_PRESS_MS = 50;
+const lastBurst = { key: null, code: 0, time: 0 };
+
 // The Back code that took the OLED overlay down, swallowed until its keyup.
 let heldBack = null;
 const BACK_HOLD_MS = 2000;
@@ -92,6 +98,17 @@ function onKeyDown(evt) {
   // key's repeat: neither reaches YouTube (a held digit would seek the app).
   // The seeks batch their presses, repeats included, themselves.
   const now = Date.now();
+  if (
+    action.burst &&
+    !evt.repeat &&
+    lastBurst.key === keyName &&
+    lastBurst.code !== code &&
+    now - lastBurst.time < SAME_PRESS_MS
+  ) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    return;
+  }
   const repeated =
     !action.burst &&
     (evt.repeat ||
@@ -107,6 +124,11 @@ function onKeyDown(evt) {
     return;
   }
 
+  if (action.burst) {
+    lastBurst.key = keyName;
+    lastBurst.code = code;
+    lastBurst.time = now;
+  }
   shortcutState.debounceMs = 100;
   shortcutState.lastTime = now;
   shortcutState.lastKey = keyName;
@@ -117,8 +139,10 @@ function onKeyDown(evt) {
     action.run();
     return;
   }
+  // A seek counts its press even while YouTube swaps the <video>: it looks the
+  // element up again when the batched seek lands.
   const video = getVideo();
-  if (video) action.run(video);
+  if (video || action.burst) action.run(video, evt);
 }
 
 // On window, not document: YouTube's own key handler sits on window capture and stops the colour

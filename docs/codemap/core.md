@@ -212,7 +212,7 @@ Undoes everything added, newest first.
 
 The page's &lt;video> element, cached while it stays in the document.
 
-- **Called by:** [features/screensaver-fix/index.js › findWatchVideo](features-screensaver-fix.md#fn-index-js-findwatchvideo), [features/sponsorblock/index.js › SponsorBlockHandler.bindOrWaitForVideo](features-sponsorblock.md#fn-index-js-sponsorblockhandler-bindorwaitforvideo), [features/sponsorblock/index.js › SponsorBlockHandler.updateLabels](features-sponsorblock.md#fn-index-js-sponsorblockhandler-updatelabels), [ui/shortcuts/router.js › onKeyDown](ui-shortcuts.md#fn-router-js-onkeydown), [ui/shortcuts/seek.js › doSkipChapter](ui-shortcuts.md#fn-seek-js-doskipchapter)
+- **Called by:** [features/screensaver-fix/index.js › findWatchVideo](features-screensaver-fix.md#fn-index-js-findwatchvideo), [features/sponsorblock/index.js › SponsorBlockHandler.bindOrWaitForVideo](features-sponsorblock.md#fn-index-js-sponsorblockhandler-bindorwaitforvideo), [features/sponsorblock/index.js › SponsorBlockHandler.updateLabels](features-sponsorblock.md#fn-index-js-sponsorblockhandler-updatelabels), [ui/shortcuts/router.js › onKeyDown](ui-shortcuts.md#fn-router-js-onkeydown), [ui/shortcuts/seek.js › applyPendingSeek](ui-shortcuts.md#fn-seek-js-applypendingseek), [ui/shortcuts/seek.js › doSkipChapter](ui-shortcuts.md#fn-seek-js-doskipchapter)
 - **Browser:** `querySelector`
 
 <a id="fn-dom-js-polluntil"></a>
