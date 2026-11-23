@@ -4,7 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.3.0] - Unreleased
+## [0.4.0] - 2026/11/23
+
+### Changed
+
+- Shortcut actions have new names and a new order in the binding menus (for example "Rewind
+  15s", "Next Chapter", "Toggle Black Overlay", "Skip SB Segment / Jump to Highlight").
+  Bindings saved under 0.3.0's names carry over. The 0.3.0 "Fast Forward (Burst)" and
+  "Rewind (Burst)" stepped 5s; they become the 15s seeks.
+- Display Time in UI's Date + Time shows the month by name, in your TV language's order
+  ("Oct 27 12:49 AM", "27 Oct 00:49").
+- New colors and spacing for the settings panel, the menus, the toasts and the clock.
+
+### Fixed
+
+- Settings pages taller than the panel now scroll.
+
+## [0.3.0] - 2026/11/19
 
 Rebuilds the fork on upstream 0.8.5, the modular rewrite with an automated test suite, and
 carries everything upstream shipped in 0.8.2 through 0.8.5 that still applies here, plus the

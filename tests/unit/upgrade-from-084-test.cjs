@@ -6,7 +6,7 @@
  * setting's values: Display Time in UI was a checkbox), the settings added
  * since then read their defaults, and the next write keeps the user's values. Every value the
  * fixture holds for a choice setting is one this build still offers, but the bindings of the
- * actions renamed since: ui/shortcuts/bindings.js resets those to None.
+ * actions renamed since: ui/shortcuts/bindings.js stores those under the new names.
  *
  * Run: node tests/unit/upgrade-from-084-test.cjs
  */
@@ -145,11 +145,16 @@ loadSources([path.join(SRC, 'ui', 'shortcuts', 'bindings.js')], {
   showNotification: () => {},
   log: { warn() {}, debug() {}, info() {} }
 });
-const RESET = new Set(['shortcut_key_3', 'shortcut_key_5', 'shortcut_key_blue']);
-const afterBindings = (k) => (RESET.has(k) ? 'none' : expected(k));
+// The renamed actions are stored again under their new names.
+const RENAMED = {
+  shortcut_key_3: 'toggle_subtitles',
+  shortcut_key_5: 'chapter_skip_next',
+  shortcut_key_blue: 'sb_skip_highlight'
+};
+const afterBindings = (k) => RENAMED[k] || expected(k);
 const rebound = kept.filter((k) => sandbox.configRead(k) !== afterBindings(k));
 t(
-  'the bindings of renamed actions become None, every other setting stays',
+  'the bindings of renamed actions carry over to the new names, every other setting stays',
   rebound.length === 0,
   rebound.map((k) => `${k}=${sandbox.configRead(k)}`).join(', ')
 );

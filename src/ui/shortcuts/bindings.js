@@ -14,14 +14,34 @@ import { log } from './log.js';
 // Shortcut key name -> action name, kept current by the config listeners.
 export const shortcutCache = {};
 
+// The action names 0.3.0 stored, and the action each is now. The burst seek
+// 0.3.0 called seek_15_fwd stepped 5s; it becomes the 15s one.
+const RENAMED_ACTIONS = {
+  chapter_skip: 'chapter_skip_next',
+  oled_toggle: 'toggle_oled',
+  sb_manual_skip: 'sb_skip_highlight',
+  seek_15_back: 'seek_back_15',
+  seek_15_fwd: 'seek_fwd_15',
+  seek_back: 'seek_back_10',
+  seek_back_ex: 'seek_back_30',
+  seek_fwd: 'seek_fwd_10',
+  seek_fwd_ex: 'seek_fwd_30',
+  toggle_subs: 'toggle_subtitles'
+};
+
 /**
- * Reads one binding. An action this build does not have (a binding stored by
- * an older one) becomes None, in the cache and in the config, so the key is the
- * app's again and the panel shows a value it knows; warned once, here.
+ * Reads one binding. A renamed action is stored again under its new name. An
+ * action this build does not have (a binding stored by an older one) becomes
+ * None, in the cache and in the config, so the key is the app's again and the
+ * panel shows a value it knows; warned once, here.
  */
 function updateShortcutCache(key) {
   const configKey = `shortcut_key_${key}`;
-  const action = configRead(configKey);
+  let action = configRead(configKey);
+  if (Object.prototype.hasOwnProperty.call(RENAMED_ACTIONS, action)) {
+    action = RENAMED_ACTIONS[action];
+    configWrite(configKey, action);
+  }
   if (Object.prototype.hasOwnProperty.call(shortcutActions, action)) {
     shortcutCache[key] = action;
     return;

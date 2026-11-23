@@ -132,7 +132,7 @@ How to read it:
 | [ui/panel/pages.js](codemap/ui-panel.md#mod-pages-js) | 190 | 7 | The four pages of the options panel. |
 | [ui/panel/panel.js](codemap/ui-panel.md#mod-panel-js) | 289 | 15 | The options panel: the container and its tab menu, showing and hiding it and keeping focus inside it. |
 | [ui/shortcuts/actions.js](codemap/ui-shortcuts.md#mod-actions-js) | 86 | 6 | What each shortcut does. |
-| [ui/shortcuts/bindings.js](codemap/ui-shortcuts.md#mod-bindings-js) | 63 | 3 | Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions. |
+| [ui/shortcuts/bindings.js](codemap/ui-shortcuts.md#mod-bindings-js) | 83 | 3 | Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions. |
 | [ui/shortcuts/helpers.js](codemap/ui-shortcuts.md#mod-helpers-js) | 52 | 5 | Shared by the shortcut actions: the Back press, the robust click on a YouTube button, and whether an engagement panel (comments, description) is up. |
 | [ui/shortcuts/log.js](codemap/ui-shortcuts.md#mod-log-js) | 4 | 0 | The logger of the shortcut modules: their messages carry [Shortcut] (core/log.js). |
 | [ui/shortcuts/oled.js](codemap/ui-shortcuts.md#mod-oled-js) | 37 | 2 | The OLED black overlay, with a keep-alive so the TV does not sleep under it. |

@@ -67,7 +67,7 @@ Skips the segment SponsorBlock is offering, or jumps to the highlight.
 
 > Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions.
 
-63 lines · imports [core/config.js](core.md#mod-config-js), [core/config-options.js](core.md#mod-config-options-js), [core/remote.js](core.md#mod-remote-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/index.js](ui.md#mod-index-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/router.js](#mod-router-js)
+83 lines · imports [core/config.js](core.md#mod-config-js), [core/config-options.js](core.md#mod-config-options-js), [core/remote.js](core.md#mod-remote-js), [ui/toast/index.js](ui-toast.md#mod-index-js), [ui/shortcuts/log.js](#mod-log-js) · imported by [ui/index.js](ui.md#mod-index-js), [ui/panel/panel.js](ui-panel.md#mod-panel-js), [ui/shortcuts/playback.js](#mod-playback-js), [ui/shortcuts/router.js](#mod-router-js)
 
 **At load:**
 
@@ -75,16 +75,16 @@ Skips the segment SponsorBlock is offering, or jumps to the highlight.
 - **Settings:** listens to `shortcut_key_*`
 
 <a id="fn-bindings-js-updateshortcutcache"></a>
-**`updateShortcutCache(key)`** · function · L22–32
+**`updateShortcutCache(key)`** · function · L38–52
 
-Reads one binding. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.
+Reads one binding. A renamed action is stored again under its new name. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.
 
 - **Calls:** [core/config.js › configRead](core.md#fn-config-js-configread), [core/config.js › configWrite](core.md#fn-config-js-configwrite)
 - **Called by:** [at load](#mod-bindings-js)
 - **Settings:** uses `shortcut_key_*`
 
 <a id="fn-bindings-js-ensuremenukey"></a>
-**`ensureMenuKey(announce)`** · function, exported · L45–52
+**`ensureMenuKey(announce)`** · function, exported · L65–72
 
 The settings must stay reachable: with no key bound to the menu, Green is bound to it again, said with `announce`. The key that opens the menu, and whether Green was just bound to it. Run at the start and whenever the panel closes (a binding changed on it may have unbound the menu).
 
@@ -93,7 +93,7 @@ The settings must stay reachable: with no key bound to the menu, Green is bound 
 - **Settings:** writes `shortcut_key_green`
 
 <a id="fn-bindings-js-getkeycolor"></a>
-**`getKeyColor(code)`** · arrow, exported · L55–55
+**`getKeyColor(code)`** · arrow, exported · L75–75
 
 Colour-key code to name, alternates included, from REMOTE_KEYS in core/remote.js.
 

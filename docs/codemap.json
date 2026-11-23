@@ -5472,7 +5472,7 @@
   },
   {
    "path": "ui/shortcuts/bindings.js",
-   "lines": 63,
+   "lines": 83,
    "header": "Which remote key runs which shortcut: the configurable bindings, the colour-key lookup and the debounce state shared with the actions.",
    "imports": [
     {
@@ -19283,10 +19283,10 @@
    "params": "key",
    "exported": false,
    "lines": [
-    22,
-    32
+    38,
+    52
    ],
-   "description": "Reads one binding. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.",
+   "description": "Reads one binding. A renamed action is stored again under its new name. An action this build does not have (a binding stored by an older one) becomes None, in the cache and in the config, so the key is the app's again and the panel shows a value it knows; warned once, here.",
    "calls": [
     "core/config.js#configRead",
     "core/config.js#configWrite"
@@ -19307,8 +19307,8 @@
    "params": "announce",
    "exported": true,
    "lines": [
-    45,
-    52
+    65,
+    72
    ],
    "description": "The settings must stay reachable: with no key bound to the menu, Green is bound to it again, said with `announce`. The key that opens the menu, and whether Green was just bound to it. Run at the start and whenever the panel closes (a binding changed on it may have unbound the menu).",
    "calls": [
@@ -19332,8 +19332,8 @@
    "params": "code",
    "exported": true,
    "lines": [
-    55,
-    55
+    75,
+    75
    ],
    "description": "Colour-key code to name, alternates included, from REMOTE_KEYS in core/remote.js.",
    "calledBy": [

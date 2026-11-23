@@ -93,4 +93,34 @@ eq(
   eq('with one warning', warns.length, 1);
 }
 
+{
+  // Bindings stored by 0.3.0 under its action names carry over to the new names.
+  const { cache, store, warns } = load({
+    shortcut_key_red: 'oled_toggle',
+    shortcut_key_blue: 'sb_manual_skip',
+    shortcut_key_1: 'seek_fwd',
+    shortcut_key_2: 'seek_back_ex',
+    shortcut_key_3: 'seek_15_fwd',
+    shortcut_key_4: 'toggle_subs',
+    shortcut_key_5: 'chapter_skip'
+  });
+  const keys = ['red', 'blue', '1', '2', '3', '4', '5'];
+  eq(
+    '0.3.0 action names map to the renamed actions, in the cache and in the config',
+    JSON.stringify(keys.map((k) => [cache[k], store[`shortcut_key_${k}`]])),
+    JSON.stringify(
+      [
+        'toggle_oled',
+        'sb_skip_highlight',
+        'seek_fwd_10',
+        'seek_back_30',
+        'seek_fwd_15',
+        'toggle_subtitles',
+        'chapter_skip_next'
+      ].map((a) => [a, a])
+    )
+  );
+  eq('and none of them is warned about as unknown', warns.length, 0);
+}
+
 report.finish();
